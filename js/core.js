@@ -28,13 +28,15 @@ Core.prototype.init = function() {
 
   createMenu();
 
-  welcome = new Welcome();
+  //welcome = new Welcome();
 
   $( document ).tooltip({
-    disabled : false,
+    disabled : true,
     show: { delay: 3000 },
     hide: 1000
   });
+
+  createView("Network", "graph").loadData("th17", "BATF");
 };
 // examples
 /*

@@ -201,6 +201,7 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
 
 ViewManager.prototype.getViewSize = function(type){
 	var width, height;
+	/*
 	if (type==="graph" || type==="heatmap") {
 		width = (($('body').innerWidth() - $("#view"+getView("GENOTET").viewid).outerWidth())>>1) - 2;
 	}else if (type==="histogram") {
@@ -215,17 +216,21 @@ ViewManager.prototype.getViewSize = function(type){
 	} else {
 		height = this.defaultHeight[type];
 	}
-	return {"width": width, "height": height};
+	*/
+	return {
+    width: "100%",
+    height: "100%"
+  };
 };
 
 ViewManager.prototype.getViewPlace = function(width, height, type){	// find a place to put the view
-	if(type=="menu") {
+	//if(type=="menu") {
     return {
       success: true,
       left: 0, //$('body').innerWidth() - width - this.menuMarginRight,
       top: 0
     };
-	}
+	//}
 	// brute force, NOT clever!!
 	var bodywidth = $('body').innerWidth();
 	for(var j=0; ; j++){	// j+height<=window.innerHeight

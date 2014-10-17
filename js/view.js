@@ -9,13 +9,13 @@ function View(type, viewname, viewid, width, height, left, top){
 
 	this.compactLayout = false;
 	this.showHeader = true;
-	this.width = width;
-	this.height = height;
 
-  if (this.type !== "menu")
-    this.view = d3.select(".ui-layout-center").append("div");
-  else
+  if (this.type === "menu")
     this.view = d3.select(".ui-layout-west").append("div");
+  else if (this.type === "table")
+    this.view = d3.select(".ui-layout-east").append("div");
+  else
+    this.view = d3.select(".ui-layout-center").append("div");
 
   this.view
   	.attr("id", "view"+viewid)
@@ -25,6 +25,9 @@ function View(type, viewname, viewid, width, height, left, top){
   	.style("left", left==null?"8px":left+"px")
   	.style("top", top==null?"8px":top+"px");
 
+
+  this.width = $("#view"+viewid).width();
+  this.height = $("#view"+viewid).height();
 
   d3.select("#view"+viewid).append("h3")
   	.attr("id", "viewheader"+viewid)
@@ -71,6 +74,8 @@ function View(type, viewname, viewid, width, height, left, top){
         });
       }
     });
+
+    /*
     $("#view" + this.viewid).resizable({
       grid : 10,
       handles : " n, e, s, w, ne, se, sw, nw",
@@ -82,6 +87,8 @@ function View(type, viewname, viewid, width, height, left, top){
         manager.groupResize(view.groupid, view.viewid, wratio, hratio);
       }
     });
+    */
+
     $("#view" + this.viewid + " h3:first").append("<button id='closeButton' style='float:right; height:16px; width:16px'></button>");
     $("#view" + this.viewid + " h3:first").append("<button id='miniButton' style='margin-right:2px; float:right; height:16px; width:16px' title='Minimize view, show/hide UI bar'></button>");
     $("#view" + this.viewid + " h3:first").append("<button id='helpButton' style='margin-right:2px; float:right; height:16px; width:16px' title='View the help document of this view'></button>");
@@ -163,6 +170,7 @@ function View(type, viewname, viewid, width, height, left, top){
     });
     manager.increaseZindex();
   }
+
 }
 
 View.prototype.help = function(type){

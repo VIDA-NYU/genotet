@@ -1,6 +1,6 @@
 function Options(){
 	this.silent = false;
-	this.hint = true;
+	this.hint = false;
 	this.debug = true;
 }
 

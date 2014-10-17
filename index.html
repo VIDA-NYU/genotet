@@ -19,7 +19,7 @@
 
   <!-- genotet css -->
   <link type="text/css" rel="stylesheet" href="css/style.css" />
-  <link type="text/css" rel="stylesheet" href="css/jqueryfix.css" />
+  <link type="text/css" rel="stylesheet" href="css/jquery-override.css" />
 
   <!-- genotet js -->
   <script type="text/javascript" src="js/loaders/loaderGraph.js"></script>
@@ -36,7 +36,7 @@
   <script type="text/javascript" src="js/view.js"></script>
   <script type="text/javascript" src="js/welcome.js"></script>
   <script type="text/javascript" src="js/dialog.js"></script>
-  <script type="text/javascript" src="js/interface.js"></script>
+  <script type="text/javascript" src="js/options.js"></script>
   <script type="text/javascript" src="js/interfaceWrapper.js"></script>
   <script type="text/javascript" src="js/utils.js"></script>
   <script type="text/javascript" src="js/core.js"></script>
@@ -44,13 +44,20 @@
   <script>
     $(document).ready(function () {
         core = new Core();
-        $('body').layout({
-          applyDefaultStyles: true,
-          spacing_closed: 5,
-          spacing_open: 5,
-          west__resizable: false,
+        $("body").layout({
+          applyDefaultStyles: false,
+          spacing_closed: 3,
+          spacing_open: 3,
           west__maxSize: 200,
+          west__resizable: false,
+          west__resizerCursor: "auto",
+          west__resizerClass: "menu-layout-resizer"
           //showOverflowOnHover: true,
+        });
+        $("#auxpane").layout({
+          applyDefaultStyles: false,
+          spacing_closed: 3,
+          spacing_open: 3
         });
         // disable menu scrolling
         $(".ui-layout-west").css("overflow", "hidden");
@@ -58,11 +65,22 @@
   </script>
 
 </head>
-<body > <!-- oncontextmenu="return false;" -->
+<body> <!-- oncontextmenu="return false;" -->
 
 
   <div class="ui-layout-west"> </div>
-  <div class="ui-layout-center"> </div>
+  <div id="mainpane" class="ui-layout-center ui-layout-container">
+    <!--
+    <div id="testlayout" style="width:50px; 50px;">
+      <div class="ui-layout-west"> west </div>
+      <div class="ui-layout-center"> hello </div>
+    </div>
+    -->
+  </div>
+  <div id="auxpane" class="ui-layout-east ui-layout-container">
+    <div class="ui-layout-north"> ui panel </div>
+    <div class="ui-layout-center"> aux list </div>
+  </div>
 
 </script>
 </body>
