@@ -5,6 +5,8 @@ var addr = "jsonp.php";
 var utils;
 // view manager
 var manager;
+// layout manager
+var layoutManager;
 // timer
 var layoutTimer, timerLayout, viewTimer, timerView;
 // user interface
@@ -25,6 +27,7 @@ Core.prototype.init = function() {
   manager = new ViewManager();
   options = new Options();
   dialog = new Dialog();
+  layoutManager = new LayoutManager();
 
   createMenu();
 

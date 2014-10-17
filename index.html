@@ -22,45 +22,30 @@
   <link type="text/css" rel="stylesheet" href="css/jquery-override.css" />
 
   <!-- genotet js -->
-  <script type="text/javascript" src="js/loaders/loaderGraph.js"></script>
-  <script type="text/javascript" src="js/loaders/loaderHistogram.js"></script>
-  <script type="text/javascript" src="js/loaders/loaderMenu.js"></script>
-  <script type="text/javascript" src="js/loaders/loaderHeatmap.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutGraph.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutHistogram.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutMenu.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutHeatmap.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutTable.js"></script>
+  <script type="text/javascript" src="js/layout/layout-manager.js"></script>
+  <script type="text/javascript" src="js/loaders/graph-loader.js"></script>
+  <script type="text/javascript" src="js/loaders/histogram-loader.js"></script>
+  <script type="text/javascript" src="js/loaders/menu-loader.js"></script>
+  <script type="text/javascript" src="js/loaders/heatmap-loader.js"></script>
+  <script type="text/javascript" src="js/renderers/graph-renderer.js"></script>
+  <script type="text/javascript" src="js/renderers/histogram-renderer.js"></script>
+  <script type="text/javascript" src="js/renderers/menu-renderer.js"></script>
+  <script type="text/javascript" src="js/renderers/heatmap-renderer.js"></script>
+  <script type="text/javascript" src="js/renderers/table-renderer.js"></script>
 
-  <script type="text/javascript" src="js/viewManager.js"></script>
+  <script type="text/javascript" src="js/view-manager.js"></script>
   <script type="text/javascript" src="js/view.js"></script>
   <script type="text/javascript" src="js/welcome.js"></script>
   <script type="text/javascript" src="js/dialog.js"></script>
   <script type="text/javascript" src="js/options.js"></script>
-  <script type="text/javascript" src="js/interfaceWrapper.js"></script>
+  <script type="text/javascript" src="js/interface-wrapper.js"></script>
   <script type="text/javascript" src="js/utils.js"></script>
   <script type="text/javascript" src="js/core.js"></script>
 
   <script>
     $(document).ready(function () {
         core = new Core();
-        $("body").layout({
-          applyDefaultStyles: false,
-          spacing_closed: 3,
-          spacing_open: 3,
-          west__maxSize: 200,
-          west__resizable: false,
-          west__resizerCursor: "auto",
-          west__resizerClass: "menu-layout-resizer"
-          //showOverflowOnHover: true,
-        });
-        $("#auxpane").layout({
-          applyDefaultStyles: false,
-          spacing_closed: 3,
-          spacing_open: 3
-        });
-        // disable menu scrolling
-        $(".ui-layout-west").css("overflow", "hidden");
+
     });
   </script>
 
