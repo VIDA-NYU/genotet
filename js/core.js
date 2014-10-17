@@ -1,22 +1,41 @@
 // request json data file via http & jsonp
 var addr = "jsonp.php";
 
-var utils = new Utils();
+// utils functions
+var utils;
 // view manager
-var manager = new ViewManager();
-
+var manager;
 // timer
 var layoutTimer, timerLayout, viewTimer, timerView;
-
 // user interface
-var options = new Options();
+var options;
 // pop up dialog
-var dialog = new Dialog();
+var dialog;
+// welcome window
+var welcome;
+// system core
+var core;
 
-createMenu();
+function Core(){
+  this.init();
+}
 
-var welcome = new Welcome();
+Core.prototype.init = function() {
+  utils = new Utils();
+  manager = new ViewManager();
+  options = new Options();
+  dialog = new Dialog();
 
+  createMenu();
+
+  welcome = new Welcome();
+
+  $( document ).tooltip({
+    disabled : false,
+    show: { delay: 3000 },
+    hide: 1000
+  });
+};
 // examples
 /*
 createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
@@ -28,9 +47,5 @@ linkView("Network", "Binding");
 groupView("Binding", "Binding2");
 */
 
-$( document ).tooltip({
-	disabled : false,
-	show: { delay: 3000 },
-	hide: 1000
-});
+
 

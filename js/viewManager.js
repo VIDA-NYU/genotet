@@ -126,10 +126,10 @@ ViewManager.prototype.createMenu = function(){
 
 ViewManager.prototype.createView = function(viewname, type, width, height, left, top){
 
-    if(this.supportedTypes.indexOf(type)==-1){
+  if(this.supportedTypes.indexOf(type)==-1){
 		console.error("There is no view type named " + type);
 		return null;
-    }
+  }
 	if(viewname==""){
 		console.error("Cannot create view: Viewname cannot be empty");
 		user.alert("Cannot create view: Viewname cannot be empty");
@@ -138,13 +138,13 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
   for(var i=0; i<this.views.length; i++){
 	    if(this.views[i].viewname==viewname){
 		    console.error("Cannot create view: viewname must unique");
-			user.alert("Cannot create view: viewname must unique");
+			 user.alert("Cannot create view: viewname must unique");
 		    return null;
 	    }
     }
     var availableIds = new Array();
     for(var i=0; i<this.views.length; i++){
-		availableIds[this.views[i].viewid] = true;
+		  availableIds[this.views[i].viewid] = true;
     }
     var viewid;
     for(var i=0; ; i++){
@@ -196,7 +196,13 @@ ViewManager.prototype.getViewSize = function(type){
 };
 
 ViewManager.prototype.getViewPlace = function(width, height, type){	// find a place to put the view
-	if(type=="menu") return {"success":true, "left": $('body').innerWidth()-width-this.menuMarginRight, "top": 0};
+	if(type=="menu") {
+    return {
+      success: true,
+      left: $('body').innerWidth() - width - this.menuMarginRight,
+      top: 0
+    };
+	}
 	// brute force, NOT clever!!
 	var bodywidth = $('body').innerWidth();
 	for(var j=0; ; j++){	// j+height<=window.innerHeight

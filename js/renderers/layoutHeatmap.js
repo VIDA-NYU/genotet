@@ -476,11 +476,11 @@ LayoutHeatmap.prototype.uiUpdate = function(type){
 
 LayoutHeatmap.prototype.filterRegexp = function(exp){
 	return exp
-	 .replace(/" ++/g, "" +" ++")
-	 .replace(/" +./g, "" +" +.")
-	 .replace(/" +(/g, "" +" +(")
-	 .replace(/" +)/g, "" +" +)");	// replace special chars
-};
+	  .replace(/\+/g, "\\+")
+	  .replace(/\./g, "\\.")
+	  .replace(/\(/g, "\\(")
+	  .replace(/\)/g, "\\)");	// replace special chars
+}
 
 LayoutHeatmap.prototype.toggleAutoScale = function(){
 	this.autoScale = !this.autoScale;

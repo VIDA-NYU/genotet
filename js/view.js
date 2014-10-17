@@ -12,7 +12,10 @@ function View(type, viewname, viewid, width, height, left, top){
 	this.width = width;
 	this.height = height;
 
-  this.view = d3.select("body").append("div")
+
+  this.view = d3.select("body").append("div");
+
+  this.view
   	.attr("id", "view"+viewid)
   	.attr("class", "ui-widget-content view")
   	.style("width", width+"px")
@@ -35,95 +38,132 @@ function View(type, viewname, viewid, width, height, left, top){
 	this.layout.parentView = this;
 	this.loader.parentView = this;
 
-	$("#view"+this.viewid).addClass("viewshadow");
-    $("#view"+this.viewid).draggable({
-		snap: true,
-		handle: "h3.ui-widget-header",
-		start: function(event, ui){
-			view.startPos = ui.position;
-		},
-		drag: function(event, ui){
-		  var top = ui.position.top - view.startPos.top,
-		      left = ui.position.left - view.startPos.left;
-		  //top = Math.ceil(top);
-		  //left = Math.ceil(left);
-			manager.groupMove(view.groupid, view.viewid, {"top": top, "left": left});
-			view.startPos = ui.position;
-		},
-		stop: function(event, ui){
-		  var top = ui.position.top - view.startPos.top,
-		      left = ui.position.left - view.startPos.left;
-		  //top = Math.ceil(top);
-		  //left = Math.ceil(left);
-			manager.groupMove(view.groupid, view.viewid, {"top": top, "left": left});
-		}
-	});
-	$("#view"+this.viewid).resizable({
-		grid: 10,
-		handles: " n, e, s, w, ne, se, sw, nw",
-		resize: function(event, ui){
-			layout.resizeLayout([Math.ceil(ui.size.width), Math.ceil(ui.size.height)]);
-		},
-		stop: function(event, ui){
-			var wratio = ui.size.width/ui.originalSize.width,
-				hratio = ui.size.height/ui.originalSize.height;
-			manager.groupResize(view.groupid, view.viewid, wratio, hratio);
-		}
-	});
 	$("#view"+this.viewid+" .ui-icon-gripsmall-diagonal-se")
 	  .removeClass("ui-icon-gripsmall-diagonal-se ui-icon"); // hide the handle!
-	$("#view"+this.viewid+" h3:first")
-	  .append("<button id='closeButton' style='float:right; height:16px; width:16px'></button>");
-	$("#view"+this.viewid+" h3:first")
-	  .append("<button id='miniButton' style='margin-right:2px; float:right; height:16px; width:16px' title='Minimize view, show/hide UI bar'></button>");
-	$("#view"+this.viewid+" h3:first")
-	  .append("<button id='helpButton' style='margin-right:2px; float:right; height:16px; width:16px' title='View the help document of this view'></button>");
-	if(type!="menu"){
-		$("#view"+this.viewid+" h3:first").append("<button id='postButton' style='margin-right:2px; float:left; height:16px; width:16px' title='Hover: highlight listeners; Click: add listener; RightClick: remove all listeners'></button>");
-		$("#view"+this.viewid+" h3:first").append("<button id='getButton' style='margin-right:2px; float:left; height:16px; width:16px' title='Hover: highlight listening view; Click: add listening view; RightClick: remove listening view'></button>");
-		$("#view"+this.viewid+" h3:first").append("<button id='groupButton' style='margin-right:2px; float:left; height:16px; width:16px' title='Hover: highlight view group; Click: edit group; RightClick: quit the current group'></button>");
-	}
 
-	$("#view"+this.viewid+" #postButton").button({
-		icons: { primary: "ui-icon-signal-diag"},
-		text: false })
-		.mouseover( function(){ view.highlightChildren(); } )
-		.mouseleave( function(){ view.unhighlightChildren(); } )
-		.mousedown( function(e){ view.postEdit(e); } );
-	$("#view"+this.viewid+" #groupButton").button({
-		icons:{ primary: "ui-icon-newwin"},
-		text: false})
-		.mouseover( function(){ manager.highlightGroup(view.groupid); })
-		.mouseleave( function(){ manager.unhighlightGroup(view.groupid); })
-		.mousedown( function(e){ view.groupEdit(e); });
-	$("#view"+this.viewid+" #getButton").button({
-		icons: { primary: "ui-icon-signal"},
-		text: false })
-		.mouseover( function(){ view.highlightParent(); } )
-		.mouseleave( function(){ view.unhighlightParent(); } )
-		.mousedown( function(e){ view.getEdit(e); } );
-	$("#view"+this.viewid+" #helpButton").button({
-		icons: { primary: "ui-icon-help"},
-		text: false
-	}).click( function(){ view.help(view.type); });
-	$("#view"+this.viewid+" #miniButton").button({
-		icons: { primary: "ui-icon-minus"},
-		text: false
-	}).click( function(){ view.toggleCompactLayout(); });
-	$("#view"+this.viewid+" #closeButton").button({
-		icons: { primary: "ui-icon-close"},
-		text: false
-	}).click( function(){ closeView(view.viewname); });
+  if (this.type !== "menu") {
+    $("#view" + this.viewid).addClass("viewshadow");
+    $("#view" + this.viewid).draggable({
+      snap : true,
+      handle : "h3.ui-widget-header",
+      start : function(event, ui) {
+        view.startPos = ui.position;
+      },
+      drag : function(event, ui) {
+        var top = ui.position.top - view.startPos.top, left = ui.position.left - view.startPos.left;
+        //top = Math.ceil(top);
+        //left = Math.ceil(left);
+        manager.groupMove(view.groupid, view.viewid, {
+          top : top,
+          left : left
+        });
+        view.startPos = ui.position;
+      },
+      stop : function(event, ui) {
+        var top = ui.position.top - view.startPos.top, left = ui.position.left - view.startPos.left;
+        //top = Math.ceil(top);
+        //left = Math.ceil(left);
+        manager.groupMove(view.groupid, view.viewid, {
+          "top" : top,
+          "left" : left
+        });
+      }
+    });
+    $("#view" + this.viewid).resizable({
+      grid : 10,
+      handles : " n, e, s, w, ne, se, sw, nw",
+      resize : function(event, ui) {
+        layout.resizeLayout([Math.ceil(ui.size.width), Math.ceil(ui.size.height)]);
+      },
+      stop : function(event, ui) {
+        var wratio = ui.size.width / ui.originalSize.width, hratio = ui.size.height / ui.originalSize.height;
+        manager.groupResize(view.groupid, view.viewid, wratio, hratio);
+      }
+    });
+    $("#view" + this.viewid + " h3:first").append("<button id='closeButton' style='float:right; height:16px; width:16px'></button>");
+    $("#view" + this.viewid + " h3:first").append("<button id='miniButton' style='margin-right:2px; float:right; height:16px; width:16px' title='Minimize view, show/hide UI bar'></button>");
+    $("#view" + this.viewid + " h3:first").append("<button id='helpButton' style='margin-right:2px; float:right; height:16px; width:16px' title='View the help document of this view'></button>");
+    if (type != "menu") {
+      $("#view" + this.viewid + " h3:first").append("<button id='postButton' style='margin-right:2px; float:left; height:16px; width:16px' title='Hover: highlight listeners; Click: add listener; RightClick: remove all listeners'></button>");
+      $("#view" + this.viewid + " h3:first").append("<button id='getButton' style='margin-right:2px; float:left; height:16px; width:16px' title='Hover: highlight listening view; Click: add listening view; RightClick: remove listening view'></button>");
+      $("#view" + this.viewid + " h3:first").append("<button id='groupButton' style='margin-right:2px; float:left; height:16px; width:16px' title='Hover: highlight view group; Click: edit group; RightClick: quit the current group'></button>");
+    }
 
-	$("#view"+this.viewid)
-	.mousedown( function(){ manager.setTopView(view.groupid, view.viewid); })
-	.dblclick( function(){ view.toggleViewheader(); } );
-	$("#view"+this.viewid).css({"min-width": 100, "z-index": manager.maxZindex});
-	manager.increaseZindex();
+    $("#view" + this.viewid + " #postButton").button({
+      icons : {
+        primary : "ui-icon-signal-diag"
+      },
+      text : false
+    }).mouseover(function() {
+      view.highlightChildren();
+    }).mouseleave(function() {
+      view.unhighlightChildren();
+    }).mousedown(function(e) {
+      view.postEdit(e);
+    });
+    $("#view" + this.viewid + " #groupButton").button({
+      icons : {
+        primary : "ui-icon-newwin"
+      },
+      text : false
+    }).mouseover(function() {
+      manager.highlightGroup(view.groupid);
+    }).mouseleave(function() {
+      manager.unhighlightGroup(view.groupid);
+    }).mousedown(function(e) {
+      view.groupEdit(e);
+    });
+    $("#view" + this.viewid + " #getButton").button({
+      icons : {
+        primary : "ui-icon-signal"
+      },
+      text : false
+    }).mouseover(function() {
+      view.highlightParent();
+    }).mouseleave(function() {
+      view.unhighlightParent();
+    }).mousedown(function(e) {
+      view.getEdit(e);
+    });
+    $("#view" + this.viewid + " #helpButton").button({
+      icons : {
+        primary : "ui-icon-help"
+      },
+      text : false
+    }).click(function() {
+      view.help(view.type);
+    });
+    $("#view" + this.viewid + " #miniButton").button({
+      icons : {
+        primary : "ui-icon-minus"
+      },
+      text : false
+    }).click(function() {
+      view.toggleCompactLayout();
+    });
+    $("#view" + this.viewid + " #closeButton").button({
+      icons : {
+        primary : "ui-icon-close"
+      },
+      text : false
+    }).click(function() {
+      closeView(view.viewname);
+    });
+
+    $("#view" + this.viewid).mousedown(function() {
+      manager.setTopView(view.groupid, view.viewid);
+    }).dblclick(function() {
+      view.toggleViewheader();
+    });
+    $("#view" + this.viewid).css({
+      "min-width" : 100,
+      "z-index" : manager.maxZindex
+    });
+    manager.increaseZindex();
+  }
 }
 
 View.prototype.help = function(type){
-	console.log(type);
 	window.open('help.html#'+type);
 };
 
