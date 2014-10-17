@@ -7,10 +7,35 @@ function ViewManager(){
 	this.menuMarginRight = 0;
 
   this.supportedTypes = ["menu", "graph", "histogram", "heatmap", "table"];
-	this.defaultWidth  = {"menu":170, "graph":600, "histogram":800, "heatmap":640, "table":530};
-	this.defaultHeight = {"menu":window.innerHeight, "graph":340, "histogram":250, "heatmap":340, "table":340};
-	this.compactWidth = {"histogram": 800, "menu":170, "graph":600, "heatmap": 640, "table": 300};
-	this.compactHeight = {"histogram": 160, "menu":20, "graph":290, "heatmap": 290, "table": 315};
+  this.defaultWidth = {
+    menu: "100%",
+    graph: 600,
+    histogram: 800,
+    heatmap: 640,
+    table: 530
+  };
+  this.defaultHeight = {
+    menu: "100%",
+    graph: 340,
+    histogram: 250,
+    heatmap: 340,
+    table: 340
+  };
+  this.compactWidth = {
+    histogram: 800,
+    menu: 170,
+    graph: 600,
+    heatmap: 640,
+    table: 300
+  };
+  this.compactHeight = {
+    histogram: 160,
+    menu: 20,
+    graph: 290,
+    heatmap: 290,
+    table: 315
+  };
+
 
 	this.bindingNames = ["BATF","IRF4","MAF","RORC","STAT3","Hif1a","Etv6","Jmjd3","BATF-Th0","BATF-Th17","cMaf-Th0","cMaf-Th17","Fosl2-Th0","Fosl2-Th17","IRF4-Th0","IRF4-Th17","p300-Th0","p300-Th17",
 	"RORg-Th0","RORg-Th17","STAT3-Th0","STAT3-Th17","RNA-Seq-1h","RNA-Seq-3h","RNA-Seq-6h","RNA-Seq-9h","RNA-Seq-16h","RNA-Seq-24h","RNA-Seq-48h","FAIRE-Seq-IRF4+","FAIRE-Seq-IRF4-",
@@ -176,20 +201,18 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
 
 ViewManager.prototype.getViewSize = function(type){
 	var width, height;
-	if (type=="graph" || type=="heatmap") {
+	if (type==="graph" || type==="heatmap") {
 		width = (($('body').innerWidth() - $("#view"+getView("GENOTET").viewid).outerWidth())>>1) - 2;
-	}else if (type=="histogram") {
+	}else if (type==="histogram") {
 		width = ($('body').innerWidth() - $("#view"+getView("GENOTET").viewid).outerWidth()) - 2;
 	}else{
 		width = this.defaultWidth[type];
 	}
-	if(type=="graph" || type=="heatmap"){
+	if (type==="graph" || type==="heatmap") {
 		height = $(document).height()/2;
-	}else if (type=="histogram") {
+	} else if (type=="histogram") {
 		height = $(document).height()/3;
-	}else if (type=="menu") {
-		height = $(document).height();
-	} else{
+	} else {
 		height = this.defaultHeight[type];
 	}
 	return {"width": width, "height": height};
@@ -199,7 +222,7 @@ ViewManager.prototype.getViewPlace = function(width, height, type){	// find a pl
 	if(type=="menu") {
     return {
       success: true,
-      left: $('body').innerWidth() - width - this.menuMarginRight,
+      left: 0, //$('body').innerWidth() - width - this.menuMarginRight,
       top: 0
     };
 	}

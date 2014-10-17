@@ -12,14 +12,16 @@ function View(type, viewname, viewid, width, height, left, top){
 	this.width = width;
 	this.height = height;
 
-
-  this.view = d3.select("body").append("div");
+  if (this.type !== "menu")
+    this.view = d3.select(".ui-layout-center").append("div");
+  else
+    this.view = d3.select(".ui-layout-west").append("div");
 
   this.view
   	.attr("id", "view"+viewid)
   	.attr("class", "ui-widget-content view")
-  	.style("width", width+"px")
-    .style("height", height+"px")
+  	.style("width", width)
+    .style("height", height)
   	.style("left", left==null?"8px":left+"px")
   	.style("top", top==null?"8px":top+"px");
 
@@ -337,11 +339,18 @@ View.prototype.toggleCompactLayout = function(){
 		//width = Math.min(manager.compactWidth[this.type], width);
 		height = Math.min(manager.compactHeight[this.type], height);
 		this.layout.resizeLayout([width, height]);
-		$("#view"+this.viewid).css({"width": width, "height": height});
+		$("#view"+this.viewid).css({
+		  width: width,
+		  height: height
+		});
 	}else{
 		var width = $("#view"+this.viewid).width(), height = $("#view"+this.viewid).height();
 		this.layout.resizeLayout([this.width, this.lastHeight]);
-		$("#view"+this.viewid).css({"width": this.width, "height": this.lastHeight});
+    $("#view" + this.viewid).css({
+      width: this.width,
+      height: this.lastHeight
+    });
+
 	}
 	this.layout.setCompact(this.compactLayout);
 };

@@ -10,12 +10,16 @@
   <script type="text/javascript" src="libraries/d3/d3.min.js"></script>
   <script type="text/javascript" src="libraries/jquery/jquery-1.11.1.min.js"></script>
   <!-- jquery and jquery.ui -->
-  <script type="text/javascript" src="libraries/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="libraries/jquery-ui-1.11.1.custom/jquery-ui.min.css" />
-  <link rel="stylesheet" href="libraries/jquery-ui-1.11.1.custom/jquery-ui.theme.min.css" />
+  <script type="text/javascript" src="libraries/jquery-ui-1.11.2.custom/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="libraries/jquery-ui-1.11.2.custom/jquery-ui.min.css" />
+  <link rel="stylesheet" href="libraries/jquery-ui-1.11.2.custom/jquery-ui.theme.min.css" />
+  <!-- jquery.layout -->
+  <script type="text/javascript" src="libraries/jquery.layout/jquery.layout-latest.js"></script>
+  <link rel="stylesheet" href="libraries/jquery.layout/layout-default-latest.css" />
 
   <!-- genotet css -->
   <link type="text/css" rel="stylesheet" href="css/style.css" />
+  <link type="text/css" rel="stylesheet" href="css/jqueryfix.css" />
 
   <!-- genotet js -->
   <script type="text/javascript" src="js/loaders/loaderGraph.js"></script>
@@ -40,12 +44,25 @@
   <script>
     $(document).ready(function () {
         core = new Core();
+        $('body').layout({
+          applyDefaultStyles: true,
+          spacing_closed: 5,
+          spacing_open: 5,
+          west__resizable: false,
+          west__maxSize: 200,
+          //showOverflowOnHover: true,
+        });
+        // disable menu scrolling
+        $(".ui-layout-west").css("overflow", "hidden");
     });
   </script>
 
 </head>
 <body > <!-- oncontextmenu="return false;" -->
 
+
+  <div class="ui-layout-west"> </div>
+  <div class="ui-layout-center"> </div>
 
 </script>
 </body>

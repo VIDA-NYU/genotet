@@ -1,7 +1,18 @@
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+
+text, h3, .hint, .view, .exonname, .label,
+.trackhint, .coordlabel, .graphinfo, .legend, .condtext,
+.xlabel {
+  font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
+}
+
 h3 {
   height: 17px;
   font-size: 14px;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
+
   text-align: center;
   margin: 0;
 }
@@ -9,14 +20,12 @@ h3 {
 text {
   font-size: 12px;
   color: black;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
 }
 
 .hint {
   display: table-cell;
   font-size: 15px;
   color: #F0F0F0;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
   text-align: center;
   background-color: rgba(0,0,0,0.25);
   vertical-align: middle;
@@ -24,7 +33,6 @@ text {
 
 .view {
   font-size: 12px;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
   position: absolute;
   padding-bottom: 19px;
   opacity: 1.0;
@@ -115,13 +123,11 @@ text {
   stroke-width: 1;
 }
 .exonname {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
   font-size: 10px;
   text-anchor: middle;
 }
 
 .label {
-  font-family: arial, sans-serif;
   text-anchor: middle;
   pointer-events: none;
   /*
@@ -178,11 +184,9 @@ text {
   stroke-width: 0.5;
 }
 .trackhint {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
   text-anchor: start;
 }
 .coordlabel {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; /*arial, sans-serif;*/
   text-anchor: end;
   pointer-events: none;
   font-size: 8px;
@@ -214,7 +218,6 @@ text {
 
 .xlabel {
   font-size: 8px;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
 }
 
 .zoombar {
@@ -231,7 +234,6 @@ text {
   font-size: 12px;
   letter-spacing: 1px;
   color: black;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
 }
 
 .tablescroll {
@@ -268,7 +270,6 @@ text {
 }
 
 .legend {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
   text-anchor: left;
   pointer-events: none;
 }
@@ -277,7 +278,6 @@ text {
   stroke-width: 2.0;
 }
 .condtext {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; /*arial, sans-serif;*/
   pointer-events: none;
   font-size: 12px;
   font-weight: bold;
@@ -293,26 +293,7 @@ text {
   stroke: none;
   fill: orange;
 }
-.ui-corner-all {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-  font-size: 12px;
-}
-.ui-tooltip {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-  font-size: 12px;
-}
-.ui-dialog-title {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-  font-size: 12px;
-}
-.ui-button-text {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-  font-size: 12px;
-}
-.ui-dialog-content {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-  font-size: 12px;
-}
+
 
 .viewshadow {
   -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
@@ -320,9 +301,9 @@ text {
 }
 .renderdiv {
   background-color: #F0F0F0;
-  border: 2px solid #5a5460;
-  -webkit-box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+  /*border: 2px solid #5a5460;*/
+  -webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.5);
 }
 .heatmap {
   border: 1px solid #5a5460;
