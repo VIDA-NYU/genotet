@@ -39,7 +39,7 @@ Core.prototype.init = function() {
     hide: 1000
   });
 
-  createView("Network", "graph").loadData("th17", "BATF");
+  createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
 };
 // examples
 /*

@@ -1,7 +1,7 @@
 function LayoutTable(htmlid, width, height){
-    this.htmlid = htmlid;
-    this.width = width;
-    this.rawheight = height;
+  this.htmlid = htmlid;
+  this.width = width;
+  this.rawheight = height;
 	this.height = height;
 	this.uiHeight = 26;
 	this.tableHeight = this.height-this.uiHeight;
@@ -89,7 +89,7 @@ LayoutTable.prototype.renderLayout = function(){
 
 	$("#"+this.htmlid+" div[name='data'] table")
 		.attr("width", "100%"); // height does not need to stretch to full height
-	contents.css({'font-size':'12px', 'width':this.width, 'height':this.tableHeight, 'table-layout':'fixed', 'text-align':'center'});
+	contents.css({'font-size':'12px', 'table-layout':'fixed', 'text-align':'center'});
 
 	$("#"+this.htmlid+" th").addClass("ui-state-default");
 	$("#"+this.htmlid+" td").addClass("ui-widget-content");

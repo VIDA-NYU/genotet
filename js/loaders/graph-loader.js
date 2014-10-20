@@ -242,13 +242,13 @@ LoaderGraph.prototype.loadEdges = function(net, name){
 
 			var viewname = loader.parentView.viewname + "-list";
 			var view = $("#view"+loader.parentView.viewid);
-			var left = parseInt(view.css("left"))+parseInt(view.css("width")),
-				top = parseInt(view.css("top"));
-			createView(viewname, "table", null, loader.parentView.layout.rawheight, left, top);
+			//var left = parseInt(view.css("left"))+parseInt(view.css("width")),
+			//	top = parseInt(view.css("top"));
+			createView(viewname, "table");//null,loader.parentView.layout.rawheight, left, top
 
 			linkView(loader.parentView.viewname, viewname);
 			linkView(viewname, loader.parentView.viewname);	// link back
-			groupView(viewname, loader.parentView.viewname);
+			//groupView(viewname, loader.parentView.viewname);
 
 			var wrapper = {};
 			wrapper.net = net;

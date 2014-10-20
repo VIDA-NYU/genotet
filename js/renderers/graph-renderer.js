@@ -1,10 +1,13 @@
 function LayoutGraph(htmlid, width, height) {
 
   this.htmlid = htmlid;
-  this.width = width;
-  this.rawheight = height;
-  this.height = $("#" + this.htmlid).height() - manager.headerHeight;
+  this.width = $("#" + this.htmlid).width();
+  this.height = $("#" + this.htmlid).height();
+
+  this.rawheight = this.height;
   this.uiHeight = 26;
+
+  console.log(this.width, this.height);
 
   this.compactLayout = false;
 
@@ -178,8 +181,10 @@ LayoutGraph.prototype.renderGraph = function(){
     var nodes = this.nodes,
 	links = this.links;
 
-	var embWidth = manager.embedSize(this.width),
-	    embHeight = manager.embedSize(this.graphHeight);
+	//var embWidth = manager.embedSize(this.width),
+	 //   embHeight = manager.embedSize(this.graphHeight);
+
+  var embWidth = "100%", embHeight = "100%";
 
     var layout = this;
 	// make svg
@@ -200,8 +205,8 @@ LayoutGraph.prototype.renderGraph = function(){
 		.attr("id", "background")
 		.attr("x", 0)
 		.attr("y", 0)
-		.attr("width", layout.width)
-		.attr("height", layout.graphHeight)
+		//.attr("width", layout.width)
+		//.attr("height", layout.graphHeight)
 		.call(this.zoom
 			.on("zoomstart", function(d) { return layout.graphZoomstart(d); })
 			.on("zoom", function(d){ return layout.graphZoom(d); })
@@ -340,36 +345,36 @@ LayoutGraph.prototype.updateLayout = function(){
 		links = this.links,
 		layout = this;
 
-    var link = this.svg.selectAll(".link").data(links)
-        .style("stroke", function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); } )
-		.attr("x1", function(d) { return layout.edgeCoordinate(d, "x1") * layout.scale + layout.trans[0]; })
-        .attr("y1", function(d) { return layout.edgeCoordinate(d, "y1") * layout.scale + layout.trans[1]; })
-        .attr("x2", function(d) { return layout.edgeCoordinate(d, "x2") * layout.scale + layout.trans[0]; })
-        .attr("y2", function(d) { return layout.edgeCoordinate(d, "y2") * layout.scale + layout.trans[1]; });
+  var link = this.svg.selectAll(".link").data(links)
+    .style("stroke", function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); } )
+	  .attr("x1", function(d) { return layout.edgeCoordinate(d, "x1") * layout.scale + layout.trans[0]; })
+    .attr("y1", function(d) { return layout.edgeCoordinate(d, "y1") * layout.scale + layout.trans[1]; })
+    .attr("x2", function(d) { return layout.edgeCoordinate(d, "x2") * layout.scale + layout.trans[0]; })
+    .attr("y2", function(d) { return layout.edgeCoordinate(d, "y2") * layout.scale + layout.trans[1]; });
 
-    var linkdir = this.svg.selectAll(".linkdir").data(links)
-        .style("stroke", function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
-		.attr("points", function(d) { return layout.edgeArrow(d); });
+  var linkdir = this.svg.selectAll(".linkdir").data(links)
+    .style("stroke", function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
+	  .attr("points", function(d) { return layout.edgeArrow(d); });
 
 	var linkiobj = this.svg.selectAll(".linkiobj").data(links)
 		.attr("x1", function(d) { return layout.edgeCoordinate(d, "x1") * layout.scale + layout.trans[0]; })
-        .attr("y1", function(d) { return layout.edgeCoordinate(d, "y1") * layout.scale + layout.trans[1]; })
-        .attr("x2", function(d) { return layout.edgeCoordinate(d, "x2") * layout.scale + layout.trans[0]; })
-        .attr("y2", function(d) { return layout.edgeCoordinate(d, "y2") * layout.scale + layout.trans[1]; });
+    .attr("y1", function(d) { return layout.edgeCoordinate(d, "y1") * layout.scale + layout.trans[1]; })
+    .attr("x2", function(d) { return layout.edgeCoordinate(d, "x2") * layout.scale + layout.trans[0]; })
+    .attr("y2", function(d) { return layout.edgeCoordinate(d, "y2") * layout.scale + layout.trans[1]; });
 
 
-    var node = this.svg.selectAll(".node").data(nodes)
-        .attr("r", function(d) { return d.focus?6:5; })
-        //.style("fill", function(d) { return d.selected?"orange":(d.focus?"red":"white"); })
-		.attr("cx", function(d) { return d.x * layout.scale + layout.trans[0]; })
-        .attr("cy", function(d) { return d.y * layout.scale + layout.trans[1]; });
+  var node = this.svg.selectAll(".node").data(nodes)
+    .attr("r", function(d) { return d.focus?6:5; })
+      //.style("fill", function(d) { return d.selected?"orange":(d.focus?"red":"white"); })
+	  .attr("cx", function(d) { return d.x * layout.scale + layout.trans[0]; })
+    .attr("cy", function(d) { return d.y * layout.scale + layout.trans[1]; });
 
-    var nodeiobj = this.svg.selectAll(".nodeiobj").data(nodes)
+  var nodeiobj = this.svg.selectAll(".nodeiobj").data(nodes)
 		.attr("r", 10.0)
 		.attr("cx", function(d) { return d.x * layout.scale + layout.trans[0]; })
-        .attr("cy", function(d) { return d.y * layout.scale + layout.trans[1]; });
+    .attr("cy", function(d) { return d.y * layout.scale + layout.trans[1]; });
 
-    var label = this.svg.selectAll(".label").data(nodes)
+  var label = this.svg.selectAll(".label").data(nodes)
 		.attr("x", function(d) { return layout.nodes[d.index].x * layout.scale + layout.trans[0]; })
 		.attr("y", function(d) { return layout.nodes[d.index].y * layout.scale -layout.labelGap + layout.trans[1]; });
 

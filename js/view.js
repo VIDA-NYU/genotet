@@ -11,25 +11,29 @@ function View(type, viewname, viewid, width, height, left, top){
 	this.showHeader = true;
 
   if (this.type === "menu")
-    this.view = d3.select(".ui-layout-west").append("div");
+    this.view = $("<div></div>").appendTo($("#menupane"));
   else if (this.type === "table")
-    this.view = d3.select(".ui-layout-east").append("div");
-  else
-    this.view = d3.select(".ui-layout-center").append("div");
+    this.view = $("<div></div>").appendTo($("#infopane"));
+  else{
+    var node = layoutManager.findSlot(viewname);
+    this.view = $("<div></div>").appendTo($("#rootpane"));
+  }
 
+
+  console.log(left, top, width, height);
   this.view
   	.attr("id", "view"+viewid)
   	.attr("class", "ui-widget-content view")
-  	.style("width", width)
-    .style("height", height)
-  	.style("left", left==null?"8px":left+"px")
-  	.style("top", top==null?"8px":top+"px");
+  	.css("width", width)
+    .css("height", height)
+  	.css("left", left==null?"8px":left+"px")
+  	.css("top", top==null?"8px":top+"px");
 
 
   this.width = $("#view"+viewid).width();
   this.height = $("#view"+viewid).height();
 
-  d3.select("#view"+viewid).append("h3")
+  $("<h3></h3>").appendTo($("#view" + viewid))
   	.attr("id", "viewheader"+viewid)
   	.attr("class", "ui-widget-header")
   	.text(viewname);
