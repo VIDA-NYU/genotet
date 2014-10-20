@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title>Genotet - Help Document</title>
-    
-    <link type="text/css" rel="stylesheet" href="helpstyle.css" />
+
+    <link type="text/css" rel="stylesheet" href="css/helpstyle.css" />
 </head>
 <body>
 
@@ -32,7 +32,7 @@
     <pre>closeView(string viewname)</pre>
 	You can also click the close button at the top-right of each view.
 </li>
-<li>Certain types of views can be linked to another. 
+<li>Certain types of views can be linked to another.
 For example, a "histogram" view may listen to a "graph" view so as to load the histogram of selected node in graph.
 To link two views, use
     <pre>linkView(sourceViewname, targetViewname)</pre>
@@ -70,13 +70,13 @@ When a view is minizied, the UI bar will be hidden.
 
 <h3 id='graph'> Graph View </h3>
 <ul>
-<li>The graph view is for showing the biochemical network. 
-First, focus at some genes using regular expressions. 
+<li>The graph view is for showing the biochemical network.
+First, focus at some genes using regular expressions.
 The genes that are neighbors of the focused genes will be shown in the network.
 </li>
 <li>The loadData function takes two parameters
     <pre>loadData(string net, string exp)</pre>
-    where "net" is the network name, and "exp" is a regular expression. All the genes with a name that matches the expression will be focused, 
+    where "net" is the network name, and "exp" is a regular expression. All the genes with a name that matches the expression will be focused,
     and their neighbors will be shown in the graph. * Currently only "th17" is supported as "net".
 </li>
 <li>Hover the edges and nodes of the graph to view detailed information. Click on nodes to view its incident edges. See table view for more details.
@@ -85,7 +85,7 @@ The genes that are neighbors of the focused genes will be shown in the network.
 </li>
 <li>Use mouse wheel on background to zoom. Drag the background to translate.
 </li>
-<li>You can select either an edge or a node in the graph, which will be highlighted in orange. 
+<li>You can select either an edge or a node in the graph, which will be highlighted in orange.
 Selected element will be reflected in the graph's listener histograms, if there exists any.
 </li>
 </ul>
@@ -108,9 +108,9 @@ You may also load data via interacting with the histogram's listening graph.
 </li>
 <li>Drag the main histogram to translate it. Use mouse wheel to zoom in/out.
 </li>
-<li>When the histogram is listening to a graph, it will automatically load the binding data of the selected gene in the graph. 
+<li>When the histogram is listening to a graph, it will automatically load the binding data of the selected gene in the graph.
 If the selected element of the graph is an edge (a,b), it will load the binding data of "a" and locate gene "b" within the binding data.
-</li> 
+</li>
 </ul>
 
 <h3 id='heatmap'>Heatmap View</h3>
@@ -127,7 +127,7 @@ If the selected element of the graph is an edge (a,b), it will load the binding 
 </li>
 <li>You can drag a box in the heatmap and zoom in.
 </li>
-<li>If a heatmap view is listening to a graph view, each time a node is clicked in the graph, the heatmap will load the genes that are targets of the clicked node 
+<li>If a heatmap view is listening to a graph view, each time a node is clicked in the graph, the heatmap will load the genes that are targets of the clicked node
 into the heatmap. It will also add the clicked gene to the polyline plot.
 </li>
 </ul>
@@ -143,23 +143,23 @@ Currently it is mainly for showing the incident edges of a node in the network.
 Alternatively, you can use the filter. The filter supports simple query syntax:
 <pre>attribute operator value</pre>
 Three terms must be separated by spaces.
-"attribute" is one of the attribute name as shown in a column header. 
+"attribute" is one of the attribute name as shown in a column header.
 "operator" is one of {<, <=, >, >=, =}.
 "value" is number or string where applied.
 After typing in the filter command, click either "sel" or "desel" to select or deselect items.
-"sel" adds the matched items to the selection list, 
+"sel" adds the matched items to the selection list,
 while "desel" removes the matched items from the selection list.
 If the filter is empty, "sel" and "desel" by default selects/deselects all items.
 </li>
 <li>
-For example, to show all the items with weight between [1.5, 1.9], 
+For example, to show all the items with weight between [1.5, 1.9],
 first use command "weight >= 1.5" and "sel", and then use command "weight > 1.9" and "desel".
 </li>
 </ul>
 
 <h3 id='menu'>Menu View</h3>
 <ul>
-<li>The menu view provides global information and interface to shortcut operations. To create a menu, use 
+<li>The menu view provides global information and interface to shortcut operations. To create a menu, use
 <pre>createMenu()</pre>
 You can create at most one menu.
 </li>
