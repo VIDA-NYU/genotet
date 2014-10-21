@@ -11,23 +11,24 @@ function View(type, viewname, viewid, width, height, left, top){
 	this.showHeader = true;
 
   if (this.type === "menu")
-    this.view = $("<div></div>").appendTo($("#menupane"));
+    this.view = $("<div></div>").appendTo(layoutManager.menuNode.centerPane);
   else if (this.type === "table")
-    this.view = $("<div></div>").appendTo($("#infopane"));
-  else{
+    this.view = $("<div></div>").appendTo(layoutManager.infoNode.centerPane);
+  else if (this.type === "histogram") {
+    var node = layoutManager.findSlot(viewname, true);  // horizontal only
+    this.view = $("<div></div>").appendTo(node);
+  } else {
     var node = layoutManager.findSlot(viewname);
-    this.view = $("<div></div>").appendTo($("#rootpane"));
+    this.view = $("<div></div>").appendTo(node);
   }
 
-
-  console.log(left, top, width, height);
   this.view
   	.attr("id", "view"+viewid)
   	.attr("class", "ui-widget-content view")
   	.css("width", width)
-    .css("height", height)
-  	.css("left", left==null?"8px":left+"px")
-  	.css("top", top==null?"8px":top+"px");
+    .css("height", height);
+  	//.css("left", left==null?"8px":left+"px")
+  	//.css("top", top==null?"8px":top+"px");
 
 
   this.width = $("#view"+viewid).width();

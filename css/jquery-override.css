@@ -13,3 +13,7 @@
   border:     1px solid #BBB;
   border-width: 0;
 }
+
+.ui-layout-pane {
+  background: #DDD;
+}

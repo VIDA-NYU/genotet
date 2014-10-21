@@ -68,7 +68,7 @@ Dialog.prototype.dialogLayout = function(type){
 		}
 		break;
 	default:
-		user.alert("undefined behavior for dialog layout "+type);
+		options.alert("undefined behavior for dialog layout "+type);
 	}
 };
 
@@ -108,7 +108,7 @@ Dialog.prototype.dialogCreate = function(){
 				}else if(type=="histogram"){
 					var data = $("#dialog #data").val();
 					if (manager.supportBinding(data)==false){
-						user.alert("Please type in a supported binding track");
+						options.alert("Please type in a supported binding track");
 						return;
 					}
 					var chr = $("#dialog #datadiv #chr").val();
@@ -156,7 +156,7 @@ Dialog.prototype.dialogLink = function(src){
 				target = $("#dialog #target").val();
 			if(target==null || target==""){
 				console.error("Cannot link an empty view");
-				user.alert("Cannot link an empty view");
+				options.alert("Cannot link an empty view");
 				return;
 			}
 			var success =linkView(source, target);
@@ -189,7 +189,7 @@ Dialog.prototype.dialogUnlink = function(src){
 				target = $("#dialog #target").val();
 			if(target==null || target==""){
 				console.error("Cannot unlink an empty view");
-				user.alert("Cannot unlink an empty view");
+				options.alert("Cannot unlink an empty view");
 				return;
 			}
 			var success = unlinkView(source, target);
@@ -222,7 +222,7 @@ Dialog.prototype.dialogGroup = function(src){
 				target = $("#dialog #target").val();
 			if(target==null || target==""){
 				console.error("Cannot group an empty view");
-				user.alert("Cannot group an empty view");
+				options.alert("Cannot group an empty view");
 				return;
 			}
 			var success = groupView(source, target);
