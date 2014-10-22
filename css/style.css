@@ -328,3 +328,16 @@ text {
   margin-right: 5px;
   front-weight: 900;
 }
+
+.view-postbtn, .view-getbtn, .view-groupbtn,
+.view-closebtn, .view-minibtn, .view-helpbtn {
+  height: 16px;
+  width: 16px;
+}
+.view-postbtn, .view-getbtn, .view-groupbtn {
+  float: left;
+  margin-right: 2px;
+}
+.view-closebtn, .view-minibtn, .view-helpbtn {
+  float: right;
+}

@@ -1,4 +1,4 @@
-function LayoutHeatmap(htmlid, width, height) {
+function HeatmapRenderer(htmlid, width, height) {
   this.htmlid = htmlid;
   this.width = width;
   this.rawheight = height;
@@ -44,7 +44,7 @@ function LayoutHeatmap(htmlid, width, height) {
   //this.svg = d3.select("#"+this.htmlid).append("svg").attr("height", this.rawheight);
 }
 
-LayoutHeatmap.prototype.updateHeatmapSize = function(){
+HeatmapRenderer.prototype.updateHeatmapSize = function(){
 	var hmdata = this.parentView.viewdata.heatmapData;
 	var maxstrlen = 0;
 	for(var i=0; i<hmdata.rownames.length; i++){
@@ -77,7 +77,7 @@ LayoutHeatmap.prototype.updateHeatmapSize = function(){
 	this.mainHeight = this.rawheight - (this.compactLayout?0:this.uiHeight);
 };
 
-LayoutHeatmap.prototype.updateLineSize = function(){
+HeatmapRenderer.prototype.updateLineSize = function(){
 	this.lineWidth = this.width;
 	if(this.showTFA){
 		this.lineHeight = Math.floor(this.height * 0.2);
@@ -87,13 +87,13 @@ LayoutHeatmap.prototype.updateLineSize = function(){
 	}
 };
 
-LayoutHeatmap.prototype.reloadData = function(){
+HeatmapRenderer.prototype.reloadData = function(){
 	this.removeLayout();
 	this.initLayout();
 	this.renderLayout();
 };
 
-LayoutHeatmap.prototype.initLayout = function(){
+HeatmapRenderer.prototype.initLayout = function(){
 	this.data = this.parentView.viewdata;
 	if(this.compactLayout==false) this.renderUI();
 	this.prepareLine();
@@ -101,14 +101,14 @@ LayoutHeatmap.prototype.initLayout = function(){
 	this.updateHeatmapSize();
 };
 
-LayoutHeatmap.prototype.removeLayout = function(){
+HeatmapRenderer.prototype.removeLayout = function(){
 	$("#"+this.htmlid+" div[name='ui']").remove();
 	$("#"+this.htmlid+" #hint").remove();
 	$("#"+this.htmlid+" #layoutwrapper").remove();
 	//$("#"+this.htmlid+" #heatmapwrapper").remove();
 };
 
-LayoutHeatmap.prototype.renderLayout = function(){
+HeatmapRenderer.prototype.renderLayout = function(){
 	$("#"+this.htmlid).append("<div id='layoutwrapper' class='renderdiv'></div>");
 	$("#"+this.htmlid+" #layoutwrapper").css({"width": manager.embedSize(this.width), "height": manager.embedSize(this.mainHeight)});
 
@@ -116,7 +116,7 @@ LayoutHeatmap.prototype.renderLayout = function(){
 	this.renderHeatmap();
 };
 
-LayoutHeatmap.prototype.prepareLine = function(){
+HeatmapRenderer.prototype.prepareLine = function(){
 	this.lines = this.parentView.viewdata.lineData;
 	this.maxval = this.tfaMaxval = 0;
 	this.minval = this.tfaMinval = 1E10;
@@ -136,7 +136,7 @@ LayoutHeatmap.prototype.prepareLine = function(){
 	this.tfaMaxvalAll = this.tfaMaxval; this.tfaMinvalAll = this.tfaMinval;
 };
 
-LayoutHeatmap.prototype.updateLine = function(){
+HeatmapRenderer.prototype.updateLine = function(){
 	$("#"+this.htmlid+" #layoutwrapper svg").remove();
 	var layout = this;
 	this.svg = d3.select("#"+this.htmlid+" #layoutwrapper").insert("svg", "#heatmap")
@@ -255,7 +255,7 @@ LayoutHeatmap.prototype.updateLine = function(){
 	}
 };
 
-LayoutHeatmap.prototype.renderHeatmap = function(){
+HeatmapRenderer.prototype.renderHeatmap = function(){
 	var layout = this;
 	var actualWidth = this.heatmapWidth-this.heatmapLeft;
 	var actualLeft = this.labelrows?this.heatmapLeft:0;
@@ -358,7 +358,7 @@ LayoutHeatmap.prototype.renderHeatmap = function(){
 	);
 };
 
-LayoutHeatmap.prototype.renderUI = function(){
+HeatmapRenderer.prototype.renderUI = function(){
 	var data = this.data;
 	var layout = this;
 	$("#"+this.htmlid+" .ui-widget-header").after("<div name='ui'>" +
@@ -404,7 +404,7 @@ LayoutHeatmap.prototype.renderUI = function(){
 	//$("#"+this.htmlid+" #autoscale").attr("checked", this.autoScale).change(function(){ return layout.toggleAutoScale(); });
 };
 
-LayoutHeatmap.prototype.uiUpdate = function(type){
+HeatmapRenderer.prototype.uiUpdate = function(type){
 	var data = this.parentView.viewdata.heatmapData;
 	if (type == "data") {
 		var mat = $("#"+this.htmlid+" #data option:selected").val();
@@ -474,7 +474,7 @@ LayoutHeatmap.prototype.uiUpdate = function(type){
 	}
 };
 
-LayoutHeatmap.prototype.filterRegexp = function(exp){
+HeatmapRenderer.prototype.filterRegexp = function(exp){
 	return exp
 	  .replace(/\+/g, "\\+")
 	  .replace(/\./g, "\\.")
@@ -482,46 +482,46 @@ LayoutHeatmap.prototype.filterRegexp = function(exp){
 	  .replace(/\)/g, "\\)");	// replace special chars
 }
 
-LayoutHeatmap.prototype.toggleAutoScale = function(){
+HeatmapRenderer.prototype.toggleAutoScale = function(){
 	this.autoScale = !this.autoScale;
 	this.reloadData();
 };
 
-LayoutHeatmap.prototype.toggleLabelrows = function(){
+HeatmapRenderer.prototype.toggleLabelrows = function(){
 	this.labelrows = !this.labelrows;
 	this.reloadData();
 };
 
-LayoutHeatmap.prototype.toggleLablecols = function(){
+HeatmapRenderer.prototype.toggleLablecols = function(){
 	this.labelcols = !this.labelcols;
 	this.reloadData();
 };
 
-LayoutHeatmap.prototype.toggleShowGradient = function(){
+HeatmapRenderer.prototype.toggleShowGradient = function(){
 	this.showGradient = !this.showGradient;
 	this.reloadData();
 };
 
-LayoutHeatmap.prototype.toggleAutoScale = function(){
+HeatmapRenderer.prototype.toggleAutoScale = function(){
     this.autoScale = !this.autoScale;
     this.reloadData();
 };
 
-LayoutHeatmap.prototype.toggleShowTFA = function(){
+HeatmapRenderer.prototype.toggleShowTFA = function(){
 	this.showTFA = !this.showTFA;
 	this.updateLineSize();
 	this.updateHeatmapSize();
 	this.parentView.loader.loadHeatmap();
 };
 
-LayoutHeatmap.prototype.toggleShowPlot = function(){
+HeatmapRenderer.prototype.toggleShowPlot = function(){
 	this.showPlot = !this.showPlot;
 	this.updateLineSize();
 	this.updateHeatmapSize();
 	this.parentView.loader.loadHeatmap();
 };
 
-LayoutHeatmap.prototype.mouseDownLegend = function(d){
+HeatmapRenderer.prototype.mouseDownLegend = function(d){
 	if(d3.event.button == 2) {	// right click
 		var data = this.parentView.viewdata.lineData;
 		for(var i=0;i<data.length;i++){
@@ -534,7 +534,7 @@ LayoutHeatmap.prototype.mouseDownLegend = function(d){
 	}
 };
 
-LayoutHeatmap.prototype.unhighlightCond = function(d){
+HeatmapRenderer.prototype.unhighlightCond = function(d){
 	$("#"+this.htmlid+" #condline").attr("visibility", "hidden");
 	$("#"+this.htmlid+" #condtext").attr("visibility", "hidden");
 	$("#"+this.htmlid+" #tfacondtext").attr("visibility", "hidden");
@@ -542,7 +542,7 @@ LayoutHeatmap.prototype.unhighlightCond = function(d){
 	this.svg.selectAll("#tfaconddot"+d.lineid+"_"+d.index).attr("class", "conddot");
 };
 
-LayoutHeatmap.prototype.highlightCond = function(d, type){
+HeatmapRenderer.prototype.highlightCond = function(d, type){
 	//if(this.parentView.viewdata.heatmapData==null) return;	// prevent racing
 	this.unhighlightCond(d);
 	var layout = this;
@@ -588,13 +588,13 @@ LayoutHeatmap.prototype.highlightCond = function(d, type){
 	}
 };
 
-LayoutHeatmap.prototype.heatmapZoomstart = function(){
+HeatmapRenderer.prototype.heatmapZoomstart = function(){
 	var rect = d3.select("#heatmap")[0][0];
 	var mx = d3.mouse(rect)[0], my = d3.mouse(rect)[1];
 	this.dragboxTL = [mx, my];
 };
 
-LayoutHeatmap.prototype.heatmapZoom = function(){
+HeatmapRenderer.prototype.heatmapZoom = function(){
 	if(this.heatmapWheeled) return; // ignore wheel
 	if(d3.event.scale!=null && d3.event.scale!=1) {
 		this.heatmapWheeled = true;
@@ -615,7 +615,7 @@ LayoutHeatmap.prototype.heatmapZoom = function(){
 	});
 };
 
-LayoutHeatmap.prototype.heatmapZoomend = function(){
+HeatmapRenderer.prototype.heatmapZoomend = function(){
 	if(this.heatmapWheeled) {
 		this.heatmapWheeled = false;
 		this.hmzoom.scale(1);
@@ -644,30 +644,30 @@ LayoutHeatmap.prototype.heatmapZoomend = function(){
 	$("#"+this.htmlid+" #layoutwrapper #selregion").remove();
 };
 
-LayoutHeatmap.prototype.showMsg = function(msg, ui){
+HeatmapRenderer.prototype.showMsg = function(msg, ui){
 	this.removeLayout();
 	if (ui==null) ui = false;
 	$("#"+this.htmlid).append("<div id='hint' class='hint'></div>");
 	$("#"+this.htmlid+" #hint").text(msg).css({"width": this.width, "height":this.rawheight-(ui && !this.compactLayou?this.uiHeight:0) });
 };
 
-LayoutHeatmap.prototype.showError = function(){
+HeatmapRenderer.prototype.showError = function(){
 	this.showMsg("Oops..this guy is dead. x_X", false);
 	this.renderUI();
 };
 
-LayoutHeatmap.prototype.updateHeatmap = function(){
+HeatmapRenderer.prototype.updateHeatmap = function(){
 	$("#"+this.htmlid+" #heatmapwrapper").remove();
 	this.renderHeatmap();
 };
 
-LayoutHeatmap.prototype.reloadHeatmap = function(){	// called from global
+HeatmapRenderer.prototype.reloadHeatmap = function(){	// called from global
 	if(timerView.layout.showPlot) timerView.layout.updateLine();
 	timerView.loader.loadHeatmap();
 };
 
 
-LayoutHeatmap.prototype.resizeLayout = function(newsize) {
+HeatmapRenderer.prototype.resizeLayout = function(newsize) {
   if (this.parentView.showHeader == false)
     newsize[1] += manager.headerHeight;
 
@@ -687,7 +687,7 @@ LayoutHeatmap.prototype.resizeLayout = function(newsize) {
 };
 
 
-LayoutHeatmap.prototype.setCompact = function(compact){
+HeatmapRenderer.prototype.setCompact = function(compact){
 	this.compactLayout = compact;
 	this.removeLayout();
 	this.initLayout();

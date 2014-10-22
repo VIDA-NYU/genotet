@@ -1,4 +1,4 @@
-function LayoutTable(htmlid, width, height){
+function TableRenderer(htmlid, width, height){
   this.htmlid = htmlid;
   this.width = width;
   this.rawheight = height;
@@ -10,27 +10,27 @@ function LayoutTable(htmlid, width, height){
 	//this.svg = d3.select("#"+this.htmlid).append("svg").attr("height", this.rawheight);
 }
 
-LayoutTable.prototype.reloadData = function(){
+TableRenderer.prototype.reloadData = function(){
 	this.data = this.parentView.viewdata;
 	this.selection = {};
 	this.rowOrder = {"column": 3, "order": -1};  // default, sort by loaded
 	this.initLayout();
 };
 
-LayoutTable.prototype.removeLayout = function(){
+TableRenderer.prototype.removeLayout = function(){
 	this.removeUI();
 	this.removeTable();
 };
 
-LayoutTable.prototype.removeTable = function(){
+TableRenderer.prototype.removeTable = function(){
   $("#"+this.htmlid+" > div[name='data']").remove();
 };
 
-LayoutTable.prototype.removeUI = function(){
+TableRenderer.prototype.removeUI = function(){
   $("#"+this.htmlid+" div[name='ui']").remove();
 };
 
-LayoutTable.prototype.initLayout = function(){
+TableRenderer.prototype.initLayout = function(){
 	this.removeLayout();
 	var layout = this;
 	var col = this.rowOrder.column<0? "selected":this.data.columns[this.rowOrder.column].toLowerCase();
@@ -38,7 +38,7 @@ LayoutTable.prototype.initLayout = function(){
 	this.renderLayout();
 };
 
-LayoutTable.prototype.renderUI = function(){
+TableRenderer.prototype.renderUI = function(){
 	$("#"+this.htmlid).append("<div name='ui' style='margin-left: 5px;'>" +
 	"<input type='text' id='filter' size='15'>" +
 	"<input type='button' id='sel' value='Sel'><input type='button' id='desel' value='Desel'>" +
@@ -57,7 +57,7 @@ LayoutTable.prototype.renderUI = function(){
 	$("#"+this.htmlid+" div[name='ui'] #topsel").button().click( function(){ layout.uiAction("topsel"); } );
 };
 
-LayoutTable.prototype.renderLayout = function(){
+TableRenderer.prototype.renderLayout = function(){
 	if(this.compactLayout==false) this.renderUI();
 	var layout = this;
 	$("#"+this.htmlid).append("<div name='data' class='tablescroll'></div>");
@@ -106,7 +106,7 @@ LayoutTable.prototype.renderLayout = function(){
 		.on("click", function(d, i){ return layout.sortColumn(i); });
 };
 
-LayoutTable.prototype.sortColumn = function(i){
+TableRenderer.prototype.sortColumn = function(i){
 	if(i<0){	// sort by selection
 		this.rowOrder.order = 1;
 		this.rowOrder.column = -1;
@@ -121,7 +121,7 @@ LayoutTable.prototype.sortColumn = function(i){
 	this.initLayout();
 };
 
-LayoutTable.prototype.uiFilterSelect = function(cmd, type){
+TableRenderer.prototype.uiFilterSelect = function(cmd, type){
 	// evaluate cmd here to form selection list ( this.selection )
 	// currently: nasty implementation of three term expression
 	var ops = ["<", ">", "=", "<=", ">=", "*"];
@@ -175,7 +175,7 @@ LayoutTable.prototype.uiFilterSelect = function(cmd, type){
 	this.initLayout();
 };
 
-LayoutTable.prototype.uiAction = function(type){
+TableRenderer.prototype.uiAction = function(type){
 	var rows = this.data.rows;
 	var msg = {}, edges = new Array();
 	if(type=="show"){
@@ -211,7 +211,7 @@ LayoutTable.prototype.uiAction = function(type){
 	this.initLayout();
 };
 
-LayoutTable.prototype.toggleRow = function(d){
+TableRenderer.prototype.toggleRow = function(d){
 	if(d.id==null) return;	// skip the header row
 	if(this.selection[d.id] == null){
 		this.selection[d.id] = true;
@@ -220,11 +220,11 @@ LayoutTable.prototype.toggleRow = function(d){
 	}
 };
 
-LayoutTable.prototype.reloadTable = function(){	// called from global
+TableRenderer.prototype.reloadTable = function(){	// called from global
 	timerView.layout.initLayout();
 };
 
-LayoutTable.prototype.resizeLayout = function(newsize){
+TableRenderer.prototype.resizeLayout = function(newsize){
     this.width = newsize[0];
     this.rawheight = newsize[1];
 	this.height = this.rawheight;
@@ -237,7 +237,7 @@ LayoutTable.prototype.resizeLayout = function(newsize){
 	this.timer = setTimeout(this.reloadTable, 500);
 };
 
-LayoutTable.prototype.setCompact = function(compact){
+TableRenderer.prototype.setCompact = function(compact){
 	this.compactLayout = compact;
 	this.removeLayout();
 	this.renderLayout();

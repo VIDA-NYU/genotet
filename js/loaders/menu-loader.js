@@ -1,2 +1,2 @@
-function LoaderMenu(){
+function MenuLoader(){
 }

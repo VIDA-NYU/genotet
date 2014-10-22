@@ -1,4 +1,4 @@
-function LayoutGraph(htmlid, width, height) {
+function GraphRenderer(htmlid, width, height) {
 
   this.htmlid = htmlid;
   this.width = $("#" + this.htmlid).width();
@@ -8,6 +8,8 @@ function LayoutGraph(htmlid, width, height) {
   this.uiHeight = 26;
 
   console.log(this.width, this.height);
+
+  this.ui = new GraphUI();
 
   this.compactLayout = false;
 
@@ -36,13 +38,13 @@ function LayoutGraph(htmlid, width, height) {
   //this.svg = d3.select("#"+this.htmlid).append("svg").attr("height", this.rawheight);
 }
 
-LayoutGraph.prototype.reloadData = function(removeOnly){
+GraphRenderer.prototype.reloadData = function(removeOnly){
 	this.data = this.parentView.viewdata;
 	this.removeLayout();
 	this.initLayout(removeOnly);
 };
 
-LayoutGraph.prototype.initLayout = function(removeOnly){
+GraphRenderer.prototype.initLayout = function(removeOnly){
 	var layout = this;
 
 	// render ui to obtain ui height
@@ -88,70 +90,29 @@ LayoutGraph.prototype.initLayout = function(removeOnly){
 };
 
 
-LayoutGraph.prototype.computeForce = function(){
+GraphRenderer.prototype.computeForce = function(){
 	this.force.nodes(this.nodes).links(this.links).size([this.width, this.graphHeight]);
 	this.force.start(); // even if force is not needed, you need to start force because it replaces node index of links by node references
 	//for(var i=0; i<300; i++) this.force.tick();
 	//this.force.stop();
 };
 
-LayoutGraph.prototype.renderLayout = function(){
+GraphRenderer.prototype.renderLayout = function(){
 	this.renderGraph();
 };
 
-LayoutGraph.prototype.removeLayout = function(){
+GraphRenderer.prototype.removeLayout = function(){
    $("#"+this.htmlid+" div[name='ui']").remove();
    $("#"+this.htmlid+" #layoutwrapper").remove();
    $("#"+this.htmlid+" #hint").remove();
    $("#"+this.htmlid+" svg").remove();
 };
 
-LayoutGraph.prototype.renderUI = function(){
-	var layout = this;
-	$("#"+this.htmlid+" .ui-widget-header").after("<div name='ui'><div>" +
-	"<span style='margin-left: 5px; font-weight:900'>NETWORK</span>" +
-	"<select id='netname' title='Choose the network data'>" +
-    "<option value='th17'>TH17</option>" +
-    "<option value='confidence'>Confidence</option>" +
-    "<option value='prediction'>Prediction</option>" +
-    "<option value='strength'>Strength</option>" +
-    "</select>" +
-    "<span style='margin-left: 5px; font-weight:900'>GENE</span>" +
-	"<input type='text' id='gene' size='10' title='Add/remove/select genes in the network. " +
-	" Usage: [add/rm/sel] regexp | regexp. If no action is specified, default behavior is sel.'>" +
-	"<span style='margin-left: 5px;'>COMBREG</span>" +
-	"<input type='text' id='comb' size='10' title='Add nodes into the graph that are regulated by selected genes. Usage: regexp'>" +
-	"</div>" +
-	"<input type='checkbox' id='label' title='Show/hide node labels'> Label " +
-	"<input type='checkbox' id='tf2tf' title='Show/hide edges between 2 TFs'> TF-TF " +
-	"<input type='checkbox' id='tf2ntf' title='Show/hide edges bettwen a TF and a non-TF'> TF-nonTF " +
-	"<input type='checkbox' id='force' title='Turn on/off force of the graph layout'> Force " +
-	"<input type='checkbox' id='edgelist' title='Auto pop incident edge list when a node is clicked'> EdgeList " +
-	"</div>");
-
-  $("#"+this.htmlid+" #netname option[value='"+this.parentView.loader.lastIdentifier.net+"']").attr("selected", true);
-	$("#"+this.htmlid+" #netname").change( function(){
-		var net = $(this).select("option:selected").val();
-		console.log(net);
-		if(net!=layout.parentView.loader.lastIdentifier.net)
-			layout.parentView.loader.loadData({"net": net, "exp": "a^"});
-	});
-  $("#"+this.htmlid+" #gene").keydown( function(e){ if(e.which==13) return layout.uiUpdate("gene"); } );
-	$("#"+this.htmlid+" #comb").keydown( function(e){ if(e.which==13) return layout.uiUpdate("comb"); } );
-	$("#"+this.htmlid+" #label").attr("checked", this.showLabel)
-		.change(function(){ return layout.toggleLabel(); });
-	$("#"+this.htmlid+" #tf2tf").attr("checked", this.showTF2TFEdge)
-		.change(function(){ return layout.toggleTF2TFEdge(); });
-	$("#"+this.htmlid+" #tf2ntf").attr("checked", this.showTF2nTFEdge)
-		.change(function(){ return layout.toggleTF2nTFEdge(); });
-	$("#"+this.htmlid+" #force").attr("checked", this.forcing)
-		.change(function(){ return layout.toggleForce(); });
-	$("#"+this.htmlid+" #edgelist").attr("checked", this.edgeListing)
-		.change(function(){ return layout.toggleEdgeListing(); });
-	this.uiHeight = $("#"+this.htmlid+" div[name='ui']").height();
+GraphRenderer.prototype.renderUI = function(){
+  this.ui.render(renderer);
 };
 
-LayoutGraph.prototype.uiUpdate = function(type){
+GraphRenderer.prototype.uiUpdate = function(type){
 	var loader = this.parentView.loader;
     if(type=="gene"){
         var srch = $("#"+this.htmlid+" #gene").val();
@@ -177,7 +138,7 @@ LayoutGraph.prototype.uiUpdate = function(type){
 	}
 };
 
-LayoutGraph.prototype.renderGraph = function(){
+GraphRenderer.prototype.renderGraph = function(){
     var nodes = this.nodes,
 	links = this.links;
 
@@ -330,7 +291,7 @@ LayoutGraph.prototype.renderGraph = function(){
 		.text("");
 };
 
-LayoutGraph.prototype.updateLayout = function(){
+GraphRenderer.prototype.updateLayout = function(){
 
 	// similar with renderLayout, except no clearing svg and no function attr
 	/*
@@ -411,7 +372,7 @@ LayoutGraph.prototype.updateLayout = function(){
 	}
 };
 
-LayoutGraph.prototype.visualizeElement = function(element, type){
+GraphRenderer.prototype.visualizeElement = function(element, type){
 
 	var elementProcessed;
 	if(type=="highlight"){
@@ -472,7 +433,7 @@ LayoutGraph.prototype.visualizeElement = function(element, type){
 	this.parentView.postViewMessage(msg);
 };
 
-LayoutGraph.prototype.edgeCoordinate = function(d, which){
+GraphRenderer.prototype.edgeCoordinate = function(d, which){
 	var layout = this;
 	if(this.data.bidir[d.source.index+"*"+d.target.index] == true && this.data.bidir[d.target.index+"*"+d.source.index] == true){ // bidirectional edges
 		var dy = d.target.y-d.source.y, dx = d.target.x-d.source.x;
@@ -498,7 +459,7 @@ LayoutGraph.prototype.edgeCoordinate = function(d, which){
 	}
 };
 
-LayoutGraph.prototype.edgeArrow = function(d){
+GraphRenderer.prototype.edgeArrow = function(d){
 	var layout = this;
 	var g=5.0, h=g+10.0, w=5.0;
 	var dy = d.target.y-d.source.y, dx = d.target.x-d.source.x;
@@ -514,7 +475,7 @@ LayoutGraph.prototype.edgeArrow = function(d){
 				+(arrowx-w*cost2)+","+(arrowy-w*sint2);
 };
 
-LayoutGraph.prototype.graphZoomstart = function(d){
+GraphRenderer.prototype.graphZoomstart = function(d){
 	if(this.dragging) return;
 	//if(d.zone == "foreground") this.zoom.center([this.width/2, this.height/2]);
 	//else if(d.zone == "background") this.zoom.center(null);
@@ -524,7 +485,7 @@ LayoutGraph.prototype.graphZoomstart = function(d){
 	this.svg.selectAll(".linkdir_highlight").attr("visibility", "hidden");
 };
 
-LayoutGraph.prototype.graphZoom = function(d){
+GraphRenderer.prototype.graphZoom = function(d){
 	if(this.dragging) return;
 	//if(manager.ctrlDown) return;
 	var trans = d3.event.translate;
@@ -534,12 +495,12 @@ LayoutGraph.prototype.graphZoom = function(d){
 	this.updateLayout();
 };
 
-LayoutGraph.prototype.graphZoomend = function(d){
+GraphRenderer.prototype.graphZoomend = function(d){
 	if(this.dragging) return;
 	this.zooming = false;
 };
 
-LayoutGraph.prototype.nodeDragStart = function(d){
+GraphRenderer.prototype.nodeDragStart = function(d){
 	//if(manager.ctrlDown) return;
 	this.dragstartX = d3.event.sourceEvent.offsetX;
 	this.dragstartY = d3.event.sourceEvent.offsetY;
@@ -549,7 +510,7 @@ LayoutGraph.prototype.nodeDragStart = function(d){
 	this.dragging = true;
 };
 
-LayoutGraph.prototype.nodeDrag = function(d){
+GraphRenderer.prototype.nodeDrag = function(d){
 	var layout = this;
 
 	d.x = (d3.event.x - this.trans[0]) / this.scale;
@@ -619,7 +580,7 @@ LayoutGraph.prototype.nodeDrag = function(d){
 	}
 };
 
-LayoutGraph.prototype.nodeDragEnd = function(d){
+GraphRenderer.prototype.nodeDragEnd = function(d){
 	this.dragendX = d3.event.sourceEvent.offsetX;
 	this.dragendY = d3.event.sourceEvent.offsetY;
 
@@ -638,7 +599,7 @@ LayoutGraph.prototype.nodeDragEnd = function(d){
 	}
 };
 
-LayoutGraph.prototype.mouseDownNode = function(d){
+GraphRenderer.prototype.mouseDownNode = function(d){
 	if(d3.event.button == 2) // right click
 	{
 		delete this.data.visibleNodes[d.id];	// hide the node
@@ -652,7 +613,7 @@ LayoutGraph.prototype.mouseDownNode = function(d){
 	}
 };
 
-LayoutGraph.prototype.mouseDownLink = function(d){
+GraphRenderer.prototype.mouseDownLink = function(d){
 	if(d3.event.button == 2) // right click
 	{
 		delete this.data.visibleLinks[d.id];	// hide the edge
@@ -661,7 +622,7 @@ LayoutGraph.prototype.mouseDownLink = function(d){
 	}
 };
 
-LayoutGraph.prototype.highlightLink = function(d){
+GraphRenderer.prototype.highlightLink = function(d){
 	if(this.dragging || this.zooming) return;
 
 	this.visualizeElement({'content':d, 'type':"link"}, "highlight");
@@ -673,13 +634,13 @@ LayoutGraph.prototype.highlightLink = function(d){
   this.svg.select("#graphinfo").text(info);
 };
 
-LayoutGraph.prototype.unhighlightLink = function(d){
+GraphRenderer.prototype.unhighlightLink = function(d){
     var layout = this;
 
 	this.visualizeElement(null, "highlight");
 };
 
-LayoutGraph.prototype.highlightNode = function(d){
+GraphRenderer.prototype.highlightNode = function(d){
 	if(this.dragging || this.zooming) return;
 
 	this.visualizeElement({'content':d, 'type':"node"}, "highlight");
@@ -691,46 +652,46 @@ LayoutGraph.prototype.highlightNode = function(d){
   //this.svg.select("#v"+d.id).attr("class", "node_hl");
 };
 
-LayoutGraph.prototype.unhighlightNode = function(d){
+GraphRenderer.prototype.unhighlightNode = function(d){
 	if(this.dragging) return;
 	this.visualizeElement(null, "highlight");
 	this.svg.select("#lbl_v"+d.id).attr("visibility", this.showLabel?"visible":"hidden");
 	//this.svg.select("#v"+d.id).attr("class", "node");
 };
 
-LayoutGraph.prototype.selectNode = function(d){
+GraphRenderer.prototype.selectNode = function(d){
 	if(this.dragging || this.zooming) return;
 	if(this.blockclick){ this.blockclick = false; return; }
 
 	this.visualizeElement({'content':d, 'type':"node"}, "select");
 };
 
-LayoutGraph.prototype.selectLink = function(d){
+GraphRenderer.prototype.selectLink = function(d){
 	if(this.dragging || this.zooming) return;
 	if(this.blockclick){ this.blockclick = false; return; }
 
 	this.visualizeElement({'content':d, 'type':"link"}, "select");
 };
 
-LayoutGraph.prototype.toggleLabel = function(){
+GraphRenderer.prototype.toggleLabel = function(){
     this.showLabel = !this.showLabel;
 	var label = this.svg.selectAll(".label").data(this.nodes)
 		.attr("visibility", this.showLabel?"visible":"hidden");
 };
 
-LayoutGraph.prototype.toggleTF2TFEdge = function(){
+GraphRenderer.prototype.toggleTF2TFEdge = function(){
 	var layout = this;
     this.showTF2TFEdge = !this.showTF2TFEdge;
 	this.toggleEdge();
 };
 
-LayoutGraph.prototype.toggleTF2nTFEdge = function(){
+GraphRenderer.prototype.toggleTF2nTFEdge = function(){
     var layout = this;
     this.showTF2nTFEdge = !this.showTF2nTFEdge;
 	this.toggleEdge();
 };
 
-LayoutGraph.prototype.toggleEdge = function(){
+GraphRenderer.prototype.toggleEdge = function(){
 	var layout = this;
 	d3.selectAll(".link").data(this.data.links)
 		.attr("visibility", function(d){ return layout.checkVisible(d); });
@@ -740,42 +701,42 @@ LayoutGraph.prototype.toggleEdge = function(){
 		.attr("visibility", function(d){ return layout.checkVisible(d); });
 };
 
-LayoutGraph.prototype.checkVisible = function(d){
+GraphRenderer.prototype.checkVisible = function(d){
 	var layout = this;
 	if(d.source.isTF && d.target.isTF) return layout.showTF2TFEdge?"visible":"hidden";
 	else if(utils.xor(d.source.isTF, d.target.isTF)) return layout.showTF2nTFEdge?"visible":"hidden";
 	else return "visible";
 };
 
-LayoutGraph.prototype.toggleEdgeListing = function(){
+GraphRenderer.prototype.toggleEdgeListing = function(){
 	this.edgeListing = !this.edgeListing;
 	$("#"+this.htmlid+" #edgelist").attr("checked", this.edgeListing);
 };
 
-LayoutGraph.prototype.toggleForce = function(){
+GraphRenderer.prototype.toggleForce = function(){
 	if(this.forcing) this.force.stop();
 	else this.force.resume();
 	this.forcing = !this.forcing;
 };
 
-LayoutGraph.prototype.endForce = function(){
+GraphRenderer.prototype.endForce = function(){
 	this.forcing = false;
 	$("#"+this.htmlid+" #force").attr("checked", false);
 };
 
-LayoutGraph.prototype.showMsg = function(msg, ui){
+GraphRenderer.prototype.showMsg = function(msg, ui){
 	this.removeLayout();
 	if (ui==null) ui = false;
 	$("#"+this.htmlid).append("<div id='hint' class='hint'></div>");
 	$("#"+this.htmlid+" #hint").text(msg).css({"width": this.width, "height":this.rawheight-(ui && !this.compactLayou?this.uiHeight:0) });
 };
 
-LayoutGraph.prototype.showError = function(){
+GraphRenderer.prototype.showError = function(){
 	this.showMsg("Oops..this guy is dead. x_X", false);
 	this.renderUI();
 };
 
-LayoutGraph.prototype.updateGraphSize = function(newsize){
+GraphRenderer.prototype.updateGraphSize = function(newsize){
 	var oldwidth = this.width, oldheight = this.graphHeight;
 	this.graphHeight = newsize[1] - (this.compactLayout?0:this.uiHeight);
 	var xratio = newsize[0] / oldwidth, yratio = this.graphHeight / oldheight;
@@ -796,7 +757,7 @@ LayoutGraph.prototype.updateGraphSize = function(newsize){
 	this.force.size([newsize[0], this.graphHeight]);
 };
 
-LayoutGraph.prototype.resizeLayout = function(newsize){
+GraphRenderer.prototype.resizeLayout = function(newsize){
 	if (this.parentView.showHeader==false) newsize[1] += manager.headerHeight;
 
 	this.updateGraphSize(newsize);
@@ -807,7 +768,7 @@ LayoutGraph.prototype.resizeLayout = function(newsize){
     this.renderLayout();
 };
 
-LayoutGraph.prototype.setCompact = function(compact){
+GraphRenderer.prototype.setCompact = function(compact){
 	this.compactLayout = compact;
 	this.updateGraphSize([this.width, this.rawheight]);
 	this.removeLayout();

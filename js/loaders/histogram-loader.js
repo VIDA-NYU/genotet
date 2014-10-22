@@ -1,13 +1,13 @@
-function LoaderHistogram(){
-	
+function HistogramLoader(){
+
 }
 
-LoaderHistogram.prototype.loadData = function(identifier){
+HistogramLoader.prototype.loadData = function(identifier){
 	var name = identifier.name,
 		chr = identifier.chr,
 		range = identifier.range,
 		change = identifier.change;
-	
+
 	this.toLocate = range;
 	this.trackChanged = change;
 	if(identifier.chr==null) {
@@ -15,10 +15,10 @@ LoaderHistogram.prototype.loadData = function(identifier){
 		identifier.chr = "1"; // by default load chr1
 	}
 	if(this.trackChanged==null) this.trackChanged = true;
-	
+
 	this.lastIdentifier = {"name": name, "chr": chr};
 	this.parentView.layout.showMsg("Loading...");
-	
+
 	if (this.trackChanged) {
 		this.parentView.viewdata = {};
 		this.loadBindingsmp(name, chr);
@@ -26,10 +26,10 @@ LoaderHistogram.prototype.loadData = function(identifier){
 	}
 	if(range==null) this.loadBinding(name, chr);
 	else this.loadBinding(name, chr, range.xl, range.xr);
-	
+
 };
 
-LoaderHistogram.prototype.updateData = function(identifier){
+HistogramLoader.prototype.updateData = function(identifier){
 	if (identifier.name == null) {
 		identifier.name = this.lastIdentifier.name;
 	}
@@ -38,7 +38,7 @@ LoaderHistogram.prototype.updateData = function(identifier){
 	this.locateGene(identifier.srch);
 };
 
-LoaderHistogram.prototype.loadComplete = function(){
+HistogramLoader.prototype.loadComplete = function(){
 	var data = this.parentView.viewdata;
 	// do nothing when data is not completely loaded
 	if(data.overviewData==null || data.histogramData==null || data.exonsData==null) return;
@@ -53,7 +53,7 @@ LoaderHistogram.prototype.loadComplete = function(){
 	this.parentView.layout.reloadData();
 };
 
-LoaderHistogram.prototype.loadBindingsmp = function(name, chr){
+HistogramLoader.prototype.loadBindingsmp = function(name, chr){
 	var loader = this;
 	name = utils.encodeSpecialChar(name);
 	this.parentView.viewdata.overviewData = null;
@@ -70,22 +70,22 @@ LoaderHistogram.prototype.loadBindingsmp = function(name, chr){
 				return;
 			}
 			data.values.sort(function(a,b){ return a.x - b.x; });
-			
+
 			//oader.parentView.viewdata.name = data.name;
 			//oader.parentView.viewdata.chr = chr;
 			loader.parentView.viewdata.overviewData = data;
-			
+
 			loader.loadComplete();
 	    }
 	});
 };
 
-LoaderHistogram.prototype.loadBindingFromLayout = function(acrossChr, name, chr, xl, xr){
+HistogramLoader.prototype.loadBindingFromLayout = function(acrossChr, name, chr, xl, xr){
 	this.trackChanged = acrossChr;
 	this.loadBinding(name, chr, xl, xr);
 };
 
-LoaderHistogram.prototype.updateFocus = function(chr, xl, xr){
+HistogramLoader.prototype.updateFocus = function(chr, xl, xr){
 	this.parentView.layout.showMsg("Loading...");
 	this.loadBinding(this.lastIdentifier.name, chr, xl, xr);
 	if (this.lastIdentifier.chr != chr) {
@@ -94,12 +94,12 @@ LoaderHistogram.prototype.updateFocus = function(chr, xl, xr){
 		this.loadExons(this.lastIdentifier.name, chr);
 	}
 };
-LoaderHistogram.prototype.updateChr = function(chr){
+HistogramLoader.prototype.updateChr = function(chr){
 	this.parentView.layout.showMsg("Loading...");
 	this.loadBinding(this.lastIdentifier.name, chr);
 };
 // load high resolution binding data of 1000 samples
-LoaderHistogram.prototype.loadBinding = function(name, chr, xl, xr){
+HistogramLoader.prototype.loadBinding = function(name, chr, xl, xr){
 	var loader = this, layout = this.parentView.layout;
 	name = utils.encodeSpecialChar(name);
 	this.parentView.viewdata.histogramData = null;
@@ -118,7 +118,7 @@ LoaderHistogram.prototype.loadBinding = function(name, chr, xl, xr){
 				return;
 			}
 			data.values.sort(function(a,b){ return a.x - b.x; });
-			
+
 			loader.parentView.viewdata.name = data.name;
 			loader.parentView.viewdata.chr = data.chr;
 			loader.parentView.viewdata.histogramData = data;
@@ -127,7 +127,7 @@ LoaderHistogram.prototype.loadBinding = function(name, chr, xl, xr){
 	});
 };
 
-LoaderHistogram.prototype.loadExons = function(name, chr){
+HistogramLoader.prototype.loadExons = function(name, chr){
 	var loader = this;
 	this.parentView.viewdata.exonsData = null;
 	$.ajax({
@@ -150,7 +150,7 @@ LoaderHistogram.prototype.loadExons = function(name, chr){
 	});
 };
 
-LoaderHistogram.prototype.locateGene = function(name){
+HistogramLoader.prototype.locateGene = function(name){
 	var loader = this, layout = this.parentView.layout;
 	$.ajax({
 		type: 'GET', url: addr, dataType: 'jsonp',
@@ -173,7 +173,7 @@ LoaderHistogram.prototype.locateGene = function(name){
 	});
 };
 
-LoaderHistogram.prototype.error = function(msg){
+HistogramLoader.prototype.error = function(msg){
 	this.parentView.viewdata = null;
 	msg = this.parentView.viewname + ": " + msg;
 	this.parentView.layout.showError();

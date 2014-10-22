@@ -1,11 +1,11 @@
-function LoaderHeatmap(){
+function HeatmapLoader(){
 	this.lastExprows = ".*";
 	this.lastExpcols = ".*";
     this.lastResol = 5;
 	this.flagHeatmap = false;
 }
 
-LoaderHeatmap.prototype.updateData = function(identifier){
+HeatmapLoader.prototype.updateData = function(identifier){
 	if (identifier.action == "node") {
 		this.loadLine(this.lastIdentifier.mat, identifier.name);
 		if(identifier.net!=null){
@@ -18,7 +18,7 @@ LoaderHeatmap.prototype.updateData = function(identifier){
 	}
 };
 
-LoaderHeatmap.prototype.loadData = function(identifier){
+HeatmapLoader.prototype.loadData = function(identifier){
 	this.parentView.layout.showMsg("Loading...");
 	this.parentView.viewdata = {};
 	this.parentView.viewdata.lineData = new Array();
@@ -29,7 +29,7 @@ LoaderHeatmap.prototype.loadData = function(identifier){
 	this.loadHeatmap(identifier.mat, identifier.exprows, identifier.expcols);
 };
 
-LoaderHeatmap.prototype.loadComplete = function(){
+HeatmapLoader.prototype.loadComplete = function(){
 	var data = this.parentView.viewdata;
 	if(data.heatmapData == null) return;
 	if (this.flagHeatmap) {
@@ -40,7 +40,7 @@ LoaderHeatmap.prototype.loadComplete = function(){
 	this.parentView.layout.reloadData();
 };
 
-LoaderHeatmap.prototype.loadCompleteLine = function(){
+HeatmapLoader.prototype.loadCompleteLine = function(){
 	if(this.parentView.viewdata.heatmapData == null) return;	// prevent racing
 	if (this.parentView.layout.showPlot==true) {
 		this.parentView.layout.prepareLine();
@@ -52,7 +52,7 @@ LoaderHeatmap.prototype.loadCompleteLine = function(){
 	this.parentView.layout.updateLine();
 };
 
-LoaderHeatmap.prototype.loadHeatmap = function(mat, exprows, expcols, resol){
+HeatmapLoader.prototype.loadHeatmap = function(mat, exprows, expcols, resol){
 	var loader = this, layout = loader.parentView.layout;
 	var args ={"type": "expmat", "width": layout.heatmapWidth, "height": layout.heatmapHeight};
 	if(mat==null) mat = this.lastIdentifier.mat;
@@ -83,7 +83,7 @@ LoaderHeatmap.prototype.loadHeatmap = function(mat, exprows, expcols, resol){
 	});
 };
 
-LoaderHeatmap.prototype.loadHeatmapTargets = function(net, name){
+HeatmapLoader.prototype.loadHeatmapTargets = function(net, name){
 	var loader = this;
 	$.ajax({
 	    type: 'GET', url: addr, dataType: 'jsonp',
@@ -97,13 +97,13 @@ LoaderHeatmap.prototype.loadHeatmapTargets = function(net, name){
 	});
 };
 
-LoaderHeatmap.prototype.clearLines = function(){
+HeatmapLoader.prototype.clearLines = function(){
 	var loader = this;
 	loader.parentView.viewdata.lineData = [];
 	loader.loadCompleteLine();
 };
 
-LoaderHeatmap.prototype.loadLine = function(mat, name){
+HeatmapLoader.prototype.loadLine = function(mat, name){
 	var loader = this;
 	if (mat==null) mat = this.lastIdentifier.mat;
 	var args = "type=expmatline&mat="+mat+"&name="+name;
@@ -134,7 +134,7 @@ LoaderHeatmap.prototype.loadLine = function(mat, name){
 	});
 };
 
-LoaderHeatmap.prototype.error = function(msg, type){
+HeatmapLoader.prototype.error = function(msg, type){
 	msg = this.parentView.viewname + ": " + msg;
 	console.error(msg);
 	user.alert(msg);

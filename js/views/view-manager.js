@@ -193,7 +193,20 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
 		top = place.top;
 	}
 
-  var newview = new View(type, viewname, viewid, width, height, left, top);
+  // switch the constructed view object
+  var newview;
+  if (type === "graph")
+    newview = GraphView.new();
+  else if (type === "histogram")
+    newview = HistogramView.new();
+  else if (type === "heatmap")
+    newview = HeatmapView.new();
+  else if (type === "menu")
+    newview = MenuView.new();
+  else if (type === "table")
+    newview = TableView.new();
+
+  newview.init(type, viewname, viewid); // width, height, left, top
   this.views.push( {'viewid':viewid, 'viewname':viewname, 'viewtype': type, 'content':newview} );
 
   return newview;

@@ -1,4 +1,4 @@
-function LayoutMenu(htmlid, width, height) {
+function MenuRenderer(htmlid, width, height) {
 
   this.htmlid = htmlid;
   this.width = width;
@@ -9,7 +9,7 @@ function LayoutMenu(htmlid, width, height) {
   this.renderUI();
 }
 
-LayoutMenu.prototype.renderUI = function(){
+MenuRenderer.prototype.renderUI = function(){
 	$("#"+this.htmlid).append("<div name='ui'></div>");
 	var datamenu = $("#"+this.htmlid+" > div[name='ui']");
 
@@ -90,29 +90,29 @@ LayoutMenu.prototype.renderUI = function(){
 	$("#"+this.htmlid+ " #help").click( function(){ window.open('help.html'); } );
 };
 
-LayoutMenu.prototype.toggleSilent = function(){
+MenuRenderer.prototype.toggleSilent = function(){
 	user.silent = !user.silent;
 	//$("#"+this.htmlid+" #silent").attr("checked", user.silent);
 };
 
-LayoutMenu.prototype.toggleHint = function(){
+MenuRenderer.prototype.toggleHint = function(){
 	user.hint = !user.hint;
 	//$("#"+this.htmlid+" #hint").attr("checked", user.hint);
 	if(!user.hint) $( document ).tooltip("disable");
 	else $(document).tooltip("enable");
 };
 
-LayoutMenu.prototype.resizeLayout = function(newsize){
+MenuRenderer.prototype.resizeLayout = function(newsize){
 	//$("#"+this.htmlid+" .ui-accordion-content").css("width", newsize[0]);
 	this.removeLayout();
 	this.renderUI();
 };
 
-LayoutMenu.prototype.removeLayout = function(){
+MenuRenderer.prototype.removeLayout = function(){
 	$("#"+this.htmlid+" div[name='ui']").remove();
 };
 
-LayoutMenu.prototype.setCompact = function(compact){
+MenuRenderer.prototype.setCompact = function(compact){
 	this.compactLayout = compact;
 	this.removeLayout();
 

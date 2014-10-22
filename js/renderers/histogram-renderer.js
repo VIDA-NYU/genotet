@@ -1,5 +1,5 @@
 
-function LayoutHistogram(htmlid, width, height){
+function HistogramRenderer(htmlid, width, height){
 	this.htmlid = htmlid;
 	this.width = width;
 	this.rawheight = height;
@@ -59,7 +59,7 @@ function LayoutHistogram(htmlid, width, height){
 	//this.svg = d3.select("#"+this.htmlid).append("svg").attr("height", this.rawheight);
 }
 
-LayoutHistogram.prototype.formatExons = function(){
+HistogramRenderer.prototype.formatExons = function(){
 	/* now do the adjustment at the db*/
 	var data = this.data;
 
@@ -99,7 +99,7 @@ LayoutHistogram.prototype.formatExons = function(){
 	for(var i=0; i<exon.txRanges.length; i++) if(exon.txRanges[i].start > exon.txRanges[i].end) console.log(exon.txRanges[i]);
 };
 
-LayoutHistogram.prototype.prepareData = function(){	// get xmin, xmax, etc. called when binding data (gene,chr) changed
+HistogramRenderer.prototype.prepareData = function(){	// get xmin, xmax, etc. called when binding data (gene,chr) changed
 	// default focus region is all
 	this.data = this.parentView.viewdata;
 
@@ -130,7 +130,7 @@ LayoutHistogram.prototype.prepareData = function(){	// get xmin, xmax, etc. call
 	this.minvalGlobal = this.minval;
 };
 
-LayoutHistogram.prototype.updateBarSize = function(){
+HistogramRenderer.prototype.updateBarSize = function(){
 	// height depends on current view size
 	this.layoutHeight = this.rawheight - (this.compactLayout?0:this.uiHeight);
 	this.mainHeight = this.rawheight - (this.showOverview?this.overviewHeight:0) - (this.compactLayout?0:this.uiHeight) - this.bottomMargin;
@@ -147,7 +147,7 @@ LayoutHistogram.prototype.updateBarSize = function(){
 	this.exonsY = this.mainHeight - this.exonsHeight*0.65;
 };
 
-LayoutHistogram.prototype.reloadData = function(){
+HistogramRenderer.prototype.reloadData = function(){
 	var data = this.data;
 	//if(data.histogramData==null) data.histogramData = data.overviewData; // if high resolution not ready, display normal data
 
@@ -159,12 +159,12 @@ LayoutHistogram.prototype.reloadData = function(){
 	this.renderLayout();
 };
 
-LayoutHistogram.prototype.initFocus = function(xl, xr){	// only called by the loader
+HistogramRenderer.prototype.initFocus = function(xl, xr){	// only called by the loader
 	this.focusleft = xl;
 	this.focusright = xr;
 };
 
-LayoutHistogram.prototype.initLayout = function(){
+HistogramRenderer.prototype.initLayout = function(){
 	if(this.data==null || this.data.histogramData==null) return;
 
 	this.updateBarSize();
@@ -190,14 +190,14 @@ LayoutHistogram.prototype.initLayout = function(){
 	this.zoombarLeft = this.zoombarRight = 0;
 };
 
-LayoutHistogram.prototype.removeLayout = function(){
+HistogramRenderer.prototype.removeLayout = function(){
 	$("#"+this.htmlid+" div[name='ui']").remove();
 	$("#"+this.htmlid+" svg").remove();
 	$("#"+this.htmlid+" #hint").remove();
 	$("#"+this.htmlid+" #layoutwrapper").remove();
 };
 
-LayoutHistogram.prototype.renderLayout = function(){
+HistogramRenderer.prototype.renderLayout = function(){
 	if(this.data==null || this.data.histogramData==null) return;
 	var layout = this;
 	this.renderUI(); // selection for chromosome
@@ -211,7 +211,7 @@ LayoutHistogram.prototype.renderLayout = function(){
 	if(this.showExons==true) this.updateExons();
 };
 
-LayoutHistogram.prototype.renderUI = function(){
+HistogramRenderer.prototype.renderUI = function(){
 	if(this.compactLayout) return;
 
 	var data = this.data;
@@ -260,7 +260,7 @@ LayoutHistogram.prototype.renderUI = function(){
 	this.uiHeight = $("#"+this.htmlid+" div[name='ui']").height();
 };
 
-LayoutHistogram.prototype.uiUpdate = function(type){
+HistogramRenderer.prototype.uiUpdate = function(type){
 	var layout = this;
 	if(layout.loading==true) return;
 	if(type=="range"){
@@ -292,7 +292,7 @@ LayoutHistogram.prototype.uiUpdate = function(type){
 	}
 };
 
-LayoutHistogram.prototype.renderMain = function(){
+HistogramRenderer.prototype.renderMain = function(){
 	var layout = this;
 	this.svg = d3.select("#"+this.htmlid+" #layoutwrapper").append("svg")
 		.style("height", this.mainHeight)
@@ -397,7 +397,7 @@ LayoutHistogram.prototype.renderMain = function(){
 };
 
 
-LayoutHistogram.prototype.renderOverview = function(){
+HistogramRenderer.prototype.renderOverview = function(){
 	var layout = this;
 	var valsall = this.data.overviewData.values;
 
@@ -447,7 +447,7 @@ LayoutHistogram.prototype.renderOverview = function(){
 		);
 };
 
-LayoutHistogram.prototype.updateMainbar = function(d){
+HistogramRenderer.prototype.updateMainbar = function(d){
 	this.updateFocusrange();
 	var layout = this;
 	var vals = new Array(),
@@ -478,7 +478,7 @@ LayoutHistogram.prototype.updateMainbar = function(d){
 	if(this.showExons) this.updateExons();
 };
 
-LayoutHistogram.prototype.updateExons = function(){
+HistogramRenderer.prototype.updateExons = function(){
 	var layout = this;
 	var exons = new Array(), exonsall = this.data.exonsData;
 	// first binary search the first exon
@@ -570,7 +570,7 @@ LayoutHistogram.prototype.updateExons = function(){
 	}
 };
 
-LayoutHistogram.prototype.updateFocusrange = function(){
+HistogramRenderer.prototype.updateFocusrange = function(){
 	if(this.showOverview==false) return;
 	this.svgov.selectAll("#focusrange").data([{}])
 		.attr("x", this.overviewX + (this.focusleft-this.xmin)/this.xspan*this.overviewWidth)
@@ -580,7 +580,7 @@ LayoutHistogram.prototype.updateFocusrange = function(){
 	//this.updateTargetrange();
 };
 
-LayoutHistogram.prototype.selectOverviewStart = function(d){
+HistogramRenderer.prototype.selectOverviewStart = function(d){
 	if(this.loading == true) return;
 	this.zooming = true;
 	var rect = this.obariobj[0][0];
@@ -590,7 +590,7 @@ LayoutHistogram.prototype.selectOverviewStart = function(d){
 	this.updateFocusrange();
 };
 
-LayoutHistogram.prototype.selectOverview = function(d){
+HistogramRenderer.prototype.selectOverview = function(d){
 	if(this.loading == true) return;
 	var rect = this.obariobj[0][0];
 	var x = d3.mouse(rect)[0]; // get mouse x
@@ -606,14 +606,14 @@ LayoutHistogram.prototype.selectOverview = function(d){
 	this.updateMainbar();
 };
 
-LayoutHistogram.prototype.selectOverviewEnd = function(d){
+HistogramRenderer.prototype.selectOverviewEnd = function(d){
 	if(this.loading == true) return;
 	this.zooming = false;
 	//this.updateMainbar();
 	this.loadBindingLayout();
 };
 
-LayoutHistogram.prototype.updateCursorline = function(layoutX, valueX){
+HistogramRenderer.prototype.updateCursorline = function(layoutX, valueX){
 	this.svg.select("#cursorlabel").data([{}])
 		.attr("visibility", this.cursorPercent<0?"hidden":"visible")
 		.attr("x", layoutX)
@@ -624,14 +624,14 @@ LayoutHistogram.prototype.updateCursorline = function(layoutX, valueX){
 		.attr("x2", layoutX);
 };
 
-LayoutHistogram.prototype.mainbarZoomstart = function(d){
+HistogramRenderer.prototype.mainbarZoomstart = function(d){
 	if(this.loading == true) return;
 	this.zooming = true;
 	this.lastdx = 0;
 	this.lastscale = 1.0;
 };
 
-LayoutHistogram.prototype.mainbarZoom = function(d){
+HistogramRenderer.prototype.mainbarZoom = function(d){
 	if(this.loading == true) return;
 	var d3trans = d3.event.translate, d3scale = d3.event.scale;
 	var dx = d3trans[0] - this.lastdx, dscale = d3scale/this.lastscale;
@@ -662,7 +662,7 @@ LayoutHistogram.prototype.mainbarZoom = function(d){
 	//this.mainbar.attr("transform", "translate(" + d3trans + ")scale(" + d3scale + ")");
 };
 
-LayoutHistogram.prototype.mainbarZoomend = function(d){
+HistogramRenderer.prototype.mainbarZoomend = function(d){
 	if(this.loading == true) return;
 	this.zoom.scale(1.0);
 	this.zoom.translate([0,0]);
@@ -674,7 +674,7 @@ LayoutHistogram.prototype.mainbarZoomend = function(d){
 	//this.loadBinding();
 };
 
-LayoutHistogram.prototype.zoombarZoomstart = function(d){
+HistogramRenderer.prototype.zoombarZoomstart = function(d){
 	if(this.loading == true) return;
 	this.zooming = true;
 	this.lastzbx = 0;
@@ -684,7 +684,7 @@ LayoutHistogram.prototype.zoombarZoomstart = function(d){
 	this.svg.select("#zoombarSel").attr("x", mx).attr("width",0);
 };
 
-LayoutHistogram.prototype.zoombarZoom = function(d){
+HistogramRenderer.prototype.zoombarZoom = function(d){
 	if(this.loading == true) return;
 	var rect = this.zoombar[0][0];
 	var mx = d3.mouse(rect)[0]; // get mouse x
@@ -699,7 +699,7 @@ LayoutHistogram.prototype.zoombarZoom = function(d){
 	}
 };
 
-LayoutHistogram.prototype.zoombarZoomend = function(d){
+HistogramRenderer.prototype.zoombarZoomend = function(d){
 	if(this.loading == true) return;
 	this.zbzoom.translate([0,0]);
 	var xl = Math.min(this.zoombarLeft, this.zoombarRight),
@@ -711,11 +711,11 @@ LayoutHistogram.prototype.zoombarZoomend = function(d){
 	this.loadBindingLayout();
 };
 
-LayoutHistogram.prototype.zoomTimer = function(){
+HistogramRenderer.prototype.zoomTimer = function(){
 	timerLayout.loadBindingLayout();
 };
 
-LayoutHistogram.prototype.loadBindingLayout = function(acrossChr){
+HistogramRenderer.prototype.loadBindingLayout = function(acrossChr){
 	if(acrossChr==null) acrossChr = false;
 	this.loading = true;
 	var xl = Math.round(this.focusleft), xr = Math.round(this.focusright);
@@ -724,7 +724,7 @@ LayoutHistogram.prototype.loadBindingLayout = function(acrossChr){
 	this.parentView.postGroupMessage(msg);
 };
 
-LayoutHistogram.prototype.showMsg = function(msg, ui){
+HistogramRenderer.prototype.showMsg = function(msg, ui){
 	this.removeLayout();
 	//$("#"+this.htmlid+" #hint").remove();
 	if (ui==null) ui = false;
@@ -732,12 +732,12 @@ LayoutHistogram.prototype.showMsg = function(msg, ui){
 	$("#"+this.htmlid+" #hint").text(msg).css({"width": this.width, "height":this.rawheight-(ui && !this.compactLayou?this.uiHeight:0) });
 };
 
-LayoutHistogram.prototype.showError = function(){
+HistogramRenderer.prototype.showError = function(){
 	this.showMsg("Oops..this guy is dead. x_X", true);
 	this.renderUI();
 };
 
-LayoutHistogram.prototype.resizeLayout = function(newsize){
+HistogramRenderer.prototype.resizeLayout = function(newsize){
 	if (this.parentView.showHeader==false) newsize[1] += manager.headerHeight;
 
 	this.width = newsize[0];
@@ -748,28 +748,28 @@ LayoutHistogram.prototype.resizeLayout = function(newsize){
 	this.renderLayout();
 };
 
-LayoutHistogram.prototype.toggleAutoScale = function(){
+HistogramRenderer.prototype.toggleAutoScale = function(){
 	this.autoScale = !this.autoScale;
 	this.removeLayout();
 	this.initLayout();
 	this.renderLayout();
 };
 
-LayoutHistogram.prototype.toggleOverview = function(){
+HistogramRenderer.prototype.toggleOverview = function(){
 	this.showOverview = !this.showOverview;
 	this.removeLayout();
 	this.initLayout();
 	this.renderLayout();
 };
 
-LayoutHistogram.prototype.toggleExons = function(){
+HistogramRenderer.prototype.toggleExons = function(){
 	this.showExons = !this.showExons;
 	this.removeLayout();
 	this.initLayout();
 	this.renderLayout();
 };
 
-LayoutHistogram.prototype.setCompact = function(compact){
+HistogramRenderer.prototype.setCompact = function(compact){
 	this.compactLayout = compact;
 	//this.showOverview = !compact;
 	//this.showExons = !compact;

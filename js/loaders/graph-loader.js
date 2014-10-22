@@ -1,8 +1,8 @@
-function LoaderGraph(){
+function GraphLoader(){
 	this.lastIdentifier = null;
 }
 
-LoaderGraph.prototype.loadData = function(identifier){
+GraphLoader.prototype.loadData = function(identifier){
 	this.lastIdentifier = identifier;
 	//console.log(identifier);
 	//var selNodes = this.selectNodes(identifier.exp, identifier.range);
@@ -15,7 +15,7 @@ LoaderGraph.prototype.loadData = function(identifier){
 	//this.parentView.layout.setData(data);
 };
 
-LoaderGraph.prototype.updateData = function(identifier){
+GraphLoader.prototype.updateData = function(identifier){
 	if(identifier.action=="show"){
 		this.addEdges(identifier.data);
 	}else if(identifier.action=="hide"){
@@ -23,7 +23,7 @@ LoaderGraph.prototype.updateData = function(identifier){
 	}
 };
 
-LoaderGraph.prototype.addNodes = function(nodes){	// nodes are regexp
+GraphLoader.prototype.addNodes = function(nodes){	// nodes are regexp
 	var data = this.parentView.viewdata;
 	var exp = "a^";
 	for(var i=0; i<data.nodes.length; i++){
@@ -33,7 +33,7 @@ LoaderGraph.prototype.addNodes = function(nodes){	// nodes are regexp
 	this.loadNetwork(this.lastIdentifier.net, exp);
 };
 
-LoaderGraph.prototype.removeNodes = function(exp){
+GraphLoader.prototype.removeNodes = function(exp){
 	var data = this.parentView.viewdata;
 	for(var i=0; i<data.nodes.length; i++){
 		if(data.nodes[i].name.match(exp)){
@@ -48,7 +48,7 @@ LoaderGraph.prototype.removeNodes = function(exp){
 	this.reparseData(true);
 };
 
-LoaderGraph.prototype.addEdges = function(edges){
+GraphLoader.prototype.addEdges = function(edges){
 	var data = this.parentView.viewdata;
 	var nodes = data.nodes, nodeids = {};
 	var exp = "";
@@ -73,7 +73,7 @@ LoaderGraph.prototype.addEdges = function(edges){
 	this.updateNetwork(exp);
 };
 
-LoaderGraph.prototype.removeEdges = function(edges){
+GraphLoader.prototype.removeEdges = function(edges){
 	var data = this.parentView.viewdata;
 	var links = data.links;
 	for(var i=0; i<edges.length; i++){
@@ -82,7 +82,7 @@ LoaderGraph.prototype.removeEdges = function(edges){
 	this.reparseData(true); // removal of edges
 };
 
-LoaderGraph.prototype.updateNetwork = function(exp){
+GraphLoader.prototype.updateNetwork = function(exp){
 	//console.log("update", exp);
 	var loader = this;
 	this.recordPos(loader.parentView.viewdata);	// first record all the positions before load new data
@@ -106,7 +106,7 @@ LoaderGraph.prototype.updateNetwork = function(exp){
 	});
 };
 
-LoaderGraph.prototype.loadNetwork = function(net, exp, notInit){
+GraphLoader.prototype.loadNetwork = function(net, exp, notInit){
 	var loader = this;
 	$.ajax({
 	    type: 'GET', url: addr, dataType: 'jsonp',
@@ -132,7 +132,7 @@ LoaderGraph.prototype.loadNetwork = function(net, exp, notInit){
 	});
 };
 
-LoaderGraph.prototype.initData = function(data){
+GraphLoader.prototype.initData = function(data){
 	data.lastPos = {};
 	this.parseBidir(data);
 	data.visibleNodes = {};
@@ -141,14 +141,14 @@ LoaderGraph.prototype.initData = function(data){
 	for(var i=0; i<data.links.length; i++) data.visibleLinks[data.links[i].id] = true;	// initially every node & edge is visible
 };
 
-LoaderGraph.prototype.parseBidir = function(data){
+GraphLoader.prototype.parseBidir = function(data){
 	data.bidir = {};	// save bidirectonal edges
 	for(var i=0; i<data.links.length; i++){
 		data.bidir[data.links[i].source+"*"+data.links[i].target] = true;
 	}
 };
 
-LoaderGraph.prototype.filterData = function(data){
+GraphLoader.prototype.filterData = function(data){
 	var remap = {}; // remapping index of node
 	var fnodes = new Array(), flinks = new Array();
 	var nodes = data.nodes, links = data.links, lastPos = data.lastPos, visibleNodes = data.visibleNodes, visibleLinks = data.visibleLinks;
@@ -182,19 +182,19 @@ LoaderGraph.prototype.filterData = function(data){
 	this.parseBidir(data);
 };
 
-LoaderGraph.prototype.recordPos = function(data){
+GraphLoader.prototype.recordPos = function(data){
 	for(var i=0; i<data.nodes.length; i++){
 		data.lastPos[data.nodes[i].id] = {"x": data.nodes[i].x, "y": data.nodes[i].y};
 	}
 };
 
-LoaderGraph.prototype.reparseData = function(removeOnly){	// use for mouse click removal
+GraphLoader.prototype.reparseData = function(removeOnly){	// use for mouse click removal
 	this.recordPos(this.parentView.viewdata);
 	this.filterData(this.parentView.viewdata);
 	this.parentView.layout.reloadData(removeOnly);
 };
 
-LoaderGraph.prototype.showEdges = function(net, name){
+GraphLoader.prototype.showEdges = function(net, name){
 	var viewname = this.parentView.viewname + "-list";
 	var view = getView(viewname), launch = true;
 	if(view!=null) {
@@ -204,7 +204,7 @@ LoaderGraph.prototype.showEdges = function(net, name){
 	if(launch) this.loadEdges(net, name);
 };
 
-LoaderGraph.prototype.loadComb = function(net, exp){
+GraphLoader.prototype.loadComb = function(net, exp){
     var loader = this;
 	var oexp = exp;
 	exp = utils.encodeSpecialChar(exp);
@@ -229,7 +229,7 @@ LoaderGraph.prototype.loadComb = function(net, exp){
 	});
 };
 
-LoaderGraph.prototype.loadEdges = function(net, name){
+GraphLoader.prototype.loadEdges = function(net, name){
 	var loader = this;
 	$.ajax({
 		type: 'GET', url: addr, dataType: 'jsonp',
@@ -266,7 +266,7 @@ LoaderGraph.prototype.loadEdges = function(net, name){
 	});
 };
 
-LoaderGraph.prototype.error = function(msg){
+GraphLoader.prototype.error = function(msg){
 	this.parentView.viewdata = null;
 	msg = this.parentView.viewname + ": " + msg;
 	console.error(msg);
