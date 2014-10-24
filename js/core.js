@@ -39,7 +39,11 @@ Core.prototype.init = function() {
     hide: 1000
   });
 
-  createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
+  createView("Network", "network")
+    .load({
+      network: "th17",
+      genesRegex: "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$"
+    });
 };
 // examples
 /*

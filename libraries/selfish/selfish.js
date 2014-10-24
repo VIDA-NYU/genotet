@@ -3,11 +3,29 @@
          forin: true latedef: false supernew: true */
 /*global define: true */
 
-!(typeof define !== "function" ? function($){ $(null, typeof exports !== 'undefined' ? exports : window); } : define)(function(require, exports) {
+(typeof define !== "function" ? function($){ $(null, typeof exports !== 'undefined' ? exports : window); } : define)(function(require, exports) {
 
 "use strict";
 
 exports.Base = Object.freeze(Object.create(Object.prototype, {
+  /**
+   * Property representing a base prototype, object `this` prototype extends.
+   * If `this` object is an object created by `.new`, then `base` will be
+   * a prototype that, prototype of this extends. This property is intended to
+   * for calling methods of base / super prototype with out directly reference.
+   * @examples
+   *
+   *    var Point = Base.extend({
+   *      initialize: function Point(x, y) {
+   *        point.x = x || 0;
+   *        point.y = y || 0;
+   *      },
+   *      toString: function toString() {
+   *        return this.x + ':' + this.y
+   *      }
+   *    });
+   */
+  base: { value: Object.prototype },
   /**
    * Creates an object that inherits from `this` object (Analog of
    * `new Object()`).
@@ -20,51 +38,12 @@ exports.Base = Object.freeze(Object.create(Object.prototype, {
    *    });
    *    var dog = Dog.new();
    */
-  'new': { value: function create() {
+  new: { value: function () {
     var object = Object.create(this);
     object.initialize.apply(object, arguments);
     return object;
   }},
-  /**
-   * When new instance of the this prototype is created it's `initialize`
-   * method is called with all the arguments passed to the `new`. You can
-   * override `initialize` to set up an instance.
-   */
-  initialize: { value: function initialize() {
-  }},
-  /**
-   * Merges all the properties of the passed objects into `this` instance (This
-   * method can be used on instances only as prototype objects are frozen).
-   *
-   * If two or more argument objects have own properties with the same name,
-   * the property is overridden, with precedence from right to left, implying,
-   * that properties of the object on the left are overridden by a same named
-   * property of the object on the right.
-   *
-   * @examples
-   *
-   *    var Pet = Dog.extend({
-   *      initialize: function initialize(options) {
-   *        // this.name = options.name -> would have thrown (frozen prototype)
-   *        this.merge(options) // will override all properties.
-   *      },
-   *      call: function(name) {
-   *        return this.name === name ? this.bark() : ''
-   *      },
-   *      name: null
-   *    })
-   *    var pet = Pet.new({ name: 'Benzy', breed: 'Labrador' })
-   *    pet.call('Benzy')   // 'Ruff! Ruff!'
-   */
-  merge: { value: function merge() {
-    var descriptor = {};
-    Array.prototype.forEach.call(arguments, function (properties) {
-      Object.getOwnPropertyNames(properties).forEach(function(name) {
-        descriptor[name] = Object.getOwnPropertyDescriptor(properties, name);
-      });
-    });
-    Object.defineProperties(this, descriptor);
-    return this;
+  initialize: { value: function Base() {
   }},
   /**
    * Takes any number of argument objects and returns frozen, composite object
@@ -127,7 +106,7 @@ exports.Base = Object.freeze(Object.create(Object.prototype, {
    *
    *    var Pixel = Color.extend({
    *      initialize: function Pixel(x, y, hex) {
-   *        Color.initialize.call(this, hex);
+   *        this.base.initialize.call(this, hex);
    *        this.x = x;
    *        this.y = y;
    *      },
@@ -148,8 +127,19 @@ exports.Base = Object.freeze(Object.create(Object.prototype, {
    *    pixel.yellow();   // 0.2500
    *
    */
-   extend: { value: function extend() {
-    return Object.freeze(this.merge.apply(Object.create(this), arguments));
+  extend: { value: function extend() {
+    // Defining an ES5 property descriptor map, where own property
+    // descriptors of all given objects are copied.
+    var descriptor = {};
+    Array.prototype.forEach.call(arguments, function (properties) {
+      Object.getOwnPropertyNames(properties).forEach(function(name) {
+        descriptor[name] = Object.getOwnPropertyDescriptor(properties, name);
+      });
+    });
+    // In addition `base` property is defined that points to a primary ancestor
+    // of the resulting object.
+    descriptor.base = { value: this };
+    return Object.freeze(Object.create(this, descriptor));
   }}
 }));
 

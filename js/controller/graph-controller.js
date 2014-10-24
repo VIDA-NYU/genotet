@@ -1,6 +1,6 @@
-var GraphUI = UI.extend({
+var GraphController = Controller.extend({
   render: function(layout) {
-    layoutManager.uiNode.append("<div name='ui'><div>" +
+    layoutManager.controlNode.append("<div name='ui'><div>" +
     "<span style='margin-left: 5px; font-weight:900'>NETWORK</span>" +
     "<select id='netname' title='Choose the network data'>" +
       "<option value='th17'>TH17</option>" +

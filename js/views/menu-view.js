@@ -1,16 +1,17 @@
 var MenuView = View.extend({
   createDiv: function() {
-    this.jqnode = $("<div></div>").appendTo(layoutManager.menuNode.centerPane);
+    this.jqnode = $("<div></div>")
+      .appendTo(layoutManager.menuNode.centerPane);
   },
   createHandlers: function() {
-    this.loader = new MenuLoader();
-    this.ui = new MenuUI();
-    this.renderer = new MenuRenderer();
+    this.loader = Loader.new();
+    this.controller = Controller.new();
+    this.renderer = MenuRenderer.new(this);
   },
   prepareDiv: function() {
     this.jqnode
       .attr("id", "view" + this.viewid)
-      .attr("class", "ui-widget-content view");
+      .attr("class", "view-div");
 
     this.width = $(this.jqnode).width();
     this.height = $(this.jqnode).height();

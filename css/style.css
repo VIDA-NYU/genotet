@@ -3,7 +3,7 @@ html {
 }
 
 
-text, h3, .hint, .view, .exonname, .label,
+text, h3, .hint, .view-div, .exonname, .label,
 .trackhint, .coordlabel, .graphinfo, .legend, .condtext,
 .xlabel {
   font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
@@ -31,10 +31,12 @@ text {
   vertical-align: middle;
 }
 
-.view {
+.view-div {
   font-size: 12px;
   padding-bottom: 19px;
   opacity: 1.0;
+  height: 100%;
+  width: 100%;
 }
 
 .node {
@@ -331,8 +333,8 @@ text {
 
 .view-postbtn, .view-getbtn, .view-groupbtn,
 .view-closebtn, .view-minibtn, .view-helpbtn {
-  height: 16px;
   width: 16px;
+  height: 16px;
 }
 .view-postbtn, .view-getbtn, .view-groupbtn {
   float: left;

@@ -25,8 +25,8 @@ function LayoutManager() {
 
   var jqInfo = $('body').children('.ui-layout-east').children('.ui-layout-south');
   this.infoNode = new LayoutNode(jqInfo, this.stdOptions);
-  var jqUI = $('body').children('.ui-layout-east').children('.ui-layout-center');
-  this.uiNode = new LayoutNode(jqUI, this.stdOptions);
+  var jqControl = $('body').children('.ui-layout-east').children('.ui-layout-center');
+  this.controlNode = new LayoutNode(jqControl, this.stdOptions);
 
   // disable menu scrolling
   this.menuNode.centerPane.css('overflow', 'hidden');

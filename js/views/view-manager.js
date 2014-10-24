@@ -6,7 +6,7 @@ function ViewManager(){
 	this.maxZindex = 0;
 	this.menuMarginRight = 0;
 
-  this.supportedTypes = ["menu", "graph", "histogram", "heatmap", "table"];
+  this.supportedTypes = ["menu", "graph", "histogram", "heatmap", "table", "network", "binding", "expression"];
   this.defaultWidth = {
     menu: "100%",
     graph: 600,
@@ -157,13 +157,13 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
   }
 	if(viewname==""){
 		console.error("Cannot create view: Viewname cannot be empty");
-		user.alert("Cannot create view: Viewname cannot be empty");
+		options.alert("Cannot create view: Viewname cannot be empty");
 		return null;
 	}
   for(var i=0; i<this.views.length; i++){
 	    if(this.views[i].viewname==viewname){
 		    console.error("Cannot create view: viewname must unique");
-			 user.alert("Cannot create view: viewname must unique");
+			  options.alert("Cannot create view: viewname must unique");
 		    return null;
 	    }
     }
@@ -195,18 +195,17 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
 
   // switch the constructed view object
   var newview;
-  if (type === "graph")
-    newview = GraphView.new();
-  else if (type === "histogram")
-    newview = HistogramView.new();
-  else if (type === "heatmap")
-    newview = HeatmapView.new();
+  if (type === "network")
+    newview = NetworkView.new(type, viewname, viewid);
+  else if (type === "binding")
+    newview = BindingView.new(type, viewname, viewid);
+  else if (type === "expression")
+    newview = ExpressionView.new(type, viewname, viewid);
   else if (type === "menu")
-    newview = MenuView.new();
+    newview = MenuView.new(type, viewname, viewid);
   else if (type === "table")
-    newview = TableView.new();
+    newview = TableView.new(type, viewname, viewid);
 
-  newview.init(type, viewname, viewid); // width, height, left, top
   this.views.push( {'viewid':viewid, 'viewname':viewname, 'viewtype': type, 'content':newview} );
 
   return newview;
@@ -361,10 +360,10 @@ ViewManager.prototype.linkView = function(sourceView, targetView){
 	if(targetView.parentView!=null){
 		if(targetView.parentView == sourceView){
 			console.error("Cannot link view: views are already linked");
-			user.alert("Cannot link view: views are already linked");
+			options.alert("Cannot link view: views are already linked");
 		}else{
 			console.error("Cannot link view: " + targetView.viewname + " is already listening to " + targetView.parentView.viewname);
-			user.alert("Cannot link view: " + targetView.viewname + " is already listening to " + targetView.parentView.viewname);
+			options.alert("Cannot link view: " + targetView.viewname + " is already listening to " + targetView.parentView.viewname);
 		}
 		return false;
 	}
@@ -577,6 +576,6 @@ ViewManager.prototype.loadPreset = function(type){
 		createView("Network A", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
 		createView("Network B", "graph").loadData("confidence", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
 	} else {
-		user.alert("Unknown layout preset");
+		options.alert("Unknown layout preset");
 	}
 };

@@ -1,5 +1,7 @@
-var View = Base.extend({
-  init: function(type, viewname, viewid) {
+"use strict";
+
+var extObject = {
+  initialize: function(type, viewname, viewid) {
     this.type = type;
     this.viewname = viewname;
     this.viewid = viewid;
@@ -13,6 +15,12 @@ var View = Base.extend({
 
     this.createDiv();
     this.prepareDiv();
+    this.createHandlers(); // loader, control and renderer are created in this step
+
+    this.loader.load(this.onLoadComplete.bind(this));
+  },
+  onLoadComplete: function() {
+    this.renderer.render();
   },
   createDiv: function() {
     // abstract, each view needs to specify what kind of view slot is expected
@@ -21,7 +29,7 @@ var View = Base.extend({
   prepareDiv: function() {
     this.jqnode
       .attr("id", "view" + this.viewid)
-      .attr("class", "ui-widget-content view");
+      .attr("class", "view-div"); //ui-widget-content
     this.width = $(this.jqnode).width();
     this.height = $(this.jqnode).height();
 
@@ -36,8 +44,8 @@ var View = Base.extend({
       .append("<button id='miniBtn' class='view-minibtn'></button>")
       .append("<button id='helpBtn' class='view-helpbtn'></button>")
       .append("<button id='postBtn' class='view-postbtn'></button>")
-      .append("<button id='postBtn' class='view-getbtn'></button>")
-      .append("<button id='postBtn' class='view-groupbtn'></button>");
+      .append("<button id='getBtn' class='view-getbtn'></button>")
+      .append("<button id='groupBtn' class='view-groupbtn'></button>");
 
     var view = this;
     $(this.jqnode).find("#postBtn").button({
@@ -95,6 +103,9 @@ var View = Base.extend({
     // abstract, must be filled with real constructors
     throw "createHandler is not implemented";
   },
+  load: function(para) {
+    this.loader.load(this.renderer, para);
+  },
   resize: function(width, height) {
 
   },
@@ -104,60 +115,6 @@ var View = Base.extend({
   },
   close: function() {
     $(this.jqnode).remove();
-  },
-
-  loadData: function(para1, para2, para3, para4){
-    var identifier;
-    if(this.type=="graph"){
-      identifier = {
-        "net": para1,
-        "exp": para2
-      };
-    }else if(this.type=="histogram"){
-      identifier = {
-        "name": para1,
-        "chr": para2,
-        "gene": para3
-      };
-    }else if(this.type=="heatmap"){
-      identifier = {
-        "mat": para1,
-        "name": para2,
-        "exprows": para3,
-        "expcols": para4
-      };
-    }
-    this.loader.loadData(identifier);
-  },
-
-  updateData: function(para1, para2, para3){
-    var identifier;
-    if(this.type=="graph"){ // show or hide edges
-      identifier = {
-        "action": para1,
-        "data": para2
-      };
-    }else if(this.type=="histogram"){
-      identifier = {
-        "name": para1,
-        "srch": para2
-      };
-    }else if(this.type=="heatmap"){
-      if (para1=="node") {
-        identifier = {
-          "action": para1,
-          "name": para2,
-          "net": para3
-        };
-      }else if (para1=="link") {
-        identifier = {
-          "action": para1,
-          "source": para2,
-          "target": para3
-        };
-      }
-    }
-    this.loader.updateData(identifier);
   },
   getViewMessage: function(msg){
     if(this.type=="histogram"){
@@ -284,7 +241,66 @@ var View = Base.extend({
       view.layout.resizeLayout([view.layout.width, $("#view"+view.viewid).height()]);
     }
   }
-});
+};
+
+var View = Base.extend(extObject);
+
+/*
+  loadData: function(para1, para2, para3, para4){
+    var identifier;
+    if(this.type=="graph"){
+      identifier = {
+        "net": para1,
+        "exp": para2
+      };
+    }else if(this.type=="histogram"){
+      identifier = {
+        "name": para1,
+        "chr": para2,
+        "gene": para3
+      };
+    }else if(this.type=="heatmap"){
+      identifier = {
+        "mat": para1,
+        "name": para2,
+        "exprows": para3,
+        "expcols": para4
+      };
+    }
+    this.loader.loadData(identifier);
+  },
+*/
+/*
+  updateData: function(para1, para2, para3){
+    var identifier;
+    if(this.type=="graph"){ // show or hide edges
+      identifier = {
+        "action": para1,
+        "data": para2
+      };
+    }else if(this.type=="histogram"){
+      identifier = {
+        "name": para1,
+        "srch": para2
+      };
+    }else if(this.type=="heatmap"){
+      if (para1=="node") {
+        identifier = {
+          "action": para1,
+          "name": para2,
+          "net": para3
+        };
+      }else if (para1=="link") {
+        identifier = {
+          "action": para1,
+          "source": para2,
+          "target": para3
+        };
+      }
+    }
+    this.loader.updateData(identifier);
+  },
+  */
 
 /*
 View.prototype.init = function(){
