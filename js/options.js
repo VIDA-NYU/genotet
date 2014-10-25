@@ -1,3 +1,6 @@
+
+// system options
+
 function Options(){
 	this.silent = false;
 	this.hint = false;

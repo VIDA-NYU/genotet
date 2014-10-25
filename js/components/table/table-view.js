@@ -1,4 +1,9 @@
-var TableView = View.extend({
+
+// Table View
+
+"use strict";
+
+var extObject = {
   createDiv: function() {
     this.jqnode = $("<div></div>").appendTo(layoutManager.infoNode.centerPane);
   },
@@ -7,4 +12,6 @@ var TableView = View.extend({
     this.ui = new TableUI();
     this.renderer = new TableRenderer();
   }
-});
+};
+
+var TableView = View.extend(extObject);

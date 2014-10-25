@@ -1,3 +1,13 @@
+
+// Welcome View
+
+/*
+ * The welcome window that pops up when system is launched.
+ * Copied from old Genotet. Need to rewrite.
+ */
+
+"use strict";
+
 function Welcome(){
     var wc = this;
     $("body").append("<div id='block' class='block'></div>");

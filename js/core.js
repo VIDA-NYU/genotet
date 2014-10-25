@@ -1,3 +1,12 @@
+
+// Genotet Core
+
+/*
+ * The core object prepares all the objects necessary for the system.
+ */
+
+"use strict";
+
 // request json data file via http & jsonp
 var addr = "jsonp.php";
 
@@ -45,6 +54,7 @@ Core.prototype.init = function() {
       genesRegex: "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$"
     });
 };
+
 // examples
 /*
 createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");

@@ -1,3 +1,13 @@
+
+// View
+
+/*
+ * This is the base class of view.
+ * A view shall inherit this class and support the following functions
+ * createDiv: set this.jqnode to proper div
+ * onLoadComplete: define the action once loader completes loading
+ */
+
 "use strict";
 
 var extObject = {

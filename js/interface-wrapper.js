@@ -1,3 +1,6 @@
+
+// interface-wrapper will finally be obsolete
+
 function getView(viewname){
 	return manager.getView(viewname);
 }

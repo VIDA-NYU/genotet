@@ -1,4 +1,9 @@
-var GraphController = Controller.extend({
+
+// Graph Controller
+
+"use strict";
+
+var extObject = {
   render: function(layout) {
     layoutManager.controlNode.append("<div name='ui'><div>" +
     "<span style='margin-left: 5px; font-weight:900'>NETWORK</span>" +
@@ -43,5 +48,7 @@ var GraphController = Controller.extend({
       .change(function(){ return layout.toggleEdgeListing(); });
     this.uiHeight = $("#"+this.htmlid+" div[name='ui']").height();
   }
-});
+};
+
+var GraphController = Controller.extend(extObject);
 

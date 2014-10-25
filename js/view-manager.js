@@ -1,3 +1,13 @@
+
+// View Manager
+
+/*
+ * viewManager dispatches view creation/deletion messages, as well as view communications.
+ * Copied from old Genotet. Need to rewrite.
+ */
+
+"use strict";
+
 function ViewManager(){
     this.views = new Array();
 

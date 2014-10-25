@@ -1,5 +1,14 @@
-// layoutManager object controls and manipulates the view structure
-// it stores the views layout as a tree, each tree node may have multiple views shown as tabs
+
+// Layout Manager
+
+/*
+ * layoutManager object controls and manipulates the view structure
+ * The view layout is stored as a tree.
+ * Each tree node may have multiple views shown as tabs.
+ * Currently, the tree grows always to the east or to the south in the viewNode.
+ */
+
+"use strict";
 
 function LayoutManager() {
 

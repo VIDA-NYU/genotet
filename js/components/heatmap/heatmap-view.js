@@ -1,11 +1,18 @@
-var HeatmapView = View.extend({
+
+// Heatmap View
+
+"use strict";
+
+var extObject = {
   createDiv: function() {
     var node = layoutManager.findSlot(this.viewname);
     this.jqnode = $("<div></div>").appendTo(node);
   },
   createHandlers: function() {
     this.loader = new HeatmapLoader();
-    this.ui = new HeatmapUI();
+    this.controller = new HeatmapController();
     this.renderer = new HeatmapRenderer();
   }
-});
+};
+
+var HeatmapView = View.extend(extObject);

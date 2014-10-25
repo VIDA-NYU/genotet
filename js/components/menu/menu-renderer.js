@@ -1,4 +1,9 @@
-var MenuRenderer = Renderer.extend({
+
+// Menu Renderer
+
+"use strict";
+
+var extObject = {
   render: function() {
     var jqnode = this.view.jqnode;
     var datamenu = $("<div name='ui'></div>").appendTo($(jqnode));
@@ -96,4 +101,6 @@ var MenuRenderer = Renderer.extend({
       this.renderUI();
     }
   }
-});
+};
+
+var MenuRenderer = Renderer.extend(extObject);
