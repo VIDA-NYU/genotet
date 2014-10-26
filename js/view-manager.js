@@ -9,14 +9,16 @@
 "use strict";
 
 function ViewManager(){
-    this.views = new Array();
+  this.views = [];
 
+  /*
 	this.headerHeight = 19; // the height of a view's header
 	this.borderWidth = 2;
 	this.maxZindex = 0;
 	this.menuMarginRight = 0;
-
-  this.supportedTypes = ["menu", "graph", "histogram", "heatmap", "table", "network", "binding", "expression"];
+*/
+  //this.supportedTypes = ["menu", "graph", "histogram", "heatmap", "table", "network", "binding", "expression"];
+  /*
   this.defaultWidth = {
     menu: "100%",
     graph: 600,
@@ -45,18 +47,19 @@ function ViewManager(){
     heatmap: 290,
     table: 315
   };
+  */
 
-
+  /*
 	this.bindingNames = ["BATF","IRF4","MAF","RORC","STAT3","Hif1a","Etv6","Jmjd3","BATF-Th0","BATF-Th17","cMaf-Th0","cMaf-Th17","Fosl2-Th0","Fosl2-Th17","IRF4-Th0","IRF4-Th17","p300-Th0","p300-Th17",
 	"RORg-Th0","RORg-Th17","STAT3-Th0","STAT3-Th17","RNA-Seq-1h","RNA-Seq-3h","RNA-Seq-6h","RNA-Seq-9h","RNA-Seq-16h","RNA-Seq-24h","RNA-Seq-48h","FAIRE-Seq-IRF4+","FAIRE-Seq-IRF4-",
 	"FAIRE-Seq-Batf+","FAIRE-Seq-Batf-"];
+	*/
 	this.bindingChrs = [];
 	for(var i=0; i<19; i++) this.bindingChrs.push((i+1).toString());
 	this.bindingChrs = this.bindingChrs.concat(["M","X","Y"]);
 
-	this.ctrlDown = false;
-
-	this.topIndex = null;
+	//this.ctrlDown = false;
+	//this.topIndex = null;
 	/*
 	var manager = this;
 	$(document).keydown( function(e){
@@ -76,6 +79,7 @@ function ViewManager(){
 	*/
 }
 
+/*
 ViewManager.prototype.supportBinding = function(name){
 	name = name.toLowerCase();
 	for(var i=0; i<this.bindingNames.length; i++){
@@ -83,6 +87,7 @@ ViewManager.prototype.supportBinding = function(name){
 	}
 	return false;
 };
+*/
 
 ViewManager.prototype.availViewID = function(){
 	var id = 0;
@@ -99,6 +104,7 @@ ViewManager.prototype.availViewID = function(){
 	}
 };
 
+/*
 ViewManager.prototype.setTopView = function(groupid, viewid){
 	if (this.topView == viewid) return;
 	for(var i=0; i<this.views.length; i++){
@@ -109,7 +115,6 @@ ViewManager.prototype.setTopView = function(groupid, viewid){
 		}
 	}
 };
-
 ViewManager.prototype.increaseZindex = function(){
 	this.maxZindex ++;
 	if(this.maxZindex >= 5){
@@ -128,10 +133,10 @@ ViewManager.prototype.increaseZindex = function(){
 		this.maxZindex = 5;
 	}
 };
-
 ViewManager.prototype.embedSize = function(x){
 	return x - 2*this.borderWidth;
 };
+*/
 
 ViewManager.prototype.getViewNames = function(type, name){
 	if(type=="togroup"){
@@ -159,12 +164,13 @@ ViewManager.prototype.createMenu = function(){
 	this.createView("GENOTET", "menu");
 };
 
-ViewManager.prototype.createView = function(viewname, type, width, height, left, top){
-
+ViewManager.prototype.createView = function(viewname, type, operator){ //, width, height, left, top
+/*
   if(this.supportedTypes.indexOf(type)==-1){
 		console.error("There is no view type named " + type);
 		return null;
   }
+  */
 	if(viewname==""){
 		console.error("Cannot create view: Viewname cannot be empty");
 		options.alert("Cannot create view: Viewname cannot be empty");
@@ -188,42 +194,52 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
 			break;
 		}
   }
-	if(width==null || height == null){
-		var size = this.getViewSize(type);
-		if(width==null) width = size.width;
-		if(height==null) height = size.height;
-	}
-	if(left==null || top == null) {
-		var place = this.getViewPlace(width, height, type);
-		if(place.success == false) {
-			user.alert("cannot auto placing view - not enough space for view " + viewname);
-			place.left = place.top = 8;
-		}
-		left = place.left;
-		top = place.top;
-	}
 
   // switch the constructed view object
+
+  var layout = layoutManager.allocDiv(type, operator);
   var newview;
   if (type === "network")
-    newview = NetworkView.new(type, viewname, viewid);
+    newview = NetworkView.new(type, viewname, viewid, layout);
   else if (type === "binding")
-    newview = BindingView.new(type, viewname, viewid);
+    newview = BindingView.new(type, viewname, viewid, layout);
   else if (type === "expression")
-    newview = ExpressionView.new(type, viewname, viewid);
+    newview = ExpressionView.new(type, viewname, viewid, layout);
   else if (type === "menu")
-    newview = MenuView.new(type, viewname, viewid);
+    newview = MenuView.new(type, viewname, viewid, layout);
   else if (type === "table")
-    newview = TableView.new(type, viewname, viewid);
-
+    newview = TableView.new(type, viewname, viewid, layout);
+  else {
+    console.error("no supported view found");
+  }
+  layout.addView(newview);
   this.views.push( {'viewid':viewid, 'viewname':viewname, 'viewtype': type, 'content':newview} );
 
   return newview;
+
+  /*
+  if(width==null || height == null){
+    var size = this.getViewSize(type);
+    if(width==null) width = size.width;
+    if(height==null) height = size.height;
+  }
+  if(left==null || top == null) {
+    var place = this.getViewPlace(width, height, type);
+    if(place.success == false) {
+      user.alert("cannot auto placing view - not enough space for view " + viewname);
+      place.left = place.top = 8;
+    }
+    left = place.left;
+    top = place.top;
+  }
+
+  */
 };
 
+  /*
 ViewManager.prototype.getViewSize = function(type){
 	var width, height;
-	/*
+
 	if (type==="graph" || type==="heatmap") {
 		width = (($('body').innerWidth() - $("#view"+getView("GENOTET").viewid).outerWidth())>>1) - 2;
 	}else if (type==="histogram") {
@@ -238,13 +254,11 @@ ViewManager.prototype.getViewSize = function(type){
 	} else {
 		height = this.defaultHeight[type];
 	}
-	*/
 	return {
     width: "100%",
     height: "100%"
   };
 };
-
 ViewManager.prototype.getViewPlace = function(width, height, type){	// find a place to put the view
 	//if(type=="menu") {
     return {
@@ -275,7 +289,7 @@ ViewManager.prototype.getViewPlace = function(width, height, type){	// find a pl
 	}
 	return {"success": false};
 };
-
+*/
 ViewManager.prototype.closeAllViews = function(){
 	for(var i=0; i<this.views.length; i++){
 		this.views[i].content.close();
@@ -286,16 +300,17 @@ ViewManager.prototype.closeAllViews = function(){
 
 ViewManager.prototype.closeView = function(viewname){
 	var found = -1;
-	for(var i=0; i<this.views.length; i++){
-		if(this.views[i].viewname==viewname){
+	for (var i = 0; i < this.views.length; i++){
+		if (this.views[i].viewname == viewname) {
 			found = i;
 			break;
 		}
 	}
-	if(found==-1) {
+	if (found === -1) {
 		console.error("cannot close view", viewname, "view not found");
 		return;
 	}
+	/*
 	var content = this.views[found].content;
 	for(var i=0; i<this.views.length; i++){
 		if (this.views[i].content.groupid == content.groupid && this.views[i].viewid != content.viewid) {
@@ -314,13 +329,17 @@ ViewManager.prototype.closeView = function(viewname){
 	if(content.parentView!=null)
 		this.unlinkView(content.parentView, content);	// remove link
 	content.close();
+	*/
 	this.views.splice(found, 1);
-	this.resetFlags();
+	//this.resetFlags();
+
 };
 
+/*
 ViewManager.prototype.resetFlags = function(){
 	this.topView = null;
 };
+*/
 
 ViewManager.prototype.getView = function(viewname){
     for(var i=0; i<this.views.length; i++){

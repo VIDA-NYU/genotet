@@ -1,38 +1,43 @@
+
+h2, h3, li, p {
+   font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
+}
+
 pre {
-    color: #61576d;
-    white-space: pre-wrap;
-    white-space: -moz-pre-wrap;
-    white-space: -o-pre-wrap;
+  color: #61576d;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -o-pre-wrap;
 }
 
 table, th, td
 {
-    border: 1px solid #61576d;
-    border-collapse:collapse;
-    text-align:center;
-    padding:0px 15px;
+  font-size: 12px;
+  border: 1px solid #61576d;
+  border-collapse:collapse;
+  text-align: center;
+  line-height: 20px;
+  padding: 0px 15px;
 }
 
 h2 {
-    font-size: 20px;
-    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
-    color: white;
-    background: #61576d;
-    padding-left: 1em;
-    line-height: 50px;
+  font-size: 20px;
+  color: black;
+  background: #c6d3e6;
+  padding-left: 1em;
+  line-height: 50px;
 }
+
 h3 {
-    font-size: 17px;
-    background: #cfc9d7;
-    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+  font-size: 17px;
+  background: #e5ebf3;
 }
 
 li {
-    line-height: 2em;
-    font-size: 14px;
-    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+  line-height: 2em;
+  font-size: 14px;
 }
+
 p {
-    font-size: 14px;
-    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+  font-size: 14px;
 }

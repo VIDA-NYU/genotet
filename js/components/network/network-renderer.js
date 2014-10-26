@@ -1,4 +1,8 @@
+
+// Network Renderer
+
 "use strict";
+
 var extObject = {
   initialize: function(htmlid, width, height) {
     this.htmlid = htmlid;

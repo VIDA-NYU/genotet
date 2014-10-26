@@ -1,8 +1,4 @@
 var MenuView = View.extend({
-  createDiv: function() {
-    this.jqnode = $("<div></div>")
-      .appendTo(layoutManager.menuNode.centerPane);
-  },
   createHandlers: function() {
     this.loader = Loader.new();
     this.controller = Controller.new();

@@ -4,7 +4,14 @@ var extObject = {
   initialize: function() {
     this.lastIdentifier = null;
   },
-  load: function(onComplete, para) {
+  /*
+  load: function(para, onComplete) {
+    this.base.load(para, function() {
+      onComplete();
+    });
+  },
+  */
+  load: function(para, onComplete) {
     //this.lastIdentifier = identifier;
     //console.log(identifier);
     //var selNodes = this.selectNodes(identifier.exp, identifier.range);

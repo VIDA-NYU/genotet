@@ -13,7 +13,7 @@ function Dialog(){
 
 Dialog.prototype.dialogLayout = function(type){
   switch(type){
-  case "create_graph":
+  case "create_network":
     $("#dialog #datadiv").append("" +
       "Network" +
       "<select id='data'>" +
@@ -26,7 +26,7 @@ Dialog.prototype.dialogLayout = function(type){
       "<input type='text' size='20' id='exp' title='Regexp for genes to be shown in the network'>" +
       "</div>");
     break;
-  case "create_histogram":
+  case "create_binding":
     $("#dialog #datadiv").append("" +
       "View data <input id='data' size='8' title='Select binding data'>" +
       "Chr <select id='chr' title='Chromosome to be loaded'><select>" +
@@ -38,7 +38,7 @@ Dialog.prototype.dialogLayout = function(type){
       appendTo: "body"
     });
     break;
-  case "create_heatmap":
+  case "create_expression":
     $("#dialog #datadiv").append("<div id='data'>" +
       "<div> Matrix" +
       "<select id='data'>" +
@@ -88,15 +88,15 @@ Dialog.prototype.dialogCreate = function(){
   $("body").append("<div id='dialog' title='Create View'>" +
   "<div>View name <input type='text' size='15' id='viewname'></div>" +
   "<div>View type <select id='type'>" +
-  "<option value='graph'>Network</option>" +
-  "<option value='histogram'>Genome Browser</option>" +
-  "<option value='heatmap'>Expression</option>" +
+  "<option value='network'>Network</option>" +
+  "<option value='binding'>Genome Browser</option>" +
+  "<option value='expression'>Expression</option>" +
   "</select></div>" +
   "<div id='datadiv'></div>" +
   "</div>");
   $("#dialog #viewname").val("View" + manager.availViewID());
   $("#dialog").addClass("viewshadow");
-  this.dialogLayout("create_graph");
+  this.dialogLayout("create_network");
 
   $("#dialog #type").change(function(){
     var type = $("#dialog #type option:selected").val();
@@ -109,13 +109,13 @@ Dialog.prototype.dialogCreate = function(){
       "OK": function() {
         var name = $("#dialog #viewname").val();
         var type = $("#dialog #type option:selected").val();
-        if(type=="graph"){
+        if(type=="network"){
           var data = $("#dialog #data").val();
           var exp = $("#dialog #datadiv #exp").val();
           if(exp=="") exp="a^";
-          var view = createView(name, type);
-          if(view) view.loadData(data, exp);
-        }else if(type=="histogram"){
+          var view = createView(name, type, "user");
+          //if(view) view.loadData(data, exp);
+        }else if(type=="binding"){
           var data = $("#dialog #data").val();
           if (manager.supportBinding(data)==false){
             options.alert("Please type in a supported binding track");
@@ -123,19 +123,21 @@ Dialog.prototype.dialogCreate = function(){
           }
           var chr = $("#dialog #datadiv #chr").val();
           if(chr=="") chr = "1";
-          var view = createView(name, type);
-          if(view) view.loadData(data, chr);
-        }else if(type=="heatmap"){
+          var view = createView(name, type, "user");
+          //if(view) view.loadData(data, chr);
+        }else if(type=="expression"){
           var mat = $("#dialog #data option:selected").val();
           var plot = $("#dialog #datadiv #plot").val();
           var exprows = $("#dialog #datadiv #gene").val();
           var expcols = $("#dialog #datadiv #cond").val();
           if(exprows=="") exprows=".*";
           if(expcols=="") expcols=".*";
-          var view = createView(name, type);
-          if(view) view.loadData(mat, plot, exprows, expcols);
+          var view = createView(name, type, "user");
+          //if(view) view.loadData(mat, plot, exprows, expcols);
         }
-        if(view) $("#dialog").remove();
+        if(view) {
+          $("#dialog").remove();
+        }
       },
       "Cancel": function(){ $("#dialog").remove(); }
     }

@@ -11,30 +11,30 @@
 "use strict";
 
 var extObject = {
-  initialize: function(type, viewname, viewid) {
+  initialize: function(type, viewname, viewid, layout) {
     this.type = type;
     this.viewname = viewname;
     this.viewid = viewid;
     this.groupid = viewid;
 
-    this.compactLayout = false;
     this.showHeader = true;
 
     this.linkTargets = [];
     this.linkSources = [];
 
-    this.createDiv();
+    this.layout = layout;
+    this.jqnode = $("<div></div>").appendTo(this.layout.centerPane);
+
     this.prepareDiv();
     this.createHandlers(); // loader, control and renderer are created in this step
 
-    this.loader.load(this.onLoadComplete.bind(this));
+    this.load(); // by default load with empty parameter
+  },
+  load: function(para) {
+    this.loader.load(this.onLoadComplete.bind(this), para);
   },
   onLoadComplete: function() {
     this.renderer.render();
-  },
-  createDiv: function() {
-    // abstract, each view needs to specify what kind of view slot is expected
-    throw "createDiv is not implemented";
   },
   prepareDiv: function() {
     this.jqnode
@@ -52,12 +52,15 @@ var extObject = {
     $(this.jqnode).find("h3:first")
       .append("<button id='closeBtn' class='view-closebtn'></button>")
       .append("<button id='miniBtn' class='view-minibtn'></button>")
-      .append("<button id='helpBtn' class='view-helpbtn'></button>")
-      .append("<button id='postBtn' class='view-postbtn'></button>")
-      .append("<button id='getBtn' class='view-getbtn'></button>")
-      .append("<button id='groupBtn' class='view-groupbtn'></button>");
+      .append("<button id='helpBtn' class='view-helpbtn'></button>");
+
+      // these functions shall be supported shortly
+      //.append("<button id='postBtn' class='view-postbtn'></button>")
+      //.append("<button id='getBtn' class='view-getbtn'></button>")
+      //.append("<button id='groupBtn' class='view-groupbtn'></button>");
 
     var view = this;
+    /*
     $(this.jqnode).find("#postBtn").button({
       icons: { primary: "ui-icon-signal-diag" },
       text: false
@@ -81,12 +84,12 @@ var extObject = {
       .mouseover(function() { view.highlightGroup(view.groupid); })
       .mouseleave(function() { view.unhighlightGroup(view.groupid); })
       .mousedown(function(e) { view.groupEdit(e); });
-
+    */
     $(this.jqnode).find("#helpBtn").button({
       icons : { primary : "ui-icon-help" },
       text : false
     })
-      .click(function() { view.help(); });
+      .click(function() { view.showDocument(); });
 
     $(this.jqnode).find("#miniBtn").button({
       icons : { primary : "ui-icon-minus" },
@@ -98,34 +101,37 @@ var extObject = {
       icons : { primary : "ui-icon-close" },
       text : false
     })
-      .click(function() { closeView(view.viewname); });
+      .click(function() { view.close(); });
 
     $(this.jqnode)
-      .mousedown(function() { manager.setTopView(view.groupid, view.viewid); })
+      //.mousedown(function() { manager.setTopView(view.groupid, view.viewid); })
       .dblclick(function() { view.toggleViewheader(); });
 
-    $(this.jqnode)
-      .css("min-width", 100)
-      .css("z-index", manager.maxZindex);
-    manager.increaseZindex();
+    //$(this.jqnode)
+    //  .css("min-width", 100)
+    //  .css("z-index", manager.maxZindex);
+    //manager.increaseZindex();
   },
   createHandlers: function() {
     // abstract, must be filled with real constructors
     throw "createHandler is not implemented";
   },
-  load: function(para) {
-    this.loader.load(this.renderer, para);
-  },
+
   resize: function(width, height) {
 
   },
 
-  help: function() {
-    window.open("help.html#" + type);
+  showDocument: function() {
+    window.open("document.html#" + this.type);
   },
+
   close: function() {
     $(this.jqnode).remove();
+    this.layout.remove(this);
   },
+
+  // cross view communication will be implemented shortly
+  /*
   getViewMessage: function(msg){
     if(this.type=="histogram"){
       if(msg.action=="select" && msg.type=="node"){
@@ -240,6 +246,7 @@ var extObject = {
     }
     this.layout.setCompact(this.compactLayout);
   },
+  */
   toggleViewheader: function(){
     var view = this;
     view.showHeader = !view.showHeader;

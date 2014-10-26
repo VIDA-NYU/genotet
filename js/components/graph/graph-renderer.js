@@ -1,3 +1,8 @@
+
+// Graph Renderer
+
+"use strict";
+
 var extObject = {
   createDiv: function() {
     var node = layoutManager.findSlot(this.viewname);
@@ -9,4 +14,5 @@ var extObject = {
     this.renderer = GraphRenderer.new();
   }
 };
+
 var GraphRenderer = Renderer.extend(extObject);

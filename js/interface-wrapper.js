@@ -9,8 +9,8 @@ function createMenu(){
 	return manager.createMenu();
 }
 
-function createView(viewname, viewtype){ //, width, height, left, top
-	return manager.createView(viewname, viewtype);
+function createView(viewname, viewtype, operator){ //, width, height, left, top
+	return manager.createView(viewname, viewtype, operator);
 }
 
 function closeView(viewname){

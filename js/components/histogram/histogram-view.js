@@ -9,9 +9,9 @@ var extObject = {
     this.jqnode = $("<div></div>").appendTo(node);
   },
   createHandlers: function() {
-    this.loader = new HistogramLoader();
-    this.ui = UI.new();
-    this.renderer = new HistogramRenderer();
+    this.loader = Loader.new();
+    this.controller = Controller.new();
+    this.renderer = Renderer.new();
   }
 };
 

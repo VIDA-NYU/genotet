@@ -5,8 +5,8 @@
 
 var extObject = {
   createDiv: function() {
-    var node = layoutManager.findSlot(this.viewname);
-    this.jqnode = $("<div></div>").appendTo(node);
+    this.layout = layoutManager.findSlot(this);
+    this.jqnode = $("<div></div>").appendTo(this.layout.centerPane);
   }
 };
 
