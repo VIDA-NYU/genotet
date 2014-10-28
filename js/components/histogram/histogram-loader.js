@@ -3,6 +3,10 @@
 
 "use strict";
 
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
+
 var extObject = {
   loadData: function(identifier){
     var name = identifier.name,

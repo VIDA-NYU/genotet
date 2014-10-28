@@ -1,6 +1,12 @@
 
 // Chart Loader
 
+/*
+ * Chart loader loads the data to be displayed in chart.
+ * Currently we assume the data can be passed in via para as some JSON
+ * Later we can change it to load async from server
+ */
+
 "use strict";
 
 var extObject = {

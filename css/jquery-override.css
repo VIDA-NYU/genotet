@@ -1,3 +1,9 @@
+
+/*
+ * override some of the library settings, including
+ * jquery-ui, jquery ui layout plugin
+ */
+
 .ui-corner-all,
 .ui-tooltip,
 .ui-dialog-title,

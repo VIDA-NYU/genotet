@@ -4,6 +4,7 @@
 /*
  * Exactly one menu view would exist at any time
  */
+
 "use strict";
 
 var extObject = {

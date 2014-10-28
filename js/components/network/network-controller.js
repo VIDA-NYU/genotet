@@ -3,6 +3,10 @@
 
 "use strict";
 
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
+
 var extObject = {
   render: function(layout) {
     layoutManager.controlNode.append("<div name='ui'><div>" +

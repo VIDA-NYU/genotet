@@ -3,6 +3,10 @@
 
 "use strict";
 
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
+
 var extObject = {
   initialize: function(htmlid, width, height) {
     this.htmlid = htmlid;

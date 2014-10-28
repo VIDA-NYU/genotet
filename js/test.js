@@ -1,3 +1,8 @@
+
+// Here you can specify the views for testing
+
+"use strict";
+
 function createTestViews() {
   // You can add your test views here to define the action for "Test Preset" button
   // The views defined here will be launched when the system starts

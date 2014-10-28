@@ -1,6 +1,10 @@
 
 // Chart Renderer
 
+/*
+ * The renderer of the chart puts svg element onto the chart's svg
+ */
+
 "use strict";
 
 var extObject = {
@@ -19,14 +23,13 @@ var extObject = {
 
     // use d3 to set an svg
     this.svg = d3.select("#canvas" + view.viewid).append("svg");
-    //$("#canvas" + view.viewid + " svg")
-    //  .css("width", "100%")
-    //  .css("height", "100%");
+    // need to explicitly set svg size, otherwise it won't fill the view
     this.svg
       .style("width", "100%")
-      .style("height", "100%");
-      //.style("height", "100%");
-    // renders the data
+      .style("height", "100%")
+      .style("background", "white");
+
+    // renders the data using d3
     this.svg.selectAll("circle").data(view.data.points).enter()
       .append("circle")
       .attr("cx", function(d){ return d.x; })

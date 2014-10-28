@@ -1,6 +1,16 @@
 
 // system utility functions
 
+/*
+ * need to rewrite
+ */
+
+"use strict";
+
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
+
 function Utils(){
 }
 

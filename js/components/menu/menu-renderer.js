@@ -3,6 +3,10 @@
 
 "use strict";
 
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
+
 var extObject = {
   render: function() {
     var jqnode = this.view.getJqCanvas();

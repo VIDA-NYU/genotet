@@ -1,4 +1,11 @@
+
+// Network loader
+
 "use strict";
+
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
 
 var extObject = {
   initialize: function() {

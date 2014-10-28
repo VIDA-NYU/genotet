@@ -1,3 +1,12 @@
+
+// Nodes in the layout tree
+
+/*
+ * The layout tree currently expands to the east or south in the viewNode
+ */
+
+"use strict";
+
 function LayoutNode(jqnode, options) {
   if (options.useExistingNode) {
     this.centerPane = jqnode.children(".ui-layout-center");

@@ -1,10 +1,18 @@
 
 // Chart Controller
 
+/*
+ * The controller of the chart displays necessary controls (checkboxes, input box, etc) to show
+ * proper visualization in the chart's main view (canvas)
+ */
+
 "use strict";
 
 var extObject = {
   display: function() {
+    // display function MUST be implemented in the view's controller
+    // this function will be called when the view is activated (by user clicking)
+
     // get the view this controller belongs to
     var view = this.view;
 

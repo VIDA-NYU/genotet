@@ -7,6 +7,10 @@
 
 "use strict";
 
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
+
 // request json data file via http & jsonp
 var addr = "jsonp.php";
 

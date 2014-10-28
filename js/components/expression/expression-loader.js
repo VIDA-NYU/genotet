@@ -1,4 +1,12 @@
+
+// Expression Matrix Loader
+
 "use strict";
+
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
+
 var extObject = {
   initialize: function() {
     this.lastExprows = ".*";

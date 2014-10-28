@@ -1,5 +1,5 @@
 
-// Binding Loader
+// Binding (Genome Browser) Loader
 
 "use strict";
 

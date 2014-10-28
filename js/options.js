@@ -1,6 +1,12 @@
 
 // system options
 
+/*
+ * will soon be obsolete
+ */
+
+"use strict";
+
 function Options(){
 	this.silent = false;
 	this.hint = false;
