@@ -11,7 +11,7 @@
 "use strict";
 
 var extObject = {
-  initialize: function(type, viewname, viewid, layout) {
+  initialize: function(type, viewname, viewid, layout, ctrllayout) {
     this.type = type;
     this.viewname = viewname;
     this.viewid = viewid;
@@ -19,41 +19,91 @@ var extObject = {
 
     this.showHeader = true;
 
+    this.viewWidth = this.viewHeight = 0;
+    this.canvasWidth = this.canvasHeight = 0;
+
     this.linkTargets = [];
     this.linkSources = [];
 
     this.layout = layout;
-    this.jqnode = $("<div></div>").appendTo(this.layout.centerPane);
+    this.ctrllayout = ctrllayout;
 
-    this.prepareDiv();
+    this.prepareView();
     this.createHandlers(); // loader, control and renderer are created in this step
 
-    this.load(); // by default load with empty parameter
+    // reverse references
+    this.loader.view = this;
+    this.controller.view = this;
+    this.renderer.view = this;
   },
   load: function(para) {
-    this.loader.load(this.onLoadComplete.bind(this), para);
+    // call like createView(...).load(...)
+    this.loader.load(para);
   },
-  onLoadComplete: function() {
+  render: function() {
     this.renderer.render();
   },
-  prepareDiv: function() {
-    this.jqnode
-      .attr("id", "view" + this.viewid)
-      .attr("class", "view-div"); //ui-widget-content
-    this.width = $(this.jqnode).width();
-    this.height = $(this.jqnode).height();
+  control: function() {
+    this.controller.display();
+  },
+  onResize: function(width, height) {
+  },
+  prepareView: function() {
+    this.jqview = $("<div></div>")
+      .attr("class", "view-div")
+      .appendTo(this.layout.centerPane);
+    this.jqheader = $("<h3></h3>")
+      .appendTo(this.jqview);
+    this.jqcanvas = $("<div></div>")
+      .attr("class", "view-canvas")
+      .appendTo(this.jqview);
+    this.jqctrl = this.ctrllayout.centerPane;
 
-    $("<h3></h3>").appendTo(this.jqnode)
+    this.prepareHeader();
+    this.prepareCanvas();
+
+    // and some interaction
+    var view = this;
+    this.jqview
+      //.mousedown(function() { manager.setTopView(view.groupid, view.viewid); })
+      .dblclick(function() { view.toggleViewheader(); })
+      .click( function() { viewManager.activateView(view.viewname); });
+  },
+  prepareHeader: function() {
+    this.jqheader
       .attr("id", "viewheader" + this.viewid)
       .attr("class", "ui-widget-header")
       .text(this.viewname);
-
-    $(this.jqnode).addClass("viewshadow");
-    $(this.jqnode).find("h3:first")
-      .append("<button id='closeBtn' class='view-closebtn'></button>")
-      .append("<button id='miniBtn' class='view-minibtn'></button>")
-      .append("<button id='helpBtn' class='view-helpbtn'></button>");
-
+    this.prepareHeaderButtons();
+  },
+  prepareHeaderButtons: function() {
+    var view = this;
+    $("<button id='closeBtn' class='view-closebtn'></button>")
+      .button({
+        icons : { primary : "ui-icon-close" },
+        text : false
+      })
+      .click(function() { viewManager.closeView(view.viewname, "user"); })
+      .appendTo(this.jqheader);
+    $("<button id='miniBtn' class='view-minibtn'></button>")
+      .button({
+        icons : { primary : "ui-icon-minus" },
+        text : false
+      })
+      .click(function() { view.toggleCompactLayout(); })
+      .appendTo(this.jqheader);
+    $("<button id='docBtn' class='view-helpbtn'></button>")
+      .button({
+        icons : { primary : "ui-icon-help" },
+        text : false
+      })
+      .click(function() { view.showDocument(); })
+      .appendTo(this.jqheader);
+  },
+  prepareCanvas: function() {
+    this.jqcanvas
+      .attr("id", "canvas" + this.viewid);
+    //$(this.jqcanvas).addClass("viewshadow");
       // these functions shall be supported shortly
       //.append("<button id='postBtn' class='view-postbtn'></button>")
       //.append("<button id='getBtn' class='view-getbtn'></button>")
@@ -85,28 +135,6 @@ var extObject = {
       .mouseleave(function() { view.unhighlightGroup(view.groupid); })
       .mousedown(function(e) { view.groupEdit(e); });
     */
-    $(this.jqnode).find("#helpBtn").button({
-      icons : { primary : "ui-icon-help" },
-      text : false
-    })
-      .click(function() { view.showDocument(); });
-
-    $(this.jqnode).find("#miniBtn").button({
-      icons : { primary : "ui-icon-minus" },
-      text : false
-    })
-      .click(function() { view.toggleCompactLayout(); });
-
-    $(this.jqnode).find("#closeBtn").button({
-      icons : { primary : "ui-icon-close" },
-      text : false
-    })
-      .click(function() { view.close(); });
-
-    $(this.jqnode)
-      //.mousedown(function() { manager.setTopView(view.groupid, view.viewid); })
-      .dblclick(function() { view.toggleViewheader(); });
-
     //$(this.jqnode)
     //  .css("min-width", 100)
     //  .css("z-index", manager.maxZindex);
@@ -114,23 +142,49 @@ var extObject = {
   },
   createHandlers: function() {
     // abstract, must be filled with real constructors
-    throw "createHandler is not implemented";
+    throw "createHandlers() is not implemented";
   },
 
-  resize: function(width, height) {
-
+  // get functions for loader/controller/renderer
+  getJqController: function() {
+    return this.jqctrl;
+  },
+  getJqCanvas: function() {
+    return this.jqcanvas;
+  },
+  getViewWidth: function() {
+    return this.viewWidth;
+  },
+  getViewHeight: function() {
+    return this.viewHeight;
+  },
+  getCanvasWidth: function() {
+    return this.canvasWidth;
+  },
+  getCanvasHeight: function() {
+    return this.canvasHeight;
   },
 
+  // button actions
   showDocument: function() {
     window.open("document.html#" + this.type);
   },
-
-  close: function() {
-    $(this.jqnode).remove();
-    this.layout.remove(this);
+  toggleCompactLayout: function() {
+    console.log("TODO: compact layout not implemented");
+  },
+  close: function(options) {
+    $(this.jqview).remove();
+    this.layout.remove(this, options);
   },
 
-  // cross view communication will be implemented shortly
+  highlightTitle: function() {
+    this.jqheader.addClass("ui-state-highlight");
+  },
+  unhighlightTitle: function() {
+    this.jqheader.removeClass("ui-state-highlight");
+  },
+
+  // TODO: cross view communication will be implemented shortly
   /*
   getViewMessage: function(msg){
     if(this.type=="histogram"){
@@ -247,15 +301,26 @@ var extObject = {
     this.layout.setCompact(this.compactLayout);
   },
   */
+
+  __onResize: function(width, height) {
+    // this onResize function shall not be called from view
+    this.viewWidth = width;
+    this.viewHeight = height;
+    this.canvasWidth = width;
+    this.canvasHeight = height - this.jqheader.outerHeight(true);
+    this.jqcanvas
+      .css("height", this.canvasHeight);
+    this.onResize(width, height);
+  },
   toggleViewheader: function(){
     var view = this;
     view.showHeader = !view.showHeader;
     if (!view.showHeader) {
       $("#viewheader"+view.viewid).hide();
-      view.layout.resizeLayout([view.layout.width, $("#view"+view.viewid).height()]);
+      //view.layout.resizeLayout([view.layout.width, $("#view"+view.viewid).height()]);
     }else{
       $("#viewheader"+view.viewid).show();
-      view.layout.resizeLayout([view.layout.width, $("#view"+view.viewid).height()]);
+      //view.layout.resizeLayout([view.layout.width, $("#view"+view.viewid).height()]);
     }
   }
 };

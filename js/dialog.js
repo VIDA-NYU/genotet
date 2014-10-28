@@ -31,10 +31,10 @@ Dialog.prototype.dialogLayout = function(type){
       "View data <input id='data' size='8' title='Select binding data'>" +
       "Chr <select id='chr' title='Chromosome to be loaded'><select>" +
       "</div>");
-    var chrs = manager.bindingChrs;
+    var chrs = viewManager.bindingChrs;
     for(var i=0;i<chrs.length;i++) $("#dialog #chr").append("<option value="+chrs[i]+">"+chrs[i]+"</option>");
     $("#dialog #data").autocomplete({
-      source: manager.bindingNames,
+      source: viewManager.bindingNames,
       appendTo: "body"
     });
     break;
@@ -51,9 +51,9 @@ Dialog.prototype.dialogLayout = function(type){
       "</div>");
     break;
   case "link_change":
-    var names = manager.getViewNames();
+    var names = viewManager.getViewNames();
     var name = $("#dialog #source").val();
-    var children = manager.getViewChildren(name);
+    var children = viewManager.getViewChildren(name);
     $("#dialog").append("<div id='targetdiv'>Target view <select id='target' title='View as a listener'></select></div>");
     for(var i=0; i<names.length; i++){
       if(children.indexOf(names[i])!=-1 || names[i]==name) continue;
@@ -61,9 +61,9 @@ Dialog.prototype.dialogLayout = function(type){
     }
     break;
   case "unlink_change":
-    var names = manager.getViewNames();
+    var names = viewManager.getViewNames();
     var name = $("#dialog #source").val();
-    var children = manager.getViewChildren(name);
+    var children = viewManager.getViewChildren(name);
     $("#dialog").append("<div id='targetdiv'>Target view <select id='target' title='View as a listener'></select></div>");
     for(var i=0; i<children.length; i++){
       $("#dialog #target").append("<option value='"+children[i]+"'>"+children[i]+"</option>");
@@ -71,7 +71,7 @@ Dialog.prototype.dialogLayout = function(type){
     break;
   case "group":
     var name = $("#dialog #source").val();
-    var names = manager.getViewNames("togroup", name);
+    var names = viewManager.getViewNames("togroup", name);
     $("#dialog").append("<div id='targetdiv'>Target view<select id='target' title='View that is in the group to be joined'></select></div>");
     for(var i=0; i<names.length; i++){
       $("#dialog #target").append("<option value='"+names[i]+"'>"+names[i]+"</option>");
@@ -94,7 +94,7 @@ Dialog.prototype.dialogCreate = function(){
   "</select></div>" +
   "<div id='datadiv'></div>" +
   "</div>");
-  $("#dialog #viewname").val("View" + manager.availViewID());
+  $("#dialog #viewname").val("View" + viewManager.availViewID());
   $("#dialog").addClass("viewshadow");
   this.dialogLayout("create_network");
 
@@ -109,23 +109,25 @@ Dialog.prototype.dialogCreate = function(){
       "OK": function() {
         var name = $("#dialog #viewname").val();
         var type = $("#dialog #type option:selected").val();
-        if(type=="network"){
+        if(type==="network"){
           var data = $("#dialog #data").val();
           var exp = $("#dialog #datadiv #exp").val();
           if(exp=="") exp="a^";
           var view = createView(name, type, "user");
           //if(view) view.loadData(data, exp);
-        }else if(type=="binding"){
+        }else if(type==="binding"){
           var data = $("#dialog #data").val();
-          if (manager.supportBinding(data)==false){
+          /*
+          if (viewManager.supportBinding(data)==false){
             options.alert("Please type in a supported binding track");
             return;
           }
+          */
           var chr = $("#dialog #datadiv #chr").val();
           if(chr=="") chr = "1";
           var view = createView(name, type, "user");
           //if(view) view.loadData(data, chr);
-        }else if(type=="expression"){
+        }else if(type==="expression"){
           var mat = $("#dialog #data option:selected").val();
           var plot = $("#dialog #datadiv #plot").val();
           var exprows = $("#dialog #datadiv #gene").val();
@@ -150,7 +152,7 @@ Dialog.prototype.dialogLink = function(src){
   $("body").append("<div id='dialog' title='Link Views'>" +
   "<div>Source view <select id='source' title='View to be listened to'></select></div>" +
   "</div>");
-  var names = manager.getViewNames();
+  var names = viewManager.getViewNames();
   for(var i=0; i<names.length; i++){
     $("#dialog #source").append("<option value='"+names[i]+"'>"+names[i]+"</option>");
   }
@@ -184,7 +186,7 @@ Dialog.prototype.dialogUnlink = function(src){
   $("body").append("<div id='dialog' title='Unlink Views'>" +
   "<div>Source view <select id='source' title='View to be listened to'></select></div>" +
   "</div>");
-  var names = manager.getViewNames();
+  var names = viewManager.getViewNames();
   for(var i=0; i<names.length; i++){
     $("#dialog #source").append("<option value='"+names[i]+"'>"+names[i]+"</option>");
   }
@@ -217,7 +219,7 @@ Dialog.prototype.dialogGroup = function(src){
   $("body").append("<div id='dialog' title='Group Views'>" +
   "<div>Source view <select id='source' title='View to join the group'></select></div>" +
   "</div>");
-  var names = manager.getViewNames();
+  var names = viewManager.getViewNames();
   for(var i=0; i<names.length; i++){
     $("#dialog #source").append("<option value='"+names[i]+"'>"+names[i]+"</option>");
   }

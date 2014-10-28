@@ -161,7 +161,9 @@ ViewManager.prototype.getViewNames = function(type, name){
 };
 
 ViewManager.prototype.createMenu = function(){
-	this.createView("GENOTET", "menu");
+	var menu = this.createView("GENOTET", "menu");
+	menu.render();
+	return menu;
 };
 
 ViewManager.prototype.createView = function(viewname, type, operator){ //, width, height, left, top
@@ -198,17 +200,22 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
   // switch the constructed view object
 
   var layout = layoutManager.allocDiv(type, operator);
+  var ctrl = layoutManager.allocControl();
   var newview;
   if (type === "network")
-    newview = NetworkView.new(type, viewname, viewid, layout);
+    newview = NetworkView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "binding")
-    newview = BindingView.new(type, viewname, viewid, layout);
+    newview = BindingView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "expression")
-    newview = ExpressionView.new(type, viewname, viewid, layout);
+    newview = ExpressionView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "menu")
-    newview = MenuView.new(type, viewname, viewid, layout);
+    newview = MenuView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "table")
-    newview = TableView.new(type, viewname, viewid, layout);
+    newview = TableView.new(type, viewname, viewid, layout, ctrl);
+  else if (type === "heatmap")
+    newview = HeatmapView.new(type, viewname, viewid, layout, ctrl);
+  else if (type === "chart")
+    newview = ChartView.new(type, viewname, viewid, layout, ctrl);
   else {
     console.error("no supported view found");
   }
@@ -234,6 +241,17 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
   }
 
   */
+};
+
+ViewManager.prototype.activateView = function(viewname) {
+  for (var i = 1; i < this.views.length; i++) {
+    if (this.views[i].viewname === viewname) {
+      this.views[i].content.highlightTitle();
+      this.views[i].content.control();
+    } else {
+      this.views[i].content.unhighlightTitle();
+    }
+  }
 };
 
   /*
@@ -291,14 +309,16 @@ ViewManager.prototype.getViewPlace = function(width, height, type){	// find a pl
 };
 */
 ViewManager.prototype.closeAllViews = function(){
-	for(var i=0; i<this.views.length; i++){
-		this.views[i].content.close();
+	for (var i = 1; i < this.views.length; i++){
+		this.views[i].content.close({
+		  noAnimation: true
+		});
 	}
-	this.views = new Array();
-	this.resetFlags();
+	this.views = this.views.splice(0, 1);  // only keep menu view
+	//this.resetFlags();
 };
 
-ViewManager.prototype.closeView = function(viewname){
+ViewManager.prototype.closeView = function(viewname, operator){
 	var found = -1;
 	for (var i = 0; i < this.views.length; i++){
 		if (this.views[i].viewname == viewname) {
@@ -330,6 +350,9 @@ ViewManager.prototype.closeView = function(viewname){
 		this.unlinkView(content.parentView, content);	// remove link
 	content.close();
 	*/
+	this.views[found].content.close({
+	  noAnimation: operator === "user" ? false : true
+	});
 	this.views.splice(found, 1);
 	//this.resetFlags();
 
@@ -481,7 +504,10 @@ ViewManager.prototype.resizeView = function(view, width, height){
 ViewManager.prototype.loadPreset = function(type){
 	//closeAllViews();
 	//createMenu();
-	if (type=="default") {
+	if (type === "test") {
+    // testing views
+    createTestViews();
+	} else if (type === "default") {
 		createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
 		createView("Expression", "heatmap").loadData("RNA-Seq", "BATF");
 		createView("Genome Browser", "histogram").loadData("BATF");

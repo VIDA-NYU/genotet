@@ -10,7 +10,9 @@
 "use strict";
 
 var extObject = {
-
+  display: function() {
+    // the display function of controller is called once the view is activated (by user clicking)
+  }
 };
 
 var Controller = Base.extend(extObject);

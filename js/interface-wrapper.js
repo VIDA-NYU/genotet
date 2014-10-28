@@ -2,37 +2,37 @@
 // interface-wrapper will finally be obsolete
 
 function getView(viewname){
-	return manager.getView(viewname);
+	return viewManager.getView(viewname);
 }
 
 function createMenu(){
-	return manager.createMenu();
+	return viewManager.createMenu().render();
 }
 
 function createView(viewname, viewtype, operator){ //, width, height, left, top
-	return manager.createView(viewname, viewtype, operator);
+	return viewManager.createView(viewname, viewtype, operator);
 }
 
 function closeView(viewname){
-	return manager.closeView(viewname);
+	return viewManager.closeView(viewname);
 }
 
 function closeAllViews(){
-	return manager.closeAllViews();
+	return viewManager.closeAllViews();
 }
 
 function loadData(viewname, viewdata){
-	return manager.getView(viewname).loadData(viewdata);
+	return viewManager.getView(viewname).loadData(viewdata);
 }
 
 function linkView(sourceViewname, targetViewname){
-	return manager.linkView(getView(sourceViewname), getView(targetViewname));
+	return viewManager.linkView(getView(sourceViewname), getView(targetViewname));
 }
 
 function unlinkView(sourceViewname, targetViewname){
-	return manager.unlinkView(getView(sourceViewname), getView(targetViewname));
+	return viewManager.unlinkView(getView(sourceViewname), getView(targetViewname));
 }
 
 function groupView(sourceViewname, targetViewname){
-	return manager.groupView(getView(sourceViewname), getView(targetViewname));
+	return viewManager.groupView(getView(sourceViewname), getView(targetViewname));
 }

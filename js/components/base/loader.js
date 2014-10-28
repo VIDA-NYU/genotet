@@ -9,10 +9,8 @@
 "use strict";
 
 var extObject = {
-  load: function(onComplete) {
-    // default behavior is to render directly without fetching data
-    if(onComplete == null) console.log("No callback for load?");
-    if(onComplete != null) onComplete();
+  load: function() {
+    // the load function loads the data, possibly asynchronicall
   }
 };
 var Loader = Base.extend(extObject);

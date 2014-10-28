@@ -13,7 +13,7 @@ var addr = "jsonp.php";
 // utils functions
 var utils;
 // view manager
-var manager;
+var viewManager;
 // layout manager
 var layoutManager;
 // timer
@@ -31,9 +31,16 @@ function Core(){
   this.init();
 }
 
+Core.prototype.initViews = function() {
+  // create the default views
+
+  // currently we load the test preset
+  viewManager.loadPreset("test");
+};
+
 Core.prototype.init = function() {
   utils = new Utils();
-  manager = new ViewManager();
+  viewManager = new ViewManager();
   options = new Options();
   dialog = new Dialog();
   layoutManager = new LayoutManager();
@@ -48,18 +55,7 @@ Core.prototype.init = function() {
     hide: 1000
   });
 
-  var net1 = createView("Network", "binding");
-  createView("Network2", "network");
-  createView("Network23", "network");
-  createView("Network3", "binding");
-  //createView("Network43", "binding");
- // var net2 = createView("Network2", "network");
- // var net3 = createView("Network3", "network");
- // var net4 = createView("Network4", "network");
-  net1.load({
-      network: "th17",
-      genesRegex: "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$"
-    });
+  this.initViews();
 };
 
 // examples
