@@ -14,7 +14,7 @@
 var extObject = {
   // createHandlers MUST be implemented, otherwise error will be thrown when the view is created
   createHandlers: function() {
-    // Here ChartLoader is a class inheritting the base class Loader
+    // Here ChartLoader is a class inheriting the base class Loader
     // Same appiles to controller and renderer
     this.loader = ChartLoader.new();
     this.controller = ChartController.new();

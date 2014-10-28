@@ -50,9 +50,9 @@ var extObject = {
   },
 
 
-  // this must be implemented by inheritting classes
+  // this must be implemented by inheriting classes
   createHandlers: function() {
-    // abstract, must be filled with real constructors
+    // abstract, must be filled with real loader/controller/renderer constructors
     throw "createHandlers() is not implemented";
   },
 
@@ -80,13 +80,6 @@ var extObject = {
     this.renderer.render();
   },
 
-  // callbacks
-  onResize: function() {
-    // this function is triggered once the view gets resized
-    // you can implement it to support visualization resizing
-
-    // the new view size is available via the GET functions
-  },
 
   // get functions for loader/controller/renderer
   getJqController: function() {
@@ -118,6 +111,14 @@ var extObject = {
     return this.canvasHeight;
   },
 
+
+  // callbacks
+  onResize: function() {
+    // this function is triggered once the view gets resized
+    // you can implement it to support visualization resizing
+
+    // the new view size is available via the GET functions
+  },
 
   // prepares the view, including:
   // add a view header, set jquery nodes properly, add interaction listeners, etc
@@ -209,7 +210,6 @@ var extObject = {
     $(this.jqctrl).children().remove(); // remove controller
     this.layout.remove(this, options); // notify layout that this view has been closed
   },
-
   // other actions
   toggleViewheader: function(){
     // triggered by double-clicking
@@ -228,10 +228,10 @@ var extObject = {
   },
 
   // view highlighting
-  highlightTitle: function() {
+  highlightHeader: function() {
     this.jqheader.addClass("ui-state-highlight");
   },
-  unhighlightTitle: function() {
+  unhighlightHeader: function() {
     this.jqheader.removeClass("ui-state-highlight");
   },
 

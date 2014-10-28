@@ -250,10 +250,10 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
 ViewManager.prototype.activateView = function(viewname) {
   for (var i = 1; i < this.views.length; i++) {
     if (this.views[i].viewname === viewname) {
-      this.views[i].content.highlightTitle();
+      this.views[i].content.highlightHeader();
       this.views[i].content.control();
     } else {
-      this.views[i].content.unhighlightTitle();
+      this.views[i].content.unhighlightHeader();
     }
   }
 };
