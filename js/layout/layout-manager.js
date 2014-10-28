@@ -60,6 +60,10 @@ LayoutManager.prototype.stdOptions = {
   north__initHidden: true
 };
 
+LayoutManager.prototype.allocControl = function() {
+  return this.controlNode;
+};
+
 LayoutManager.prototype.allocDiv = function(type, operator){
   var options = {
     noAnimation: operator === "user" ? false : true
