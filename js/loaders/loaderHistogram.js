@@ -1,5 +1,5 @@
 function LoaderHistogram(){
-	
+
 }
 
 LoaderHistogram.prototype.loadData = function(identifier){
@@ -7,7 +7,7 @@ LoaderHistogram.prototype.loadData = function(identifier){
 		chr = identifier.chr,
 		range = identifier.range,
 		change = identifier.change;
-	
+
 	this.toLocate = range;
 	this.trackChanged = change;
 	if(identifier.chr==null) {
@@ -15,10 +15,10 @@ LoaderHistogram.prototype.loadData = function(identifier){
 		identifier.chr = "1"; // by default load chr1
 	}
 	if(this.trackChanged==null) this.trackChanged = true;
-	
+
 	this.lastIdentifier = {"name": name, "chr": chr};
 	this.parentView.layout.showMsg("Loading...");
-	
+
 	if (this.trackChanged) {
 		this.parentView.viewdata = {};
 		this.loadBindingsmp(name, chr);
@@ -26,7 +26,7 @@ LoaderHistogram.prototype.loadData = function(identifier){
 	}
 	if(range==null) this.loadBinding(name, chr);
 	else this.loadBinding(name, chr, range.xl, range.xr);
-	
+
 };
 
 LoaderHistogram.prototype.updateData = function(identifier){
@@ -70,11 +70,11 @@ LoaderHistogram.prototype.loadBindingsmp = function(name, chr){
 				return;
 			}
 			data.values.sort(function(a,b){ return a.x - b.x; });
-			
+
 			//oader.parentView.viewdata.name = data.name;
 			//oader.parentView.viewdata.chr = chr;
 			loader.parentView.viewdata.overviewData = data;
-			
+
 			loader.loadComplete();
 	    }
 	});
@@ -118,7 +118,7 @@ LoaderHistogram.prototype.loadBinding = function(name, chr, xl, xr){
 				return;
 			}
 			data.values.sort(function(a,b){ return a.x - b.x; });
-			
+
 			loader.parentView.viewdata.name = data.name;
 			loader.parentView.viewdata.chr = data.chr;
 			loader.parentView.viewdata.histogramData = data;
@@ -177,6 +177,6 @@ LoaderHistogram.prototype.error = function(msg){
 	this.parentView.viewdata = null;
 	msg = this.parentView.viewname + ": " + msg;
 	this.parentView.layout.showError();
-	user.alert(msg);
+	options.alert(msg);
 	console.error(msg);
 };

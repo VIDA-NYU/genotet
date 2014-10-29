@@ -269,7 +269,7 @@ LayoutHistogram.prototype.uiUpdate = function(type){
 		if(isNaN(xl)) xl = this.focusleft;
 		if(isNaN(xr)) xr = this.focusright;
 		if(xr<xl){
-			user.alert("xl, xr value incorrect");
+			options.alert("xl, xr value incorrect");
 			return;
 		}
 		layout.focusleft = xl;
@@ -284,7 +284,7 @@ LayoutHistogram.prototype.uiUpdate = function(type){
 	}else if(type=="gene"){
 		var name = $("#"+this.htmlid+" #gene").val();
 		if (manager.supportBinding(name)==false) {
-			user.alert("Please type in a supported binding track");
+			options.alert("Please type in a supported binding track");
 			return;
 		}
 		this.removeLayout();
