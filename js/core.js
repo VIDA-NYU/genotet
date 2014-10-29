@@ -31,7 +31,7 @@ Core.prototype.init = function() {
   welcome = new Welcome();
 
   $( document ).tooltip({
-    disabled : false,
+    disabled : true,
     show: { delay: 3000 },
     hide: 1000
   });

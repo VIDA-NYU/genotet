@@ -25,6 +25,7 @@ LayoutMenu.prototype.renderUI = function(){
 	"<h3 title = 'Load preset layout configuration'>Preset Layout</h3>" +
 	"<div>" +
 	"<div><input type='button' id='preset_default' value='Default Preset' title='Default layout that has everything'></div>" +
+	"<div><input type='button' id='preset_casedemo' value='Use Case' title='Preset layout for use case'></div>" +
 	"<div><input type='button' id='preset_binding_3' value='3-Track Binding' title='Preset layout for 3-track genome browser'></div>" +
 	"<div><input type='button' id='preset_binding_4' value='4-Track Binding' title='Preset layout for 4-track genome browser'></div>" +
 	"<div><input type='button' id='preset_binding_6' value='6-Track Binding' title='Preset layout for 6-track genome browser'></div>" +
@@ -81,6 +82,7 @@ LayoutMenu.prototype.renderUI = function(){
 	$("#"+this.htmlid+ " #close").click( function(){ closeAllViews(); createMenu(); });
 
 	$("#"+this.htmlid+ " #preset_default").click( function(){ manager.loadPreset("default"); });
+	$("#"+this.htmlid+ " #preset_casedemo").click( function(){ manager.loadPreset("casedemo"); });
 	$("#"+this.htmlid+ " #preset_binding_3").click( function(){ manager.loadPreset("binding_3"); });
 	$("#"+this.htmlid+ " #preset_binding_4").click( function(){ manager.loadPreset("binding_4"); });
 	$("#"+this.htmlid+ " #preset_binding_6").click( function(){ manager.loadPreset("binding_6"); });

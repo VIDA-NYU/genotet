@@ -1,3 +1,7 @@
+body {
+   -webkit-user-select: none; /*(safari, chrome) webkit */
+}
+
 h3 {
   height: 17px;
   font-size: 14px;

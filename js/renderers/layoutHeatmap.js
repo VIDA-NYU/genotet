@@ -46,6 +46,7 @@ function LayoutHeatmap(htmlid, width, height) {
 
 LayoutHeatmap.prototype.updateHeatmapSize = function(){
 	var hmdata = this.parentView.viewdata.heatmapData;
+	if(hmdata==null) return;
 	var maxstrlen = 0;
 	for(var i=0; i<hmdata.rownames.length; i++){
 		maxstrlen = Math.max(maxstrlen, hmdata.rownames[i].length);
@@ -290,11 +291,15 @@ LayoutHeatmap.prototype.renderHeatmap = function(){
 			.range(["black", "red", "yellow"]);
 	var t = heats.length;
 
+  console.log(n,m);
 	for(var i=0;i<n;i++){
 		for(var j=0;j<m;j++){
 			var c = d3.rgb( color(heats[i*m+j].count) );
+			var w = j==m-1? actualWidth/m+1 : heats[i*m+j+1].x - heats[i*m+j].x;
+			var h = i==n-1? this.heatmapHeight/n+1 : heats[i*m+m+1].y - heats[i*m+1].y;
 			ctx.fillStyle = "rgba("+c.r+","+c.g+","+c.b+",1.0)";
-			ctx.fillRect(Math.floor(heats[i*m+j].x)+actualLeft, Math.floor(heats[i*m+j].y), Math.ceil(actualWidth/m+1), Math.ceil(this.heatmapHeight/n+1));
+			ctx.fillRect(Math.floor(heats[i*m+j].x+actualLeft), Math.floor(heats[i*m+j].y), Math.ceil(w), Math.ceil(h));
+			// actualWidth/m+1, this.heatmapHeight/n+1);
 		}
 	}
 	ctx.fillStyle = "#d7d5da";
@@ -427,7 +432,7 @@ LayoutHeatmap.prototype.uiUpdate = function(type){
 			if(cmd.length==1){	// sel
 				exprows += "|" + cmd[0];
 			}else if(cmd.length!=2) {
-				user.alert("invalid syntax, usage: add/rm/sel regexp | regexp");
+				options.alert("invalid syntax, usage: add/rm/sel regexp | regexp");
 				return;
 			}else{
 				if(cmd[0].toLowerCase()=="add") {
@@ -447,7 +452,7 @@ LayoutHeatmap.prototype.uiUpdate = function(type){
 			if(cmd.length==1){	// sel
 				expcols += "|" + cmd[0];
 			}else if(cmd.length!=2) {
-				user.alert("invalid syntax, usage: add/sel/rm regexp");
+				options.alert("invalid syntax, usage: add/sel/rm regexp");
 				return;
 			}else{
 				if(cmd[0].toLowerCase()=="add") {
@@ -480,7 +485,7 @@ LayoutHeatmap.prototype.filterRegexp = function(exp){
 	  .replace(/\./g, "\\.")
 	  .replace(/\(/g, "\\(")
 	  .replace(/\)/g, "\\)");	// replace special chars
-}
+};
 
 LayoutHeatmap.prototype.toggleAutoScale = function(){
 	this.autoScale = !this.autoScale;

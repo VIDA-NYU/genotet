@@ -132,13 +132,13 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
   }
 	if(viewname==""){
 		console.error("Cannot create view: Viewname cannot be empty");
-		user.alert("Cannot create view: Viewname cannot be empty");
+		options.alert("Cannot create view: Viewname cannot be empty");
 		return null;
 	}
   for(var i=0; i<this.views.length; i++){
 	    if(this.views[i].viewname==viewname){
 		    console.error("Cannot create view: viewname must unique");
-			 user.alert("Cannot create view: viewname must unique");
+			 options.alert("Cannot create view: viewname must unique");
 		    return null;
 	    }
     }
@@ -161,7 +161,7 @@ ViewManager.prototype.createView = function(viewname, type, width, height, left,
 	if(left==null || top == null) {
 		var place = this.getViewPlace(width, height, type);
 		if(place.success == false) {
-			user.alert("cannot auto placing view - not enough space for view " + viewname);
+			options.alert("cannot auto placing view - not enough space for view " + viewname);
 			place.left = place.top = 8;
 		}
 		left = place.left;
@@ -320,10 +320,10 @@ ViewManager.prototype.linkView = function(sourceView, targetView){
 	if(targetView.parentView!=null){
 		if(targetView.parentView == sourceView){
 			console.error("Cannot link view: views are already linked");
-			user.alert("Cannot link view: views are already linked");
+			options.alert("Cannot link view: views are already linked");
 		}else{
 			console.error("Cannot link view: " + targetView.viewname + " is already listening to " + targetView.parentView.viewname);
-			user.alert("Cannot link view: " + targetView.viewname + " is already listening to " + targetView.parentView.viewname);
+			options.alert("Cannot link view: " + targetView.viewname + " is already listening to " + targetView.parentView.viewname);
 		}
 		return false;
 	}
@@ -416,6 +416,42 @@ ViewManager.prototype.loadPreset = function(type){
 		createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
 		createView("Expression", "heatmap").loadData("RNA-Seq", "BATF");
 		createView("Genome Browser", "histogram").loadData("BATF");
+	} else if (type=="casedemo") {
+	  var net = createView("Network", "graph", null, 400);
+	  net.loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
+    net.layout.toggleEdgeListing();
+    createView("Expression", "heatmap", null, 400).loadData("RNA-Seq", "BATF",
+     "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$", "SL");
+
+	  createView("Genome Browser", "histogram").loadData("FOSL2-Th17");
+    createView("Genome Browser 2", "histogram").loadData("BATF");
+    createView("Genome Browser 3", "histogram").loadData("IRF4");
+
+    groupView("Genome Browser", "Genome Browser 2");
+    groupView("Genome Browser 2", "Genome Browser 3");
+
+    getView("Genome Browser").layout.toggleExons();
+    getView("Genome Browser 2").layout.toggleExons();
+
+    getView("Genome Browser 2").layout.toggleOverview();
+    getView("Genome Browser 3").layout.toggleOverview();
+
+    getView("Genome Browser 2").toggleCompactLayout();
+    getView("Genome Browser 3").toggleCompactLayout();
+
+    this.resizeView(getView("Genome Browser"), null, 140 + 26 + this.headerHeight);
+    this.resizeView(getView("Genome Browser 2"), null, 100 + this.headerHeight);
+    this.resizeView(getView("Genome Browser 3"), null, 135 + this.headerHeight);
+
+    getView("Genome Browser 2").toggleViewheader();
+    getView("Genome Browser 3").toggleViewheader();
+
+    this.snapView(getView("Genome Browser 2"), getView("Genome Browser"));
+    this.snapView(getView("Genome Browser 3"), getView("Genome Browser 2"));
+
+
+    linkView("Network", "Expression");
+    linkView("Network", "Genome Browser");
 	} else if(type=="binding_3"){
 		createView("Genome Browser", "histogram").loadData("FOSL2-Th17");
 		createView("Binding B", "histogram").loadData("BATF");
@@ -536,6 +572,6 @@ ViewManager.prototype.loadPreset = function(type){
 		createView("Network A", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
 		createView("Network B", "graph").loadData("confidence", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
 	} else {
-		user.alert("Unknown layout preset");
+		options.alert("Unknown layout preset");
 	}
 };

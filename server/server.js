@@ -9,9 +9,12 @@ var express = require('express'),
 
 var app = express();
 app.use(bodyParser.urlencoded({
-				extended: true
-			}));
-app.use(bodyParser.json());
+	extended: true,
+	limit: "50mb"
+}));
+app.use(bodyParser.json({
+  limit: "50mb"
+}));
 
 var genecodes = {};
 var wiggleAddr, networkAddr, expmatAddr;
@@ -46,7 +49,7 @@ function buildSegmentTree(nodes, vals){	// vals shall be {x:.., value:..}
 	return buildSegmentTreeExec(nodes, 0, n-1, vals);
 }
 function buildSegmentTreeExec(nodes, xl, xr, vals){
-	if(xr==xl){ 
+	if(xr==xl){
 		nodes.push(vals[xl].value);
 		return;
 	}
@@ -102,8 +105,8 @@ function readExons(buf){
 			offset += 8;
 			exonRanges.push({"start": s, "end": t});
 		}
-		var exon = {"name": name, "name2": name2, "chr": chr, "strand": strand, 
-		"txStart": txStart, "txEnd": txEnd, "cdsStart": cdsStart, "cdsEnd": cdsEnd, 
+		var exon = {"name": name, "name2": name2, "chr": chr, "strand": strand,
+		"txStart": txStart, "txEnd": txEnd, "cdsStart": cdsStart, "cdsEnd": cdsEnd,
 		"exonCount": exonCount, "exonRanges": exonRanges};
 		result.push(exon);
 	}
@@ -184,7 +187,7 @@ function getExpmatLine(res, mat, name){
 	if(fileTfa!=null) bufTfa = readFileToBuf(fileTfa);
 	if(bufExp==null){ res.send("[]"); console.error("cannot read file", fileExp); return; }
 	if(fileTfa!=null && bufTfa==null){ res.send("[]"); console.error("cannot read file", fileTfa); return; }
-	
+
 	var resultExp = readExpmat(bufExp);
 	if(fileTfa!=null) var resultTfa = readTfamat(bufTfa);
 	name = name.toLowerCase();
@@ -201,7 +204,7 @@ function getExpmatLine(res, mat, name){
 			tfaValues.sort(function(a,b){ return a.index-b.index; });
 		}
 	}
-	
+
 	var values = new Array();
 	for(var j=0; j<resultExp.numcols; j++) values.push(resultExp.values[i*resultExp.numcols + j]);
 	console.log("returning line", name);
@@ -215,7 +218,7 @@ function getExpmat(res, mat, width, height, exprows, expcols, resol){
 	var buf = readFileToBuf(file);
 	if(buf==null){ res.send("[]"); console.error("cannot read file", file); return; }
 	var result = readExpmat(buf);
-	
+
 	var expr = null, expc = null;
 	try{
 		expr = RegExp(exprows, "i");
@@ -225,7 +228,7 @@ function getExpmat(res, mat, width, height, exprows, expcols, resol){
 		expr = expc = ".*";
 	}
 	console.log(mat, width, height, expr, expc);
-	
+
 	var selrows = {}, selcols = {},
 		selrowids = new Array(), selcolids = new Array(),
 		selrownames = new Array(), selcolnames = new Array();
@@ -250,7 +253,7 @@ function getExpmat(res, mat, width, height, exprows, expcols, resol){
 			values.push(result.values[selrowids[i]*result.numcols+selcolids[j]]);
 		}
 	}
-	
+
     resol = Math.max(1, resol);
 	var nresol = Math.ceil(height/resol), mresol = Math.ceil(width/resol);
 	var n = numSelrows, m = numSelcols; // note that x,y are reversed between svg and matrix data
@@ -259,7 +262,7 @@ function getExpmat(res, mat, width, height, exprows, expcols, resol){
 	else n = nresol;
 	if (m < mresol) msmp = false;
 	else m = mresol;
-	
+
 	var xl = 0, yl = 0, xr = numSelcols-1E-3, yr = numSelrows-1E-3;
 	//if(xr==0) xr=0.9; if(yr==0) yr=0.9;	// prevent overflow
 	var data = {};
@@ -384,7 +387,7 @@ function getNetTargets(res, net, name){
 	var buf = readFileToBuf(file);
 	if(buf==null){ res.send("[]"); console.error("cannot read file", file); return; }
 	var result = readNet(buf);
-	var exp = "^"+name+"$";	
+	var exp = "^"+name+"$";
 	for(var i=0; i<result.numEdge; i++){
 		var s = result.edges[i].source, t = result.edges[i].target;
 		if(result.names[s]==name){
@@ -447,7 +450,7 @@ function getComb(res, net, exp){
 	console.log("comb request returns", nodes.length);
 	res.send(nodes);
 }
-function searchExon(res, name){	
+function searchExon(res, name){
 	var file = exonFile;
 	var buf = readFileToBuf(file);
 	if(buf==null){ res.send("[]"); console.error("cannot read file", file); return;}
@@ -466,12 +469,12 @@ function loadHistogram(name, chr){	// return the cached intervals & rmq
 	console.log("check cache", name, chr);
 	if(bindingCache.cache[name+"*"+chr]!=null) return bindingCache.cache[name+"*"+chr];
 	console.log("no cache");
-	
+
 	// read bcwig file
 	var file = wiggleAddr+genecodes[name]+"/"+genecodes[name]+"_treat_afterfiting_chr"+chr+".bcwig";
 	var buf = readFileToBuf(file);
 	if(buf==null){ console.error("cannot read file", file); return null; }
-	
+
 	var n = buf.length/6;
 	var offset = 0;
 	var segs = new Array();
@@ -482,18 +485,18 @@ function loadHistogram(name, chr){	// return the cached intervals & rmq
 		offset += 6; // 1 int, 1 short
 	}
 	console.log("read complete, cache size", bindingCache.list.length);
-	
+
 	if(bindingCache.list.length==cacheSize){
 		console.log("cache full, discarded head element");
 		delete bindingCache.cache[bindingCache.list[0]];
 		bindingCache.list[0] = null;
 		bindingCache.list = bindingCache.list.slice(1); // remove the head element
 	}
-	
+
 	var cache = {};
 	bindingCache.list.push(name+"*"+chr);
 	bindingCache.cache[name+"*"+chr] = cache;
-	
+
 	cache.segs = segs;
 	cache.xmin = segs[0].x;
 	cache.xmax = segs[segs.length-1].x;
@@ -505,7 +508,7 @@ function loadHistogram(name, chr){	// return the cached intervals & rmq
 		buildSegmentTree(nodes, segs, buf);
 		cache.nodes = nodes;
 		console.log("SegmentTree constructed");
-		
+
 		var buf = new Buffer(4+nodes.length*2);
 		buf.writeInt32LE(nodes.length, 0);
 		for(var i=0, offset=4; i<nodes.length; i++, offset+=2) buf.writeInt16LE(nodes[i], offset);
@@ -547,10 +550,10 @@ function getBinding(res, name, chr, x1, x2){
 		res.send("[]");	//no file exists
 		return;
 	}
-	
+
 	if(x1!=null && x2!=null) var xl = parseInt(x1), xr = parseInt(x2);
 	else var xl = cache.xmin, xr = cache.xmax;
-	
+
 	// do sampling here, the sampling takes the range maximum for each bar
 	// the sampling binary search the entry point, and then query the rmq table
 	var hist = {};
@@ -566,7 +569,7 @@ function getBinding(res, name, chr, x1, x2){
 			hist.values.push({"x": l, "value": 0});
 			continue;
 		}
-		
+
 		var val = querySegmentTree(cache.nodes, 0, li, ri, 0, segslen-1);
 		hist.values.push({"x": l, "value": val});
 	}
@@ -605,7 +608,7 @@ app.get('/', function(req, res) {
 		var net = req.query.net;
 		var exp = req.query.exp;
 		exp = decodeSpecialChar(exp);
-	    getNet(res, net, exp);	
+	    getNet(res, net, exp);
 	}else if(type == "edges"){ // edges incident to one node
 		var net = req.query.net;
 		var name = req.query.name;
@@ -626,8 +629,8 @@ app.get('/', function(req, res) {
 		var chr = req.query.chr;
 		var name = req.query.name;
 		name = decodeSpecialChar(name);
-		getBinding(res, name, chr, xl, xr); 
-	}else if(type == "bindingsmp"){ // binding data sampling version (used for histogram overview) 
+		getBinding(res, name, chr, xl, xr);
+	}else if(type == "bindingsmp"){ // binding data sampling version (used for histogram overview)
 		var name = req.query.name;
 		var chr = req.query.chr;
 		name = decodeSpecialChar(name);
@@ -643,14 +646,14 @@ app.get('/', function(req, res) {
 	    console.log("invalid argument");
 	    res.send("");
 	}
-	
+
 	/*
 	else if(type == "targetrange"){ // obsolete, binding data range for edges
 		var name = req.query.name;
 		getTargetRange(res, name);
 	}
 	*/
-	
+
 });
 
 

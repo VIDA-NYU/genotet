@@ -126,7 +126,7 @@ LayoutTable.prototype.uiFilterSelect = function(cmd, type){
 	// currently: nasty implementation of three term expression
 	var ops = ["<", ">", "=", "<=", ">=", "*"];
 	var cmds = cmd.split(RegExp(/" + s+/));
-	if(cmds.length > 3){ user.alert("unrecognized command"); }
+	if(cmds.length > 3){ options.alert("unrecognized command"); }
 	else if(cmds.length==1 && (cmds[0]=="all" || cmds[0]=="")){
 		var rows = this.data.rows;
 		if(type=="desel"){
@@ -139,11 +139,11 @@ LayoutTable.prototype.uiFilterSelect = function(cmd, type){
 	}else{
 		var idx = -1;
 		for(var i=0; i<this.data.columns.length; i++) if(this.data.columns[i].toLowerCase()==cmds[0].toLowerCase()) { idx=i; break; }
-		if(idx==-1){ user.alert("attribute not found"); }
+		if(idx==-1){ options.alert("attribute not found"); }
 		else{
 			var col = cmds[0].toLowerCase();
 			var opidx = ops.indexOf(cmds[1]);
-			if(opidx==-1){ user.alert("invalid operator"); }
+			if(opidx==-1){ options.alert("invalid operator"); }
 			else{
 				var val = cmds[2], rows = this.data.rows;
 				var tr = $("#"+this.htmlid+" tr:first").next();

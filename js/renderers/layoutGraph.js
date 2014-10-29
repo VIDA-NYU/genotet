@@ -164,7 +164,7 @@ LayoutGraph.prototype.uiUpdate = function(type){
 				loader.removeNodes(cmd[1]);
             }
         }else{
-            user.alert("invalid syntax, usage: add/rm/sel regexp | regexp");
+            options.alert("invalid syntax, usage: add/rm/sel regexp | regexp");
             return;
         }
     }else if (type=="comb") {
@@ -771,6 +771,7 @@ LayoutGraph.prototype.showError = function(){
 };
 
 LayoutGraph.prototype.updateGraphSize = function(newsize){
+  if(this.nodes==null) return;
 	var oldwidth = this.width, oldheight = this.graphHeight;
 	this.graphHeight = newsize[1] - (this.compactLayout?0:this.uiHeight);
 	var xratio = newsize[0] / oldwidth, yratio = this.graphHeight / oldheight;
@@ -792,6 +793,8 @@ LayoutGraph.prototype.updateGraphSize = function(newsize){
 };
 
 LayoutGraph.prototype.resizeLayout = function(newsize){
+
+
 	if (this.parentView.showHeader==false) newsize[1] += manager.headerHeight;
 
 	this.updateGraphSize(newsize);
@@ -799,6 +802,8 @@ LayoutGraph.prototype.resizeLayout = function(newsize){
     this.rawheight = newsize[1];
 	this.removeLayout();
 	if(!this.compactLayout) this.renderUI();
+
+	if(this.nodes==null) return;
     this.renderLayout();
 };
 

@@ -217,7 +217,7 @@ LoaderGraph.prototype.loadComb = function(net, exp){
 		success: function(result){
 			var data = JSON.parse(result, utils.parse);
 		    if (data.length == 0) {
-				user.alert("There is no common targets.");
+				options.alert("There is no common targets.");
 				return;
 			}
 			var addexp = "a^";
@@ -270,7 +270,7 @@ LoaderGraph.prototype.error = function(msg){
 	this.parentView.viewdata = null;
 	msg = this.parentView.viewname + ": " + msg;
 	console.error(msg);
-	user.alert(msg);
+	options.alert(msg);
 	this.parentView.layout.showError();
 	//this.parentView.layout.showError();
 };
