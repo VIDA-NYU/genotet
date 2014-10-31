@@ -291,7 +291,6 @@ LayoutHeatmap.prototype.renderHeatmap = function(){
 			.range(["black", "red", "yellow"]);
 	var t = heats.length;
 
-  console.log(n,m);
 	for(var i=0;i<n;i++){
 		for(var j=0;j<m;j++){
 			var c = d3.rgb( color(heats[i*m+j].count) );

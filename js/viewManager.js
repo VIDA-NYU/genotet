@@ -66,32 +66,36 @@ ViewManager.prototype.availViewID = function(){
 
 ViewManager.prototype.setTopView = function(groupid, viewid){
 	if (this.topView == viewid) return;
+	this.remapZindex();
 	for(var i=0; i<this.views.length; i++){
 		if (this.views[i].content.groupid == groupid) {
-		  this.increaseZindex();
 			$("#view"+this.views[i].viewid).css({"z-index": this.maxZindex});
 			this.topView = this.views[i].viewid;
 		}
 	}
 };
 
-ViewManager.prototype.increaseZindex = function(){
-	this.maxZindex ++;
-	if(this.maxZindex >= 5){
-		var index = 100;
-		for(var i=0; i<this.views.length; i++){
-			var idx = $("#view"+this.views[i].viewid).css("z-index");
-			if(idx==="auto") idx = 0;
-			index = Math.min(idx, index);
-		}
-		for(var i=0; i<this.views.length; i++){
-			var idx = $("#view"+this.views[i].viewid).css("z-index");
-			if(idx==="auto") idx = 0;
-			idx -= index;
-			$("#view"+this.views[i].viewid).css("z-index", idx);
-		}
-		this.maxZindex = 5;
+ViewManager.prototype.remapZindex = function(){
+	var prs = [];
+	for(var i=0; i<this.views.length; i++){
+	  var idx = $("#view"+this.views[i].viewid).css("z-index");
+	  if(idx==="auto") {
+      $("#view"+this.views[i].viewid).css("z-index", 0);
+	  }
+	  prs.push[ {"viewid": this.views[i].viewid, "z": idx} ];
 	}
+	utils.stableSort(prs, "z");
+	var remap = {};
+	var cnt = 0;
+	for (var i = 0; i < prs.length; i++) {
+	 var z = prs[i].z;
+	 if(remap[z]==null) {
+	   remap[z] = cnt++;
+	 }
+	 console.log(prs[i].viewid, remap[z]);
+	 $("#view"+prs[i].viewid).css("z-index", remap[z]);
+	}
+	this.maxZindex = prs.length;
 };
 
 ViewManager.prototype.embedSize = function(x){

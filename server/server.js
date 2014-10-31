@@ -23,9 +23,9 @@ if(runEnv == "vida"){
 	networkAddr = "/data/bonneau/network/";
 	expmatAddr = "/data/bonneau/";
 }else if(runEnv == "laptop"){
-	wiggleAddr = "E:/bnetvis_data/wiggle/";
-	networkAddr = "E:/bnetvis_data/network/";
-	expmatAddr = "E:/bnetvis_data/";
+	wiggleAddr = "D:/bnetvis_data/wiggle/";
+	networkAddr = "D:/bnetvis_data/network/";
+	expmatAddr = "D:/bnetvis_data/";
 }else if(runEnv == "lab"){
 	wiggleAddr = "/home/bowen/bnetvis_data/wiggle/";
 	networkAddr = "/home/bowen/bnetvis_data/network/";
@@ -459,7 +459,7 @@ function searchExon(res, name){
 	for( var i=0;i<result.length; i++){
 		if(result[i].name2.toLowerCase() == name){
 			res.send({"success":true, "chr":result[i].chr, "txStart": result[i].txStart, "txEnd": result[i].txEnd});
-			break;
+			return;
 		}
 	}
 	res.send({"success": false});

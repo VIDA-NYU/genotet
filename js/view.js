@@ -156,10 +156,9 @@ function View(type, viewname, viewid, width, height, left, top){
       view.toggleViewheader();
     });
     $("#view" + this.viewid).css({
-      "min-width" : 100,
-      "z-index" : manager.maxZindex
+      "min-width" : 100
     });
-    manager.increaseZindex();
+    manager.setTopView(this.groupid, this.viewid);
   }
 }
 
