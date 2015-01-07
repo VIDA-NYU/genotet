@@ -110,10 +110,10 @@ ViewManager.prototype.availViewID = function(){
 
 /*
 ViewManager.prototype.setTopView = function(groupid, viewid){
-	if (this.topView == viewid) return;
+	//if (this.topView == viewid) return;
+	this.remapZindex();
 	for(var i=0; i<this.views.length; i++){
 		if (this.views[i].content.groupid == groupid) {
-		  this.increaseZindex();
 			$("#view"+this.views[i].viewid).css({"z-index": this.maxZindex});
 			this.topView = this.views[i].viewid;
 		}
@@ -136,6 +136,7 @@ ViewManager.prototype.increaseZindex = function(){
 		}
 		this.maxZindex = 5;
 	}
+	this.maxZindex = prs.length;
 };
 ViewManager.prototype.embedSize = function(x){
 	return x - 2*this.borderWidth;
@@ -200,7 +201,6 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
 			break;
 		}
   }
-
   // switch the constructed view object
 
   var layout = layoutManager.allocDiv(type, operator);
@@ -515,6 +515,42 @@ ViewManager.prototype.loadPreset = function(type){
 		createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
 		createView("Expression", "heatmap").loadData("RNA-Seq", "BATF");
 		createView("Genome Browser", "histogram").loadData("BATF");
+	} else if (type=="casedemo") {
+	  var net = createView("Network", "graph", null, 400);
+	  net.loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
+    net.layout.toggleEdgeListing();
+    createView("Expression", "heatmap", null, 400).loadData("RNA-Seq", "BATF",
+     "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$", "SL");
+
+	  createView("Genome Browser", "histogram").loadData("FOSL2-Th17");
+    createView("Genome Browser 2", "histogram").loadData("BATF");
+    createView("Genome Browser 3", "histogram").loadData("IRF4");
+
+    groupView("Genome Browser", "Genome Browser 2");
+    groupView("Genome Browser 2", "Genome Browser 3");
+
+    getView("Genome Browser").layout.toggleExons();
+    getView("Genome Browser 2").layout.toggleExons();
+
+    getView("Genome Browser 2").layout.toggleOverview();
+    getView("Genome Browser 3").layout.toggleOverview();
+
+    getView("Genome Browser 2").toggleCompactLayout();
+    getView("Genome Browser 3").toggleCompactLayout();
+
+    this.resizeView(getView("Genome Browser"), null, 140 + 26 + this.headerHeight);
+    this.resizeView(getView("Genome Browser 2"), null, 100 + this.headerHeight);
+    this.resizeView(getView("Genome Browser 3"), null, 135 + this.headerHeight);
+
+    getView("Genome Browser 2").toggleViewheader();
+    getView("Genome Browser 3").toggleViewheader();
+
+    this.snapView(getView("Genome Browser 2"), getView("Genome Browser"));
+    this.snapView(getView("Genome Browser 3"), getView("Genome Browser 2"));
+
+
+    linkView("Network", "Expression");
+    linkView("Network", "Genome Browser");
 	} else if(type=="binding_3"){
 		createView("Genome Browser", "histogram").loadData("FOSL2-Th17");
 		createView("Binding B", "histogram").loadData("BATF");
@@ -632,7 +668,7 @@ ViewManager.prototype.loadPreset = function(type){
 		createView("Expression", "heatmap").loadData("B-Subtilis", "SpoVT", "spoVT|fabl|yizc", "spo");
 		linkView("Network", "Expression");
 	} else if (type=="network") {
-		createView("Network A", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
+		createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
 		createView("Network B", "graph").loadData("confidence", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
 	} else {
 		options.alert("Unknown layout preset");

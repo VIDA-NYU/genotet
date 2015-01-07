@@ -84,6 +84,7 @@ Dialog.prototype.dialogLayout = function(type){
   default:
     options.alert("undefined behavior for dialog layout "+type);
   }
+
 };
 
 Dialog.prototype.dialogCreate = function(){
