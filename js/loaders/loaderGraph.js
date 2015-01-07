@@ -35,8 +35,9 @@ LoaderGraph.prototype.addNodes = function(nodes){	// nodes are regexp
 
 LoaderGraph.prototype.removeNodes = function(exp){
 	var data = this.parentView.viewdata;
+	var reg = RegExp(exp, "i");
 	for(var i=0; i<data.nodes.length; i++){
-		if(data.nodes[i].name.match(exp)){
+		if(data.nodes[i].name.match(reg)){
 			delete data.visibleNodes[data.nodes[i].id];
 		}
 	}

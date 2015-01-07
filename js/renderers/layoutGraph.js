@@ -150,26 +150,26 @@ LayoutGraph.prototype.renderUI = function(){
 
 LayoutGraph.prototype.uiUpdate = function(type){
 	var loader = this.parentView.loader;
-    if(type=="gene"){
-        var srch = $("#"+this.htmlid+" #gene").val();
-        var cmd = srch.split(" ");
-        if(cmd.length==1 || (cmd.length==2 && cmd[0]=="sel")){
-			var exp = cmd.length==1?cmd[0]:cmd[1];
-			this.showMsg("Loading...");
-			loader.loadNetwork(loader.lastIdentifier.net, exp);
-        }else if(cmd.length==2 && (cmd[0]=="add" || cmd[0]=="rm")){
-			if(cmd[0]=="add"){
-				loader.addNodes(cmd[1]);
-            }else if(cmd[0]=="rm"){
-				loader.removeNodes(cmd[1]);
-            }
-        }else{
-            options.alert("invalid syntax, usage: add/rm/sel regexp | regexp");
-            return;
-        }
-    }else if (type=="comb") {
-		var exp = $("#"+this.htmlid+" #comb").val();
-		if (exp=="") return;
+  if(type=="gene"){
+    var srch = $("#"+this.htmlid+" #gene").val();
+    var cmd = srch.split(" ");
+    if(cmd.length==1 || (cmd.length==2 && cmd[0]=="sel")){
+    	var exp = cmd.length==1?cmd[0]:cmd[1];
+    	this.showMsg("Loading...");
+    	loader.loadNetwork(loader.lastIdentifier.net, exp);
+    }else if(cmd.length==2 && (cmd[0]=="add" || cmd[0]=="rm")){
+    	if(cmd[0]=="add"){
+    		loader.addNodes(cmd[1]);
+      }else if(cmd[0]=="rm"){
+    		loader.removeNodes(cmd[1]);
+      }
+    }else{
+      options.alert("invalid syntax, usage: add/rm/sel regexp | regexp");
+      return;
+    }
+  }else if (type=="comb") {
+  	var exp = $("#"+this.htmlid+" #comb").val();
+  	if (exp=="") return;
 		loader.loadComb(loader.lastIdentifier.net, exp);
 	}
 };

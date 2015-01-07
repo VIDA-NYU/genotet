@@ -65,7 +65,7 @@ ViewManager.prototype.availViewID = function(){
 };
 
 ViewManager.prototype.setTopView = function(groupid, viewid){
-	if (this.topView == viewid) return;
+	//if (this.topView == viewid) return;
 	this.remapZindex();
 	for(var i=0; i<this.views.length; i++){
 		if (this.views[i].content.groupid == groupid) {
@@ -81,18 +81,19 @@ ViewManager.prototype.remapZindex = function(){
 	  var idx = $("#view"+this.views[i].viewid).css("z-index");
 	  if(idx==="auto") {
       $("#view"+this.views[i].viewid).css("z-index", 0);
+      idx = 0;
 	  }
-	  prs.push[ {"viewid": this.views[i].viewid, "z": idx} ];
+	  prs.push( {"viewid": this.views[i].viewid, "z": idx} );
 	}
 	utils.stableSort(prs, "z");
-	var remap = {};
-	var cnt = 0;
+	//console.log(prs);
+	var remap = {}, cnt = 0;
 	for (var i = 0; i < prs.length; i++) {
 	 var z = prs[i].z;
 	 if(remap[z]==null) {
 	   remap[z] = cnt++;
 	 }
-	 console.log(prs[i].viewid, remap[z]);
+	 //console.log(prs[i].viewid, remap[z]);
 	 $("#view"+prs[i].viewid).css("z-index", remap[z]);
 	}
 	this.maxZindex = prs.length;
@@ -573,7 +574,7 @@ ViewManager.prototype.loadPreset = function(type){
 		createView("Expression", "heatmap").loadData("B-Subtilis", "SpoVT", "spoVT|fabl|yizc", "spo");
 		linkView("Network", "Expression");
 	} else if (type=="network") {
-		createView("Network A", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
+		createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
 		createView("Network B", "graph").loadData("confidence", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$");
 	} else {
 		options.alert("Unknown layout preset");
