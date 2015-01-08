@@ -14,5 +14,7 @@ function Options(){
 }
 
 Options.prototype.alert = function(msg){
-	if(this.silent==false) alert(msg);
+  console.error(msg);
+	if(this.silent == false)
+	 alert(msg);
 };

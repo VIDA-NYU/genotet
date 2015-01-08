@@ -13,11 +13,8 @@
 "use strict";
 
 var extObject = {
-  initialize: function(view) {
-    this.view = view; // the view to be rendered into
-  },
   render: function() {
-
+    console.error("render() is not implemented");
   }
 };
 

@@ -1,6 +1,9 @@
 
 // server handler for regulatory network
 
+// network module reads regulatory network from .bnet files
+// nodes and edges are indexed with inter-references
+
 "use strict";
 
 var utils = require("./utils");
@@ -10,30 +13,42 @@ module.exports = {
   readNet: function(buf) {
     var offset = 0;
     var numNode = buf.readInt32LE(offset),
-      numTF = buf.readInt32LE(offset+4),
-      nameBytes = buf.readInt32LE(offset+8);
+        numTF = buf.readInt32LE(offset + 4),
+        nameBytes = buf.readInt32LE(offset+8);
     offset += 12;
-    var namestr = buf.toString('utf8', offset, offset+nameBytes);
+    var namestr = buf.toString('utf8', offset, offset + nameBytes);
     var names = namestr.split(" "); // read node names
     offset += nameBytes;
-    var nodes = new Array();
-    for(var i=0;i<numNode;i++) nodes.push({"id":i, "name": names[i], "isTF":i<numTF?true:false});
+
+    var nodes = [];
+    for (var i = 0; i < numNode; i++) {
+      nodes.push({
+        "id" : i,
+        "name" : names[i],
+        "isTF" : i < numTF ? true : false
+      });
+    }
+
     var numEdge = buf.readInt32LE(offset);
     offset += 4;
-    var edges = new Array();
-    for(var i=0;i<numEdge;i++){
+    var edges = [];
+    for (var i = 0; i < numEdge; i++) {
       var s = buf.readInt32LE(offset),
-        t = buf.readInt32LE(offset+4),
-        w = buf.readDoubleLE(offset+8);
+          t = buf.readInt32LE(offset + 4),
+          w = buf.readDoubleLE(offset + 8);
       offset += 16;
-      edges.push({"id":i, "source": s, "target": t, "weight": [w]});
+      edges.push({
+        "id" : i,
+        "source" : s,
+        "target" : t,
+        "weight" : w
+      });
     }
-    var result = {};
-    result.numNode = numNode;
-    result.numEdge = numEdge;
-    result.nodes = nodes;
-    result.edges = edges;
-    result.names = names;
+
+    var result = {
+      "nodes" : nodes,
+      "edges" : edges
+    };
     return result;
   },
 
@@ -44,7 +59,14 @@ module.exports = {
       return console.error("cannot read file", file), [];
 
     var result = this.readNet(buf);
-    var nodes = new Array(), edges = new Array();
+
+    console.log("return graph with", result.nodes.length,
+      "nodes", result.edges.length, "edges");
+
+    return result;
+    /*
+    var nodes = [],
+        edges = [];
     var j = 0, mapping = {}; // mapping is used for reindex the nodes
     try{
       exp = RegExp(exp, "i");
@@ -76,8 +98,11 @@ module.exports = {
     data.wmax = wmax;
     data.wmin = wmin;
     return data;
-  },
+    */
+  }
 
+  // the following queries are no longer performed on server
+  /*
   getNetTargets: function(file, name) {
     var buf = utils.readFileToBuf(file);
     if (buf == null)
@@ -148,5 +173,6 @@ module.exports = {
     console.log("comb request returns", nodes.length);
     return nodes;
   }
+  */
 
 };

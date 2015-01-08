@@ -179,34 +179,35 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
   }
   */
 	if(viewname==""){
-		console.error("Cannot create view: Viewname cannot be empty");
 		options.alert("Cannot create view: Viewname cannot be empty");
 		return null;
 	}
-  for(var i=0; i<this.views.length; i++){
-	    if(this.views[i].viewname==viewname){
-		    console.error("Cannot create view: viewname must unique");
-			  options.alert("Cannot create view: viewname must unique");
-		    return null;
-	    }
+  for (var i = 0; i < this.views.length; i++) {
+    if (this.views[i].viewname == viewname) {
+      options.alert("Cannot create view: viewname must unique");
+      return null;
     }
-    var availableIds = new Array();
-    for(var i=0; i<this.views.length; i++){
-		  availableIds[this.views[i].viewid] = true;
-    }
-    var viewid;
-    for(var i=0; ; i++){
-		if(availableIds[i]!=true){
-			viewid = i;
-			break;
-		}
   }
+  var availableIds = new Array();
+  for (var i = 0; i < this.views.length; i++) {
+    availableIds[this.views[i].viewid] = true;
+  }
+  var viewid;
+  for (var i = 0; ; i++) {
+    if (availableIds[i] != true) {
+      viewid = i;
+      break;
+    }
+  }
+
   // switch the constructed view object
 
   var layout = layoutManager.allocDiv(type, operator);
   var ctrl = layoutManager.allocControl();
   var newview;
-  if (type === "network")
+  if (type == "graph")
+    newview = GraphView.new(type, viewname, viewid, layout, ctrl);
+  else if (type === "network")
     newview = NetworkView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "binding")
     newview = BindingView.new(type, viewname, viewid, layout, ctrl);

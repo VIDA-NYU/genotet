@@ -70,9 +70,11 @@ LayoutNode.prototype.addView = function(view) {
 };
 
 LayoutNode.prototype.setChild = function(direction, child, options) {
-  if (child == null) console.error("setting empty child for LayoutPane");
+  if (child == null)
+    console.error("setting empty child for LayoutNode");
   this.children[direction] = child;
-  if (options == null) options = {};
+  if (options == null)
+    options = {};
   if (options.autoResizeChildren) {
     this.layout.sizePane(direction, this.childrenSize[direction]);
   }
@@ -100,7 +102,8 @@ LayoutNode.prototype.relocate = function(jqnode) {
 
 
 LayoutNode.prototype.graft = function(direction, node, options) {
-  if (options == null) options = {};
+  if (options == null)
+    options = {};
 
   var pane = direction + "Pane";
   if (this.children[direction]) {

@@ -41,7 +41,7 @@ var extObject = {
     // once the view is resized, we re-render everything
     // Note that you may want to re-render in a cleverer way without clearing the entire canvas
     // e.g. you can just update the things that get changed
-    this.renderer.render();
+    this.render();
   }
 };
 

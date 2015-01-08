@@ -12,7 +12,7 @@
  **********************************************************/
 
 // request json data file via http & jsonp
-var addr = "jsonp.php";
+var httpAddr = "jsonp.php";
 
 // utils functions
 var utils;

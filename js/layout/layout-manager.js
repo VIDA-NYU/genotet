@@ -80,12 +80,15 @@ LayoutManager.prototype.allocDiv = function(type, operator){
 
 // returns a jquery div ready to append
 LayoutManager.prototype.findSlot = function(options, node){
-  if (node == null) node = this.viewNode;
-  if (options == null) options = {};
+  if (node == null)
+    node = this.viewNode;
+  if (options == null)
+    options = {};
 
   if (node.views.length == 0){
     // current node is empty
-    if (options.horizontalOnly) node.allowEastSplit = false;
+    if (options.horizontalOnly)
+      node.allowEastSplit = false;
     return node;
   }
   if (!options.horizontalOnly && node.allowEastSplit === true && node.children.east == null) {

@@ -55,7 +55,6 @@ var tfamatFile = {
 };
 
 
-
 var genecodes = {};
 function readCodes(input){
   var remaining = "";
@@ -95,11 +94,12 @@ app.get('/', function(req, res) {
 	var data;
 
   // network queries
-	if (type == "net") {	// (sub) network
+	if (type == "regnet") {	// (sub) network
     var net = req.query.net.toLowerCase(),
-        exp = utils.decodeSpecialChar(req.query.exp),
+        // exp = utils.decodeSpecialChar(req.query.exp),
+        // network is sent all together
         file = networkAddr + net + ".bnet";
-    data = network.getNet(file, exp);
+    data = network.getNet(file);
 	} else if(type == "edges") { // edges incident to one node
     var net = req.query.net.toLowerCase(),
         name = req.query.name,
