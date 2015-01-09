@@ -15,6 +15,28 @@
 var extObject = {
   render: function() {
     console.error("render() is not implemented");
+  },
+
+  wait: function() {
+    var view = this.view;
+    console.log(view.getViewWidth(), view.getViewHeight());
+    this.jqwaitbg = $("<div></div>")
+      .attr("id", "wait")
+      .attr("class", "view-wait-background")
+      .css("width", view.getCanvasWidth())
+      .css("height", view.getCanvasHeight())
+      .insertAfter(view.jqheader);
+    this.jqwaiticon = $("<div></div>")
+      .attr("id", "wait")
+      .attr("class", "view-wait-icon")
+      .css("width", view.getCanvasWidth())
+      .css("height", view.getCanvasHeight())
+      .insertAfter(view.jqheader);
+  },
+
+  unwait: function() {
+    $(this.jqwaitbg).remove();
+    $(this.jqwaiticon).remove();
   }
 };
 

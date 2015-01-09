@@ -79,6 +79,14 @@ var extObject = {
     // the render call is passed to the renderer
     this.renderer.render();
   },
+  wait: function() {
+    // display a waiting icon
+    this.renderer.wait();
+  },
+  unwait: function() {
+    // remove the waiting icon
+    this.renderer.unwait();
+  },
 
 
   // get functions for loader/controller/renderer
@@ -263,7 +271,6 @@ var extObject = {
 };
 
 var View = Base.extend(extObject);
-
 
 // LEGACY CODE BELOW! DON'T READ :)
 
