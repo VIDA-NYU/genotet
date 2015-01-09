@@ -7,6 +7,7 @@ var extObject = {
 
   load: function(para) {
     var loader = this;
+    console.log("load graph");
     $.ajax({
         type: 'GET',
         url: para.url,

@@ -67,6 +67,8 @@ LayoutManager.prototype.allocControl = function() {
 LayoutManager.prototype.allocDiv = function(type, operator){
   var options = {
     noAnimation: operator === "user" ? false : true
+    // TODO: operator system mode has a bug of not resizing initialized view
+    // but with animation, test.js cannot create too many views
   };
   if (type === "menu") {
     return this.menuNode;

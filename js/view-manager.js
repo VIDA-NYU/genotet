@@ -199,17 +199,16 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
       break;
     }
   }
-
   // switch the constructed view object
-
   var layout = layoutManager.allocDiv(type, operator);
   var ctrl = layoutManager.allocControl();
   var newview;
   if (type == "graph")
     newview = GraphView.new(type, viewname, viewid, layout, ctrl);
-  else if (type === "network")
-    newview = NetworkView.new(type, viewname, viewid, layout, ctrl);
-  else if (type === "binding")
+  else if (type === "network"){
+    newview = GraphView.new(type, viewname, viewid, layout, ctrl);
+    console.log("awesome graph");
+  }else if (type === "binding")
     newview = BindingView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "expression")
     newview = ExpressionView.new(type, viewname, viewid, layout, ctrl);

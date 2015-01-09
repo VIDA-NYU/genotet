@@ -13,6 +13,12 @@ var extObject = {
     d3.select("#canvas" + view.viewid + " svg").remove();
 
     this.svg = d3.select("#canvas" + view.viewid).append("svg");
+
+    console.log(this.svg);
+
+    var sel = $("#canvas" + view.viewid);
+    console.log(sel.width(), sel.height());
+
     this.svg
       .style("width", "100%")
       .style("height", "100%")

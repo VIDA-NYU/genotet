@@ -133,10 +133,20 @@ var extObject = {
       .appendTo(this.jqview);
     this.jqctrl = this.ctrllayout.centerPane;
 
+    // fetch view sizes
+    this.viewWidth = this.jqview.width();
+    this.viewHeight = this.jqview.height();
     // prepares the header
     this.prepareHeader();
+
+    // fetch canvas sizes
+    // note: these must be done here
+    // otherwise the very first render will not have correct size
+    this.canvasWidth = this.viewWidth;
+    this.canvasHeight = this.viewHeight - this.jqheader.outerHeight(true);
     // prepares the canvas
     this.prepareCanvas();
+
     // add interaction listener
     this.prepareInteractions();
   },
@@ -179,7 +189,8 @@ var extObject = {
   // prepares the canvas, currently not doing much
   prepareCanvas: function() {
     this.jqcanvas
-      .attr("id", "canvas" + this.viewid);
+      .attr("id", "canvas" + this.viewid)
+      .css("height", this.canvasHeight);
   },
   // prepares the mouse interactions
   prepareInteractions: function() {
