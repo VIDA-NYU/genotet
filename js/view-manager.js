@@ -229,7 +229,8 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
     console.error("no supported view found");
   }
   layout.addView(newview);
-  this.views.push( {'viewid':viewid, 'viewname':viewname, 'viewtype': type, 'content':newview} );
+  this.views.push(newview);
+  //this.views.push( {'viewid':viewid, 'viewname':viewname, 'viewtype': type, 'content':newview} );
 
   return newview;
 
@@ -252,18 +253,40 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
   */
 };
 
-ViewManager.prototype.activateView = function(viewname) {
-  for (var i = 1; i < this.views.length; i++) {
-    if (this.views[i].viewname === viewname) {
-      this.views[i].content.highlightHeader();
-      this.views[i].content.control();
-    } else {
-      this.views[i].content.unhighlightHeader();
-      this.views[i].content.uncontrol();
-    }
+ViewManager.prototype.activateView = function(view) {
+  for (var i in this.views) {
+    if (this.views[i] === view)
+      continue;
+    this.views[i].unhighlightHeader();
+    this.views[i].uncontrol();
   }
+  view.highlightHeader();
+  view.control();
 };
 
+ViewManager.prototype.floatView = function(view) {
+  view.isFloating = true;
+  $(view.jqview)
+    .removeClass("view-docked")
+    .addClass("view-floating border")
+    .css("width", view.getViewWidth())
+    .css("height", view.getViewHeight())
+    .resizable({
+      resize: function(event, ui) {
+        view.__onResize(ui.size.width, ui.size.height);
+      }
+    })
+    .appendTo("#floating");
+  $(view.jqheader)
+    .addClass("border");
+  $(view.jqview)
+    .find(".ui-icon-gripsmall-diagonal-se")
+    .removeClass("ui-icon-gripsmall-diagonal-se ui-icon"); // remove ugly handle
+  view.layout.removeView(view);
+};
+ViewManager.prototype.dockView = function(view) {
+
+};
   /*
 ViewManager.prototype.getViewSize = function(type){
 	var width, height;
@@ -328,18 +351,18 @@ ViewManager.prototype.closeAllViews = function(){
 	//this.resetFlags();
 };
 
-ViewManager.prototype.closeView = function(viewname, operator){
+ViewManager.prototype.closeView = function(view, operator){
 	var found = -1;
-	for (var i = 0; i < this.views.length; i++){
-		if (this.views[i].viewname == viewname) {
-			found = i;
-			break;
+	for (var i in this.views){
+		if (this.views[i] === view) {
+		  view.close({
+        noAnimation: operator === "user" ? false : true
+      });
+      this.views.splice(i, 1);
+			return;
 		}
 	}
-	if (found === -1) {
-		console.error("cannot close view", viewname, "view not found");
-		return;
-	}
+	console.error("cannot close view", view.viewname, "view not found");
 	/*
 	var content = this.views[found].content;
 	for(var i=0; i<this.views.length; i++){
@@ -360,10 +383,7 @@ ViewManager.prototype.closeView = function(viewname, operator){
 		this.unlinkView(content.parentView, content);	// remove link
 	content.close();
 	*/
-	this.views[found].content.close({
-	  noAnimation: operator === "user" ? false : true
-	});
-	this.views.splice(found, 1);
+
 	//this.resetFlags();
 
 };

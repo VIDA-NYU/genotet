@@ -13,13 +13,14 @@
 "use strict";
 
 var extObject = {
+  // this function shall be implemented by inheriting classes
   render: function() {
     console.error("render() is not implemented");
   },
 
+  // display a waiting icon
   wait: function() {
     var view = this.view;
-    console.log(view.getViewWidth(), view.getViewHeight());
     this.jqwaitbg = $("<div></div>")
       .attr("id", "wait")
       .attr("class", "view-wait-background")
@@ -33,7 +34,7 @@ var extObject = {
       .css("height", view.getCanvasHeight())
       .insertAfter(view.jqheader);
   },
-
+  // hide the waiting icon
   unwait: function() {
     $(this.jqwaitbg).remove();
     $(this.jqwaiticon).remove();

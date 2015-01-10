@@ -12,7 +12,7 @@
 
 function LayoutManager() {
 
-  this.rootNode = new LayoutNode($("body"), {
+  this.rootNode = new LayoutNode($("#main"), {
     applyDefaultStyles: false,
     spacing_closed: 5,
     spacing_open: 5,
@@ -28,24 +28,25 @@ function LayoutManager() {
     }
   });
 
-  this.viewNode = new LayoutNode($("body").children(".ui-layout-center"), this.defaultOptions);
+  this.viewNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-center"), this.defaultOptions);
 
-  this.menuNode = new LayoutNode($("body").children(".ui-layout-west"),
+  this.menuNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-west"),
     _(_.omit(this.defaultOptions)).extend({
       splitEnabled: null
     }));
 
-  this.auxNode = new LayoutNode($("body").children(".ui-layout-east"), this.defaultOptions);
+  this.auxNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-east"), this.defaultOptions);
 
-  var jqInfo = $("body").children(".ui-layout-east").children(".ui-layout-south");
+  var jqInfo = this.rootNode.jqnode.children(".ui-layout-east").children(".ui-layout-south");
   this.infoNode = new LayoutNode(jqInfo, this.defaultOptions);
-  var jqControl = $("body").children(".ui-layout-east").children(".ui-layout-center");
+  var jqControl = this.rootNode.jqnode.children(".ui-layout-east").children(".ui-layout-center");
   this.controlNode = new LayoutNode(jqControl, this.defaultOptions);
 
   // disable menu scrolling
   this.menuNode.centerPane.css("overflow", "hidden");
 
   // connect nodes on the tree
+  // NOTE: no longer needed
   /*
   this.rootNode.setChild("west", this.menuNode);
   this.rootNode.layout.sizePane("east", "15%");
@@ -73,7 +74,6 @@ LayoutManager.prototype.allocNode = function(type, options){
   if (options == null)
     options = {};
 
-  console.log(type, options);
   if (type === "menu") {
     return this.menuNode;
   } else if (type === "control") {

@@ -25,6 +25,7 @@ var extObject = {
     this.showHeader = true;
     this.viewWidth = this.viewHeight = 0;
     this.canvasWidth = this.canvasHeight = 0;
+    this.isFloating = false;
 
 
     // TODO: supports needed for linking
@@ -138,26 +139,18 @@ var extObject = {
   // add a view header, set jquery nodes properly, add interaction listeners, etc
   prepareView: function() {
     this.jqview = $("<div></div>")
-      .attr("class", "view-div")
-      .appendTo(this.layout.centerPane)
-      .draggable({
-        start: function(event, ui) {
-
-        },
-        stop: function(event, ui) {
-
-        }
-      });
+      .attr("class", "view-docked")
+      .appendTo(this.layout.content);
     this.jqheader = $("<h3></h3>")
       .appendTo(this.jqview);
     this.jqcanvas = $("<div></div>")
       .attr("class", "view-canvas")
       .appendTo(this.jqview);
-    this.jqctrl = this.ctrllayout.centerPane;
+    this.jqctrl = this.ctrllayout.content;
 
     // fetch view sizes
-    this.viewWidth = this.jqview.width();
-    this.viewHeight = this.jqview.height();
+    this.viewWidth = this.layout.centerPane.width();
+    this.viewHeight = this.layout.centerPane.height();
     // prepares the header
     this.prepareHeader();
 
@@ -191,7 +184,7 @@ var extObject = {
         icons : { primary : "ui-icon-close" },
         text : false
       })
-      .click(function() { viewManager.closeView(view.viewname, "user"); })
+      .click(function() { viewManager.closeView(view, "user"); })
       .appendTo(this.jqheader);
     $("<button id='miniBtn' class='view-minibtn'></button>")
       .button({
@@ -223,8 +216,18 @@ var extObject = {
         event.preventDefault();
         view.toggleViewheader();
       })
-      .click( function() {
-        viewManager.activateView(view.viewname);
+      .mousedown( function() {
+        viewManager.activateView(view);
+      })
+      .draggable({  // allow drag out as floating view, or dock
+        handle: "h3",
+        start: function(event, ui) {
+          console.log("drag start");
+          viewManager.floatView(view);
+        },
+        stop: function(event, ui) {
+          console.log("drag end");
+        }
       });
   },
 
@@ -240,8 +243,8 @@ var extObject = {
   close: function(options) {
     // close the view
     $(this.jqview).remove();  // remove view content + header
-    $(this.jqctrl).children().remove(); // remove controller
-    this.layout.remove(this, options); // notify layout that this view has been closed
+    $(this.jqctrl).remove(); // remove controller
+    this.layout.removeView(this, options); // notify layout that this view has been closed
   },
   // other actions
   toggleViewheader: function(){

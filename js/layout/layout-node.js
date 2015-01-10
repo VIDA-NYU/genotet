@@ -24,10 +24,13 @@ function LayoutNode(jqnode, options) {
     this.westPane = jqnode.children(".ui-layout-west");
     this.southPane = jqnode.children(".ui-layout-south");
     this.eastPane = jqnode.children(".ui-layout-east");
+    this.content = this.centerPane.children(".view-content");
   } else {
     this.centerPane = $("<div class='ui-layout-center'></div>")
       .css("overflow", "auto")
       .appendTo(jqnode);
+    this.content = $("<div class='view-content'></div>")
+      .appendTo(this.centerPane);
     _.each(this.directions, function(element) {
       if (node.splitEnabled[element] === true) {
         node[element + "Pane"] = $("<div class='ui-layout-" + element + "'></div>")
@@ -48,6 +51,8 @@ function LayoutNode(jqnode, options) {
   this.jqnode = jqnode;
   this.views = [];
   this.children = {}; // 4 directions
+  this.childrenOrder = []; // used to determine the replacement when node is removed
+
   this.childrenSize = {
     east: "50%",
     south: "50%",
@@ -70,6 +75,7 @@ LayoutNode.prototype.setChild = function(direction, child, options) {
   if (child == null)
     console.error("setting empty child for LayoutNode");
   this.children[direction] = child;
+  this.childrenOrder.push(direction);
   if (options == null)
     options = {};
   if (options.autoResizeChildren) {
@@ -82,11 +88,14 @@ LayoutNode.prototype.setChild = function(direction, child, options) {
 };
 
 LayoutNode.prototype.removeChild = function(direction, options) {
-  if (options == null) options = {};
+  if (options == null)
+    options = {};
   this.children[direction] = null;
   this.layout.hide(direction, options.noAnimation);
+  this.layout.resizeAll();
 };
 
+/*
 LayoutNode.prototype.relocate = function(jqnode) {
   // reset the jqnode (panes) to point to new div element
   this.jqnode = jqnode;
@@ -126,16 +135,64 @@ LayoutNode.prototype.graft = function(direction, node, options) {
     noAnimation: true
   });
 };
+*/
+
+LayoutNode.prototype.pushupAllViews = function(options) {
+  $(this.content).appendTo(this.parent.content);
+  this.parent.views = this.parent.views.concat(this.views);
+
+  if (this.childrenOrder.length === 0) {
+    // no more children
+    this.destroy();
+    return;
+  }
+
+  for (var i in this.childrenOrder) {
+    var dir = this.childrenOrder[i];
+    if (this.children[dir] == null)
+      continue;
+
+    var child = this.children[dir];
+    child.pushupAllViews(options);
+
+    break;
+  }
+};
+
+LayoutNode.prototype.destroy = function() {
+  if (this.parent != null)
+    this.parent.removeChild(this.parentDirection);
+
+  this.layout.destroy();
+  $(this.jqnode.children()).remove();
+};
 
 
-LayoutNode.prototype.remove = function(view, options) {
-  if (options == null) options = {};
-  for (var i = 0; i < this.views.length; i++) {
+LayoutNode.prototype.removeView = function(view, options) {
+  if (options == null)
+    options = {};
+  for (var i in this.views) {
     if (this.views[i] === view) {
       this.views.splice(i, 1);
-      break;
     }
   }
+
+  if (this.views.length > 0)  // TODO: this view still have other tabs
+    return;
+
+  for (var i in this.childrenOrder) {
+    var dir = this.childrenOrder[i];
+    if (this.children[dir] == null) {
+      console.error("inconsistent children direction");
+    }
+
+    var child = this.children[dir];
+    child.pushupAllViews(options);
+
+    break;
+  }
+
+  /*
   if (this.children["east"] || this.children["south"]) {
     // grafting children to this node
     if (this.children["east"]) {
@@ -184,4 +241,5 @@ LayoutNode.prototype.remove = function(view, options) {
       this.allowSouthSplit = true;
     }
   }
+  */
 };
