@@ -25,6 +25,8 @@ var extObject = {
     this.showHeader = true;
     this.viewWidth = this.viewHeight = 0;
     this.canvasWidth = this.canvasHeight = 0;
+
+
     // TODO: supports needed for linking
     this.linkTargets = [];
     this.linkSources = [];
@@ -74,6 +76,10 @@ var extObject = {
   control: function() {
     // the control call is passed to the controller
     this.controller.display();
+  },
+  uncontrol: function() {
+    // remove the controller object
+    this.controller.hide();
   },
   render: function() {
     // the render call is passed to the renderer
@@ -133,7 +139,15 @@ var extObject = {
   prepareView: function() {
     this.jqview = $("<div></div>")
       .attr("class", "view-div")
-      .appendTo(this.layout.centerPane);
+      .appendTo(this.layout.centerPane)
+      .draggable({
+        start: function(event, ui) {
+
+        },
+        stop: function(event, ui) {
+
+        }
+      });
     this.jqheader = $("<h3></h3>")
       .appendTo(this.jqview);
     this.jqcanvas = $("<div></div>")

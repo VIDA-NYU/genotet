@@ -15,6 +15,9 @@
 function ViewManager(){
   this.views = [];
 
+  //this.dockedViews = []; // TODO? useful?
+
+  this.floatingViews = [];
   /*
 	this.headerHeight = 19; // the height of a view's header
 	this.borderWidth = 2;
@@ -200,8 +203,10 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
     }
   }
   // switch the constructed view object
-  var layout = layoutManager.allocDiv(type, operator);
-  var ctrl = layoutManager.allocControl();
+  var layout = layoutManager.allocNode(type, {
+    noAnimation: operator === "user" ? false : true
+  });
+  var ctrl = layoutManager.allocNode("control");
   var newview;
   if (type == "graph")
     newview = GraphView.new(type, viewname, viewid, layout, ctrl);
@@ -254,6 +259,7 @@ ViewManager.prototype.activateView = function(viewname) {
       this.views[i].content.control();
     } else {
       this.views[i].content.unhighlightHeader();
+      this.views[i].content.uncontrol();
     }
   }
 };

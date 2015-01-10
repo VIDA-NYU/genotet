@@ -12,6 +12,10 @@
 var extObject = {
   display: function() {
     // the display function of controller is called once the view is activated (by user clicking)
+  },
+  hide: function() {
+    // hide the controller when deactivated
+    $(this.wrapper).remove();
   }
 };
 

@@ -8,6 +8,16 @@
 "use strict";
 
 function LayoutNode(jqnode, options) {
+
+  if (options == null)
+    console.error("layout options cannot be null");
+
+  var node = this;
+
+  // allow specification of splitting
+  this.splitEnabled = {}; // 4 directions
+  _(this.splitEnabled).extend(options.splitEnabled);
+
   if (options.useExistingNode) {
     this.centerPane = jqnode.children(".ui-layout-center");
     this.northPane = jqnode.children(".ui-layout-north");
@@ -18,37 +28,26 @@ function LayoutNode(jqnode, options) {
     this.centerPane = $("<div class='ui-layout-center'></div>")
       .css("overflow", "auto")
       .appendTo(jqnode);
-    this.eastPane = $("<div class='ui-layout-east'></div>")
-      .appendTo(jqnode);
-    this.westPane = $("<div class='ui-layout-west'></div>")
-      .appendTo(jqnode);
-    this.southPane = $("<div class='ui-layout-south'></div>")
-      .appendTo(jqnode);
-    this.northPane = $("<div class='ui-layout-north'></div>")
-      .appendTo(jqnode);
+    _.each(this.directions, function(element) {
+      if (node.splitEnabled[element] === true) {
+        node[element + "Pane"] = $("<div class='ui-layout-" + element + "'></div>")
+          .appendTo(jqnode);
+      }
+    });
   }
 
-  if (options == null) console.error("layout options cannot be null");
-
-  var exoptions = {};
-  var node = this;
-  _(exoptions).extend(options);
-  exoptions.center__onresize = function() {
-    var w = node.layout.state.center.innerWidth,
-        h = node.layout.state.center.innerHeight;
-    for (var i = 0; i < node.views.length; i++) {
-      node.views[i].__onResize(w, h);
+  this.layout = jqnode.layout(_(_.omit(options)).extend({
+    center__onresize: function() {
+      var w = node.layout.state.center.innerWidth,
+          h = node.layout.state.center.innerHeight;
+      for (var i = 0; i < node.views.length; i++) {
+        node.views[i].__onResize(w, h);
+      }
     }
-  };
-  this.layout = jqnode.layout(exoptions);
+  }));
   this.jqnode = jqnode;
   this.views = [];
-  this.children = {
-    east: null,
-    west: null,
-    north: null,
-    south: null
-  };
+  this.children = {}; // 4 directions
   this.childrenSize = {
     east: "50%",
     south: "50%",
@@ -57,8 +56,6 @@ function LayoutNode(jqnode, options) {
   };
   this.parent = null;
   this.parentDirection = null;
-  this.allowEastSplit = true;
-  this.allowSouthSplit = true;
   return this;
 }
 

@@ -119,7 +119,7 @@ Dialog.prototype.dialogCreate = function(){
           var data = $("#dialog #data").val();
           var exp = $("#dialog #datadiv #exp").val();
           if(exp=="") exp="a^";
-          var view = createView(name, type, "userx");
+          var view = createView(name, type, "user");
           if(view) view.load({
             url: httpAddr,
             args: "type=regnet&net=th17"
