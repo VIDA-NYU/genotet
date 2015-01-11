@@ -221,6 +221,7 @@ var extObject = {
       })
       .draggable({  // allow drag out as floating view, or dock
         handle: ".ui-widget-header",
+        containment: "#dragarea",
         start: function(event, ui) {
           console.log("drag start");
           if (view.isFloating !== true) {
@@ -229,11 +230,14 @@ var extObject = {
             view.jqview
               .css("margin-left", ui.offset.left)
               .css("margin-top", ui.offset.top);
-            viewManager.floatView(view);
           }
+          viewManager.floatView(view);
+          viewManager.enableViewDrop();
         },
         stop: function(event, ui) {
           // remove the artifact margins and replace by true offset (left, top)
+          viewManager.disableViewDrop();
+
           var left = parseInt(view.jqview.css("margin-left")),
               top = parseInt(view.jqview.css("margin-top"));
           left += parseInt(view.jqview.css("left"));
@@ -244,6 +248,7 @@ var extObject = {
             "left": left,
             "top": top
           });
+          view.jqview.css("position", "absolute");
           console.log("drag end");
         }
       });

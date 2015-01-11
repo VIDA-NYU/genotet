@@ -25,22 +25,41 @@ function LayoutManager() {
     splitEnabled: {
       west: true,
       east: true
-    }
+    },
+    noExpansion: true
   });
 
-  this.viewNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-center"), this.defaultOptions);
+  this.viewNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-center"),
+    this.defaultOptions
+  );
 
   this.menuNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-west"),
     _(_.omit(this.defaultOptions)).extend({
-      splitEnabled: null
+      splitEnabled: {},
+      noExpansion: true
     }));
 
-  this.auxNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-east"), this.defaultOptions);
+  this.auxNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-east"),
+    _(_.omit(this.defaultOptions)).extend({
+      splitEnabled: {
+        south: true
+      },
+      noExpansion: true
+    }));
 
   var jqInfo = this.rootNode.jqnode.children(".ui-layout-east").children(".ui-layout-south");
-  this.infoNode = new LayoutNode(jqInfo, this.defaultOptions);
+  this.infoNode = new LayoutNode(jqInfo,
+    _(_.omit(this.defaultOptions)).extend({
+      splitEnabled: {},
+      noExpansion: true
+    }));
+
   var jqControl = this.rootNode.jqnode.children(".ui-layout-east").children(".ui-layout-center");
-  this.controlNode = new LayoutNode(jqControl, this.defaultOptions);
+  this.controlNode = new LayoutNode(jqControl,
+    _(_.omit(this.defaultOptions)).extend({
+      splitEnabled: {},
+      noExpansion: true
+    }));
 
   // disable menu scrolling
   this.menuNode.centerPane.css("overflow", "hidden");
@@ -114,3 +133,15 @@ LayoutManager.prototype.findSlot = function(options, node){ // options and node 
 };
 
 
+LayoutManager.prototype.showDropzones = function() {
+  if (this.viewNode.views.length === 0) {
+    this.viewNode.showCenterDropzone();
+  } else {
+    console.log("show drop recur");
+    this.viewNode.showDropzones();
+  }
+};
+LayoutManager.prototype.hideDropzones = function() {
+  $(".view-dropzone")
+    .addClass("view-dropzone-inactive");
+};

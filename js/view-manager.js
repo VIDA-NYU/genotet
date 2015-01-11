@@ -174,6 +174,12 @@ ViewManager.prototype.createMenu = function(){
 	return menu;
 };
 
+ViewManager.prototype.enableViewDrop = function() {
+  layoutManager.showDropzones();
+};
+ViewManager.prototype.disableViewDrop = function() {
+  layoutManager.hideDropzones();
+};
 ViewManager.prototype.createView = function(viewname, type, operator){ //, width, height, left, top
 /*
   if(this.supportedTypes.indexOf(type)==-1){
@@ -261,18 +267,43 @@ ViewManager.prototype.activateView = function(view) {
   }
   view.highlightHeader();
   view.control();
+  if (view.isFloating === true) {
+    this.sendFrontFloatingView(view);
+  }
+
+};
+
+ViewManager.prototype.sendFrontFloatingView = function(view) {
+  // send front a floating view
+  if (view.isFloating !== true)
+    console.error("view is not floating but sent front");
+
+  var maxZindex = -Infinity, minZindex = Infinity;
+  _.each(this.floatingViews, function(element) {
+    var zindex = element.jqview.css("z-index");
+    zindex = zindex === "auto" ? 0 : parseInt(zindex);
+    minZindex = Math.min(minZindex, zindex);
+    maxZindex = Math.max(maxZindex, zindex);
+  });
+  _.each(this.floatingViews, function(element) {
+    var zindex = parseInt(element.jqview.css("z-index"));
+    zindex -= minZindex;
+    element.jqview.css("z-index", zindex);
+  });
+  view.jqview.css("z-index", maxZindex + 1);
 };
 
 ViewManager.prototype.floatView = function(view) {
   if (view.isFloating === true) {
-    console.log("already floating?");
+    //console.log("already floating?");
+    this.sendFrontFloatingView(view);
     return; // already floating, do nothing
   }
 
   view.isFloating = true;
   $(view.jqview)
     .removeClass("view-docked")
-    .addClass("view-floating border")
+    .addClass("view-floating")
     .css("width", view.getViewWidth())
     .css("height", view.getViewHeight())
     .resizable({
@@ -281,12 +312,16 @@ ViewManager.prototype.floatView = function(view) {
         view.__onResize(ui.size.width, ui.size.height);
       }
     })
-    .appendTo("#floating");
+    .prependTo("#floating");
   $(view.jqview)
     .find(".ui-icon-gripsmall-diagonal-se")
     .removeClass("ui-icon-gripsmall-diagonal-se ui-icon"); // remove ugly handle
   view.layout.removeView(view);
   view.layout = null;
+  this.sendFrontFloatingView(view);
+
+  // add to floating view list
+  this.floatingViews.push(view);
 };
 ViewManager.prototype.dockView = function(view) {
 

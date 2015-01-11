@@ -15,31 +15,44 @@ function LayoutNode(jqnode, options) {
   var node = this;
 
   // allow specification of splitting
-  this.splitEnabled = {}; // 4 directions
-  _(this.splitEnabled).extend(options.splitEnabled);
+  this.splitEnabled = _.omit(options.splitEnabled); // 4 directions
+  // allow view dropped to expansion
+  this.noExpansion = options.noExpansion;
 
-/*
-  if (options.useExistingNode) {
-    this.centerPane = jqnode.children(".ui-layout-center");
-    this.northPane = jqnode.children(".ui-layout-north");
-    this.westPane = jqnode.children(".ui-layout-west");
-    this.southPane = jqnode.children(".ui-layout-south");
-    this.eastPane = jqnode.children(".ui-layout-east");
-    this.content = this.centerPane.children(".view-content");
-  } else {
-    */
-    this.centerPane = $("<div class='ui-layout-center'></div>")
-      .css("overflow", "hidden")
-      .appendTo(jqnode);
-    this.content = $("<div class='view-content'></div>")
-      .appendTo(this.centerPane);
-    _.each(this.directions, function(element) {
-      if (node.splitEnabled[element] === true) {
-        node[element + "Pane"] = $("<div class='ui-layout-" + element + "'></div>")
-          .appendTo(jqnode);
+  this.centerPane = $("<div class='ui-layout-center'></div>")
+    .css("overflow", "hidden")
+    .appendTo(jqnode);
+  this.content = $("<div class='view-content'></div>")
+    .appendTo(this.centerPane);
+  _.each(this.directions, function(element) {
+    if (node.splitEnabled[element] === true) {
+      node[element + "Pane"] = $("<div class='ui-layout-" + element + "'></div>")
+        .appendTo(jqnode);
+
+      if (!node.noExpansion) {
+        $("<div></div>")
+          .addClass("view-dropzone view-dropzone-inactive view-dropzone-" + element)
+          .droppable({
+            activeClass: "ui-state-default",
+            hoverClass: "ui-state-hover",
+            greedy: true,
+            drop: function(event, ui) {
+              console.log(this);
+            }
+          })
+          .insertBefore(node.content);
       }
-    });
-  //}
+    }
+  });
+
+  $("<div></div>")
+    .addClass("view-dropzone view-dropzone-center view-dropzone-inactive")
+    .droppable({
+      activeClass: "ui-state-default",
+      hoverClass: "ui-state-hover",
+      greedy: true
+    })
+    .appendTo(this.centerPane);
 
   this.layoutOptions = _(_.omit(options)).extend({
     center__onresize: function() {
@@ -101,47 +114,6 @@ LayoutNode.prototype.removeChild = function(direction, options) {
   this.layout.resizeAll();
 };
 
-/*
-LayoutNode.prototype.relocate = function(jqnode) {
-  // reset the jqnode (panes) to point to new div element
-  this.jqnode = jqnode;
-  this.centerPane = jqnode.children(".ui-layout-center");
-  this.northPane = jqnode.children(".ui-layout-north");
-  this.westPane = jqnode.children(".ui-layout-west");
-  this.southPane = jqnode.children(".ui-layout-south");
-  this.eastPane = jqnode.children(".ui-layout-east");
-};
-
-
-LayoutNode.prototype.graft = function(direction, node, options) {
-  if (options == null)
-    options = {};
-
-  var pane = direction + "Pane";
-  if (this.children[direction]) {
-    console.error("graft to an existing branch");
-  }
-
-  $(node.jqnode.children()).appendTo(this[pane]);
-  var exoptions = {};
-  _(exoptions).extend(layoutManager.stdOptions);
-  exoptions.useExistingNode = true;
-  var child = new LayoutNode(this[pane], exoptions);
-
-  child.views.push(node.views[0]);
-  child.views[0].layout = child;
-  child.allowEastSplit = node.allowEastSplit;
-  child.allowSouthSplit = node.allowSouthSplit;
-
-  node.parent.removeChild(node.parentDirection. options);
-  node.layout.destroy();
-
-  this.setChild(direction, child, {
-    autoResizeChildren: true,
-    noAnimation: true
-  });
-};
-*/
 
 LayoutNode.prototype.pushupAllViews = function(options) {
   $(this.content).children().appendTo(this.parent.content);
@@ -172,12 +144,14 @@ LayoutNode.prototype.pushupAllViews = function(options) {
 LayoutNode.prototype.destroy = function() {
   if (this.parent != null)
     this.parent.removeChild(this.parentDirection);
+  if (this.layout == null)
+    console.error("null layout being destroyed");
 
   this.layout.destroy();
   $(this.jqnode.children()).remove();
 };
 
-LayoutNode.prototype.rebuiltLayout = function() {
+LayoutNode.prototype.rebuildLayout = function() {
   this.layout = this.jqnode.layout(this.layoutOptions);
   for (var i in this.childrenOrder) {
     var dir = this.childrenOrder[i];
@@ -188,8 +162,31 @@ LayoutNode.prototype.rebuiltLayout = function() {
       noAnimation: true,
       isExistingChild: true
     });
-    child.rebuiltLayout();
+    child.rebuildLayout();
   }
+};
+
+LayoutNode.prototype.showCenterDropzone = function() {
+  this.centerPane.children(".view-dropzone-center")
+    .removeClass("view-dropzone-inactive");
+};
+LayoutNode.prototype.showDropzones = function() {
+  if (this.noExpansion === true)
+    console.error("showing dropzones for a non-expansible node");
+
+  var node = this;
+
+  _.each(this.directions, function(element) {
+    if (node.splitEnabled[element] !== true)
+      return;
+    if (node.children[element]) {
+      node.children[element].showDropzones();
+      return;
+    }
+    node.centerPane.children(".view-dropzone-" + element)
+      .removeClass("view-dropzone-inactive");
+  });
+
 };
 
 LayoutNode.prototype.expand = function(direction) { // insert a children in a given direction
@@ -200,20 +197,27 @@ LayoutNode.prototype.expand = function(direction) { // insert a children in a gi
   if (this.children[direction]) {
     // the direction is occupied, insert a new node in between
     var oldchild = this.children[direction];
+    // create a temporary div that holds the old subtree
     var wrapper = $("<div></div>")
       .attr("id", "wrp")
       .css("height", oldchild.jqnode.height())
       .css("width", oldchild.jqnode.width())
       .appendTo(this.jqnode);
-
-    $(oldchild.jqnode.children())
+    $(oldchild.jqnode.children()) // move old subtree contents to the temp place
       .appendTo(wrapper);
-    oldchild.layout.destroy();  // this will destroy all nested layouts!
+    // ui-layout library does not allow redirecting parent,
+    // so we rebuild all layouts in the subtree
+    // this will destroy all nested layouts!
+    oldchild.layout.destroy();
+
+    // create a new child node
     var child = new LayoutNode(this[direction + "Pane"], layoutManager.defaultOptions);
+    // move the old subtree to its new place
     $(wrapper.children())
       .appendTo(child[direction + "Pane"]);
+    wrapper.remove(); // end of wrapper's mission
 
-
+    // link the tree, just like singly-linked list
     child.setChild(direction, oldchild, {
       autoResizeChildren: true,
       noAnimation: true
@@ -223,11 +227,11 @@ LayoutNode.prototype.expand = function(direction) { // insert a children in a gi
       noAnimation: true
     });
 
+    // the old child's jqnode has changed!
     oldchild.jqnode = child[direction + "Pane"];
-    oldchild.rebuiltLayout();
-    wrapper.remove();
 
-
+    // now rebuild all the layouts in the subtree
+    oldchild.rebuildLayout();
 
     return child;
   } else {
@@ -317,3 +321,49 @@ LayoutNode.prototype.removeView = function(view, options) {
   }
   */
 };
+
+
+
+
+
+/*
+LayoutNode.prototype.relocate = function(jqnode) {
+  // reset the jqnode (panes) to point to new div element
+  this.jqnode = jqnode;
+  this.centerPane = jqnode.children(".ui-layout-center");
+  this.northPane = jqnode.children(".ui-layout-north");
+  this.westPane = jqnode.children(".ui-layout-west");
+  this.southPane = jqnode.children(".ui-layout-south");
+  this.eastPane = jqnode.children(".ui-layout-east");
+};
+
+
+LayoutNode.prototype.graft = function(direction, node, options) {
+  if (options == null)
+    options = {};
+
+  var pane = direction + "Pane";
+  if (this.children[direction]) {
+    console.error("graft to an existing branch");
+  }
+
+  $(node.jqnode.children()).appendTo(this[pane]);
+  var exoptions = {};
+  _(exoptions).extend(layoutManager.stdOptions);
+  exoptions.useExistingNode = true;
+  var child = new LayoutNode(this[pane], exoptions);
+
+  child.views.push(node.views[0]);
+  child.views[0].layout = child;
+  child.allowEastSplit = node.allowEastSplit;
+  child.allowSouthSplit = node.allowSouthSplit;
+
+  node.parent.removeChild(node.parentDirection. options);
+  node.layout.destroy();
+
+  this.setChild(direction, child, {
+    autoResizeChildren: true,
+    noAnimation: true
+  });
+};
+*/
