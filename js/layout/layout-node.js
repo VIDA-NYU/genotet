@@ -10,7 +10,7 @@
 function LayoutNode(jqnode, options) {
 
   if (options == null)
-    console.error("layout options cannot be null");
+    options = {};
 
   var node = this;
 
@@ -29,10 +29,10 @@ function LayoutNode(jqnode, options) {
   } else {
     */
     this.centerPane = $("<div class='ui-layout-center'></div>")
-      .css("overflow", "auto")
+      .css("overflow", "hidden")
       .appendTo(jqnode);
     this.content = $("<div class='view-content'></div>")
-      .appendTo(jqnode);
+      .appendTo(this.centerPane);
     _.each(this.directions, function(element) {
       if (node.splitEnabled[element] === true) {
         node[element + "Pane"] = $("<div class='ui-layout-" + element + "'></div>")
@@ -41,7 +41,7 @@ function LayoutNode(jqnode, options) {
     });
   //}
 
-  this.layout = jqnode.layout(_(_.omit(options)).extend({
+  this.layoutOptions = _(_.omit(options)).extend({
     center__onresize: function() {
       var w = node.layout.state.center.innerWidth,
           h = node.layout.state.center.innerHeight;
@@ -49,7 +49,8 @@ function LayoutNode(jqnode, options) {
         node.views[i].__onResize(w, h);
       }
     }
-  }));
+  });
+  this.layout = jqnode.layout(this.layoutOptions);
   this.jqnode = jqnode;
   this.views = [];
   this.children = {}; // 4 directions
@@ -76,11 +77,13 @@ LayoutNode.prototype.addView = function(view) {
 LayoutNode.prototype.setChild = function(direction, child, options) {
   if (child == null)
     console.error("setting empty child for LayoutNode");
-  this.children[direction] = child;
-  this.childrenOrder.push(direction);
+  if (!options.isExistingChild) {
+    this.children[direction] = child;
+    this.childrenOrder.push(direction);
+  }
   if (options == null)
     options = {};
-  if (options.autoResizeChildren) {
+  if (options.autoResizeChildren === true) {
     this.layout.sizePane(direction, this.childrenSize[direction]);
   }
   this.layout.show(direction, true, options.noAnimation);
@@ -174,6 +177,69 @@ LayoutNode.prototype.destroy = function() {
   $(this.jqnode.children()).remove();
 };
 
+LayoutNode.prototype.rebuiltLayout = function() {
+  this.layout = this.jqnode.layout(this.layoutOptions);
+  for (var i in this.childrenOrder) {
+    var dir = this.childrenOrder[i];
+    var child = this.children[dir];
+    //child.jqnode = this[dir + "Pane"];
+    this.setChild(dir, child, {
+      autoResizeChildren: true,
+      noAnimation: true,
+      isExistingChild: true
+    });
+    child.rebuiltLayout();
+  }
+};
+
+LayoutNode.prototype.expand = function(direction) { // insert a children in a given direction
+  if (this.splitEnabled[direction] !== true) {
+    console.error("expanding direction", direction, "is not allowed");
+    return;
+  }
+  if (this.children[direction]) {
+    // the direction is occupied, insert a new node in between
+    var oldchild = this.children[direction];
+    var wrapper = $("<div></div>")
+      .attr("id", "wrp")
+      .css("height", oldchild.jqnode.height())
+      .css("width", oldchild.jqnode.width())
+      .appendTo(this.jqnode);
+
+    $(oldchild.jqnode.children())
+      .appendTo(wrapper);
+    oldchild.layout.destroy();  // this will destroy all nested layouts!
+    var child = new LayoutNode(this[direction + "Pane"], layoutManager.defaultOptions);
+    $(wrapper.children())
+      .appendTo(child[direction + "Pane"]);
+
+
+    child.setChild(direction, oldchild, {
+      autoResizeChildren: true,
+      noAnimation: true
+    });
+    this.setChild(direction, child, {
+      autoResizeChildren: true,
+      noAnimation: true
+    });
+
+    oldchild.jqnode = child[direction + "Pane"];
+    oldchild.rebuiltLayout();
+    wrapper.remove();
+
+
+
+    return child;
+  } else {
+    // the direction is empty, create a new node immediately
+    var child = new LayoutNode(this[direction + "Pane"], layoutManager.defaultOptions);
+    this.setChild(direction, child, {
+      autoResizeChildren: true,
+      noAnimation: options.noAnimation
+    });
+    return child;
+  }
+};
 
 LayoutNode.prototype.removeView = function(view, options) {
   if (options == null)

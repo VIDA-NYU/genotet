@@ -15,8 +15,8 @@ var extObject = {
     this.svg = d3.select("#canvas" + view.viewid).append("svg");
 
     this.svg
-      .style("width", "100%")
-      .style("height", "100%")
+      .style("width", view.getCanvasWidth())
+      .style("height", view.getCanvasHeight())
       .style("background", "white");
 
     var points = [
