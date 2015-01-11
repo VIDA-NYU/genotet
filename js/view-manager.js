@@ -212,7 +212,6 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
     newview = GraphView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "network"){
     newview = GraphView.new(type, viewname, viewid, layout, ctrl);
-    console.log("awesome graph");
   }else if (type === "binding")
     newview = BindingView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "expression")
@@ -265,6 +264,11 @@ ViewManager.prototype.activateView = function(view) {
 };
 
 ViewManager.prototype.floatView = function(view) {
+  if (view.isFloating === true) {
+    console.log("already floating?");
+    return; // already floating, do nothing
+  }
+
   view.isFloating = true;
   $(view.jqview)
     .removeClass("view-docked")
@@ -273,16 +277,16 @@ ViewManager.prototype.floatView = function(view) {
     .css("height", view.getViewHeight())
     .resizable({
       resize: function(event, ui) {
+        console.log(ui.size);
         view.__onResize(ui.size.width, ui.size.height);
       }
     })
     .appendTo("#floating");
-  $(view.jqheader)
-    .addClass("border");
   $(view.jqview)
     .find(".ui-icon-gripsmall-diagonal-se")
     .removeClass("ui-icon-gripsmall-diagonal-se ui-icon"); // remove ugly handle
   view.layout.removeView(view);
+  view.layout = null;
 };
 ViewManager.prototype.dockView = function(view) {
 

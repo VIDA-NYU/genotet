@@ -220,12 +220,30 @@ var extObject = {
         viewManager.activateView(view);
       })
       .draggable({  // allow drag out as floating view, or dock
-        handle: "h3",
+        handle: ".ui-widget-header",
         start: function(event, ui) {
           console.log("drag start");
-          viewManager.floatView(view);
+          if (view.isFloating !== true) {
+            // use margin to keep the global offset
+            // because the view will be floated immediately in floatView function
+            view.jqview
+              .css("margin-left", ui.offset.left)
+              .css("margin-top", ui.offset.top);
+            viewManager.floatView(view);
+          }
         },
         stop: function(event, ui) {
+          // remove the artifact margins and replace by true offset (left, top)
+          var left = parseInt(view.jqview.css("margin-left")),
+              top = parseInt(view.jqview.css("margin-top"));
+          left += parseInt(view.jqview.css("left"));
+          top += parseInt(view.jqview.css("top"));
+          view.jqview.css({
+            "margin-left": "",
+            "margin-top": "",
+            "left": left,
+            "top": top
+          });
           console.log("drag end");
         }
       });
@@ -244,7 +262,12 @@ var extObject = {
     // close the view
     $(this.jqview).remove();  // remove view content + header
     $(this.jqctrl).remove(); // remove controller
-    this.layout.removeView(this, options); // notify layout that this view has been closed
+    if (this.isFloating === false) {  // notify layout that this view has been closed
+      if (this.layout == null) {
+        console.error("null layout");
+      }
+      this.layout.removeView(this, options);
+    }
   },
   // other actions
   toggleViewheader: function(){

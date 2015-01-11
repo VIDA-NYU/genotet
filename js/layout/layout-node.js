@@ -18,6 +18,7 @@ function LayoutNode(jqnode, options) {
   this.splitEnabled = {}; // 4 directions
   _(this.splitEnabled).extend(options.splitEnabled);
 
+/*
   if (options.useExistingNode) {
     this.centerPane = jqnode.children(".ui-layout-center");
     this.northPane = jqnode.children(".ui-layout-north");
@@ -26,18 +27,19 @@ function LayoutNode(jqnode, options) {
     this.eastPane = jqnode.children(".ui-layout-east");
     this.content = this.centerPane.children(".view-content");
   } else {
+    */
     this.centerPane = $("<div class='ui-layout-center'></div>")
       .css("overflow", "auto")
       .appendTo(jqnode);
     this.content = $("<div class='view-content'></div>")
-      .appendTo(this.centerPane);
+      .appendTo(jqnode);
     _.each(this.directions, function(element) {
       if (node.splitEnabled[element] === true) {
         node[element + "Pane"] = $("<div class='ui-layout-" + element + "'></div>")
           .appendTo(jqnode);
       }
     });
-  }
+  //}
 
   this.layout = jqnode.layout(_(_.omit(options)).extend({
     center__onresize: function() {
@@ -91,6 +93,7 @@ LayoutNode.prototype.removeChild = function(direction, options) {
   if (options == null)
     options = {};
   this.children[direction] = null;
+  this.childrenOrder.splice(this.childrenOrder.indexOf(direction), 1);
   this.layout.hide(direction, options.noAnimation);
   this.layout.resizeAll();
 };
@@ -138,11 +141,15 @@ LayoutNode.prototype.graft = function(direction, node, options) {
 */
 
 LayoutNode.prototype.pushupAllViews = function(options) {
-  $(this.content).appendTo(this.parent.content);
+  $(this.content).children().appendTo(this.parent.content);
+  for (var i in this.views) {
+    this.views[i].layout = this.parent; // redirect layout to parent node
+  }
   this.parent.views = this.parent.views.concat(this.views);
 
   if (this.childrenOrder.length === 0) {
     // no more children
+    this.parent.removeChild(this.parentDirection);
     this.destroy();
     return;
   }
@@ -171,11 +178,7 @@ LayoutNode.prototype.destroy = function() {
 LayoutNode.prototype.removeView = function(view, options) {
   if (options == null)
     options = {};
-  for (var i in this.views) {
-    if (this.views[i] === view) {
-      this.views.splice(i, 1);
-    }
-  }
+  this.views.splice(this.views.indexOf(view), 1);
 
   if (this.views.length > 0)  // TODO: this view still have other tabs
     return;
@@ -185,11 +188,16 @@ LayoutNode.prototype.removeView = function(view, options) {
     if (this.children[dir] == null) {
       console.error("inconsistent children direction");
     }
-
+    console.log(dir, "pushup");
     var child = this.children[dir];
     child.pushupAllViews(options);
+    return;
+  }
 
-    break;
+  // no children, this node is leaf and shall be removed
+  if (this.parent) {
+    this.parent.removeChild(this.parentDirection);
+    this.destroy();
   }
 
   /*
