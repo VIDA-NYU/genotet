@@ -326,6 +326,7 @@ ViewManager.prototype.floatView = function(view) {
     .css("width", view.getViewWidth())
     .css("height", view.getViewHeight())
     .resizable({
+      disabled: false,
       resize: function(event, ui) {
         view.__onResize(ui.size.width, ui.size.height);
       }
@@ -352,7 +353,11 @@ ViewManager.prototype.dockView = function(viewid, node, direction) {
   }
   view.isFloating = false;
 
-  var newnode = node.expand(direction);
+  var newnode;
+  if (direction === "center")
+    newnode = node;
+  else
+    newnode = node.expand(direction);
 
   $(view.jqview)
     .removeClass("view-floating")

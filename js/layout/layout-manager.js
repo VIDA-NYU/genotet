@@ -142,5 +142,6 @@ LayoutManager.prototype.showDropzones = function() {
 };
 LayoutManager.prototype.hideDropzones = function() {
   $(".view-dropzone")
+    .droppable("disable")
     .addClass("view-dropzone-inactive");
 };

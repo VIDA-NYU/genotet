@@ -33,12 +33,13 @@ function LayoutNode(jqnode, options) {
         $("<div></div>")
           .addClass("view-dropzone view-dropzone-inactive view-dropzone-" + element)
           .droppable({
+            disabled: true,
+            accept: ".view-floating",
             activeClass: "ui-state-default",
             hoverClass: "ui-state-hover",
             greedy: true,
             drop: function(event, ui) {
               var viewid = ui.draggable.attr("id").match("[0-9]+")[0];
-              console.log(this);
               viewManager.dockView(viewid, node, element); // element is direction
             }
           })
@@ -50,9 +51,15 @@ function LayoutNode(jqnode, options) {
   $("<div></div>")
     .addClass("view-dropzone view-dropzone-center view-dropzone-inactive")
     .droppable({
+      disabled: true,
+      accept: ".view-floating",
       activeClass: "ui-state-default",
       hoverClass: "ui-state-hover",
-      greedy: true
+      greedy: true,
+      drop: function(event, ui) {
+        var viewid = ui.draggable.attr("id").match("[0-9]+")[0];
+        viewManager.dockView(viewid, node, "center");
+      }
     })
     .appendTo(this.centerPane);
 
@@ -170,6 +177,7 @@ LayoutNode.prototype.rebuildLayout = function() {
 
 LayoutNode.prototype.showCenterDropzone = function() {
   this.centerPane.children(".view-dropzone-center")
+    .droppable("enable")
     .removeClass("view-dropzone-inactive");
 };
 LayoutNode.prototype.showDropzones = function() {
@@ -186,6 +194,7 @@ LayoutNode.prototype.showDropzones = function() {
       return;
     }
     node.centerPane.children(".view-dropzone-" + element)
+      .droppable("enable")
       .removeClass("view-dropzone-inactive");
   });
 
