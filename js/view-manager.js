@@ -273,6 +273,25 @@ ViewManager.prototype.activateView = function(view) {
 
 };
 
+
+ViewManager.prototype.getView = function(properties) {
+  // find a view that matches all given properties
+  for (var i in this.views) {
+    var match = true;
+    for (var prop in properties) {
+      if (this.views[i][prop] != properties[prop]) {
+        match = false;
+        break;
+      }
+    }
+    if (match)
+      return this.views[i];
+  }
+  return null;
+};
+
+
+
 ViewManager.prototype.sendFrontFloatingView = function(view) {
   // send front a floating view
   if (view.isFloating !== true)
@@ -308,7 +327,6 @@ ViewManager.prototype.floatView = function(view) {
     .css("height", view.getViewHeight())
     .resizable({
       resize: function(event, ui) {
-        console.log(ui.size);
         view.__onResize(ui.size.width, ui.size.height);
       }
     })
@@ -323,9 +341,37 @@ ViewManager.prototype.floatView = function(view) {
   // add to floating view list
   this.floatingViews.push(view);
 };
-ViewManager.prototype.dockView = function(view) {
 
+ViewManager.prototype.dockView = function(viewid, node, direction) {
+  var view = this.getView({
+    "viewid": viewid
+  });
+  if (view == null) {
+    console.error("fatal: cannot find a view with given id");
+    return;
+  }
+  view.isFloating = false;
+
+  var newnode = node.expand(direction);
+
+  $(view.jqview)
+    .removeClass("view-floating")
+    .addClass("view-docked")
+    .css({    // clear floating properties
+      left: "",
+      top: "",
+      width: "",
+      height: ""
+    })
+    .resizable("disable")
+    .appendTo(newnode.content);
+  view.__setDraggable();
+  newnode.addView(view);
+
+  // remove from floating view list
+  this.floatingViews.splice(this.floatingViews.indexOf(view), 1);
 };
+
   /*
 ViewManager.prototype.getViewSize = function(type){
 	var width, height;
@@ -433,12 +479,14 @@ ViewManager.prototype.resetFlags = function(){
 };
 */
 
+/*
 ViewManager.prototype.getView = function(viewname){
     for(var i=0; i<this.views.length; i++){
 		if(this.views[i].viewname==viewname) return this.views[i].content;
     }
     return null;
 };
+*/
 
 ViewManager.prototype.setPlace = function(view, top, left){
 	$("#view"+view.viewid).css({"left":left+"px", "top":top+"px"});

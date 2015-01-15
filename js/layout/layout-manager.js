@@ -137,7 +137,6 @@ LayoutManager.prototype.showDropzones = function() {
   if (this.viewNode.views.length === 0) {
     this.viewNode.showCenterDropzone();
   } else {
-    console.log("show drop recur");
     this.viewNode.showDropzones();
   }
 };

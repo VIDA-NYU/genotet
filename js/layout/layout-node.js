@@ -37,7 +37,9 @@ function LayoutNode(jqnode, options) {
             hoverClass: "ui-state-hover",
             greedy: true,
             drop: function(event, ui) {
+              var viewid = ui.draggable.attr("id").match("[0-9]+")[0];
               console.log(this);
+              viewManager.dockView(viewid, node, element); // element is direction
             }
           })
           .insertBefore(node.content);

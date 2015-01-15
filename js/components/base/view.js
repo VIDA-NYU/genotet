@@ -139,6 +139,7 @@ var extObject = {
   // add a view header, set jquery nodes properly, add interaction listeners, etc
   prepareView: function() {
     this.jqview = $("<div></div>")
+      .attr("id", "view" + this.viewid)
       .attr("class", "view-docked")
       .appendTo(this.layout.content);
     this.jqheader = $("<h3></h3>")
@@ -218,40 +219,9 @@ var extObject = {
       })
       .mousedown( function() {
         viewManager.activateView(view);
-      })
-      .draggable({  // allow drag out as floating view, or dock
-        handle: ".ui-widget-header",
-        containment: "#dragarea",
-        start: function(event, ui) {
-          console.log("drag start");
-          if (view.isFloating !== true) {
-            // use margin to keep the global offset
-            // because the view will be floated immediately in floatView function
-            view.jqview
-              .css("margin-left", ui.offset.left)
-              .css("margin-top", ui.offset.top);
-          }
-          viewManager.floatView(view);
-          viewManager.enableViewDrop();
-        },
-        stop: function(event, ui) {
-          // remove the artifact margins and replace by true offset (left, top)
-          viewManager.disableViewDrop();
-
-          var left = parseInt(view.jqview.css("margin-left")),
-              top = parseInt(view.jqview.css("margin-top"));
-          left += parseInt(view.jqview.css("left"));
-          top += parseInt(view.jqview.css("top"));
-          view.jqview.css({
-            "margin-left": "",
-            "margin-top": "",
-            "left": left,
-            "top": top
-          });
-          view.jqview.css("position", "absolute");
-          console.log("drag end");
-        }
       });
+
+    this.__setDraggable();
   },
 
 
@@ -313,6 +283,42 @@ var extObject = {
     this.onResize();
   },
 
+  __setDraggable: function() {
+    var view = this;
+    this.jqview.draggable({ // allow drag out as floating view, or dock
+      handle: ".ui-widget-header",
+      containment: "#dragarea",
+      start: function(event, ui) {
+        console.log("drag start");
+        if (view.isFloating !== true) {
+          // use margin to keep the global offset
+          // because the view will be floated immediately in floatView function
+          view.jqview
+            .css("margin-left", ui.offset.left)
+            .css("margin-top", ui.offset.top);
+        }
+        viewManager.floatView(view);
+        viewManager.enableViewDrop();
+      },
+      stop: function(event, ui) {
+        // remove the artifact margins and replace by true offset (left, top)
+        viewManager.disableViewDrop();
+
+        var left = parseInt(view.jqview.css("margin-left")),
+            top = parseInt(view.jqview.css("margin-top"));
+        left += parseInt(view.jqview.css("left"));
+        top += parseInt(view.jqview.css("top"));
+        view.jqview.css({
+          "margin-left": "",
+          "margin-top": "",
+          "left": left,
+          "top": top
+        });
+        view.jqview.css("position", "absolute");
+        console.log("drag end");
+      }
+    });
+  }
 };
 
 var View = Base.extend(extObject);
