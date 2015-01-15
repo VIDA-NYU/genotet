@@ -124,32 +124,6 @@ LayoutNode.prototype.removeChild = function(direction, options) {
 };
 
 
-LayoutNode.prototype.pushupAllViews = function(options) {
-  $(this.content).children().appendTo(this.parent.content);
-  for (var i in this.views) {
-    this.views[i].layout = this.parent; // redirect layout to parent node
-  }
-  this.parent.views = this.parent.views.concat(this.views);
-
-  if (this.childrenOrder.length === 0) {
-    // no more children
-    this.parent.removeChild(this.parentDirection);
-    this.destroy();
-    return;
-  }
-
-  for (var i in this.childrenOrder) {
-    var dir = this.childrenOrder[i];
-    if (this.children[dir] == null)
-      continue;
-
-    var child = this.children[dir];
-    child.pushupAllViews(options);
-
-    break;
-  }
-};
-
 LayoutNode.prototype.destroy = function() {
   if (this.parent != null)
     this.parent.removeChild(this.parentDirection);
@@ -256,6 +230,32 @@ LayoutNode.prototype.expand = function(direction) { // insert a children in a gi
   }
 };
 
+
+LayoutNode.prototype.pushupAllViews = function(options) {
+  $(this.content).children().appendTo(this.parent.content);
+  for (var i in this.views) {
+    this.views[i].layout = this.parent; // redirect layout to parent node
+  }
+  this.parent.views = this.parent.views.concat(this.views);
+
+  if (this.childrenOrder.length === 0) {
+    // no more children
+    this.destroy();
+    return;
+  }
+
+  for (var i in this.childrenOrder) {
+    var dir = this.childrenOrder[i];
+    if (this.children[dir] == null)
+      continue;
+
+    var child = this.children[dir];
+    child.pushupAllViews(options);
+
+    break;
+  }
+};
+
 LayoutNode.prototype.removeView = function(view, options) {
   if (options == null)
     options = {};
@@ -272,12 +272,12 @@ LayoutNode.prototype.removeView = function(view, options) {
     console.log(dir, "pushup");
     var child = this.children[dir];
     child.pushupAllViews(options);
-    return;
+    return; // function stops here!
   }
 
   // no children, this node is leaf and shall be removed
+  // NOTE: not removing when leaf is root (single node tree)
   if (this.parent) {
-    this.parent.removeChild(this.parentDirection);
     this.destroy();
   }
 
