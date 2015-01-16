@@ -43,6 +43,13 @@ body {
   width: 0;
 }
 
+#minimized {
+  float: left;
+  position: absolute;
+  z-index: 100;
+  top: calc(100% - 20px);
+}
+
 text, h3, .hint, .view-div, .exonname, .label,
 .trackhint, .coordlabel, .graphinfo, .legend, .condtext,
 .xlabel {
@@ -54,6 +61,7 @@ h3 {
   text-align: center;
   margin: 0;
 }
+
 
 
 .view-dropzone-center {
@@ -110,6 +118,13 @@ h3 {
   float: left;
   position: absolute;
   border: 1px solid #ccc;
+}
+
+.view-minimized {
+  width: 200px;
+  height: 20px;
+  position: relative;
+  float: left;
 }
 
 .border {

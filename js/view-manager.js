@@ -18,6 +18,7 @@ function ViewManager(){
   //this.dockedViews = []; // TODO? useful?
 
   this.floatingViews = [];
+  this.minimizedViews = [];
   /*
 	this.headerHeight = 19; // the height of a view's header
 	this.borderWidth = 2;
@@ -320,6 +321,14 @@ ViewManager.prototype.floatView = function(view) {
   }
 
   view.isFloating = true;
+
+  view.jqheader.find("#miniBtn")
+    .button({
+      icons: {
+        primary : "ui-icon-minus",
+      }
+    });
+
   $(view.jqview)
     .removeClass("view-docked")
     .addClass("view-floating")
@@ -335,6 +344,44 @@ ViewManager.prototype.floatView = function(view) {
   this.floatingViews.push(view);
 };
 
+ViewManager.prototype.toggleViewMinimized = function(view) {
+  if (view.isMinimized === false) {
+    view.floatingProperty = {
+      "width" : view.jqview.css("width"),
+      "height" : view.jqview.css("height"),
+      "top" : view.jqview.css("top"),
+      "left" : view.jqview.css("left"),
+      "z-index" : view.jqview.css("z-index")
+    };
+    view.jqview
+      .draggable("disable")
+      .resizable("disable")
+      .removeClass("view-floating")
+      .addClass("view-minimized")
+      .css({   // clear all conflicting css property
+        "width" : "",
+        "height" : "",
+        "top" : "",
+        "left" : "",
+        "position" : "",
+        "z-index" : ""
+      })
+      .appendTo("#minimized");
+  } else {
+    view.jqview
+      .css(view.floatingProperty);
+    delete view.floatingProperty;
+
+    view.jqview
+      .draggable("enable")
+      .resizable("enable")
+      .removeClass("view-minimized")
+      .addClass("view-floating")
+      .appendTo("#floating");
+  }
+  view.isMinimized = !view.isMinimized;
+};
+
 ViewManager.prototype.dockView = function(viewid, node, direction) {
   var view = this.getView({
     "viewid": viewid
@@ -343,7 +390,7 @@ ViewManager.prototype.dockView = function(viewid, node, direction) {
     console.error("fatal: cannot find a view with given id");
     return;
   }
-  view.isFloating = false;
+
 
   var newnode;
   if (direction === "center")
@@ -351,6 +398,9 @@ ViewManager.prototype.dockView = function(viewid, node, direction) {
   else
     newnode = node.expand(direction);
 
+
+  // TODO: the following had better be moved to view function
+  view.isFloating = false;
   view.jqview
     .removeClass("view-floating")
     .addClass("view-docked")
@@ -361,7 +411,12 @@ ViewManager.prototype.dockView = function(viewid, node, direction) {
       height: ""
     })
     .resizable("disable");
-
+  view.jqheader.find("#miniBtn")
+    .button({
+      icons: {
+        primary: "ui-icon-newwin"
+      }
+    });
   view.__setDraggable();
   view.__onResize(newnode.jqnode.width(), newnode.jqnode.height());
 

@@ -18,14 +18,20 @@ var extObject = {
     this.type = type;
     this.viewname = viewname;
     this.viewid = viewid;
+
     // TODO: supports needed for grouping
+    // grouping functionality will be revoked ...
     this.groupid = viewid;
 
     // view states
     this.showHeader = true;
     this.viewWidth = this.viewHeight = 0;
     this.canvasWidth = this.canvasHeight = 0;
+
+    // whether view is floating
     this.isFloating = false;
+    // whether a view is minimized (must be floating)
+    this.isMinimized = false;
 
 
     // TODO: supports needed for linking
@@ -189,11 +195,24 @@ var extObject = {
       .appendTo(this.jqheader);
     $("<button id='miniBtn' class='view-minibtn'></button>")
       .button({
-        icons : { primary : "ui-icon-minus" },
+        icons : {
+          primary : "ui-icon-newwin"
+        },
         text : false
       })
-      .click(function() { view.toggleCompactLayout(); })
+      .click(function() {
+        if (view.isFloating === false) {
+          var offset = view.jqview.offset();
+          view.jqview
+            .css("margin-left", offset.left - 5)
+            .css("margin-top", offset.top + 5); // +-5 to attract
+          viewManager.floatView(view);
+        } else {
+          viewManager.toggleViewMinimized(view);
+        }
+      })
       .appendTo(this.jqheader);
+    /* //TODO: help button temporarily not supported
     $("<button id='docBtn' class='view-helpbtn'></button>")
       .button({
         icons : { primary : "ui-icon-help" },
@@ -201,6 +220,7 @@ var extObject = {
       })
       .click(function() { view.showDocument(); })
       .appendTo(this.jqheader);
+      */
   },
   // prepares the canvas, currently not doing much
   prepareCanvas: function() {
