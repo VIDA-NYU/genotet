@@ -279,6 +279,7 @@ var extObject = {
     this.canvasWidth = width;
     this.canvasHeight = height - this.jqheader.outerHeight(true);
     this.jqcanvas
+      .css("width", this.canvasWidth)
       .css("height", this.canvasHeight);
     this.onResize();
   },
@@ -286,8 +287,10 @@ var extObject = {
   __setDraggable: function() {
     var view = this;
     this.jqview.draggable({ // allow drag out as floating view, or dock
+      disabled: false,
       handle: ".ui-widget-header",
       containment: "#dragarea",
+      scroll: false,
       start: function(event, ui) {
         console.log("drag start");
         if (view.isFloating !== true) {
@@ -318,6 +321,20 @@ var extObject = {
         console.log("drag end");
       }
     });
+  },
+
+  __setResizable: function() {
+    var view = this;
+    this.jqview.resizable({
+      disabled: false,
+      handles: "all",
+      resize: function(event, ui) {
+        view.__onResize(ui.size.width, ui.size.height);
+      }
+    });
+    $(this.jqview)
+      .find(".ui-icon-gripsmall-diagonal-se")
+      .removeClass("ui-icon-gripsmall-diagonal-se ui-icon"); // remove ugly handle
   }
 };
 

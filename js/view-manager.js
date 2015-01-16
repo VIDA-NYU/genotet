@@ -325,16 +325,8 @@ ViewManager.prototype.floatView = function(view) {
     .addClass("view-floating")
     .css("width", view.getViewWidth())
     .css("height", view.getViewHeight())
-    .resizable({
-      disabled: false,
-      resize: function(event, ui) {
-        view.__onResize(ui.size.width, ui.size.height);
-      }
-    })
     .prependTo("#floating");
-  $(view.jqview)
-    .find(".ui-icon-gripsmall-diagonal-se")
-    .removeClass("ui-icon-gripsmall-diagonal-se ui-icon"); // remove ugly handle
+  view.__setResizable();
   view.layout.removeView(view);
   view.layout = null;
   this.sendFrontFloatingView(view);
@@ -359,7 +351,7 @@ ViewManager.prototype.dockView = function(viewid, node, direction) {
   else
     newnode = node.expand(direction);
 
-  $(view.jqview)
+  view.jqview
     .removeClass("view-floating")
     .addClass("view-docked")
     .css({    // clear floating properties
@@ -368,9 +360,13 @@ ViewManager.prototype.dockView = function(viewid, node, direction) {
       width: "",
       height: ""
     })
-    .resizable("disable")
-    .appendTo(newnode.content);
+    .resizable("disable");
+
   view.__setDraggable();
+  view.__onResize(newnode.jqnode.width(), newnode.jqnode.height());
+
+  view.jqview.appendTo(newnode.content);
+
   newnode.addView(view);
 
   // remove from floating view list

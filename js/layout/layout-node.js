@@ -30,20 +30,24 @@ function LayoutNode(jqnode, options) {
         .appendTo(jqnode);
 
       if (!node.noExpansion) {
-        $("<div></div>")
+        var div = $("<div></div>")
           .addClass("view-dropzone view-dropzone-inactive view-dropzone-" + element)
           .droppable({
             disabled: true,
             accept: ".view-floating",
-            activeClass: "ui-state-default",
+            activeClass: "",
             hoverClass: "ui-state-hover",
             greedy: true,
+            tolerance: "pointer",
             drop: function(event, ui) {
               var viewid = ui.draggable.attr("id").match("[0-9]+")[0];
               viewManager.dockView(viewid, node, element); // element is direction
             }
-          })
-          .insertBefore(node.content);
+          });
+        if (element === "east" || element === "west")
+          div.insertBefore(node.content);
+        else
+          div.appendTo(jqnode);
       }
     }
   });
@@ -53,15 +57,16 @@ function LayoutNode(jqnode, options) {
     .droppable({
       disabled: true,
       accept: ".view-floating",
-      activeClass: "ui-state-default",
+      activeClass: "",
       hoverClass: "ui-state-hover",
       greedy: true,
+      tolerance: "pointer",
       drop: function(event, ui) {
         var viewid = ui.draggable.attr("id").match("[0-9]+")[0];
         viewManager.dockView(viewid, node, "center");
       }
     })
-    .appendTo(this.centerPane);
+    .insertBefore(node.content);
 
   this.layoutOptions = _(_.omit(options)).extend({
     center__onresize: function() {
@@ -79,10 +84,10 @@ function LayoutNode(jqnode, options) {
   this.childrenOrder = []; // used to determine the replacement when node is removed
 
   this.childrenSize = {
-    east: "50%",
-    south: "50%",
-    west: "50%",
-    north: "50%"
+    east: "40%",
+    south: "40%",
+    west: "40%",
+    north: "40%"
   };
   this.parent = null;
   this.parentDirection = null;
@@ -105,9 +110,9 @@ LayoutNode.prototype.setChild = function(direction, child, options) {
   }
   if (options == null)
     options = {};
-  if (options.autoResizeChildren === true) {
+ // if (options.autoResizeChildren === true) { // TODO: seems that this option is redundant
     this.layout.sizePane(direction, this.childrenSize[direction]);
-  }
+  //}
   this.layout.show(direction, true, options.noAnimation);
   this.layout.resizeAll();
   child.parent = this;
@@ -167,7 +172,8 @@ LayoutNode.prototype.showDropzones = function() {
       node.children[element].showDropzones();
       return;
     }
-    node.centerPane.children(".view-dropzone-" + element)
+    var div = element === "east" || element === "west" ? node.centerPane : node.jqnode;
+    div.children(".view-dropzone-" + element)
       .droppable("enable")
       .removeClass("view-dropzone-inactive");
   });
@@ -224,7 +230,7 @@ LayoutNode.prototype.expand = function(direction) { // insert a children in a gi
     var child = new LayoutNode(this[direction + "Pane"], layoutManager.defaultOptions);
     this.setChild(direction, child, {
       autoResizeChildren: true,
-      noAnimation: options.noAnimation
+      //noAnimation: true // TODO: check if there is bug
     });
     return child;
   }
@@ -235,8 +241,10 @@ LayoutNode.prototype.pushupAllViews = function(options) {
   $(this.content).children().appendTo(this.parent.content);
   for (var i in this.views) {
     this.views[i].layout = this.parent; // redirect layout to parent node
+    this.views[i].__onResize(this.parent.jqnode.width(), this.parent.jqnode.height());
   }
   this.parent.views = this.parent.views.concat(this.views);
+  this.views = [];  // this node temporarily contains no views
 
   if (this.childrenOrder.length === 0) {
     // no more children
@@ -259,6 +267,10 @@ LayoutNode.prototype.pushupAllViews = function(options) {
 LayoutNode.prototype.removeView = function(view, options) {
   if (options == null)
     options = {};
+
+  if(this.views.indexOf(view) === -1) {
+    console.error("view not found in views");
+  }
   this.views.splice(this.views.indexOf(view), 1);
 
   if (this.views.length > 0)  // TODO: this view still have other tabs

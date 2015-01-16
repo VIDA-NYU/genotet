@@ -83,9 +83,12 @@ LayoutManager.prototype.defaultOptions = {
   east__initHidden: true,
   south__initHidden: true,
   north__initHidden: true,
+  closable: false,
   splitEnabled: {
     east: true,
-    south: true
+    south: true,
+    west: true,
+    north: true
   }
 };
 

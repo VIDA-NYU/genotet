@@ -8,6 +8,8 @@ function createTestViews() {
   // The views defined here will be launched when the system starts
 
   createView("Chart", "chart").load();
+  createView("Chart2", "chart").load();
+  //createView("Chart3", "chart").load();
   createView("Graph", "graph").load({
     url: httpAddr,
     args: "type=regnet&net=th17"
