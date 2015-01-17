@@ -96,6 +96,7 @@ Dialog.prototype.dialogCreate = function(){
   "<option value='network'>Network</option>" +
   "<option value='binding'>Genome Browser</option>" +
   "<option value='expression'>Expression</option>" +
+  "<option value='graph'>Graph</option>" +
   "</select></div>" +
   "<div id='datadiv'></div>" +
   "</div>");
@@ -119,7 +120,10 @@ Dialog.prototype.dialogCreate = function(){
           var exp = $("#dialog #datadiv #exp").val();
           if(exp=="") exp="a^";
           var view = createView(name, type, "user");
-          //if(view) view.loadData(data, exp);
+          if(view) view.load({
+            url: httpAddr,
+            args: "type=regnet&net=th17"
+          });
         }else if(type==="binding"){
           var data = $("#dialog #data").val();
           /*

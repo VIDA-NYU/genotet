@@ -25,8 +25,8 @@ var extObject = {
     this.svg = d3.select("#canvas" + view.viewid).append("svg");
     // need to explicitly set svg size, otherwise it won't fill the view
     this.svg
-      .style("width", "100%")
-      .style("height", "100%")
+      .style("width", view.getCanvasWidth())
+      .style("height", view.getCanvasHeight())
       .style("background", "white");
 
     // renders the data using d3

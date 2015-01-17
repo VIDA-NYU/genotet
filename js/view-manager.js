@@ -15,6 +15,10 @@
 function ViewManager(){
   this.views = [];
 
+  //this.dockedViews = []; // TODO? useful?
+
+  this.floatingViews = [];
+  this.minimizedViews = [];
   /*
 	this.headerHeight = 19; // the height of a view's header
 	this.borderWidth = 2;
@@ -171,6 +175,12 @@ ViewManager.prototype.createMenu = function(){
 	return menu;
 };
 
+ViewManager.prototype.enableViewDrop = function() {
+  layoutManager.showDropzones();
+};
+ViewManager.prototype.disableViewDrop = function() {
+  layoutManager.hideDropzones();
+};
 ViewManager.prototype.createView = function(viewname, type, operator){ //, width, height, left, top
 /*
   if(this.supportedTypes.indexOf(type)==-1){
@@ -199,17 +209,17 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
       break;
     }
   }
-
   // switch the constructed view object
-
-  var layout = layoutManager.allocDiv(type, operator);
-  var ctrl = layoutManager.allocControl();
+  var layout = layoutManager.allocNode(type, {
+    noAnimation: operator === "user" ? false : true
+  });
+  var ctrl = layoutManager.allocNode("control");
   var newview;
   if (type == "graph")
     newview = GraphView.new(type, viewname, viewid, layout, ctrl);
-  else if (type === "network")
-    newview = NetworkView.new(type, viewname, viewid, layout, ctrl);
-  else if (type === "binding")
+  else if (type === "network"){
+    newview = GraphView.new(type, viewname, viewid, layout, ctrl);
+  }else if (type === "binding")
     newview = BindingView.new(type, viewname, viewid, layout, ctrl);
   else if (type === "expression")
     newview = ExpressionView.new(type, viewname, viewid, layout, ctrl);
@@ -225,7 +235,8 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
     console.error("no supported view found");
   }
   layout.addView(newview);
-  this.views.push( {'viewid':viewid, 'viewname':viewname, 'viewtype': type, 'content':newview} );
+  this.views.push(newview);
+  //this.views.push( {'viewid':viewid, 'viewname':viewname, 'viewtype': type, 'content':newview} );
 
   return newview;
 
@@ -248,15 +259,173 @@ ViewManager.prototype.createView = function(viewname, type, operator){ //, width
   */
 };
 
-ViewManager.prototype.activateView = function(viewname) {
-  for (var i = 1; i < this.views.length; i++) {
-    if (this.views[i].viewname === viewname) {
-      this.views[i].content.highlightHeader();
-      this.views[i].content.control();
-    } else {
-      this.views[i].content.unhighlightHeader();
-    }
+ViewManager.prototype.activateView = function(view) {
+  for (var i in this.views) {
+    if (this.views[i] === view)
+      continue;
+    this.views[i].unhighlightHeader();
+    this.views[i].uncontrol();
   }
+  view.highlightHeader();
+  view.control();
+  if (view.isFloating === true) {
+    this.sendFrontFloatingView(view);
+  }
+
+};
+
+
+ViewManager.prototype.getView = function(properties) {
+  // find a view that matches all given properties
+  for (var i in this.views) {
+    var match = true;
+    for (var prop in properties) {
+      if (this.views[i][prop] != properties[prop]) {
+        match = false;
+        break;
+      }
+    }
+    if (match)
+      return this.views[i];
+  }
+  return null;
+};
+
+
+
+ViewManager.prototype.sendFrontFloatingView = function(view) {
+  // send front a floating view
+  if (view.isFloating !== true)
+    console.error("view is not floating but sent front");
+
+  var maxZindex = -Infinity, minZindex = Infinity;
+  _.each(this.floatingViews, function(element) {
+    var zindex = element.jqview.css("z-index");
+    zindex = zindex === "auto" ? 0 : parseInt(zindex);
+    minZindex = Math.min(minZindex, zindex);
+    maxZindex = Math.max(maxZindex, zindex);
+  });
+  _.each(this.floatingViews, function(element) {
+    var zindex = parseInt(element.jqview.css("z-index"));
+    zindex -= minZindex;
+    element.jqview.css("z-index", zindex);
+  });
+  view.jqview.css("z-index", maxZindex + 1);
+};
+
+ViewManager.prototype.floatView = function(view) {
+  if (view.isFloating === true) {
+    //console.log("already floating?");
+    this.sendFrontFloatingView(view);
+    return; // already floating, do nothing
+  }
+
+  view.isFloating = true;
+
+  view.jqheader.find("#miniBtn")
+    .button({
+      icons: {
+        primary : "ui-icon-minus",
+      }
+    });
+
+  $(view.jqview)
+    .removeClass("view-docked")
+    .addClass("view-floating")
+    .css("width", view.getViewWidth())
+    .css("height", view.getViewHeight())
+    .prependTo("#floating");
+  view.__setResizable();
+  view.layout.removeView(view);
+  view.layout = null;
+  this.sendFrontFloatingView(view);
+
+  // add to floating view list
+  this.floatingViews.push(view);
+};
+
+ViewManager.prototype.toggleViewMinimized = function(view) {
+  if (view.isMinimized === false) {
+    view.floatingProperty = {
+      "width" : view.jqview.css("width"),
+      "height" : view.jqview.css("height"),
+      "top" : view.jqview.css("top"),
+      "left" : view.jqview.css("left"),
+      "z-index" : view.jqview.css("z-index")
+    };
+    view.jqview
+      .draggable("disable")
+      .resizable("disable")
+      .removeClass("view-floating")
+      .addClass("view-minimized")
+      .css({   // clear all conflicting css property
+        "width" : "",
+        "height" : "",
+        "top" : "",
+        "left" : "",
+        "position" : "",
+        "z-index" : ""
+      })
+      .appendTo("#minimized");
+  } else {
+    view.jqview
+      .css(view.floatingProperty);
+    delete view.floatingProperty;
+
+    view.jqview
+      .draggable("enable")
+      .resizable("enable")
+      .removeClass("view-minimized")
+      .addClass("view-floating")
+      .appendTo("#floating");
+  }
+  view.isMinimized = !view.isMinimized;
+};
+
+ViewManager.prototype.dockView = function(viewid, node, direction) {
+  var view = this.getView({
+    "viewid": viewid
+  });
+  if (view == null) {
+    console.error("fatal: cannot find a view with given id");
+    return;
+  }
+
+
+  var newnode;
+  if (direction === "center")
+    newnode = node;
+  else
+    newnode = node.expand(direction);
+
+
+  // TODO: the following had better be moved to view function
+  view.isFloating = false;
+  view.jqview
+    .removeClass("view-floating")
+    .addClass("view-docked")
+    .css({    // clear floating properties
+      left: "",
+      top: "",
+      width: "",
+      height: ""
+    })
+    .resizable("disable");
+  view.jqheader.find("#miniBtn")
+    .button({
+      icons: {
+        primary: "ui-icon-newwin"
+      }
+    });
+  view.__setDraggable();
+  view.__onResize(newnode.jqnode.width(), newnode.jqnode.height());
+
+  view.jqview.appendTo(newnode.content);
+
+  newnode.addView(view);
+
+  // remove from floating view list
+  this.floatingViews.splice(this.floatingViews.indexOf(view), 1);
 };
 
   /*
@@ -323,18 +492,18 @@ ViewManager.prototype.closeAllViews = function(){
 	//this.resetFlags();
 };
 
-ViewManager.prototype.closeView = function(viewname, operator){
+ViewManager.prototype.closeView = function(view, operator){
 	var found = -1;
-	for (var i = 0; i < this.views.length; i++){
-		if (this.views[i].viewname == viewname) {
-			found = i;
-			break;
+	for (var i in this.views){
+		if (this.views[i] === view) {
+		  view.close({
+        noAnimation: operator === "user" ? false : true
+      });
+      this.views.splice(i, 1);
+			return;
 		}
 	}
-	if (found === -1) {
-		console.error("cannot close view", viewname, "view not found");
-		return;
-	}
+	console.error("cannot close view", view.viewname, "view not found");
 	/*
 	var content = this.views[found].content;
 	for(var i=0; i<this.views.length; i++){
@@ -355,10 +524,7 @@ ViewManager.prototype.closeView = function(viewname, operator){
 		this.unlinkView(content.parentView, content);	// remove link
 	content.close();
 	*/
-	this.views[found].content.close({
-	  noAnimation: operator === "user" ? false : true
-	});
-	this.views.splice(found, 1);
+
 	//this.resetFlags();
 
 };
@@ -369,12 +535,14 @@ ViewManager.prototype.resetFlags = function(){
 };
 */
 
+/*
 ViewManager.prototype.getView = function(viewname){
     for(var i=0; i<this.views.length; i++){
 		if(this.views[i].viewname==viewname) return this.views[i].content;
     }
     return null;
 };
+*/
 
 ViewManager.prototype.setPlace = function(view, top, left){
 	$("#view"+view.viewid).css({"left":left+"px", "top":top+"px"});

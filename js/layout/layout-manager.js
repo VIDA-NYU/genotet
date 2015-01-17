@@ -12,104 +12,148 @@
 
 function LayoutManager() {
 
-  var rootOptions = {
-    applyDefaultStyles: false,
-    spacing_closed: 5,
-    spacing_open: 5,
-    west__maxSize: 200,
-    west__resizable: false,
-    west__resizerCursor: "auto",
-    west__resizerClass: "menu-layout-resizer",
-    south__initHidden: true,
-    north__initHidden: true
-  };
-
-  this.rootNode = new LayoutNode($("body"), rootOptions);
-
-  this.viewNode = new LayoutNode($("body").children(".ui-layout-center"), this.stdOptions);
-
-  this.menuNode = new LayoutNode($("body").children(".ui-layout-west"), this.stdOptions);
-
-  this.auxNode = new LayoutNode($("body").children(".ui-layout-east"), this.stdOptions);
-
-  var jqInfo = $("body").children(".ui-layout-east").children(".ui-layout-south");
-  this.infoNode = new LayoutNode(jqInfo, this.stdOptions);
-  var jqControl = $("body").children(".ui-layout-east").children(".ui-layout-center");
-  this.controlNode = new LayoutNode(jqControl, this.stdOptions);
-
-  // disable menu scrolling
-  this.menuNode.centerPane.css("overflow", "hidden");
-
-  // connect nodes on the tree
-  this.rootNode.setChild("west", this.menuNode);
-  this.rootNode.layout.sizePane("east", "15%");
-  this.rootNode.setChild("east", this.auxNode);
-  this.auxNode.layout.sizePane("south", "75%");
-  this.auxNode.setChild("south", this.infoNode);
-
+  this.availNodeId = 0;
 }
 
-LayoutManager.prototype.stdOptions = {
+LayoutManager.prototype.defaultOptions = {
   applyDefaultStyles: false,
-  //fxName: "off",
   spacing_closed: 5,
   spacing_open: 5,
   west__initHidden: true,
   east__initHidden: true,
   south__initHidden: true,
-  north__initHidden: true
+  north__initHidden: true,
+  closable: false,
+  splitEnabled: {
+    east: true,
+    south: true,
+    west: true,
+    north: true
+  }
 };
 
-LayoutManager.prototype.allocControl = function() {
-  return this.controlNode;
+
+LayoutManager.prototype.initLayout = function() {
+  this.rootNode = new LayoutNode($("#main"), {
+    applyDefaultStyles: false,
+    spacing_closed: 5,
+    spacing_open: 5,
+    west__maxSize: 100,
+    west__resizable: false,
+    west__resizerCursor: "auto",
+    west__resizerClass: "menu-layout-resizer",
+    south__initHidden: true,
+    north__initHidden: true,
+    splitEnabled: {
+      west: true,
+      east: true
+    },
+    noExpansion: true
+  });
+
+  this.viewNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-center"),
+    this.defaultOptions
+  );
+
+  this.menuNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-west"),
+    _(_.omit(this.defaultOptions)).extend({
+      splitEnabled: {},
+      noExpansion: true
+    }));
+
+  this.auxNode = new LayoutNode(this.rootNode.jqnode.children(".ui-layout-east"),
+    _(_.omit(this.defaultOptions)).extend({
+      splitEnabled: {
+        south: true
+      },
+      noExpansion: true
+    }));
+
+  var jqInfo = this.rootNode.jqnode.children(".ui-layout-east").children(".ui-layout-south");
+  this.infoNode = new LayoutNode(jqInfo,
+    _(_.omit(this.defaultOptions)).extend({
+      splitEnabled: {},
+      noExpansion: true
+    }));
+
+  var jqControl = this.rootNode.jqnode.children(".ui-layout-east").children(".ui-layout-center");
+  this.controlNode = new LayoutNode(jqControl,
+    _(_.omit(this.defaultOptions)).extend({
+      splitEnabled: {},
+      noExpansion: true
+    }));
+
+  // disable menu scrolling
+  this.menuNode.centerPane.css("overflow", "hidden");
+
+  // connect nodes on the tree
+  // NOTE: no longer needed
+  /*
+  this.rootNode.setChild("west", this.menuNode);
+  this.rootNode.layout.sizePane("east", "15%");
+  this.rootNode.setChild("east", this.auxNode);
+  this.auxNode.layout.sizePane("south", "75%");
+  this.auxNode.setChild("south", this.infoNode);
+  */
 };
 
-LayoutManager.prototype.allocDiv = function(type, operator){
-  var options = {
-    noAnimation: operator === "user" ? false : true
-  };
+LayoutManager.prototype.acquireNodeId = function() {
+  return this.availNodeId++;
+};
+
+LayoutManager.prototype.allocNode = function(type, options) {
+  if (options == null)
+    options = {};
+
   if (type === "menu") {
     return this.menuNode;
-  } else if (type === "binding") {
-    options.horizontalOnly = true;
-    return this.findSlot(options);
+  } else if (type === "control") {
+    return this.controlNode;
   } else {
-    return this.findSlot(options);
+    return this.findSlot(options, this.viewNode);
   }
 };
 
 // returns a jquery div ready to append
-LayoutManager.prototype.findSlot = function(options, node){
-  if (node == null)
-    node = this.viewNode;
-  if (options == null)
-    options = {};
-
-  if (node.views.length == 0){
+// the current findSlot simply creates a new branch at the bottom
+LayoutManager.prototype.findSlot = function(options, node){ // options and node are non-null
+  if (node.views.length <= 0){ // TODO extensible to tabs
     // current node is empty
-    if (options.horizontalOnly)
-      node.allowEastSplit = false;
     return node;
   }
+  /*
   if (!options.horizontalOnly && node.allowEastSplit === true && node.children.east == null) {
     // east has a place
-    var child = new LayoutNode(node.jqnode.children(".ui-layout-east"), this.stdOptions);
+    var child = new LayoutNode(node.jqnode.children(".ui-layout-east"), this.defaultOptions);
     node.setChild("east", child, {
       autoResizeChildren: true,
       noAnimation: options.noAnimation
     });
     return this.findSlot(options, child);
   }
-  if (node.allowSouthSplit === true && node.children.south == null) {
+  */
+  if (node.splitEnabled["south"] === true && node.children.south == null) {
     // south has a place
-    var child = new LayoutNode(node.jqnode.children(".ui-layout-south"), this.stdOptions);
+    var child = new LayoutNode(node.jqnode.children(".ui-layout-south"), this.defaultOptions);
     node.setChild("south", child, {
       autoResizeChildren: true,
       noAnimation: options.noAnimation
     });
-    return this.findSlot(options, child);
+    return child; // child is a newly created node (empty)
   }
   return this.findSlot(options, node.children.south);
 };
 
 
+LayoutManager.prototype.showDropzones = function() {
+  if (this.viewNode.views.length === 0) {
+    this.viewNode.showCenterDropzone();
+  } else {
+    this.viewNode.showDropzones();
+  }
+};
+LayoutManager.prototype.hideDropzones = function() {
+  $(".view-dropzone")
+    .droppable("disable")
+    .addClass("view-dropzone-inactive");
+};

@@ -18,13 +18,22 @@ var extObject = {
     this.type = type;
     this.viewname = viewname;
     this.viewid = viewid;
+
     // TODO: supports needed for grouping
+    // grouping functionality will be revoked ...
     this.groupid = viewid;
 
     // view states
     this.showHeader = true;
     this.viewWidth = this.viewHeight = 0;
     this.canvasWidth = this.canvasHeight = 0;
+
+    // whether view is floating
+    this.isFloating = false;
+    // whether a view is minimized (must be floating)
+    this.isMinimized = false;
+
+
     // TODO: supports needed for linking
     this.linkTargets = [];
     this.linkSources = [];
@@ -75,9 +84,21 @@ var extObject = {
     // the control call is passed to the controller
     this.controller.display();
   },
+  uncontrol: function() {
+    // remove the controller object
+    this.controller.hide();
+  },
   render: function() {
     // the render call is passed to the renderer
     this.renderer.render();
+  },
+  wait: function() {
+    // display a waiting icon
+    this.renderer.wait();
+  },
+  unwait: function() {
+    // remove the waiting icon
+    this.renderer.unwait();
   },
 
 
@@ -124,19 +145,30 @@ var extObject = {
   // add a view header, set jquery nodes properly, add interaction listeners, etc
   prepareView: function() {
     this.jqview = $("<div></div>")
-      .attr("class", "view-div")
-      .appendTo(this.layout.centerPane);
+      .attr("id", "view" + this.viewid)
+      .attr("class", "view-docked")
+      .appendTo(this.layout.content);
     this.jqheader = $("<h3></h3>")
       .appendTo(this.jqview);
     this.jqcanvas = $("<div></div>")
       .attr("class", "view-canvas")
       .appendTo(this.jqview);
-    this.jqctrl = this.ctrllayout.centerPane;
+    this.jqctrl = this.ctrllayout.content;
 
+    // fetch view sizes
+    this.viewWidth = this.layout.centerPane.width();
+    this.viewHeight = this.layout.centerPane.height();
     // prepares the header
     this.prepareHeader();
+
+    // fetch canvas sizes
+    // note: these must be done here
+    // otherwise the very first render will not have correct size
+    this.canvasWidth = this.viewWidth;
+    this.canvasHeight = this.viewHeight - this.jqheader.outerHeight(true);
     // prepares the canvas
     this.prepareCanvas();
+
     // add interaction listener
     this.prepareInteractions();
   },
@@ -159,15 +191,28 @@ var extObject = {
         icons : { primary : "ui-icon-close" },
         text : false
       })
-      .click(function() { viewManager.closeView(view.viewname, "user"); })
+      .click(function() { viewManager.closeView(view, "user"); })
       .appendTo(this.jqheader);
     $("<button id='miniBtn' class='view-minibtn'></button>")
       .button({
-        icons : { primary : "ui-icon-minus" },
+        icons : {
+          primary : "ui-icon-newwin"
+        },
         text : false
       })
-      .click(function() { view.toggleCompactLayout(); })
+      .click(function() {
+        if (view.isFloating === false) {
+          var offset = view.jqview.offset();
+          view.jqview
+            .css("margin-left", offset.left - 5)
+            .css("margin-top", offset.top + 5); // +-5 to attract
+          viewManager.floatView(view);
+        } else {
+          viewManager.toggleViewMinimized(view);
+        }
+      })
       .appendTo(this.jqheader);
+    /* //TODO: help button temporarily not supported
     $("<button id='docBtn' class='view-helpbtn'></button>")
       .button({
         icons : { primary : "ui-icon-help" },
@@ -175,11 +220,13 @@ var extObject = {
       })
       .click(function() { view.showDocument(); })
       .appendTo(this.jqheader);
+      */
   },
   // prepares the canvas, currently not doing much
   prepareCanvas: function() {
     this.jqcanvas
-      .attr("id", "canvas" + this.viewid);
+      .attr("id", "canvas" + this.viewid)
+      .css("height", this.canvasHeight);
   },
   // prepares the mouse interactions
   prepareInteractions: function() {
@@ -190,9 +237,11 @@ var extObject = {
         event.preventDefault();
         view.toggleViewheader();
       })
-      .click( function() {
-        viewManager.activateView(view.viewname);
+      .mousedown( function() {
+        viewManager.activateView(view);
       });
+
+    this.__setDraggable();
   },
 
 
@@ -207,8 +256,13 @@ var extObject = {
   close: function(options) {
     // close the view
     $(this.jqview).remove();  // remove view content + header
-    $(this.jqctrl).children().remove(); // remove controller
-    this.layout.remove(this, options); // notify layout that this view has been closed
+    $(this.jqctrl).remove(); // remove controller
+    if (this.isFloating === false) {  // notify layout that this view has been closed
+      if (this.layout == null) {
+        console.error("null layout");
+      }
+      this.layout.removeView(this, options);
+    }
   },
   // other actions
   toggleViewheader: function(){
@@ -245,14 +299,66 @@ var extObject = {
     this.canvasWidth = width;
     this.canvasHeight = height - this.jqheader.outerHeight(true);
     this.jqcanvas
+      .css("width", this.canvasWidth)
       .css("height", this.canvasHeight);
     this.onResize();
   },
 
+  __setDraggable: function() {
+    var view = this;
+    this.jqview.draggable({ // allow drag out as floating view, or dock
+      disabled: false,
+      handle: ".ui-widget-header",
+      containment: "#dragarea",
+      scroll: false,
+      start: function(event, ui) {
+        console.log("drag start");
+        if (view.isFloating !== true) {
+          // use margin to keep the global offset
+          // because the view will be floated immediately in floatView function
+          view.jqview
+            .css("margin-left", ui.offset.left)
+            .css("margin-top", ui.offset.top);
+        }
+        viewManager.floatView(view);
+        viewManager.enableViewDrop();
+      },
+      stop: function(event, ui) {
+        // remove the artifact margins and replace by true offset (left, top)
+        viewManager.disableViewDrop();
+
+        var left = parseInt(view.jqview.css("margin-left")),
+            top = parseInt(view.jqview.css("margin-top"));
+        left += parseInt(view.jqview.css("left"));
+        top += parseInt(view.jqview.css("top"));
+        view.jqview.css({
+          "margin-left": "",
+          "margin-top": "",
+          "left": left,
+          "top": top
+        });
+        view.jqview.css("position", "absolute");
+        console.log("drag end");
+      }
+    });
+  },
+
+  __setResizable: function() {
+    var view = this;
+    this.jqview.resizable({
+      disabled: false,
+      handles: "all",
+      resize: function(event, ui) {
+        view.__onResize(ui.size.width, ui.size.height);
+      }
+    });
+    $(this.jqview)
+      .find(".ui-icon-gripsmall-diagonal-se")
+      .removeClass("ui-icon-gripsmall-diagonal-se ui-icon"); // remove ugly handle
+  }
 };
 
 var View = Base.extend(extObject);
-
 
 // LEGACY CODE BELOW! DON'T READ :)
 

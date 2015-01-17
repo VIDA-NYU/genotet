@@ -7,6 +7,9 @@ var extObject = {
 
   load: function(para) {
     var loader = this;
+
+    this.view.wait();
+
     $.ajax({
         type: 'GET',
         url: para.url,
@@ -23,6 +26,7 @@ var extObject = {
           loader.error("selected graph is empty, or graph not found");
           return;
         }
+        loader.view.unwait();
         loader.view.data = data;
         loader.view.render();
         //if(loader.parentView.viewdata==null) loader.parentView.viewdata = {};

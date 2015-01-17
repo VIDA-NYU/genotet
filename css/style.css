@@ -11,6 +11,48 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+#main {
+  width: 100%;
+  height: 100%;
+}
+
+#dragarea {
+  float: left;
+  position: absolute;
+  left: -75%;
+  top: -75%;
+  width: 250%;
+  height: 250%;
+  opacity: 0;
+}
+#dropzone {
+  float: left;
+  position: absolute;
+  z-index: 101;
+}
+#floating {
+  float: left;
+  position: absolute;
+  z-index: 100;
+  height: 0;
+  width: 0;
+}
+
+#minimized {
+  float: left;
+  position: absolute;
+  z-index: 100;
+  top: calc(100% - 20px);
+}
 
 text, h3, .hint, .view-div, .exonname, .label,
 .trackhint, .coordlabel, .graphinfo, .legend, .condtext,
@@ -22,6 +64,103 @@ h3 {
   font-size: 0.9em;
   text-align: center;
   margin: 0;
+}
+
+
+.view-dropzone {
+  float: left;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: url(../imgs/expand.png) no-repeat center;
+}
+/*
+.view-dropzone-west {
+  left: calc(50% - 55px - 25px);
+  top: calc(50% - 25px);
+}
+.view-dropzone-east {
+  left: calc(50% + 55px - 25px);
+  top: calc(50% - 25px);
+}
+.view-dropzone-north {
+  left: calc(50% - 25px);
+  top: calc(50% - 55px - 25px);
+}
+.view-dropzone-south {
+  left: calc(50% - 25px);
+  top: calc(50% + 55px - 25px);
+}
+*/
+.view-dropzone-inactive {
+  visibility: hidden;
+}
+
+.node-expandzone {
+  float:left;
+  position: absolute;
+  background: rgba(128,185,255,0.25);
+  z-index: 20;
+
+}
+.node-expandzone-inactive {
+  visibility: hidden;
+}
+.node-expandzone-west {
+  width: 40%;
+  height: 100%;
+}
+.node-expandzone-east {
+  width: 40%;
+  height: 100%;
+  left: calc(100% - 40%);
+}
+.node-expandzone-north {
+  height: 40%;
+  width: 100%;
+}
+.node-expandzone-south {
+  height: 40%;
+  width: 100%;
+  top: calc(100% - 40%);
+}
+.node-expandzone-center {
+  width: 100%;
+  height: 100%;
+}
+
+
+.view-wait-background {
+  background: rgba(0,0,0,0.25);
+}
+.view-wait-icon {
+  background: url(../imgs/hourglass.png) no-repeat center;
+}
+
+.view-wait-background, .view-wait-icon {
+  float: left;
+  position: absolute;
+}
+
+.view-docked {
+  width: 100%;
+  height: 100%;
+}
+
+.view-floating {
+  float: left;
+  position: absolute;
+  border: 1px solid #ccc;
+}
+
+.view-minimized {
+  width: 200px;
+  height: 20px;
+  position: relative;
+  float: left;
+}
+
+.border {
 }
 
 text {
