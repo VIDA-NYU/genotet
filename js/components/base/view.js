@@ -204,8 +204,8 @@ var extObject = {
         if (view.isFloating === false) {
           var offset = view.jqview.offset();
           view.jqview
-            .css("margin-left", offset.left - 5)
-            .css("margin-top", offset.top + 5); // +-5 to attract
+            .css("left", offset.left - 5)
+            .css("top", offset.top + 5); // +-5 to attract
           viewManager.floatView(view);
         } else {
           viewManager.toggleViewMinimized(view);
