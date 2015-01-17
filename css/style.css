@@ -95,35 +95,38 @@ h3 {
 .view-dropzone-inactive {
   visibility: hidden;
 }
-.view-dropzone-center {
-  width: 100%;
-  height: 100%;
-}
 
-.view-expandzone {
+.node-expandzone {
   float:left;
   position: absolute;
   background: rgba(128,185,255,0.25);
   z-index: 20;
+
+}
+.node-expandzone-inactive {
   visibility: hidden;
 }
-.view-expandzone-west {
+.node-expandzone-west {
   width: 40%;
   height: 100%;
 }
-.view-expandzone-east {
+.node-expandzone-east {
   width: 40%;
   height: 100%;
   left: calc(100% - 40%);
 }
-.view-expandzone-north {
+.node-expandzone-north {
   height: 40%;
   width: 100%;
 }
-.view-expandzone-south {
+.node-expandzone-south {
   height: 40%;
   width: 100%;
   top: calc(100% - 40%);
+}
+.node-expandzone-center {
+  width: 100%;
+  height: 100%;
 }
 
 
