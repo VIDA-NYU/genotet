@@ -34,7 +34,11 @@ body {
   height: 250%;
   opacity: 0;
 }
-
+#dropzone {
+  float: left;
+  position: absolute;
+  z-index: 101;
+}
 #floating {
   float: left;
   position: absolute;
@@ -63,39 +67,65 @@ h3 {
 }
 
 
-
+.view-dropzone {
+  float: left;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: url(../imgs/expand.png) no-repeat center;
+}
+/*
+.view-dropzone-west {
+  left: calc(50% - 55px - 25px);
+  top: calc(50% - 25px);
+}
+.view-dropzone-east {
+  left: calc(50% + 55px - 25px);
+  top: calc(50% - 25px);
+}
+.view-dropzone-north {
+  left: calc(50% - 25px);
+  top: calc(50% - 55px - 25px);
+}
+.view-dropzone-south {
+  left: calc(50% - 25px);
+  top: calc(50% + 55px - 25px);
+}
+*/
+.view-dropzone-inactive {
+  visibility: hidden;
+}
 .view-dropzone-center {
   width: 100%;
   height: 100%;
 }
-.view-dropzone-west {
-  width: 100px;
-  height: 100%;
-}
-.view-dropzone-east {
-  width: 100px;
-  height: 100%;
-  left: calc(100% - 100px);
-}
-.view-dropzone-north {
-  height: 100px;
-  width: 100%;
-}
-.view-dropzone-south {
-  height: 100px;
-  width: 100%;
-  top: calc(100% - 100px);
-}
 
-.view-dropzone {
+.view-expandzone {
   float:left;
   position: absolute;
   background: rgba(128,185,255,0.25);
   z-index: 20;
-}
-.view-dropzone-inactive {
   visibility: hidden;
 }
+.view-expandzone-west {
+  width: 40%;
+  height: 100%;
+}
+.view-expandzone-east {
+  width: 40%;
+  height: 100%;
+  left: calc(100% - 40%);
+}
+.view-expandzone-north {
+  height: 40%;
+  width: 100%;
+}
+.view-expandzone-south {
+  height: 40%;
+  width: 100%;
+  top: calc(100% - 40%);
+}
+
 
 .view-wait-background {
   background: rgba(0,0,0,0.25);

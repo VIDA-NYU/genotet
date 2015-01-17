@@ -49,6 +49,7 @@ Core.prototype.init = function() {
   dialog = new Dialog();
   layoutManager = new LayoutManager();
 
+  layoutManager.initLayout();
   createMenu();
 
   //welcome = new Welcome();

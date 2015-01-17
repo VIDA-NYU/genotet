@@ -14,23 +14,30 @@ function LayoutNode(jqnode, options) {
 
   var node = this;
 
+  this.nodeid = layoutManager.acquireNodeId();
+
   // allow specification of splitting
   this.splitEnabled = _.omit(options.splitEnabled); // 4 directions
   // allow view dropped to expansion
   this.noExpansion = options.noExpansion;
 
   this.centerPane = $("<div class='ui-layout-center'></div>")
+    .attr("id", "node" + this.nodeid)
     .css("overflow", "hidden")
     .appendTo(jqnode);
   this.content = $("<div class='view-content'></div>")
     .appendTo(this.centerPane);
+
+
   _.each(this.directions, function(element) {
     if (node.splitEnabled[element] === true) {
       node[element + "Pane"] = $("<div class='ui-layout-" + element + "'></div>")
         .appendTo(jqnode);
 
       if (!node.noExpansion) {
-        var div = $("<div></div>")
+        var w = jqnode.width(), h = jqnode.height(), offset = jqnode.offset();
+        $("<div></div>")
+          .attr("id", "node" + node.nodeid + "-dropzone-" + element)
           .addClass("view-dropzone view-dropzone-inactive view-dropzone-" + element)
           .droppable({
             disabled: true,
@@ -43,7 +50,11 @@ function LayoutNode(jqnode, options) {
               var viewid = ui.draggable.attr("id").match("[0-9]+")[0];
               viewManager.dockView(viewid, node, element); // element is direction
             }
-          });
+          })
+          .appendTo("#dropzone");
+
+        var div = $("<div></div>")
+          .addClass("view-expandzone view-expandzone-" + element);
         if (element === "east" || element === "west")
           div.insertBefore(node.content);
         else
@@ -51,7 +62,7 @@ function LayoutNode(jqnode, options) {
       }
     }
   });
-
+  /*
   $("<div></div>")
     .addClass("view-dropzone view-dropzone-center view-dropzone-inactive")
     .droppable({
@@ -67,7 +78,7 @@ function LayoutNode(jqnode, options) {
       }
     })
     .insertBefore(node.content);
-
+*/
   this.layoutOptions = _(_.omit(options)).extend({
     center__onresize: function() {
       var w = node.layout.state.center.innerWidth,
@@ -95,6 +106,7 @@ function LayoutNode(jqnode, options) {
 }
 
 LayoutNode.prototype.directions = ["east", "south", "north", "west"];
+
 
 LayoutNode.prototype.addView = function(view) {
   this.views.push(view);
@@ -137,6 +149,12 @@ LayoutNode.prototype.destroy = function() {
 
   this.layout.destroy();
   $(this.jqnode.children()).remove();
+
+  var node = this;  // remove dropzones
+  _(this.directions).each(function(element) {
+    var zonename = "#node" + node.nodeid + "-dropzone-" + element;
+    $(zonename).remove();
+  });
 };
 
 LayoutNode.prototype.rebuildLayout = function() {
@@ -163,22 +181,50 @@ LayoutNode.prototype.showDropzones = function() {
   if (this.noExpansion === true)
     console.error("showing dropzones for a non-expansible node");
 
-  var node = this;
+  var node = this,
+      w = this.jqnode.width(),
+      h = this.jqnode.height(),
+      offset = this.jqnode.offset();
 
   _.each(this.directions, function(element) {
     if (node.splitEnabled[element] !== true)
       return;
+
     if (node.children[element]) {
       node.children[element].showDropzones();
       return;
     }
-    var div = element === "east" || element === "west" ? node.centerPane : node.jqnode;
-    div.children(".view-dropzone-" + element)
+    var zonename = "#node" + node.nodeid + "-dropzone-" + element;
+    $(zonename)
+      .css(node.getDropzoneProperties(element, w, h, offset))
       .droppable("enable")
       .removeClass("view-dropzone-inactive");
   });
 
 };
+
+LayoutNode.prototype.getDropzoneProperties = function(direction, width, height, offset) {
+  var left = width / 2 - 25,
+      top = height / 2 - 25;
+  var d = 55;
+  if (direction === "west")
+    left -= d;
+  else if (direction === "east")
+    left += d;
+  else if (direction === "north")
+    top -= d;
+  else if (direction === "south")
+    top += d;
+  left += offset.left;
+  top += offset.top;
+  console.log(left, top);
+  return {
+    "left" : left,
+    "top" : top
+  };
+};
+
+
 
 LayoutNode.prototype.expand = function(direction) { // insert a children in a given direction
   if (this.splitEnabled[direction] !== true) {

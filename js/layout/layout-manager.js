@@ -12,6 +12,28 @@
 
 function LayoutManager() {
 
+  this.availNodeId = 0;
+}
+
+LayoutManager.prototype.defaultOptions = {
+  applyDefaultStyles: false,
+  spacing_closed: 5,
+  spacing_open: 5,
+  west__initHidden: true,
+  east__initHidden: true,
+  south__initHidden: true,
+  north__initHidden: true,
+  closable: false,
+  splitEnabled: {
+    east: true,
+    south: true,
+    west: true,
+    north: true
+  }
+};
+
+
+LayoutManager.prototype.initLayout = function() {
   this.rootNode = new LayoutNode($("#main"), {
     applyDefaultStyles: false,
     spacing_closed: 5,
@@ -72,27 +94,14 @@ function LayoutManager() {
   this.rootNode.setChild("east", this.auxNode);
   this.auxNode.layout.sizePane("south", "75%");
   this.auxNode.setChild("south", this.infoNode);
-*/
-}
-
-LayoutManager.prototype.defaultOptions = {
-  applyDefaultStyles: false,
-  spacing_closed: 5,
-  spacing_open: 5,
-  west__initHidden: true,
-  east__initHidden: true,
-  south__initHidden: true,
-  north__initHidden: true,
-  closable: false,
-  splitEnabled: {
-    east: true,
-    south: true,
-    west: true,
-    north: true
-  }
+  */
 };
 
-LayoutManager.prototype.allocNode = function(type, options){
+LayoutManager.prototype.acquireNodeId = function() {
+  return this.availNodeId++;
+};
+
+LayoutManager.prototype.allocNode = function(type, options) {
   if (options == null)
     options = {};
 
