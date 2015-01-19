@@ -38,10 +38,10 @@ LayoutManager.prototype.initLayout = function() {
     applyDefaultStyles: false,
     spacing_closed: 5,
     spacing_open: 5,
-    west__maxSize: 100,
+    west__maxSize: 80,
     west__resizable: false,
-    west__resizerCursor: "auto",
-    west__resizerClass: "menu-layout-resizer",
+    //west__resizerCursor: "auto",
+    //west__resizerClass: "menu-layout-resizer",
     south__initHidden: true,
     north__initHidden: true,
     splitEnabled: {

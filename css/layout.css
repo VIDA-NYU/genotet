@@ -1,0 +1,231 @@
+
+/************************ WARNING *************************
+ *                    MESSY CODE ZONE!                    *
+ **********************************************************/
+
+/*
+ * Need to split the following to separate files
+ */
+
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+#main {
+  width: 100%;
+  height: 100%;
+}
+
+#dragarea {
+  float: left;
+  position: absolute;
+  left: -75%;
+  top: -75%;
+  width: 250%;
+  height: 250%;
+  opacity: 0;
+}
+#dropzone {
+  float: left;
+  position: absolute;
+  z-index: 101;
+}
+#floating {
+  float: left;
+  position: absolute;
+  z-index: 100;
+  height: 0;
+  width: 0;
+}
+
+#minimized {
+  float: left;
+  position: absolute;
+  z-index: 100;
+  top: calc(100% - 20px);
+}
+
+text, h3, .hint, .view-div, .exonname, .label,
+.trackhint, .coordlabel, .graphinfo, .legend, .condtext,
+.xlabel {
+  font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
+}
+
+h3 {
+  font-size: 0.8em;
+  text-align: center;
+  margin: 0;
+}
+
+.menu-button {
+  width: 70px;
+  height: 70px;
+  margin: 2px 5px;
+  padding: 0px !important;
+}
+
+
+.view-dropzone {
+  float: left;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: url(../imgs/expand.png) no-repeat center;
+}
+.view-dropzone-north {
+}
+.view-dropzone-east {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.view-dropzone-south {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.view-dropzone-west {
+  -webkit-transform: rotate(270deg);
+  -moz-transform: rotate(270deg);
+  -ms-transform: rotate(270deg);
+  -o-transform: rotate(270deg);
+  transform: rotate(270deg);
+}
+
+.view-dropzone-inactive {
+  visibility: hidden;
+}
+
+.node-expandzone {
+  float:left;
+  position: absolute;
+  background: rgba(128,185,255,0.25);
+  z-index: 20;
+
+}
+.node-expandzone-inactive {
+  visibility: hidden;
+}
+.node-expandzone-west {
+  width: 40%;
+  height: 100%;
+}
+.node-expandzone-east {
+  width: 40%;
+  height: 100%;
+  left: calc(100% - 40%);
+}
+.node-expandzone-north {
+  height: 40%;
+  width: 100%;
+}
+.node-expandzone-south {
+  height: 40%;
+  width: 100%;
+  top: calc(100% - 40%);
+}
+.node-expandzone-center {
+  width: 100%;
+  height: 100%;
+}
+
+
+.view-wait-background {
+  background: rgba(0,0,0,0.1);
+}
+.view-wait-icon {
+  background: url(../imgs/hourglass.png) no-repeat center;
+}
+
+.view-wait-background, .view-wait-icon {
+  float: left;
+  position: absolute;
+}
+
+.view-docked {
+  width: 100%;
+  height: 100%;
+}
+
+.view-floating {
+  float: left;
+  position: absolute;
+  border: 1px solid #ccc;
+}
+
+.view-minimized {
+  width: 200px;
+  height: 20px;
+  position: relative;
+  float: left;
+}
+
+text {
+  font-size: 0.8em;
+  color: black;
+}
+
+.hint {
+  display: table-cell;
+  font-size: 15px;
+  color: #F0F0F0;
+  text-align: center;
+  background-color: rgba(0,0,0,0.25);
+  vertical-align: middle;
+}
+
+
+.view-div {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.view-canvas {
+}
+
+
+.table_highlight {
+  border: 1px solid #fad42e; /* #fad42e; */
+  background: #fbec88 50% 50% repeat-x; /*#fbec88*/
+  color: #363636; /* #363636 */
+}
+
+.table_hover {
+  border: 1px solid #79b7e7;
+  background: #d0e5f5 50% 50% repeat-x;
+  color: #1d5987;
+}
+
+
+.uibar-text-bold {
+  margin-left: 5px;
+  margin-right: 5px;
+  front-weight: 900;
+}
+
+.view-postbtn, .view-getbtn, .view-groupbtn,
+.view-closebtn, .view-minibtn, .view-helpbtn {
+  /*width: 12px;*/
+  height: 1.2em;
+}
+.view-postbtn, .view-getbtn, .view-groupbtn {
+  float: left;
+  margin-right: 2px;
+}
+.view-closebtn, .view-minibtn, .view-helpbtn {
+  float: right;
+}

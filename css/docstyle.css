@@ -13,7 +13,7 @@ pre {
 table, th, td
 {
   font-size: 12px;
-  border: 1px solid #61576d;
+  border: 1px solid #DDD;
   border-collapse:collapse;
   text-align: center;
   line-height: 20px;
@@ -23,14 +23,14 @@ table, th, td
 h2 {
   font-size: 20px;
   color: black;
-  background: #c6d3e6;
+  background: #DDDDDD;
   padding-left: 1em;
   line-height: 50px;
 }
 
 h3 {
   font-size: 17px;
-  background: #e5ebf3;
+  background: #DDDDDD;
 }
 
 li {

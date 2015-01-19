@@ -484,7 +484,7 @@ ViewManager.prototype.getViewPlace = function(width, height, type){	// find a pl
 */
 ViewManager.prototype.closeAllViews = function(){
 	for (var i = 1; i < this.views.length; i++){
-		this.views[i].content.close({
+		this.views[i].close({
 		  noAnimation: true
 		});
 	}

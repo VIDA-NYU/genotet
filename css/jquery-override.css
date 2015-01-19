@@ -14,12 +14,26 @@
   font-size: 12px;
 }
 
-.menu-layout-resizer  { /* all 'resizer-bars' */
+/*
+.menu-layout-resizer  {  all 'resizer-bars'
   background:   #DDD;
   border:     1px solid #BBB;
   border-width: 0;
 }
+*/
 
 .ui-layout-pane {
   background: #DDD;
+  border: none;
+}
+
+.ui-layout-resizer {
+  background: #999;
+}
+
+.ui-layout-toggler {
+  background: #000;
+}
+.ui-layout-toggler-hover {
+  background-color: #1D5987;
 }
