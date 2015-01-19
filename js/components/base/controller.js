@@ -15,7 +15,8 @@ var extObject = {
   },
   hide: function() {
     // hide the controller when deactivated
-    $(this.wrapper).remove();
+    // this.jqnode shall normally be given a value as the created wrapper div
+    $(this.jqnode).remove();
   }
 };
 

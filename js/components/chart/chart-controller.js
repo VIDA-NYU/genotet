@@ -23,14 +23,18 @@ var extObject = {
     jqctrl.children().remove();
 
     // append a new div as wrapper, which would contain a button
-    this.wrapper = $("<div></div>").appendTo(jqctrl);
+    this.jqnode = $("<div></div>").appendTo(jqctrl);
 
     $("<input type='button' value='Chart - Toggle Color'>")
       .button()
       .click( function() {
         view.toggleColor(); // when clicked, this fires the toggleColor function of the chart view
       })
-      .appendTo(this.wrapper);
+      .appendTo(this.jqnode);
+  },
+
+  hide: function() {
+    $(this.jqnode).remove();
   }
 };
 

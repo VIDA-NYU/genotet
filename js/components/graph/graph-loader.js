@@ -26,8 +26,10 @@ var extObject = {
           loader.error("selected graph is empty, or graph not found");
           return;
         }
-        loader.view.unwait();
         loader.view.data = data;
+        loader.view.initGraph(para.selection);
+
+        loader.view.unwait();
         loader.view.render();
         //if(loader.parentView.viewdata==null) loader.parentView.viewdata = {};
         /*
