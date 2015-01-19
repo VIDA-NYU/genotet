@@ -104,6 +104,10 @@ h3 {
   -o-transform: rotate(270deg);
   transform: rotate(270deg);
 }
+.view-dropzone-center {
+  background: url(../imgs/expand-center.png) no-repeat center;
+}
+
 
 .view-dropzone-inactive {
   visibility: hidden;
