@@ -8,8 +8,6 @@ var extObject = {
 
     var view = this.view;
 
-    console.log("graph rendered");
-
     d3.select("#canvas" + view.viewid + " svg").remove();
 
     this.svg = d3.select("#canvas" + view.viewid).append("svg");
@@ -19,19 +17,16 @@ var extObject = {
       .style("height", view.getCanvasHeight())
       .style("background", "white");
 
-    var points = [
-        {x:10, y:30},
-        {x:20, y:60},
-        {x:50, y:50},
-        {x:70, y:150},
-        {x:100, y:20}
-      ];
-    this.svg.selectAll("circle").data(points).enter()
+    this.svg.selectAll("circle").data(view.renderData.nodes).enter()
       .append("circle")
       .attr("cx", function(d){ return d.x; })
       .attr("cy", function(d){ return d.y; })
-      .attr("r", view.getViewWidth() / 100) // the circles get different radius when view is resized!
+      .attr("r", 10) // the circles get different radius when view is resized!
       .attr("fill", "blue");
+  },
+
+  update: function() {
+    this.render();
   }
 };
 

@@ -122,7 +122,8 @@ Dialog.prototype.dialogCreate = function(){
           var view = createView(name, type, "user");
           if(view) view.load({
             url: httpAddr,
-            args: "type=regnet&net=th17"
+            args: "type=regnet&net=th17",
+            selection: "BATF|RORC|MAF|IRF4|STAT3"
           });
         }else if(type==="binding"){
           var data = $("#dialog #data").val();

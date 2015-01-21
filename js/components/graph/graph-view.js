@@ -41,10 +41,61 @@ var extObject = {
           });
         }
     }
-    console.log(this.renderData);
+    this.forceLayout();
+  },
+
+  forceLayout: function() {
+    var view = this;
+
+    // make a copy of data to use d3 layout
+    this.forceData = {
+      nodes: [],
+      links: []
+    };
+    $.extend(true, this.forceData.nodes, this.renderData.nodes);
+    $.extend(true, this.forceData.links, this.renderData.edges);
+
+    this.forceData.force = d3.layout.force()
+      .charge(-20000)
+      .gravity(1.0)
+      .linkDistance(20)
+      .friction(0.6)
+      .size([this.getCanvasWidth(), this.getCanvasHeight()])
+      .on("tick", function(){
+        view.updateGraphLayout();
+      })
+      .on("end", function(){
+        view.endForce();
+      });
+
+    this.forceData.force
+      .nodes(this.forceData.nodes)
+      .links(this.forceData.links)
+      .size([this.getCanvasWidth(), this.getCanvasHeight()]);
+
+    console.log(this.forceData, this.getCanvasWidth(), this.getCanvasHeight());
+    this.forceData.force.start();
+  },
+
+  updateGraphLayout: function() {
+    var forceNodes = this.forceData.nodes,
+        forceLinks = this.forceData.links;
+
+    for (var i in forceNodes) {
+      this.renderData.nodes[i].x = forceNodes[i].x;
+      this.renderData.nodes[i].y = forceNodes[i].y;
+    }
+    //console.log(forceNodes[0], forceLinks[0])
+
+    this.render();
+  },
+
+  endForce: function() {
+
   },
 
   onResize: function() {
+    this.forceLayout();
     this.render();
   }
 };
