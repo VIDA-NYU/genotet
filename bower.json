@@ -1,0 +1,23 @@
+{
+  "name": "genotet",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ViDA-NYU/genotet",
+  "authors": [
+    "Bowen Yu <yubowenok@gmail.com>"
+  ],
+  "description": "Visual exploratory framework for gene regulatory network",
+  "license": "Apache 2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "d3": "~3.5.6",
+    "jquery": "~2.1.4",
+    "jquery-ui": "~1.11.4"
+  }
+}
