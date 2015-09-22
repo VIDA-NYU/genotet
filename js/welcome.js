@@ -1,4 +1,4 @@
-var Welcome  = {
+var Welcome = {
 
   init: function() {
     var wc = this;
@@ -11,7 +11,7 @@ var Welcome  = {
 
     $('#welcome').append('<p>You may read the help document, load the preset layout, or start a new session.</p>');
     $('#welcome').dialog({
-      close: function(){
+      close: function() {
         $('#block').remove();
       },
       buttons: {
@@ -19,11 +19,11 @@ var Welcome  = {
           wc.close();
           window.open('help.html');
         },
-        'Default': function(){
+        'Default': function() {
           wc.close();
           manager.loadPreset('default');
         },
-        'New': function(){
+        'New': function() {
           wc.close();
           Dialog.dialogCreate();
         }

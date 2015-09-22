@@ -1,102 +1,102 @@
-function LoaderGraph(){
+function LoaderGraph() {
 	this.lastIdentifier = null;
 }
 
-LoaderGraph.prototype.loadData = function(identifier){
+LoaderGraph.prototype.loadData = function(identifier) {
 	this.lastIdentifier = identifier;
 	//console.log(identifier);
 	//var selNodes = this.selectNodes(identifier.exp, identifier.range);
 	//var data = this.makeData(selNodes);
 
 	this.parentView.viewdata = {};
-	this.parentView.layout.showMsg("Loading...");
+	this.parentView.layout.showMsg('Loading...');
 	this.loadNetwork(identifier.net, identifier.exp);
 	//this.parentView.viewdata = data;
 	//this.parentView.layout.setData(data);
 };
 
-LoaderGraph.prototype.updateData = function(identifier){
-	if(identifier.action=="show"){
+LoaderGraph.prototype.updateData = function(identifier) {
+	if (identifier.action == 'show') {
 		this.addEdges(identifier.data);
-	}else if(identifier.action=="hide"){
+	}else if (identifier.action == 'hide') {
 		this.removeEdges(identifier.data);
 	}
 };
 
-LoaderGraph.prototype.addNodes = function(nodes){	// nodes are regexp
+LoaderGraph.prototype.addNodes = function(nodes) {	// nodes are regexp
 	var data = this.parentView.viewdata;
-	var exp = "a^";
-	for(var i=0; i<data.nodes.length; i++){
-		exp += "|^" + data.nodes[i].name + "$";
+	var exp = 'a^';
+	for (var i = 0; i < data.nodes.length; i++) {
+		exp += '|^' + data.nodes[i].name + '$';
 	}
-    exp += "|" + nodes;
+    exp += '|' + nodes;
 	this.loadNetwork(this.lastIdentifier.net, exp);
 };
 
-LoaderGraph.prototype.removeNodes = function(exp){
+LoaderGraph.prototype.removeNodes = function(exp) {
 	var data = this.parentView.viewdata;
-	var reg = RegExp(exp, "i");
-	for(var i=0; i<data.nodes.length; i++){
-		if(data.nodes[i].name.match(reg)){
+	var reg = RegExp(exp, 'i');
+	for (var i = 0; i < data.nodes.length; i++) {
+		if (data.nodes[i].name.match(reg)) {
 			delete data.visibleNodes[data.nodes[i].id];
 		}
 	}
-	for(var i=0; i<data.links.length; i++){
-		if(data.visibleNodes[data.links[i].source.id]==null || data.visibleNodes[data.links[i].target.id]==null){	// hide incident edges
+	for (var i = 0; i < data.links.length; i++) {
+		if (data.visibleNodes[data.links[i].source.id] == null || data.visibleNodes[data.links[i].target.id] == null) {	// hide incident edges
 			delete data.visibleLinks[data.links[i].id];
 		}
 	}
 	this.reparseData(true);
 };
 
-LoaderGraph.prototype.addEdges = function(edges){
+LoaderGraph.prototype.addEdges = function(edges) {
 	var data = this.parentView.viewdata;
 	var nodes = data.nodes, nodeids = {};
-	var exp = "";
-	for(var i=0; i<nodes.length; i++){
+	var exp = '';
+	for (var i = 0; i < nodes.length; i++) {
 		nodeids[nodes[i].id] = true;
-		exp += "^" + nodes[i].name + "$|";
+		exp += '^' + nodes[i].name + '$|';
 	}
-	for(var i=0; i<edges.length; i++){
+	for (var i = 0; i < edges.length; i++) {
 		data.visibleLinks[edges[i].id] = true;
-		if(nodeids[edges[i].sourceId]==null){
+		if (nodeids[edges[i].sourceId] == null) {
 			nodeids[edges[i].sourceId] = true;
 			data.visibleNodes[edges[i].sourceId] = true;
-			exp += "^" + edges[i].source + "$|";
+			exp += '^' + edges[i].source + '$|';
 		}
-		if(nodeids[edges[i].targetId]==null){
+		if (nodeids[edges[i].targetId] == null) {
 			nodeids[edges[i].targetId] = true;
 			data.visibleNodes[edges[i].targetId] = true;
-			exp += "^" + edges[i].target + "$|";
+			exp += '^' + edges[i].target + '$|';
 		}
 	}
-	exp += "[]";
+	exp += '[]';
 	this.updateNetwork(exp);
 };
 
-LoaderGraph.prototype.removeEdges = function(edges){
+LoaderGraph.prototype.removeEdges = function(edges) {
 	var data = this.parentView.viewdata;
 	var links = data.links;
-	for(var i=0; i<edges.length; i++){
-		if(data.visibleLinks[edges[i].id]==true) delete data.visibleLinks[edges[i].id];
+	for (var i = 0; i < edges.length; i++) {
+		if (data.visibleLinks[edges[i].id] == true) delete data.visibleLinks[edges[i].id];
 	}
 	this.reparseData(true); // removal of edges
 };
 
-LoaderGraph.prototype.updateNetwork = function(exp){
+LoaderGraph.prototype.updateNetwork = function(exp) {
 	//console.log("update", exp);
 	var loader = this;
 	this.recordPos(loader.parentView.viewdata);	// first record all the positions before load new data
 	$.ajax({
 	    type: 'POST', url: addr, dataType: 'jsonp',
 	    data: {
-			args: { "type": "net", "net": loader.lastIdentifier.net, "exp": exp},
+			args: { 'type': 'net', 'net': loader.lastIdentifier.net, 'exp': exp},
 	    },
-		error: function(xhr, status, err){ loader.error("cannot update network\n" + status + "\n" + err); },
-	    success: function(result){
+		error: function(xhr, status, err) { loader.error('cannot update network\n' + status + '\n' + err); },
+	    success: function(result) {
 			var data = JSON.parse(result, utils.parse);
-			if(data==null || loader.parentView.viewdata==null){
-				loader.error("cannot update network due to an internal error");
+			if (data == null || loader.parentView.viewdata == null) {
+				loader.error('cannot update network due to an internal error');
 				return;
 			}
 			loader.parentView.viewdata.nodes = data.nodes;
@@ -107,18 +107,18 @@ LoaderGraph.prototype.updateNetwork = function(exp){
 	});
 };
 
-LoaderGraph.prototype.loadNetwork = function(net, exp, notInit){
+LoaderGraph.prototype.loadNetwork = function(net, exp, notInit) {
 	var loader = this;
 	$.ajax({
 	    type: 'GET', url: addr, dataType: 'jsonp',
 	    data: {
-			args: 'type=net&net='+net+'&exp='+exp
+			args: 'type=net&net=' + net + '&exp=' + exp
 	    },
-		error: function(xhr, status, err){ loader.error("cannot load network\n" + status + "\n" + err); },
-	    success: function(result){
+		error: function(xhr, status, err) { loader.error('cannot load network\n' + status + '\n' + err); },
+	    success: function(result) {
 			var data = JSON.parse(result, utils.parse);
-			if(data==null){
-				loader.error("selected network is empty, or network not found");
+			if (data == null) {
+				loader.error('selected network is empty, or network not found');
 				return;
 			}
 			//if(loader.parentView.viewdata==null) loader.parentView.viewdata = {};
@@ -126,51 +126,51 @@ LoaderGraph.prototype.loadNetwork = function(net, exp, notInit){
 			loader.parentView.viewdata.links = data.links;
 			loader.parentView.viewdata.wmin = data.wmax;
 			loader.parentView.viewdata.wmax = data.wmin;
-			if(notInit==null) loader.initData(loader.parentView.viewdata);
+			if (notInit == null) loader.initData(loader.parentView.viewdata);
 			else loader.filterData(loader.parentView.viewdata);
 			loader.parentView.layout.reloadData();
 	    }
 	});
 };
 
-LoaderGraph.prototype.initData = function(data){
+LoaderGraph.prototype.initData = function(data) {
 	data.lastPos = {};
 	this.parseBidir(data);
 	data.visibleNodes = {};
 	data.visibleLinks = {};
-	for(var i=0; i<data.nodes.length; i++) data.visibleNodes[data.nodes[i].id] = true;
-	for(var i=0; i<data.links.length; i++) data.visibleLinks[data.links[i].id] = true;	// initially every node & edge is visible
+	for (var i = 0; i < data.nodes.length; i++) data.visibleNodes[data.nodes[i].id] = true;
+	for (var i = 0; i < data.links.length; i++) data.visibleLinks[data.links[i].id] = true;	// initially every node & edge is visible
 };
 
-LoaderGraph.prototype.parseBidir = function(data){
+LoaderGraph.prototype.parseBidir = function(data) {
 	data.bidir = {};	// save bidirectonal edges
-	for(var i=0; i<data.links.length; i++){
-		data.bidir[data.links[i].source+"*"+data.links[i].target] = true;
+	for (var i = 0; i < data.links.length; i++) {
+		data.bidir[data.links[i].source + '*'+ data.links[i].target] = true;
 	}
 };
 
-LoaderGraph.prototype.filterData = function(data){
+LoaderGraph.prototype.filterData = function(data) {
 	var remap = {}; // remapping index of node
 	var fnodes = new Array(), flinks = new Array();
 	var nodes = data.nodes, links = data.links, lastPos = data.lastPos, visibleNodes = data.visibleNodes, visibleLinks = data.visibleLinks;
 	var j = 0;
-	for(var i=0; i<nodes.length; i++){
-		if(visibleNodes[nodes[i].id]==true){	// show only visible nodes
-			fnodes.push({"id": nodes[i].id, "index": j, "name": nodes[i].name, "isTF": nodes[i].isTF});
+	for (var i = 0; i < nodes.length; i++) {
+		if (visibleNodes[nodes[i].id] == true) {	// show only visible nodes
+			fnodes.push({'id': nodes[i].id, 'index': j, 'name': nodes[i].name, 'isTF': nodes[i].isTF});
 			remap[nodes[i].id] = j++;
 		}
 	}
 	j = 0;
-	for(var i=0; i<links.length; i++){	// show only visible edges
+	for (var i = 0; i < links.length; i++) {	// show only visible edges
 		var sid = links[i].source.id, tid = links[i].target.id;
-		if(sid==null) sid = nodes[links[i].source].id; //
-		if(tid==null) tid = nodes[links[i].target].id; // from server, the source and target are index instead of id
-		if(visibleLinks[links[i].id]==true && visibleNodes[sid]==true && visibleNodes[tid]==true){
-			flinks.push({"id": links[i].id, "index": j++, "source": remap[sid], "target": remap[tid], "weight": links[i].weight});
+		if (sid == null) sid = nodes[links[i].source].id; //
+		if (tid == null) tid = nodes[links[i].target].id; // from server, the source and target are index instead of id
+		if (visibleLinks[links[i].id] == true && visibleNodes[sid] == true && visibleNodes[tid] == true) {
+			flinks.push({'id': links[i].id, 'index': j++, 'source': remap[sid], 'target': remap[tid], 'weight': links[i].weight});
 		}
 	}
-	for(var i=0; i<fnodes.length; i++){	// reset position to memorized locations
-		if(lastPos[fnodes[i].id]!=null){
+	for (var i = 0; i < fnodes.length; i++) {	// reset position to memorized locations
+		if (lastPos[fnodes[i].id] != null) {
 			fnodes[i].x = lastPos[fnodes[i].id].x;
 			fnodes[i].y = lastPos[fnodes[i].id].y;
 		}
@@ -183,69 +183,69 @@ LoaderGraph.prototype.filterData = function(data){
 	this.parseBidir(data);
 };
 
-LoaderGraph.prototype.recordPos = function(data){
-	for(var i=0; i<data.nodes.length; i++){
-		data.lastPos[data.nodes[i].id] = {"x": data.nodes[i].x, "y": data.nodes[i].y};
+LoaderGraph.prototype.recordPos = function(data) {
+	for (var i = 0; i < data.nodes.length; i++) {
+		data.lastPos[data.nodes[i].id] = {'x': data.nodes[i].x, 'y': data.nodes[i].y};
 	}
 };
 
-LoaderGraph.prototype.reparseData = function(removeOnly){	// use for mouse click removal
+LoaderGraph.prototype.reparseData = function(removeOnly) {	// use for mouse click removal
 	this.recordPos(this.parentView.viewdata);
 	this.filterData(this.parentView.viewdata);
 	this.parentView.layout.reloadData(removeOnly);
 };
 
-LoaderGraph.prototype.showEdges = function(net, name){
-	var viewname = this.parentView.viewname + "-list";
+LoaderGraph.prototype.showEdges = function(net, name) {
+	var viewname = this.parentView.viewname + '-list';
 	var view = getView(viewname), launch = true;
-	if(view!=null) {
-		if(view.viewdata.net==net && view.viewdata.name==name) launch = false; // toggle list
+	if (view != null) {
+		if (view.viewdata.net == net && view.viewdata.name == name) launch = false; // toggle list
 		closeView(viewname);
 	}
-	if(launch) this.loadEdges(net, name);
+	if (launch) this.loadEdges(net, name);
 };
 
-LoaderGraph.prototype.loadComb = function(net, exp){
+LoaderGraph.prototype.loadComb = function(net, exp) {
     var loader = this;
 	var oexp = exp;
 	exp = utils.encodeSpecialChar(exp);
 	$.ajax({
 		type: 'GET', url: addr, dataType: 'jsonp',
 		data: {
-			args: 'type=comb&net='+net+'&exp='+exp
+			args: 'type=comb&net=' + net + '&exp=' + exp
 		},
-		error: function(xhr, status, err){ loader.error("cannot load combinatorial regulated genes\n" + status + "\n" + err); },
-		success: function(result){
+		error: function(xhr, status, err) { loader.error('cannot load combinatorial regulated genes\n' + status + '\n' + err); },
+		success: function(result) {
 			var data = JSON.parse(result, utils.parse);
 		    if (data.length == 0) {
-				options.alert("There is no common targets.");
+				options.alert('There is no common targets.');
 				return;
 			}
-			var addexp = "a^";
-			for(var i=0; i<data.length; i++) addexp += "|^"+data[i]+"$";
+			var addexp = 'a^';
+			for (var i = 0; i < data.length; i++) addexp += '|^'+ data[i] + '$';
 			//console.log(oexp);
-			addexp += "|"+oexp;
+			addexp += '|'+ oexp;
 			loader.addNodes(addexp);
 		}
 	});
 };
 
-LoaderGraph.prototype.loadEdges = function(net, name){
+LoaderGraph.prototype.loadEdges = function(net, name) {
 	var loader = this;
 	$.ajax({
 		type: 'GET', url: addr, dataType: 'jsonp',
 		data: {
-			args: 'type=edges&net='+net+'&name='+name
+			args: 'type=edges&net=' + net + '&name=' + name
 		},
-		error: function(xhr, status, err){ loader.error("cannot load edges\n" + status + "\n" + err); },
-		success: function(result){
+		error: function(xhr, status, err) { loader.error('cannot load edges\n' + status + '\n' + err); },
+		success: function(result) {
 			var data = JSON.parse(result, utils.parse);
 
-			var viewname = loader.parentView.viewname + "-list";
-			var view = $("#view"+loader.parentView.viewid);
-			var left = parseInt(view.css("left"))+parseInt(view.css("width")),
-				top = parseInt(view.css("top"));
-			createView(viewname, "table", null, loader.parentView.layout.rawheight, left, top);
+			var viewname = loader.parentView.viewname + '-list';
+			var view = $('#view'+ loader.parentView.viewid);
+			var left = parseInt(view.css('left')) + parseInt(view.css('width')),
+				top = parseInt(view.css('top'));
+			createView(viewname, 'table', null, loader.parentView.layout.rawheight, left, top);
 
 			linkView(loader.parentView.viewname, viewname);
 			linkView(viewname, loader.parentView.viewname);	// link back
@@ -254,12 +254,12 @@ LoaderGraph.prototype.loadEdges = function(net, name){
 			var wrapper = {};
 			wrapper.net = net;
 			wrapper.name = name;
-			wrapper.columns = ["Source", "Target", "Weight", "Loaded"];
+			wrapper.columns = ['Source', 'Target', 'Weight', 'Loaded'];
 			wrapper.rows = data;
 			var viewdata = loader.parentView.viewdata;
-			for(var i=0; i<wrapper.rows.length; i++){
-				if(viewdata.visibleLinks[wrapper.rows[i].id]==true) wrapper.rows[i].loaded = "Yes";
-				else wrapper.rows[i].loaded = "";
+			for (var i = 0; i < wrapper.rows.length; i++) {
+				if (viewdata.visibleLinks[wrapper.rows[i].id] == true) wrapper.rows[i].loaded = 'Yes';
+				else wrapper.rows[i].loaded = '';
 			}
 			getView(viewname).viewdata = wrapper;
 			getView(viewname).layout.reloadData();
@@ -267,9 +267,9 @@ LoaderGraph.prototype.loadEdges = function(net, name){
 	});
 };
 
-LoaderGraph.prototype.error = function(msg){
+LoaderGraph.prototype.error = function(msg) {
 	this.parentView.viewdata = null;
-	msg = this.parentView.viewname + ": " + msg;
+	msg = this.parentView.viewname + ': ' + msg;
 	console.error(msg);
 	options.alert(msg);
 	this.parentView.layout.showError();

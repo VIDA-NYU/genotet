@@ -1,5 +1,5 @@
 // request json data file via http & jsonp
-var addr = "jsonp.php";
+var addr = 'jsonp.php';
 
 // utils functions
 var utils;
@@ -16,7 +16,7 @@ var welcome;
 // system core
 var core;
 
-function Core(){
+function Core() {
   this.init();
 }
 
@@ -30,7 +30,7 @@ Core.prototype.init = function() {
   Dialog.init();
 
   $(document).tooltip({
-    disabled : true,
+    disabled: true,
     show: { delay: 3000 },
     hide: 1000
   });

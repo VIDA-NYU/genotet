@@ -2,38 +2,38 @@
 
 var Menu = {
 
-  init: function () {
-    $('#view-create').click(function () {
+  init: function() {
+    $('#view-create').click(function() {
       return;
     });
-    $('#view-link').click(function () {
+    $('#view-link').click(function() {
       return;
     });
-    $('#view-unlink').click(function () {
+    $('#view-unlink').click(function() {
       return;
     });
-    $('#view-group').click(function () {
+    $('#view-group').click(function() {
       return;
     });
-    $('#view-close').click(function () {
+    $('#view-close').click(function() {
       closeAllViews();
       createMenu();
     });
 
-    $('#preset-default').click(function () {
+    $('#preset-default').click(function() {
       manager.loadPreset('default');
     });
-    $('#preset-network').click(function () {
+    $('#preset-network').click(function() {
       manager.loadPreset('network');
     });
-    $('#preset-expression').click(function () {
+    $('#preset-expression').click(function() {
       manager.loadPreset('expmat');
     });
-    $('#preset-binding').click(function () {
+    $('#preset-binding').click(function() {
       manager.loadPreset('binding_3');
     });
 
-    $('#help').click(function () {
+    $('#help').click(function() {
       Options.toggleAllowAlert();
     });
   }
