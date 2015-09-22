@@ -1,5 +1,5 @@
 function View(type, viewname, viewid, width, height, left, top){
-	var view = this;
+  var view = this;
   this.type = type;
   this.viewname = viewname;
 	this.groupid = viewid;

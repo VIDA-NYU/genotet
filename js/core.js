@@ -6,7 +6,7 @@ var utils;
 // view manager
 var manager;
 // timer
-var layoutTimer, timerLayout, viewTimer, timerView;
+var timerLayout, timerView;
 // user interface
 var options;
 // pop up dialog
@@ -36,6 +36,7 @@ Core.prototype.init = function() {
     hide: 1000
   });
 };
+
 // examples
 /*
 createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
