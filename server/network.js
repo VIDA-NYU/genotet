@@ -82,7 +82,7 @@ module.exports = {
     var buf = utils.readFileToBuf(file);
     if (buf == null)
       return console.error("cannot read file", file), [];
-    var result = readNet(buf);
+    var result = this.readNet(buf);
     var exp = "^"+name+"$";
     for(var i=0; i<result.numEdge; i++){
       var s = result.edges[i].source, t = result.edges[i].target;
@@ -99,7 +99,7 @@ module.exports = {
     var buf = utils.readFileToBuf(file);
     if (buf == null)
       return console.error("cannot read file", file), [];
-    var result = readNet(buf);
+    var result = this.readNet(buf);
     var edges = new Array();
     for(var i=0;i<result.numEdge;i++){
       var s = result.edges[i].source, t = result.edges[i].target, w = result.edges[i].weight;
@@ -115,7 +115,7 @@ module.exports = {
     var buf = utils.readFileToBuf(file);
     if (buf == null)
       return console.error("cannot read file", file), [];
-    var result = readNet(buf);
+    var result = this.readNet(buf);
     try {
       exp = RegExp(exp, "i");
     } catch(e) {
