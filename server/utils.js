@@ -1,12 +1,12 @@
 
-"use strict";
+'use strict';
 
-var fs = require("fs");
+var fs = require('fs');
 
 module.exports = {
 
   binarySearch: function(segs, x) {
-    var ll = 0, rr = segs.length-1;
+    var ll = 0, rr = segs.length - 1;
     while (ll <= rr) {
       var m = (ll + rr) >> 1;
       if (segs[m].x > x)
@@ -31,8 +31,8 @@ module.exports = {
   },
 
   decodeSpecialChar: function(url) {
-    url = url.replace(/%2B/g, "+");
-    url = url.replace(/%3F/g, "?");
+    url = url.replace(/%2B/g, '+');
+    url = url.replace(/%3F/g, '?');
     return url;
   }
 
