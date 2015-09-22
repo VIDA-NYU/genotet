@@ -23,14 +23,13 @@ function Core(){
 Core.prototype.init = function() {
   utils = new Utils();
   manager = new ViewManager();
-  options = new Options();
-  dialog = new Dialog();
 
-  createMenu();
+  Welcome.init();
+  Menu.init();
+  Options.init();
+  Dialog.init();
 
-  welcome = new Welcome();
-
-  $( document ).tooltip({
+  $(document).tooltip({
     disabled : true,
     show: { delay: 3000 },
     hide: 1000

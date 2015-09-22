@@ -1,0 +1,16 @@
+
+.tablescroll {
+    overflow: auto;
+}
+
+.table_highlight {
+    border: 1px solid #fad42e; /* #fad42e; */
+    background: #fbec88 50% 50% repeat-x; /*#fbec88*/
+    color: #363636; /* #363636 */
+}
+
+.table_hover {
+    border: 1px solid #79b7e7;
+    background: #d0e5f5 50% 50% repeat-x;
+    color: #1d5987;
+}

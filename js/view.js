@@ -2,7 +2,7 @@ function View(type, viewname, viewid, width, height, left, top){
   var view = this;
   this.type = type;
   this.viewname = viewname;
-	this.groupid = viewid;
+  this.groupid = viewid;
 
   // html element id assigned by view manager
   this.viewid = viewid;
@@ -36,7 +36,7 @@ function View(type, viewname, viewid, width, height, left, top){
 	this.parentView = null;
 	this.childrenView = new Array();
 	this.layout.parentView = this;
-	this.loader.parentView = this;
+	if (this.loader) this.loader.parentView = this;
 
 	$("#view"+this.viewid+" .ui-icon-gripsmall-diagonal-se")
 	  .removeClass("ui-icon-gripsmall-diagonal-se ui-icon"); // hide the handle!
@@ -298,7 +298,7 @@ View.prototype.unhighlightParent = function(){
 
 View.prototype.postEdit = function(e){
 	if(e.which==1){
-		dialog.dialogLink(this.viewname);
+		Dialog.dialogLink(this.viewname);
 	}else{
 		this.unhighlightChildren();
 		for(var i=0; i<this.childrenView.length; i++){
@@ -316,7 +316,7 @@ View.prototype.getEdit = function(e){
 
 View.prototype.groupEdit = function(e){
 	if(e.which==1){
-		dialog.dialogGroup(this.viewname);
+		Dialog.dialogGroup(this.viewname);
 	}else if(e.which==3){
 		// exit from group
 		//console.log("quit group")
@@ -368,9 +368,6 @@ View.prototype.init = function(){
     	//this.initScatterplot();
     }else if(this.type=="palette"){
 		//this.initPalette();
-	}else if(this.type=="menu"){
-		this.loader = new LoaderMenu();
-		this.layout = new LayoutMenu("view"+this.viewid, this.width, this.height);
 	}else if(this.type=="heatmap"){
 		this.loader = new LoaderHeatmap();
 		this.layout = new LayoutHeatmap("view"+this.viewid, this.width, this.height);

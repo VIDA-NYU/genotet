@@ -1,0 +1,129 @@
+
+.txbox {
+    fill: #61576d;
+    stroke: none;
+}
+.exonbox {
+    fill: #61576d;
+    stroke: none;
+}
+.exonstrand {
+    fill: #4f455c;
+    stroke: none;
+}
+.exonline {
+    stroke: #61576d;
+    stroke-width: 1;
+}
+.exonname {
+    font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
+    font-size: 10px;
+    text-anchor: middle;
+}
+
+.label {
+    font-family: arial, sans-serif;
+    text-anchor: middle;
+    pointer-events: none;
+    /*
+     font-size: 10px;
+     fill: black;
+     */
+}
+
+.background {
+    fill: white;
+    opacity: .0;
+    x: 0;
+    y: 0;
+}
+
+.iobj {
+    fill: red;
+    opacity: .0;
+}
+
+.izone {
+    fill: #4297d7;
+    opacity: .5;
+}
+
+.buttonOn {
+    fill: #4297d7;
+    opacity: .5;
+}
+.buttonOff {
+    fill: grey;
+    opacity: .5;
+}
+.buttonText {
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.bar {
+    fill: grey;
+    stroke: grey;
+    stroke-width: 0.5;
+}
+
+.obar {
+    fill: grey;
+    stroke: grey;
+    stroke-width: 0.5;
+}
+
+.frame {
+    fill: none;
+    stroke: grey;
+    stroke-width: 0.5;
+}
+.trackhint {
+    font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
+    text-anchor: start;
+}
+.coordlabel {
+    font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; /*arial, sans-serif;*/
+    text-anchor: end;
+    pointer-events: none;
+    font-size: 8px;
+    fill: black;
+}
+
+.coordline {
+    stroke: black;
+    stroke-opacity: .5;
+    stroke-width: .25;
+}
+.cursorline {
+    stroke: #4297d7;
+    stroke-opacity: .75;
+    stroke-width: 1;
+}
+
+.focusrange {
+    fill: #4297d7;
+    stroke: #5a5460;
+    stroke-width: 1;
+    opacity: .5;
+}
+
+.targetrange {
+    fill: red;
+    opacity: .5;
+}
+
+.xlabel {
+    font-size: 8px;
+    font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
+}
+
+.zoombar {
+    fill: #4297d7;
+    opacity: .15;
+}
+
+.zoombar_sel {
+    fill: #4297d7;
+    opacity: .5;
+}

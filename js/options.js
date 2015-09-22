@@ -1,9 +1,20 @@
-function Options(){
-	this.silent = false;
-	this.hint = false;
-	this.debug = true;
-}
+'use strict';
 
-Options.prototype.alert = function(msg){
-	if(this.silent==false) alert(msg);
+var Options = {
+  allowAlert: true,
+
+  init: function() {
+
+  },
+
+  toggleAllowAlert: function() {
+    this.allowAlert = !this.allowAllert;
+  },
+
+  alert: function(msg) {
+    if (this.allowAlert) {
+      alert(msg);
+    }
+  }
+
 };

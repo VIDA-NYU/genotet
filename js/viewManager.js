@@ -125,9 +125,6 @@ ViewManager.prototype.getViewNames = function(type, name){
 	}
 };
 
-ViewManager.prototype.createMenu = function(){
-	this.createView("GENOTET", "menu");
-};
 
 ViewManager.prototype.createView = function(viewname, type, width, height, left, top){
 

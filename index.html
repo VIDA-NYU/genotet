@@ -4,28 +4,39 @@
   <meta charset="utf-8">
   <title>GENOTET - Visual Exploration Framework for Gene Regulation Data</title>
 
-  <!-- d3.js -->
+  <!-- bower components -->
   <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-  <!-- jquery and jquery.ui -->
   <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="bower_components/jquery-ui/jquery-ui.min.css" />
-  <link rel="stylesheet" href="bower_components/jquery-ui/themes/eggplant/jquery-ui.min.css" />
+  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
 
-  <!-- genotet css -->
-  <link type="text/css" rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/eggplant/jquery-ui.min.css"/>
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/eggplant/theme.css"/>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
 
-  <!-- genotet js -->
-  <script type="text/javascript" src="js/loaders/loaderGraph.js"></script>
-  <script type="text/javascript" src="js/loaders/loaderHistogram.js"></script>
-  <script type="text/javascript" src="js/loaders/loaderMenu.js"></script>
-  <script type="text/javascript" src="js/loaders/loaderHeatmap.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutGraph.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutHistogram.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutMenu.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutHeatmap.js"></script>
-  <script type="text/javascript" src="js/renderers/layoutTable.js"></script>
+  <!-- global css -->
+  <link type="text/css" rel="stylesheet" href="css/style.css"/>
 
+  <!-- components -->
+  <!-- network -->
+  <script type="text/javascript" src="components/network/network-loader.js"></script>
+  <script type="text/javascript" src="components/network/network-renderer.js"></script>
+  <link type="text/css" rel="stylesheet" href="components/network/network.css"/>
+  <!-- expression -->
+  <script type="text/javascript" src="components/expression/expression-loader.js"></script>
+  <script type="text/javascript" src="components/expression/expression-renderer.js"></script>
+  <link type="text/css" rel="stylesheet" href="components/expression/expression.css"/>
+  <!-- binding -->
+  <script type="text/javascript" src="components/binding/binding-loader.js"></script>
+  <script type="text/javascript" src="components/binding/binding-renderer.js"></script>
+  <link type="text/css" rel="stylesheet" href="components/binding/binding.css"/>
+  <!-- table -->
+  <script type="text/javascript" src="components/table/table-renderer.js"></script>
+  <link type="text/css" rel="stylesheet" href="components/table/table.css"/>
+
+  <!-- main js -->
+  <script type="text/javascript" src="js/menu.js"></script>
   <script type="text/javascript" src="js/viewManager.js"></script>
   <script type="text/javascript" src="js/view.js"></script>
   <script type="text/javascript" src="js/welcome.js"></script>
@@ -35,13 +46,48 @@
   <script type="text/javascript" src="js/utils.js"></script>
   <script type="text/javascript" src="js/core.js"></script>
 
+  <!-- program entry -->
   <script>
     $(document).ready(function () {
         core = new Core();
     });
   </script>
-
 </head>
 <body oncontextmenu="return false;">
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Genotet</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle">View <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Create</a></li>
+            <li><a href="#">Link</a></li>
+            <li><a href="#">Unlink</a></li>
+            <li><a href="#">Group</a></li>
+            <li><a href="#">Close All</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle">Preset <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#" id="preset-default">Default</a></li>
+            <li><a href="#" id="preset-network">Network</a></li>
+            <li><a href="#" id="preset-expression">Expression</a></li>
+            <li><a href="#" id="preset-binding">3-Track Binding</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle">Options <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#" id="option-alert">Alert Popup</a></li>
+          </ul>
+        </li>
+        <li><a href="#" id="help">Help</a></li>
+      </ul>
+    </div>
+  </nav>
 </body>
 </html>
