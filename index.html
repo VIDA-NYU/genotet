@@ -22,7 +22,9 @@
   <!-- network -->
   <script type="text/javascript" src="components/network/network-loader.js"></script>
   <script type="text/javascript" src="components/network/network-renderer.js"></script>
-  <link type="text/css" rel="stylesheet" href="components/network/network.css"/>
+  <script type="text/javascript" src="components/network/network-table.js"></script>
+  <link type="text/css" rel="stylesheet" href="components/network/network.css"/>'
+  <link type="text/css" rel="stylesheet" href="components/network/network-table.css"/>
   <!-- expression -->
   <script type="text/javascript" src="components/expression/expression-loader.js"></script>
   <script type="text/javascript" src="components/expression/expression-renderer.js"></script>
@@ -31,9 +33,6 @@
   <script type="text/javascript" src="components/binding/binding-loader.js"></script>
   <script type="text/javascript" src="components/binding/binding-renderer.js"></script>
   <link type="text/css" rel="stylesheet" href="components/binding/binding.css"/>
-  <!-- table -->
-  <script type="text/javascript" src="components/table/table-renderer.js"></script>
-  <link type="text/css" rel="stylesheet" href="components/table/table.css"/>
 
   <!-- main js -->
   <script type="text/javascript" src="js/menu.js"></script>
@@ -57,21 +56,18 @@
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="#">Genotet</a>
+        <a class="navbar-brand bold" href="#">GENOTET</a>
       </div>
       <ul class="nav navbar-nav">
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle">View <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">View <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">Create</a></li>
-            <li><a href="#">Link</a></li>
-            <li><a href="#">Unlink</a></li>
-            <li><a href="#">Group</a></li>
-            <li><a href="#">Close All</a></li>
+            <li><a href="#" id="view-create">Create</a></li>
+            <li><a href="#" id="view-closeall">Close All</a></li>
           </ul>
         </li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle">Preset <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Preset <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="#" id="preset-default">Default</a></li>
             <li><a href="#" id="preset-network">Network</a></li>
@@ -80,14 +76,20 @@
           </ul>
         </li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle">Options <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#" id="option-alert">Alert Popup</a></li>
+            <li><a href="#" id="option-alert">Popup Alerts</a></li>
           </ul>
         </li>
         <li><a href="#" id="help">Help</a></li>
       </ul>
     </div>
   </nav>
+  <div id="modal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      </div>
+    </div>
+  </div>
 </body>
 </html>

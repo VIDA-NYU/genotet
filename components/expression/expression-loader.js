@@ -74,7 +74,7 @@ LoaderHeatmap.prototype.loadHeatmap = function(mat, exprows, expcols, resol) {
 	    data: { 'args': args },
 		error: function(xhr, status, err) { loader.error('cannot load heatmap\n' + status + '\n' + err); },
 	    success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data == null || data.length == 0) { loader.error('cannot load heatmap\n return is empty'); return; }
 			for (var i = 0; i < data.data.length; i++) data.data[i].rx = data.data[i].x;
 			loader.parentView.viewdata.heatmapData = data;
@@ -90,7 +90,7 @@ LoaderHeatmap.prototype.loadHeatmapTargets = function(net, name) {
 	    data: { 'args': 'type=targets&net='+ net + '&name='+ name },
 		error: function(xhr, status, err) { loader.error('cannot load targets for heatmap\n' + status + '\n' + err); },
 	    success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data == null || data.length == 0) { loader.error('cannot load targets for heatmap\n return is empty'); return; }
 			loader.loadHeatmap(loader.lastIdentifier.mat, data.exp);
 	    }
@@ -112,7 +112,7 @@ LoaderHeatmap.prototype.loadLine = function(mat, name) {
 	    data: { 'args': args },
 		error: function() { loader.error('cannot load heatmap line'); },
 	    success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data == null || data.length == 0) {
 				loader.error('cannot load heatmap line\ngene not found in expression matrix', 'line');
 				return;

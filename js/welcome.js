@@ -21,7 +21,7 @@ var Welcome = {
         },
         'Default': function() {
           wc.close();
-          manager.loadPreset('default');
+          ViewManager.loadPreset('default');
         },
         'New': function() {
           wc.close();

@@ -94,7 +94,7 @@ LoaderGraph.prototype.updateNetwork = function(exp) {
 	    },
 		error: function(xhr, status, err) { loader.error('cannot update network\n' + status + '\n' + err); },
 	    success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data == null || loader.parentView.viewdata == null) {
 				loader.error('cannot update network due to an internal error');
 				return;
@@ -116,7 +116,7 @@ LoaderGraph.prototype.loadNetwork = function(net, exp, notInit) {
 	    },
 		error: function(xhr, status, err) { loader.error('cannot load network\n' + status + '\n' + err); },
 	    success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data == null) {
 				loader.error('selected network is empty, or network not found');
 				return;
@@ -216,7 +216,7 @@ LoaderGraph.prototype.loadComb = function(net, exp) {
 		},
 		error: function(xhr, status, err) { loader.error('cannot load combinatorial regulated genes\n' + status + '\n' + err); },
 		success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 		    if (data.length == 0) {
 				options.alert('There is no common targets.');
 				return;
@@ -239,7 +239,7 @@ LoaderGraph.prototype.loadEdges = function(net, name) {
 		},
 		error: function(xhr, status, err) { loader.error('cannot load edges\n' + status + '\n' + err); },
 		success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 
 			var viewname = loader.parentView.viewname + '-list';
 			var view = $('#view'+ loader.parentView.viewid);

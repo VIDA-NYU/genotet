@@ -64,7 +64,7 @@ LoaderHistogram.prototype.loadBindingsmp = function(name, chr) {
 	    },
 		error: function(xhr, status, err) { loader.error('cannot load binding overview\n' + status + '\n' + err); },
 	    success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data == null || data.length == 0) {
 				loader.error('cannot load binding overview, check name and chr (or data not exists)');
 				return;
@@ -112,7 +112,7 @@ LoaderHistogram.prototype.loadBinding = function(name, chr, xl, xr) {
 		type: 'GET', url: addr, dataType: 'jsonp', data: { 'args': args },
 		error: function(xhr, status, err) { loader.error('cannot load binding data\n' + status + '\n' + err); },
 		success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data == null || data.length == 0) {
 				loader.error('cannot load binding sampling');
 				return;
@@ -137,7 +137,7 @@ LoaderHistogram.prototype.loadExons = function(name, chr) {
 		},
 		error: function(xhr, status, err) { loader.error('cannot load exons\n' + status + '\n' + err); },
 		success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data == null || data.length == 0) {
 				loader.error('cannot load exons\ncheck name and chr (or data not exists)');
 				return;
@@ -158,7 +158,7 @@ LoaderHistogram.prototype.locateGene = function(name) {
 			args: 'type=srchexon&name=' + name
 		},
 		success: function(result) {
-			var data = JSON.parse(result, utils.parse);
+			var data = JSON.parse(result, Utils.parse);
 			if (data.success == false) {
 				loader.error('gene not found');
 				return;

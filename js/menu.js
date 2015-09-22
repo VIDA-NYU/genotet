@@ -4,7 +4,7 @@ var Menu = {
 
   init: function() {
     $('#view-create').click(function() {
-      return;
+      Dialog.create('');
     });
     $('#view-link').click(function() {
       return;
@@ -17,20 +17,19 @@ var Menu = {
     });
     $('#view-close').click(function() {
       closeAllViews();
-      createMenu();
     });
 
     $('#preset-default').click(function() {
-      manager.loadPreset('default');
+      ViewManager.loadPreset('default');
     });
     $('#preset-network').click(function() {
-      manager.loadPreset('network');
+      ViewManager.loadPreset('network');
     });
     $('#preset-expression').click(function() {
-      manager.loadPreset('expmat');
+      ViewManager.loadPreset('expmat');
     });
     $('#preset-binding').click(function() {
-      manager.loadPreset('binding_3');
+      ViewManager.loadPreset('binding_3');
     });
 
     $('#help').click(function() {

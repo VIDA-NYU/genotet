@@ -67,21 +67,21 @@ LayoutTable.prototype.renderLayout = function() {
 	var str = '', strd = '';
 	str += "<col width='25%'><col width='25%'><col width='40%'><col width='10%'>";
 	for (var i = 0; i < columns.length; i++) {
-		strd += utils.tagString(columns[i], 'th');
+		strd += Utils.tagString(columns[i], 'th');
 	}
-	str += utils.tagString(strd, 'tr');
+	str += Utils.tagString(strd, 'tr');
 
 	for (var i = 0; i < rows.length; i++) {
 		var cls = null;
 		if (this.selection[rows[i].id] == true) cls = 'table_highlight';
 		strd = '';
-		strd += utils.tagString(rows[i].source, 'td', null, cls);
-		strd += utils.tagString(rows[i].target, 'td', null, cls);
-		strd += utils.tagString(rows[i].weight, 'td', null, cls);
-		strd += utils.tagString(rows[i].loaded, 'td', null, cls);
-		str += utils.tagString(strd, 'tr');
+		strd += Utils.tagString(rows[i].source, 'td', null, cls);
+		strd += Utils.tagString(rows[i].target, 'td', null, cls);
+		strd += Utils.tagString(rows[i].weight, 'td', null, cls);
+		strd += Utils.tagString(rows[i].loaded, 'td', null, cls);
+		str += Utils.tagString(strd, 'tr');
 	}
-	str = utils.tagString(str, 'table');
+	str = Utils.tagString(str, 'table');
 	contents.append(str);
 
 	this.uiHeight = $('#'+ this.htmlid + " div[name='ui']").height();

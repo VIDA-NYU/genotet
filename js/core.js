@@ -21,19 +21,9 @@ function Core() {
 }
 
 Core.prototype.init = function() {
-  utils = new Utils();
-  manager = new ViewManager();
-
-  Welcome.init();
+  //Welcome.init();
   Menu.init();
   Options.init();
-  Dialog.init();
-
-  $(document).tooltip({
-    disabled: true,
-    show: { delay: 3000 },
-    hide: 1000
-  });
 };
 
 // examples

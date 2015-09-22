@@ -2,8 +2,15 @@
 
 var Dialog = {
 
-  init: function() {
-
+  create: function(params) {
+    if (params == null) {
+      console.error('undefined params in create');
+      return;
+    }
+    var modal = $('#modal');
+    modal.find('.modal-content').html();
+    $('#modal').find()
+    $('#modal').modal();
   }
   /*
   dialogLayout = function(type) {
