@@ -1,33 +1,38 @@
 // request json data file via http & jsonp
 var addr = 'jsonp.php';
 
-// utils functions
-var utils;
-// view manager
-var manager;
-// timer
-var timerLayout, timerView;
-// user interface
-var options;
-// pop up dialog
-var dialog;
-// welcome window
-var welcome;
-// system core
-var core;
+var Core = {
+  init: function() {
+    //Welcome.init();
+    Data.init();
+    ViewManager.init();
+    Menu.init();
+    Options.init();
 
-function Core() {
-  this.init();
-}
+    $('.alert button').click(function() {
+      $(this).parent().slideUp();
+    });
 
-Core.prototype.init = function() {
-  //Welcome.init();
-  ViewManager.init();
-  Menu.init();
-  Options.init();
+    Dialog.createBinding();
+  },
+
+  warning: function() {
+    var msg = Array.prototype.slice.call(arguments).join(' ');
+    console.warn(msg);
+    $('#warning').text(msg);
+    $('#warning').parent().slideDown();
+  },
+
+  error: function() {
+    var msg = Array.prototype.slice.call(arguments).join(' ');
+    console.error(msg);
+    $('#error').text(msg);
+    $('#error').parent().slideDown();
+  }
 };
 
-// examples
+
+// obsolete examples
 /*
 createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
 createView("Heatmap", "heatmap").loadData("sigA");

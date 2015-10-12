@@ -1,7 +1,11 @@
 .modal-body td {
-    padding: 2px;
+  padding: 2px;
 }
 
 .modal-body td:first-child {
-    font-weight: bold;
+  font-weight: bold;
+}
+
+#modal #gene {
+  width: 220px;
 }

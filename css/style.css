@@ -2,6 +2,15 @@ body {
    -webkit-user-select: none; /*(safari, chrome) webkit */
 }
 
+.alert {
+  padding: 5px 15px;
+  margin: 10px 0px 0px 0px;
+}
+
+#error, #warning {
+  text-align: center;
+}
+
 h3 {
   height: 17px;
   font-size: 14px;

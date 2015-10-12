@@ -22,7 +22,7 @@ var Dialog = {
       this.createExpression();
       break;
     default:
-      console.error('unknown view type in Dialog.create:', type);
+      Core.error('unknown view type in Dialog.create:', type);
       break;
     }
   },
@@ -45,7 +45,7 @@ var Dialog = {
           Dialog.create('create-expression');
           break;
         default:
-          console.error('unknown view type in Dialog.createView:', type);
+          Core.error('unknown view type in Dialog.createView:', type);
           break;
         }
       });
@@ -70,15 +70,20 @@ var Dialog = {
       modal.find('#btnDone').click(function() {
       });
       var chrSelect = modal.find('#chr');
-      ViewManager.bindingChrs.forEach(function (chr){
+      Data.bindingChrs.forEach(function(chr) {
         $('<option></option>')
           .val(chr)
           .text(chr)
           .appendTo(chrSelect);
       });
-      modal.find('#data').autocomplete({
-        source: ViewManager.bindingNames,
-        appendTo: '#modal'
+      var genes = Data.bindingGenes.map(function(gene, index) {
+        return {
+          id: index,
+          text: gene
+        };
+      });
+      modal.find('#gene').select2({
+        data: genes
       });
     });
   },
