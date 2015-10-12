@@ -7,38 +7,77 @@ var Dialog = {
       console.error('undefined params in create');
       return;
     }
+    var type = params;
+    switch (type) {
+      case 'create-view':
+        this.createView();
+        break;
+      case 'create-network':
+        this.createNetwork();
+        break;
+      case 'create-binding':
+        this.createBinding();
+        break;
+    }
+  },
+
+  createView: function() {
     var modal = $('#modal');
-    modal.find('.modal-content').html();
-    $('#modal').find()
-    $('#modal').modal();
-  }
+    modal.find('.modal-content').load('templates/create-view.html', function() {
+      modal.modal();
+      modal.find('#btnDone').click(function() {
+        switch (modal.find('#type').val()) {
+          case 'network':
+            Dialog.create('create-network');
+            break;
+          case 'binding':
+            Dialog.create('create-binding');
+            break;
+          default:
+            break;
+        }
+      });
+    });
+  },
+
+  createNetwork: function() {
+    var modal = $('#modal');
+    modal.find('.modal-content').load('templates/create-network.html', function() {
+      modal.modal();
+      modal.find('#btnDone').click(function() {
+      });
+    });
+  },
+
+  createBinding: function() {
+    console.log('hi');
+    var modal = $('#modal');
+    modal.find('.modal-content').load('templates/create-binding.html', function() {
+      modal.modal();
+      modal.find('#btnDone').click(function() {
+      });
+      var chrSelect = modal.find('#chr');
+      ViewManager.bindingChrs.forEach(function (chr){
+        $('<option></option>')
+          .val(chr)
+          .text(chr)
+          .appendTo(chrSelect);
+      });
+      modal.find('#data').autocomplete({
+        source: ViewManager.bindingNames,
+        appendTo: '#modal'
+      });
+    });
+  },
   /*
   dialogLayout = function(type) {
     switch(type){
       case 'create_graph':
         $('#dialog #datadiv').append('' +
-          'Network' +
-          '<select id="data">' +
-          '<option value="th17">TH17</option>' +
-          '<option value="confidence">Confidence</option>' +
-          '<option value="prediction">Prediction</option>' +
-          '<option value="strength">Strength</option>' +
-          '</select></div>' +
-          '<div>Genes' +
-          '<input type='text' size='20' id='exp' title='Regexp for genes to be shown in the network'>' +
-          '</div>');
+
         break;
       case 'create_histogram':
-        $('#dialog #datadiv').append('' +
-          'View data <input id="data" size="8" title="Select binding data">' +
-          'Chr <select id="chr" title="Chromosome to be loaded"><select>' +
-          '</div>');
-        var chrs = manager.bindingChrs;
-        for(var i=0;i<chrs.length;i++) $('#dialog #chr').append('<option value='+chrs[i]+'>'+chrs[i]+'</option>');
-        $('#dialog #data').autocomplete({
-          source: manager.bindingNames,
-          appendTo: 'body'
-        });
+
         break;
       case 'create_heatmap':
         $('#dialog #datadiv').append('<div id='data'>' +
@@ -87,15 +126,7 @@ var Dialog = {
   dialogCreate = function() {
     var layout = this;
     $('#dialog').remove();
-    $('body').append('<div id="dialog" title="Create View">' +
-      '<div>View name <input type="text" size="15" id="viewname"></div>' +
-      '<div>View type <select id="type">' +
-      '<option value="graph">Network</option>' +
-      '<option value="histogram">Genome Browser</option>' +
-      '<option value="heatmap">Expression</option>' +
-      '</select></div>' +
-      '<div id="datadiv"></div>' +
-      '</div>');
+    $('body').append();
     $('#dialog #viewname').val('View' + manager.availViewID());
     $('#dialog').addClass('viewshadow');
     this.dialogLayout('create_graph');

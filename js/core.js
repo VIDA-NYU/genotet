@@ -22,6 +22,7 @@ function Core() {
 
 Core.prototype.init = function() {
   //Welcome.init();
+  ViewManager.init();
   Menu.init();
   Options.init();
 };

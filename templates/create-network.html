@@ -1,0 +1,35 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">&times;</button>
+  <h4 class="modal-title">Create Network</h4>
+</div>
+<div class="modal-body">
+  <table>
+    <colgroup>
+      <col width="50">
+      <col width="100">
+    </colgroup>
+    <tr>
+      <td>Name</td>
+      <td><input type="text" id="viewname"></td>
+    </tr>
+    <tr>
+      <td>Type</td>
+      <td>
+        <select id="data">
+          <option value="th17">TH17</option>
+          <option value="confidence">Confidence</option>
+          <option value="prediction">Prediction</option>
+          <option value="strength">Strength</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>Genes</td>
+      <td><input type='text' id='exp'></td>
+    </tr>
+  </table>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+  <button type="button" class="btn btn-primary">Create</button>
+</div>

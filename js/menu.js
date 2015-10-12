@@ -4,7 +4,7 @@ var Menu = {
 
   init: function() {
     $('#view-create').click(function() {
-      Dialog.create('');
+      Dialog.create('create-view');
     });
     $('#view-link').click(function() {
       return;
