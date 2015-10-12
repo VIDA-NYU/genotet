@@ -133,7 +133,7 @@ app.get('/', function(req, res) {
 		    namecode = genecodes[name];
 
     var file = wiggleAddr + namecode + '/' + namecode +
-      "'_treat_afterfiting_chr' + chr + '.bcwig';
+      '_treat_afterfiting_chr' + chr + '.bcwig';
 
 		data = binding.getBinding(file, xl, xr);
 		data.name = name;
@@ -146,7 +146,7 @@ app.get('/', function(req, res) {
       namecode = genecodes[name];
 
 		var file = wiggleAddr + namecode + '/' + namecode +
-      "'_treat_afterfiting_chr' + chr + '.bcwig';
+      '_treat_afterfiting_chr' + chr + '.bcwig';
 
 		data = binding.getBindingSampling(file);
 	  data.name = name;

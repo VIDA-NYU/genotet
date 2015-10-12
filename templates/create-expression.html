@@ -1,0 +1,35 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">&times;</button>
+  <h4 class="modal-title">Create Expression Matrix</h4>
+</div>
+<div class="modal-body">
+  <table>
+    <colgroup>
+      <col width="50">
+      <col width="100">
+    </colgroup>
+    <tr>
+      <td>Data</td>
+      <td><select id="data" class="selectpicker">
+        <option value="b-subtilis">B. Subtilis</option>
+        <option value="rna-seq">RNA-Seq</option>
+      </select></td>
+    </tr>
+    <tr>
+      <td>Profile</td>
+      <td><input id="plot" class="form-control" size="20" title="name of gene to be plotted as polyline"></td>
+    </tr>
+    <tr>
+      <td>Genes</td>
+      <td><input id="gene" class="form-control" size="20" title="regex for genes to be shown in the heatmap"></td>
+    </tr>
+    <tr>
+      <td>Conditions</td>
+      <td><input id="cond" class="form-control" size="20" title="Regexp for conditions to be shown in the heatmap"></td>
+    </tr>
+  </table>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+  <button type="button" class="btn btn-primary">Create</button>
+</div>

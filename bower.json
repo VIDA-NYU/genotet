@@ -16,6 +16,7 @@
   ],
   "dependencies": {
     "bootstrap": "~3.3.5",
+    "bootstrap-select": "~1.7.4",
     "d3": "~3.5.6",
     "jquery": "~2.1.4",
     "jquery-ui": "~1.11.4",

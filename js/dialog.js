@@ -9,15 +9,21 @@ var Dialog = {
     }
     var type = params;
     switch (type) {
-      case 'create-view':
-        this.createView();
-        break;
-      case 'create-network':
-        this.createNetwork();
-        break;
-      case 'create-binding':
-        this.createBinding();
-        break;
+    case 'create-view':
+      this.createView();
+      break;
+    case 'create-network':
+      this.createNetwork();
+      break;
+    case 'create-binding':
+      this.createBinding();
+      break;
+    case 'create-expression':
+      this.createExpression();
+      break;
+    default:
+      console.error('unknown view type in Dialog.create:', type);
+      break;
     }
   },
 
@@ -25,16 +31,22 @@ var Dialog = {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-view.html', function() {
       modal.modal();
+      modal.find('.selectpicker').selectpicker();
       modal.find('#btnDone').click(function() {
-        switch (modal.find('#type').val()) {
-          case 'network':
-            Dialog.create('create-network');
-            break;
-          case 'binding':
-            Dialog.create('create-binding');
-            break;
-          default:
-            break;
+        var type = modal.find('#type').val();
+        switch (type) {
+        case 'network':
+          Dialog.create('create-network');
+          break;
+        case 'binding':
+          Dialog.create('create-binding');
+          break;
+        case 'expression':
+          Dialog.create('create-expression');
+          break;
+        default:
+          console.error('unknown view type in Dialog.createView:', type);
+          break;
         }
       });
     });
@@ -44,16 +56,17 @@ var Dialog = {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-network.html', function() {
       modal.modal();
+      modal.find('.selectpicker').selectpicker();
       modal.find('#btnDone').click(function() {
       });
     });
   },
 
   createBinding: function() {
-    console.log('hi');
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-binding.html', function() {
       modal.modal();
+      modal.find('.selectpicker').selectpicker();
       modal.find('#btnDone').click(function() {
       });
       var chrSelect = modal.find('#chr');
@@ -69,28 +82,19 @@ var Dialog = {
       });
     });
   },
+
+  createExpression: function() {
+    var modal = $('#modal');
+    modal.find('.modal-content').load('templates/create-expression.html', function() {
+      modal.modal();
+      modal.find('.selectpicker').selectpicker();
+      modal.find('#btnDone').click(function() {
+      });
+    });
+  },
   /*
   dialogLayout = function(type) {
     switch(type){
-      case 'create_graph':
-        $('#dialog #datadiv').append('' +
-
-        break;
-      case 'create_histogram':
-
-        break;
-      case 'create_heatmap':
-        $('#dialog #datadiv').append('<div id='data'>' +
-          '<div> Matrix' +
-          '<select id="data">' +
-          '<option value="B-Subtilis">B-Subtilis</option>' +
-          '<option value="RNA-Seq">RNA-Seq</option>' +
-          '</select> </div>' +
-          '<div>Profile <input id="plot" size="15" title="Name of gene to be plotted as polyline"></div>' +
-          '<div>Genes <input id="gene" size="8" title="Regexp for genes to be shown in the heatmap">' +
-          'Conditions <input id="cond" size="8" title="Regexp for conditions to be shown in the heatmap"></div>' +
-          '</div>');
-        break;
       case 'link_change':
         var names = manager.getViewNames();
         var name = $('#dialog #source').val();
