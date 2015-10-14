@@ -155,6 +155,7 @@ View.prototype.init = function() {
     });
 };
 
+/*
 View.prototype.help = function(type) {
   window.open('help.html#' + type);
 };
@@ -350,7 +351,6 @@ View.prototype.toggleViewheader = function() {
   }
 };
 
-/*
 View.prototype.init = function() {
     if (this.type == 'graph') {
     this.loader = new LoaderGraph();
