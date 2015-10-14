@@ -21,10 +21,27 @@ var Dialog = {
     case 'create-expression':
       this.createExpression();
       break;
+    case 'organism':
+      this.organism();
+      break;
     default:
       Core.error('unknown view type in Dialog.create:', type);
       break;
     }
+  },
+
+  organism: function() {
+    var modal = $('#modal');
+    modal.find('.modal-content').load('templates/organism.html', function() {
+      modal.modal();
+      modal.find('.btn-organism').removeClass('active')
+        .click(function() {
+          Data.organism = $(this).attr('id');
+          modal.find('.btn-organism').removeClass('active')
+          $(this).addClass('active');
+        })
+      modal.find('#' + Data.organism).addClass('active');
+    });
   },
 
   createView: function() {
@@ -66,15 +83,16 @@ var Dialog = {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-binding.html', function() {
       modal.modal();
-      modal.find('.selectpicker').selectpicker();
       modal.find('#btnDone').click(function() {
       });
-      var chrSelect = modal.find('#chr');
-      Data.bindingChrs.forEach(function(chr) {
-        $('<option></option>')
-          .val(chr)
-          .text(chr)
-          .appendTo(chrSelect);
+      var chrs = Data.bindingChrs.map(function(chr, index) {
+        return {
+          id: index,
+          text: chr
+        };
+      });
+      modal.find('#chr').select2({
+        data: chrs
       });
       var genes = Data.bindingGenes.map(function(gene, index) {
         return {

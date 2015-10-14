@@ -9,6 +9,8 @@ var Data = {
 
   bindingChrs: [],
 
+  organism: 'th17',
+
   init: function() {
     for (var i = 0; i < 19; i++) {
       this.bindingChrs.push((i + 1).toString());

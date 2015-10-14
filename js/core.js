@@ -12,8 +12,6 @@ var Core = {
     $('.alert button').click(function() {
       $(this).parent().slideUp();
     });
-
-    Dialog.createBinding();
   },
 
   warning: function() {

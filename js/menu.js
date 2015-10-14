@@ -35,5 +35,9 @@ var Menu = {
     $('#help').click(function() {
       Options.toggleAllowAlert();
     });
+
+    $('#organism').click(function() {
+      Dialog.create('organism');
+    });
   }
 };

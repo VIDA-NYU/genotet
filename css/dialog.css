@@ -6,6 +6,12 @@
   font-weight: bold;
 }
 
-#modal #gene {
+#modal #gene,
+#modal #chr {
   width: 220px;
+}
+
+.btn-organism {
+  height: 50px;
+  width: 100px;
 }
