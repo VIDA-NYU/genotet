@@ -1,37 +1,14 @@
-function View(type, viewname, viewid, width, height, left, top) {
+function View(viewName) {
   var view = this;
-  this.type = type;
-  this.viewname = viewname;
-  this.groupid = viewid;
+  this.viewName = viewName;
 
-  // html element id assigned by view ViewManager
-  this.viewid = viewid;
-
-  this.compactLayout = false;
-  this.showHeader = true;
-  this.width = width;
-  this.height = height;
-
-
-  this.view = d3.select('body').append('div');
-
-  this.view
-    .attr('id', 'view'+ viewid)
-    .attr('class', 'ui-widget-content view')
-    .style('width', width + 'px')
-    .style('height', height + 'px')
-    .style('left', left == null ? '8px': left + 'px')
-    .style('top', top == null ? '8px': top + 'px');
-
-
-  d3.select('#view'+ viewid).append('h3')
-    .attr('id', 'viewheader'+ viewid)
-    .attr('class', 'ui-widget-header')
-    .text(viewname);
-
-  // initialize layout
-  this.init();
-
+  $('<div></div>')
+    .addClass('view')
+    .load('templates/view.html', function() {
+      view.container = $(this).appendTo('#main');
+      view.init();
+    });
+  /*
   var layout = this.layout;
   this.parentView = null;
   this.childrenView = new Array();
@@ -160,7 +137,23 @@ function View(type, viewname, viewid, width, height, left, top) {
     });
     ViewManager.setTopView(this.groupid, this.viewid);
   }
+  */
 }
+
+View.prototype.init = function() {
+  this.container
+    .draggable({
+      handle: '.view-header',
+      snap: true
+    })
+    .resizable({
+      handles: 'all'
+    })
+    .css({ // TODO(bowen): use better size init mechanism
+      width: 500,
+      height: 300
+    });
+};
 
 View.prototype.help = function(type) {
   window.open('help.html#' + type);
@@ -357,6 +350,7 @@ View.prototype.toggleViewheader = function() {
   }
 };
 
+/*
 View.prototype.init = function() {
     if (this.type == 'graph') {
     this.loader = new LoaderGraph();
@@ -378,3 +372,4 @@ View.prototype.init = function() {
   }
 };
 
+*/

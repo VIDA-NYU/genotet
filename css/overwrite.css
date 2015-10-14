@@ -27,3 +27,8 @@
 .select2-selection.select2-selection--single {
   border-color: #ccc;
 }
+
+/** jQuery-UI **/
+.ui-icon-gripsmall-diagonal-se {
+  opacity: 0;
+}
