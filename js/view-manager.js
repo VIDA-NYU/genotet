@@ -1,24 +1,37 @@
 'use strict';
 
 var ViewManager = {
-  views: [],
-  headerHeight: 19, // the height of a view's header
-  borderWidth: 2,
-  maxZindex: 0,
-  menuMarginRight: 0,
-
-  supportedTypes: ['menu', 'graph', 'histogram', 'heatmap', 'table'],
-  defaultWidth: {'menu': 170, 'graph': 600, 'histogram': 800, 'heatmap': 640, 'table': 530},
-  defaultHeight: {'menu': window.innerHeight, 'graph': 340, 'histogram': 250, 'heatmap': 340, 'table': 340},
-  compactWidth: {'histogram': 800, 'menu': 170, 'graph': 600, 'heatmap': 640, 'table': 300},
-  compactHeight: {'histogram': 160, 'menu': 20, 'graph': 290, 'heatmap': 290, 'table': 315},
-
-
-  topIndex: null,
+  views: {},
 
   init: function () {
   },
 
+  createView: function (type, viewName) {
+    if (!viewName) {
+      return Core.error('empty view name');
+    }
+    if (viewName in this.views) {
+      return Core.error('duplicate view name');
+    }
+
+    var newView;
+    switch(type) {
+    case 'network':
+      newView = new NetworkView(viewName);
+      break;
+    case 'expression':
+      newView = new ExpressionView(viewName);
+      break;
+    case 'binding':
+      newView = new BindingView(viewName);
+      break;
+    default:
+      return Core.error('unknown view type');
+    }
+    this.views[viewName] = newView;
+  },
+
+  /*
   supportBinding: function (name) {
     name = name.toLowerCase();
     for (var i = 0; i < this.bindingNames.length; i++) {
@@ -103,55 +116,7 @@ var ViewManager = {
     }
   },
 
-  createView: function (viewname, type, width, height, left, top) {
 
-    if (this.supportedTypes.indexOf(type) == -1) {
-      console.error('There is no view type named ' + type);
-      return null;
-    }
-    if (viewname == '') {
-      console.error('Cannot create view: Viewname cannot be empty');
-      Options.alert('Cannot create view: Viewname cannot be empty');
-      return null;
-    }
-    for (var i = 0; i < this.views.length; i++) {
-      if (this.views[i].viewname == viewname) {
-        console.error('Cannot create view: viewname must unique');
-        Options.alert('Cannot create view: viewname must unique');
-        return null;
-      }
-    }
-    var availableIds = new Array();
-    for (var i = 0; i < this.views.length; i++) {
-      availableIds[this.views[i].viewid] = true;
-    }
-    var viewid;
-    for (var i = 0; ; i++) {
-      if (availableIds[i] != true) {
-        viewid = i;
-        break;
-      }
-    }
-    if (width == null || height == null) {
-      var size = this.getViewSize(type);
-      if (width == null) width = size.width;
-      if (height == null) height = size.height;
-    }
-    if (left == null || top == null) {
-      var place = this.getViewPlace(width, height, type);
-      if (place.success == false) {
-        Options.alert('cannot auto placing view - not enough space for view ' + viewname);
-        place.left = place.top = 8;
-      }
-      left = place.left;
-      top = place.top;
-    }
-
-    var newview = new View(type, viewname, viewid, width, height, left, top);
-    this.views.push({'viewid': viewid, 'viewname': viewname, 'viewtype': type, 'content': newview});
-
-    return newview;
-  },
 
   getViewSize: function (type) {
     var width, height;
@@ -452,4 +417,5 @@ var ViewManager = {
       Options.alert('Unknown layout preset');
     }
   }
+  */
 };

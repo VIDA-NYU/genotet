@@ -74,7 +74,9 @@ var Dialog = {
     modal.find('.modal-content').load('templates/create-network.html', function() {
       modal.modal();
       modal.find('.selectpicker').selectpicker();
-      modal.find('#btnDone').click(function() {
+      modal.find('#btnCreate').click(function() {
+        var viewName = modal.find('#view-name').val();
+        ViewManager.createView('network', viewName);
       });
     });
   },

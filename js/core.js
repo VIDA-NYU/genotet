@@ -12,6 +12,8 @@ var Core = {
     $('.alert button').click(function() {
       $(this).parent().slideUp();
     });
+
+    Test.run();
   },
 
   warning: function() {
@@ -29,17 +31,6 @@ var Core = {
   }
 };
 
-
-// obsolete examples
-/*
-createView("Network", "graph").loadData("th17", "^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$");
-createView("Heatmap", "heatmap").loadData("sigA");
-createView("Binding", "histogram").loadData("BATF");
-createView("Binding2", "histogram").loadData("IRF4");
-linkView("Network", "Heatmap");
-linkView("Network", "Binding");
-groupView("Binding", "Binding2");
-*/
 
 
 
