@@ -19,10 +19,10 @@
 
 .panel-heading a:after {
     font-family:'Glyphicons Halflings';
-    content:"\e114";
+    content:'\e114';
     float: right;
     color: gray;
 }
 .panel-heading a.collapsed:after {
-    content:"\e080";
+    content:'\e080';
 }
