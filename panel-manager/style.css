@@ -1,0 +1,28 @@
+.panel-manager {
+    position: fixed;
+    top: 30px;
+    bottom: 30px;
+    right: 0px;
+    height: auto;
+    width: 200px;
+    overflow-y: scroll;
+}
+
+#triangle-button {
+	width: 0; 
+	height: 0; 
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid transparent;
+	border-left: 20px solid black;
+	margin: 20px 20px;
+}
+
+.panel-heading a:after {
+    font-family:'Glyphicons Halflings';
+    content:"\e114";
+    float: right;
+    color: gray;
+}
+.panel-heading a.collapsed:after {
+    content:"\e080";
+}
