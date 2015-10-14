@@ -29,7 +29,7 @@ $(document).ready(function(){
     });
 });
 
-$('#accordion').on('shown.bs.collapse', function (e) {
-   var id = $(e.target).prev().find("[id]")[0].id;
+$('#accordion').on('shown.bs.collapse', function(e){
+   var id = $(e.target).prev().find('[id]')[0].id;
    navigateToElement(id);
 })
