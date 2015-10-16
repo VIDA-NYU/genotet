@@ -16,20 +16,17 @@ var count = 0;
 $(document).ready(function(){
     $('#btn-add').click(function(){
     	count++;
-        $('.panel-group').append("<div class='panel panel-default' id='panel"+count+"'></div>");
-    	$('#panel'+count).append("<div class='panel-heading' id='panel-heading"+count+"'></div>");
-    	$('#panel-heading'+count).append("<h4 class='panel-title' id='panel-title"+count+"'></h4>");
-    	$('#panel-title'+count).append("<a data-toggle='collapse' data-target='#collapse"+count+"' href='#collapse"+count+"'>view"+count+"</a>");
-    	$('#panel'+count).append("<div id='collapse"+count+"' class='panel-collapse collapse in'>");
-    	$('#collapse'+count).append("<div class='panel-body'>properties</div>");
+        $('#accordion').append("<div id='panel"+count+"'></div>");
+    	$('#panel'+count).append("<h3 id='panel-title"+count+"'><a href='#'>view"+count+"</a></h3>");
+        $('#panel'+count).append("<div id='panel-content"+count+"'>properties</div>");
+        (function($) {
+            $(function() {
+                $("#accordion > div").accordion({ header: "h3", collapsible: true });
+            })
+        })(jQuery);
     });
     $('#btn-remove').click(function(){
         $('#panel'+count).remove();
         count--;
     });
 });
-
-$('#accordion').on('shown.bs.collapse', function(e){
-   var id = $(e.target).prev().find('[id]')[0].id;
-   navigateToElement(id);
-})
