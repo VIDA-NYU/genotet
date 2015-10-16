@@ -1,3 +1,19 @@
+/**
+ * @fileoverview Contains the NetworkLoader definition. NetworkLoader loads
+ * data for NetworkView.
+ */
+
+'use strict';
+
+/**
+ * NetworkLoader class.
+ * @constructor
+ */
+function NetworkLoader() {
+
+}
+
+
 function LoaderGraph() {
 	this.lastIdentifier = null;
 }

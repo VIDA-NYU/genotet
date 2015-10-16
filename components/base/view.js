@@ -1,6 +1,11 @@
 function View(viewName) {
   var view = this;
-  this.viewName = viewName;
+
+  /** @private {string} **/
+  this.viewName_ = viewName;
+
+  /** @private {string} **/
+  this.headerText_ = '';
 
   $('<div></div>')
     .addClass('view')
@@ -153,7 +158,44 @@ View.prototype.init = function() {
       width: 500,
       height: 300
     });
+
+  this.headerText(this.viewName_);
+
+  // Set up focus event hook.
+  this.container.click(function(event) {
+    this.focus();
+    // Prevent event from hitting the background, which would blur the view.
+    event.stopPropagation();
+  }.bind(this));
 };
+
+/**
+ * Sets the header text of the view. If null, return the current header.
+ * @param {string} headerText View header text
+ */
+View.prototype.headerText = function(headerText) {
+  if (!headerText) {
+    return this.headerText_;
+  }
+  this.headerText_ = headerText;
+  this.container.find('.view-header')
+    .text(this.headerText_);
+};
+
+/**
+ * Makes the view appear focused.
+ */
+View.prototype.focus = function() {
+  this.container.addClass('focused');
+};
+
+/**
+ * Removes the focused effect of the view.
+ */
+View.prototype.blur = function() {
+  this.container.removeClass('focused');
+};
+
 
 /*
 View.prototype.help = function(type) {
@@ -248,77 +290,6 @@ View.prototype.getViewMessage = function(msg) {
   }
 };
 
-View.prototype.getGroupMessage = function(msg) {
-  if (this.type == 'histogram') {
-    if (msg.action == 'focus') {
-      this.loader.updateFocus(msg.chr, msg.xl, msg.xr);
-    }else if (msg.action == 'chr') {
-      this.loader.updateChr(msg.chr);
-    }
-  }
-};
-
-View.prototype.postViewMessage = function(msg) {
-  for (var i = 0; i < this.childrenView.length; i++) { // pass message to children
-    this.childrenView[i].getViewMessage(msg);
-  }
-};
-
-View.prototype.postGroupMessage = function(msg) {
-  ViewManager.announceGroupMessage(msg, this.groupid, this.viewid);
-};
-
-View.prototype.highlightChildren = function() {
-  for (var i = 0; i < this.childrenView.length; i++) {
-    $('#viewheader'+ this.childrenView[i].viewid).addClass('ui-state-highlight');
-  }
-};
-
-View.prototype.unhighlightChildren = function() {
-  for (var i = 0; i < this.childrenView.length; i++) {
-    $('#viewheader'+ this.childrenView[i].viewid).removeClass('ui-state-highlight');
-  }
-};
-
-View.prototype.highlightParent = function() {
-  if (this.parentView != null)
-    $('#viewheader'+ this.parentView.viewid).addClass('ui-state-highlight');
-};
-
-View.prototype.unhighlightParent = function() {
-  if (this.parentView != null)
-    $('#viewheader'+ this.parentView.viewid).removeClass('ui-state-highlight');
-};
-
-View.prototype.postEdit = function(e) {
-  if (e.which == 1) {
-    Dialog.dialogLink(this.viewname);
-  }else {
-    this.unhighlightChildren();
-    for (var i = 0; i < this.childrenView.length; i++) {
-      unlinkView(this.viewname, this.childrenView[i].viewname);
-    }
-  }
-};
-
-View.prototype.getEdit = function(e) {
-  if (e.which == 3) {
-    this.unhighlightParent();
-    unlinkView(this.parentView.viewname, this.viewname);
-  }
-};
-
-View.prototype.groupEdit = function(e) {
-  if (e.which == 1) {
-    Dialog.dialogGroup(this.viewname);
-  }else if (e.which == 3) {
-    // exit from group
-    //console.log("quit group")
-    ViewManager.unhighlightGroup(this.groupid);
-    ViewManager.quitGroup(this.groupid, this.viewid);
-  }
-};
-
 View.prototype.toggleCompactLayout = function() {
   this.compactLayout = !this.compactLayout;
 
@@ -350,26 +321,4 @@ View.prototype.toggleViewheader = function() {
     view.layout.resizeLayout([view.layout.width, $('#view'+ view.viewid).height()]);
   }
 };
-
-View.prototype.init = function() {
-    if (this.type == 'graph') {
-    this.loader = new LoaderGraph();
-      this.layout = new LayoutGraph('view'+ this.viewid, this.width, this.height);  //-$("#viewheader"+this.viewid).outerHeight()
-    }else if (this.type == 'histogram') {
-    this.loader = new LoaderHistogram();
-      this.layout = new LayoutHistogram('view'+ this.viewid, this.width, this.height);
-    }else if (this.type == 'scatterplot') {
-      //this.initScatterplot();
-    }else if (this.type == 'palette') {
-    //this.initPalette();
-  }else if (this.type == 'heatmap') {
-    this.loader = new LoaderHeatmap();
-    this.layout = new LayoutHeatmap('view'+ this.viewid, this.width, this.height);
-  }else if (this.type == 'table') {
-    this.loader = {}; // shall be containment later
-    //this.loader = new LoaderTable();
-    this.layout = new LayoutTable('view'+ this.viewid, this.width, this.height);
-  }
-};
-
 */

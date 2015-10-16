@@ -9,9 +9,17 @@ var Core = {
     Menu.init();
     Options.init();
 
+    // Allow turning off an alert.
     $('.alert button').click(function() {
       $(this).parent().slideUp();
     });
+
+    // Blur all the views upon clicking on the background.
+    $('html').click(function() {
+      ViewManager.blurAllViews();
+    });
+
+
 
     Test.run();
   },

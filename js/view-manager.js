@@ -6,12 +6,19 @@ var ViewManager = {
   init: function () {
   },
 
-  createView: function (type, viewName) {
+  /**
+   * Creates a view with the given type and name.
+   * @param type Type of the view.
+   * @param viewName Name of the view.
+   */
+  createView: function(type, viewName) {
     if (!viewName) {
-      return Core.error('empty view name');
+      Core.error('empty view name');
+      return;
     }
     if (viewName in this.views) {
-      return Core.error('duplicate view name');
+      Core.error('duplicate view name');
+      return;
     }
 
     var newView;
@@ -26,9 +33,19 @@ var ViewManager = {
       newView = new BindingView(viewName);
       break;
     default:
-      return Core.error('unknown view type');
+      Core.error('unknown view type');
+      return;
     }
     this.views[viewName] = newView;
+  },
+
+  /**
+   * Blurs all the views.
+   */
+  blurAllViews: function() {
+    $.each(this.views, function(name, view) {
+      view.blur();
+    });
   },
 
   /*
