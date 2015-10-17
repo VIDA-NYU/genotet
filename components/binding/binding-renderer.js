@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Renderer of the NetworkView.
+ */
+
+'use strict';
+
+/**
+ * BindingRenderer renders the visualizations for the BindingView.
+ * @extends {ViewRenderer}
+ * @constructor
+ */
+function BindingRenderer() {
+
+}
 
 function LayoutHistogram(htmlid, width, height) {
 	this.htmlid = htmlid;

@@ -1,12 +1,11 @@
 /**
- * @fileoverview Contains the NetworkLoader definition. NetworkLoader loads
- * data for NetworkView.
+ * @fileoverview Gene regulatory network data loader.
  */
 
 'use strict';
 
 /**
- * NetworkLoader class.
+ * NetworkLoader loads the gene regulatory network data.
  * @constructor
  */
 function NetworkLoader() {

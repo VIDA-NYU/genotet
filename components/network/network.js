@@ -7,6 +7,7 @@
 /**
  * NetworkView extends the base View class, and renders the regulatory network
  * topology.
+ * @extends {View}
  * @constructor
  */
 function NetworkView(viewName) {
@@ -14,6 +15,9 @@ function NetworkView(viewName) {
 
   /** @type {NetworkLoader} */
   this.loader = new NetworkLoader();
+
+  /** @type {NetworkRenderer} */
+  this.renderer = new NetworkRenderer();
 }
 
 NetworkView.prototype = Object.create(View.prototype);

@@ -1,3 +1,18 @@
+/**
+ * @fileoverview Renderer of the NetworkView.
+ */
+
+'use strict';
+
+/**
+ * NetworkRenderer renders the visualizations for the NetworkView.
+ * @extends {ViewRenderer}
+ * @constructor
+ */
+function NetworkRenderer() {
+
+}
+
 function LayoutGraph(htmlid, width, height) {
 
   this.htmlid = htmlid;

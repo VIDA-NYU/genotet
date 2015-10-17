@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Expression matrix data loader.
+ */
+
+/**
+ * ExpressionLoader loads the expression matrix data for the ExpressionView.
+ * @extends {ExpressionLoader}
+ * @constructor
+ */
+function ExpressionLoader() {
+
+}
+
+
 function LoaderHeatmap() {
 	this.lastExprows = '.*';
 	this.lastExpcols = '.*';

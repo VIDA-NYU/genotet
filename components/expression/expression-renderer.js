@@ -1,3 +1,18 @@
+/**
+ * @fileoverview Renderer of the ExpressionView.
+ */
+
+'use strict';
+
+/**
+ * ExpressionRenderer renders the visualizations for the ExpressionView.
+ * @extends {ViewRenderer}
+ * @constructor
+ */
+function ExpressionRenderer() {
+
+}
+
 function LayoutHeatmap(htmlid, width, height) {
   this.htmlid = htmlid;
   this.width = width;

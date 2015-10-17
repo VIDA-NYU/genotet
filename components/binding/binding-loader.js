@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Binding data loader.
+ */
+
+/**
+ * BindingLoader loads the binding data for the BindingView.
+ * @extends {ViewLoader}
+ * @constructor
+ */
+function BindingLoader() {
+
+}
+
+
 function LoaderHistogram() {
 
 }

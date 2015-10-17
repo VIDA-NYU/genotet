@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Contains the definition of the View class.
+ */
+
+'use strict';
+
+/**
+ * The base View class. Each component view shall inherit this class.
+ * @param viewName Name of the view.
+ * @constructor
+ */
 function View(viewName) {
   var view = this;
 
@@ -145,6 +156,9 @@ function View(viewName) {
   */
 }
 
+/**
+ * Initializes the view: adds the mouse event listeners, sets the header.
+ */
 View.prototype.init = function() {
   this.container
     .draggable({
