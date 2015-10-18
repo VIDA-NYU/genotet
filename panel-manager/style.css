@@ -9,10 +9,10 @@
 }
 
 #triangle-button {
-	width: 0; 
-	height: 0; 
-	border-top: 10px solid transparent;
-	border-bottom: 10px solid transparent;
-	border-left: 20px solid black;
-	margin: 20px 20px;
+    position: relative;
+    top: 24px;
+	width: 20px; 
+    height: 20px;
+	margin-right: 195px;
+    float: right;
 }

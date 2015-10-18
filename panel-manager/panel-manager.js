@@ -1,4 +1,4 @@
-$(document).ready(function(){
+/*$(document).ready(function(){
     $('#triangle-button').click(function(){
         $('.panel-manager').animate({
         	width: 'toggle'
@@ -8,6 +8,21 @@ $(document).ready(function(){
     	$(this).css('border-left-color', 'gray');
     	}, function(){
     	$(this).css('border-left-color', 'black');
+    });
+});*/
+
+$( '#triangle-button' ).button({
+  icons: { primary: 'ui-icon-triangle-1-e' }
+});
+var icons = $( '#triangle-button' ).button( 'option', 'icons' );
+$( '#triangle-button' ).button( 'option', 'icons', { primary: 'ui-icon-triangle-1-e' } );
+
+$(function(){
+    $('#triangle-button').on('click', function(){
+        $('.panel-manager').toggle('slide', { direction: 'right' }, 1000);
+        $('#triangle-button').animate({
+            'margin-right' : $('#triangle-button').css('margin-right') == '0px' ? '195px' : '0px'
+        }, 1000);
     });
 });
 
@@ -21,7 +36,7 @@ $(document).ready(function(){
         $('#panel'+count).append("<div id='panel-content"+count+"'>properties</div>");
         (function($) {
             $(function() {
-                $("#accordion > div").accordion({ header: "h3", collapsible: true });
+                $('#accordion > div').accordion({ header: 'h3', collapsible: true });
             })
         })(jQuery);
     });
