@@ -35,6 +35,7 @@ $(document).ready(function(){
     	$('#panel'+count).append("<h3 id='panel-title"+count+"'><a href='#'>view"+count+"</a></h3>");
         $('#panel'+count).append("<div id='panel-content"+count+"'>properties</div>");
         $('#triangle-button').css('display', count > 0 ? 'inline' : 'none');
+        $('.panel-manager').css('display', count > 0 ? 'inline' : 'none');
 
         (function($) {
             $(function() {
@@ -46,5 +47,6 @@ $(document).ready(function(){
         $('#panel'+count).remove();
         count--;
         $('#triangle-button').css('display', count > 0 ? 'inline' : 'none');
+        $('.panel-manager').css('display', count > 0 ? 'inline' : 'none');
     });
 });
