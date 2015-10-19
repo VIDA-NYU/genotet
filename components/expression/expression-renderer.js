@@ -13,6 +13,11 @@ function ExpressionRenderer() {
 
 }
 
+ExpressionRenderer.prototype = Object.create(ViewRenderer.prototype);
+ExpressionRenderer.prototype.constructor = ExpressionRenderer;
+ExpressionRenderer.base = ViewRenderer.prototype;
+
+/*
 function LayoutHeatmap(htmlid, width, height) {
   this.htmlid = htmlid;
   this.width = width;
@@ -712,3 +717,4 @@ LayoutHeatmap.prototype.setCompact = function(compact) {
 	this.initLayout();
 	this.renderLayout();
 };
+*/

@@ -12,7 +12,11 @@ function NetworkLoader() {
 
 }
 
+NetworkLoader.prototype = Object.create(ViewRenderer.prototype);
+NetworkLoader.prototype.constructor = NetworkLoader;
+NetworkLoader.base = ViewRenderer.prototype;
 
+/*
 function LoaderGraph() {
 	this.lastIdentifier = null;
 }
@@ -291,3 +295,4 @@ LoaderGraph.prototype.error = function(msg) {
 	//this.parentView.layout.showError();
 };
 
+*/

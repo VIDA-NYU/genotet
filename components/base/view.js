@@ -177,22 +177,40 @@ View.prototype.init = function() {
 
   // Set up focus event hook.
   this.container.click(function(event) {
+    ViewManager.blurAllViews();
     this.focus();
     // Prevent event from hitting the background, which would blur the view.
     event.stopPropagation();
   }.bind(this));
+
+  // Set up close event hook.
+  this.container.find('.close').click(function(event) {
+    ViewManager.closeView(this);
+    this.close();
+  }.bind(this));
+};
+
+/**
+ * Sets the view name. If null, return the current view name.
+ * @param {?string} name View name.
+ */
+View.prototype.name = function(name) {
+  if (!name) {
+    return this.viewName_;
+  }
+  this.viewName_ = name;
 };
 
 /**
  * Sets the header text of the view. If null, return the current header.
- * @param {string} headerText View header text
+ * @param {?string} headerText View header text.
  */
 View.prototype.headerText = function(headerText) {
   if (!headerText) {
     return this.headerText_;
   }
   this.headerText_ = headerText;
-  this.container.find('.view-header')
+  this.container.find('#header-text')
     .text(this.headerText_);
 };
 
@@ -201,6 +219,8 @@ View.prototype.headerText = function(headerText) {
  */
 View.prototype.focus = function() {
   this.container.addClass('focused');
+  // Re-append to appear on top of other views.
+  this.container.appendTo('#main');
 };
 
 /**
@@ -210,129 +230,9 @@ View.prototype.blur = function() {
   this.container.removeClass('focused');
 };
 
-
-/*
-View.prototype.help = function(type) {
-  window.open('help.html#' + type);
-};
-
+/**
+ * Closes the view and removes it from the screen.
+ */
 View.prototype.close = function() {
-  //this.layout.removeLayout();
-  d3.select('#view'+ this.viewid).remove();
+  this.container.remove();
 };
-
-View.prototype.loadData = function(para1, para2, para3, para4) {
-  var identifier;
-  if (this.type == 'graph') {
-    identifier = {
-      'net': para1,
-      'exp': para2
-    };
-  }else if (this.type == 'histogram') {
-    identifier = {
-      'name': para1,
-      'chr': para2,
-      'gene': para3
-    };
-  }else if (this.type == 'heatmap') {
-    identifier = {
-      'mat': para1,
-      'name': para2,
-      'exprows': para3,
-      'expcols': para4
-    };
-  }
-  this.loader.loadData(identifier);
-};
-
-View.prototype.updateData = function(para1, para2, para3) {
-  var identifier;
-  if (this.type == 'graph') {  // show or hide edges
-    identifier = {
-      'action': para1,
-      'data': para2
-    };
-  }else if (this.type == 'histogram') {
-    identifier = {
-      'name': para1,
-      'srch': para2
-    };
-  }else if (this.type == 'heatmap') {
-    if (para1 == 'node') {
-      identifier = {
-        'action': para1,
-        'name': para2,
-        'net': para3
-      };
-    }else if (para1 == 'link') {
-      identifier = {
-        'action': para1,
-        'source': para2,
-        'target': para3
-      };
-    }
-
-  }
-  this.loader.updateData(identifier);
-};
-
-View.prototype.getViewMessage = function(msg) {
-  if (this.type == 'histogram') {
-    if (msg.action == 'select' && msg.type == 'node') {
-      var name = msg.para[0]; // get gene name
-      this.updateData(null, name);
-    }else if (msg.action == 'select' && msg.type == 'link') {
-      var sourceName = msg.para[0];
-      var targetName = msg.para[1]; // get target gene
-      this.updateData(sourceName, targetName);
-    }
-  }else if (this.type == 'graph') {
-    if (msg.action == 'show') {
-      this.updateData(msg.action, msg.data);
-    }else if (msg.action == 'hide') {
-      this.updateData(msg.action, msg.data);
-    }else if (msg.action == 'center') {
-    }
-  }else if (this.type == 'heatmap') {
-    if (msg.action == 'select') {
-      if (msg.type == 'node') {
-        this.updateData('node', msg.para[0], msg.para[1]);  // gene, network
-      }else if (msg.type == 'link') {
-        this.updateData('link', msg.para[0], msg.para[1]);  // source, target
-      }
-    }
-  }
-};
-
-View.prototype.toggleCompactLayout = function() {
-  this.compactLayout = !this.compactLayout;
-
-  //$("#viewheader"+this.viewid).hide();
-  if (this.compactLayout == true) {
-    var width = $('#view'+ this.viewid).width(), height = $('#view'+ this.viewid).height();
-    this.lastWidth = width;
-    this.lastHeight = height;
-    //width = Math.min(ViewManager.compactWidth[this.type], width);
-    height = Math.min(ViewManager.compactHeight[this.type], height);
-    this.layout.resizeLayout([width, height]);
-    $('#view'+ this.viewid).css({'width': width, 'height': height});
-  }else {
-    var width = $('#view'+ this.viewid).width(), height = $('#view'+ this.viewid).height();
-    this.layout.resizeLayout([this.width, this.lastHeight]);
-    $('#view'+ this.viewid).css({'width': this.width, 'height': this.lastHeight});
-  }
-  this.layout.setCompact(this.compactLayout);
-};
-
-View.prototype.toggleViewheader = function() {
-  var view = this;
-  view.showHeader = !view.showHeader;
-  if (!view.showHeader) {
-    $('#viewheader'+ view.viewid).hide();
-    view.layout.resizeLayout([view.layout.width, $('#view'+ view.viewid).height()]);
-  }else {
-    $('#viewheader'+ view.viewid).show();
-    view.layout.resizeLayout([view.layout.width, $('#view'+ view.viewid).height()]);
-  }
-};
-*/

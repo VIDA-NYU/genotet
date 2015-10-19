@@ -13,6 +13,11 @@ function BindingRenderer() {
 
 }
 
+BindingRenderer.prototype = Object.create(ViewRenderer.prototype);
+BindingRenderer.prototype.constructor = BindingRenderer;
+BindingRenderer.base = ViewRenderer.prototype;
+
+/*
 function LayoutHistogram(htmlid, width, height) {
 	this.htmlid = htmlid;
 	this.width = width;
@@ -74,7 +79,7 @@ function LayoutHistogram(htmlid, width, height) {
 }
 
 LayoutHistogram.prototype.formatExons = function() {
-	/* now do the adjustment at the db*/
+	// now do the adjustment at the db
 	var data = this.data;
 
 	for (var i = 0; i < data.exonsData.length; i++) {
@@ -401,13 +406,11 @@ LayoutHistogram.prototype.renderMain = function() {
 			.on('zoom', function(d) { return layout.zoombarZoom(d); })
 			.on('zoomend', function(d) { return layout.zoombarZoomend(d); })
 		);
-		/*
-		.call(d3.behavior.drag()
-			.on("dragstart", function(d) { return layout.mainbarDragstart(d); })
-			.on("drag", function(d) { return layout.mainbarDrag(d); })
-			.on("dragend", function(d) { return layout.mainbarDragend(d); })
-		)
-		*/
+		//.call(d3.behavior.drag()
+		//	.on("dragstart", function(d) { return layout.mainbarDragstart(d); })
+		//	.on("drag", function(d) { return layout.mainbarDrag(d); })
+		//	.on("dragend", function(d) { return layout.mainbarDragend(d); })
+		//)
 };
 
 
@@ -791,3 +794,4 @@ LayoutHistogram.prototype.setCompact = function(compact){
 	this.initLayout();
 	this.renderLayout();
 };
+*/

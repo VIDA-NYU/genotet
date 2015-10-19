@@ -40,6 +40,19 @@ var ViewManager = {
   },
 
   /**
+   * Closes the given view.
+   * @param {View} view
+   */
+  closeView: function(view) {
+    if (!(view.name() in this.views)) {
+      Core.error('view does not exist, cannot delete');
+      return;
+    }
+    // Remove the view reference.
+    delete this.views[view.name()];
+  },
+
+  /**
    * Blurs all the views.
    */
   blurAllViews: function() {

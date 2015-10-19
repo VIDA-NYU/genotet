@@ -12,3 +12,10 @@
 function ViewRenderer() {
 
 }
+
+/**
+ * Renders the view graphics.
+ */
+ViewRenderer.prototype.render = function() {
+
+};

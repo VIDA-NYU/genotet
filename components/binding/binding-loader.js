@@ -11,7 +11,11 @@ function BindingLoader() {
 
 }
 
+BindingLoader.prototype = Object.create(ViewLoader.prototype);
+BindingLoader.prototype.constructor = BindingLoader;
+BindingLoader.base = ViewLoader.prototype;
 
+/*
 function LoaderHistogram() {
 
 }
@@ -194,3 +198,5 @@ LoaderHistogram.prototype.error = function(msg) {
 	options.alert(msg);
 	console.error(msg);
 };
+
+*/
