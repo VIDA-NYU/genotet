@@ -6,6 +6,7 @@
     height: auto;
     width: 200px;
     overflow-y: scroll;
+    display: none
 }
 
 #triangle-button {
