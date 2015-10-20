@@ -1,20 +1,58 @@
+/*.ui-tabs-vertical {
+    width: 55em;
+}*/
+.ui-tabs-vertical .ui-tabs-nav {
+    float: left;
+    padding: 3.2px 1.6px 3.2px 3.2px;
+    width: 24px;
+}
+.ui-tabs-vertical .ui-tabs-nav li {
+    clear: left;
+    border-bottom-width: 1px !important;
+    border-right-width: 0 !important;
+    margin: 0 -1px 3.2px 0;
+    height: 100px;
+    width: 100%;
+    /*width: 100%;*/
+}
+.ui-tabs-vertical .ui-tabs-nav li a {
+    display: block;
+    -webkit-transform-origin: 0 0;
+       -moz-transform-origin: 0 0;
+         -o-transform-origin: 0 0;
+            transform-origin: 0 0;
+    -webkit-transform: rotate(-90deg) translate(-100px, 0px);
+       -moz-transform: rotate(-90deg) translate(-100px, 0px);
+         -o-transform: rotate(-90deg) translate(-100px, 0px);
+            transform: rotate(-90deg) translate(-100px, 0px);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation = 3);
+}
+.ui-tabs-vertical .ui-tabs-nav li .ui-tabs-active {
+    border-right-width: 1px;
+    padding-bottom: 0;
+    padding-right: 1.6px;
+}
+.ui-tabs-vertical .ui-tabs-panel {
+    float: right;
+    padding: 1.6px;
+    width: 120px;
+}
 .panel-manager {
-    position: fixed;
-    top: 30px;
+    display: none;
     bottom: 30px;
     right: 0px;
+    top: 30px;
     height: auto;
     width: 200px;
     overflow-y: scroll;
-    display: none
+    position: fixed;
 }
-
 #triangle-button {
+    display: none;
+    float: right;
+    height: 20px;
+    width: 20px;
+    margin-right: 195px;
     position: relative;
     top: 24px;
-	width: 20px; 
-    height: 20px;
-	margin-right: 195px;
-    float: right;
-    display: none;
 }
