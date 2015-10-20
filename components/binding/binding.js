@@ -23,4 +23,3 @@ function BindingView(viewName) {
 BindingView.prototype = Object.create(View.prototype);
 BindingView.prototype.constructor = BindingView;
 BindingView.base = View.prototype;
-

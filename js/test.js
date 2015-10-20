@@ -1,6 +1,13 @@
+/**
+ * @fileoverview Manual testing sequence.
+ */
+
 'use strict';
 
 var Test = {
+  /**
+   * Runs the test sequence.
+   */
   run: function() {
     // Implement test sequences here. This is intended for manual testing,
     // e.g. the following lines create a few views.
@@ -9,7 +16,6 @@ var Test = {
     ViewManager.createView('binding', 'My Genome Browser');
   }
 };
-
 
 /*
   // obsolete examples

@@ -12,11 +12,14 @@
 function View(viewName) {
   var view = this;
 
-  /** @private {string} **/
+  /** @private {string} */
   this.viewName_ = viewName;
 
-  /** @private {string} **/
+  /** @private {string} */
   this.headerText_ = '';
+
+  /** @private {?jQuery} */
+  this.container = null;
 
   $('<div></div>')
     .addClass('view')
@@ -173,6 +176,9 @@ View.prototype.init = function() {
       height: 300
     });
 
+  var pos = ViewManager.findPosition(this);
+  this.container.css(pos);
+
   this.headerText(this.viewName_);
 
   // Set up focus event hook.
@@ -218,6 +224,9 @@ View.prototype.headerText = function(headerText) {
  * Makes the view appear focused.
  */
 View.prototype.focus = function() {
+  if (!this.container) {
+    return;
+  }
   this.container.addClass('focused');
   // Re-append to appear on top of other views.
   this.container.appendTo('#main');
@@ -227,6 +236,9 @@ View.prototype.focus = function() {
  * Removes the focused effect of the view.
  */
 View.prototype.blur = function() {
+  if (!this.container) {
+    return;
+  }
   this.container.removeClass('focused');
 };
 
@@ -234,5 +246,21 @@ View.prototype.blur = function() {
  * Closes the view and removes it from the screen.
  */
 View.prototype.close = function() {
+  if (!this.container) {
+    return;
+  }
   this.container.remove();
+};
+
+/**
+ * Gets the rectangle area the view occupies.
+ * @return {{x: number, y: number, w: number, h: number}}
+ */
+View.prototype.rect = function() {
+  return {
+    x: this.container.position().left,
+    y: this.container.position().top,
+    w: this.container.outerWidth(),
+    h: this.container.outerHeight()
+  };
 };

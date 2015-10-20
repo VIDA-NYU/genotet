@@ -294,5 +294,4 @@ LoaderGraph.prototype.error = function(msg) {
 	this.parentView.layout.showError();
 	//this.parentView.layout.showError();
 };
-
 */

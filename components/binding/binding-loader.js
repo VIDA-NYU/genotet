@@ -198,5 +198,4 @@ LoaderHistogram.prototype.error = function(msg) {
 	options.alert(msg);
 	console.error(msg);
 };
-
 */

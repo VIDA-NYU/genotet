@@ -23,4 +23,3 @@ function ExpressionView(viewName) {
 ExpressionView.prototype = Object.create(View.prototype);
 ExpressionView.prototype.constructor = ExpressionView;
 ExpressionView.base = View.prototype;
-

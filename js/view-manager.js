@@ -61,6 +61,110 @@ var ViewManager = {
     });
   },
 
+  /**
+   * Closes all views.
+   */
+  closeAllViews: function () {
+    $.each(this.views, function(name, view) {
+      view.close();
+    });
+    this.views = {};
+  },
+
+  /**
+   * Finds a position for a newly created view.
+   * The function attempts to put the new view to the right or bottom of some
+   * existing view.
+   * @param {View} newView The newly created view.
+   * @return {{left: number, top: number}}
+   */
+  findPosition: function(newView) {
+    var newRect = newView.rect();
+    var hasOtherViews = false;
+    for (var name in this.views) {
+      var view = this.views[name];
+      if (!view.container || view == newView) {
+        // Skip the views without containers, which are typically
+        // due to batch creation of multiple views.
+        // Also skip the new view itself.
+        continue;
+      }
+      // Another view has valid container.
+      hasOtherViews = true;
+
+      var rect = view.rect();
+      // Create candidate rectangles.
+      var rects = [
+        // Put on the right.
+        $.extend({}, newRect, {
+          x: rect.x + rect.w,
+          y: rect.y
+        }),
+        // Put at the bottom.
+        $.extend({}, newRect, {
+          x: rect.x,
+          y: rect.y + rect.h
+        })
+      ];
+
+      for (var i = 0; i < rects.length; i++) {
+        var rect = rects[i];
+        if (!Utils.rectInsideWindow(rect)) {
+          // Make sure that the rect is inside the screen window.
+          continue;
+        }
+        var ok = true;
+        for (var name2 in this.views) {
+          var view2 = this.views[name2]
+          if (!view2.container || view2 == newView) {
+            // Skip intersection check of views without containers, and
+            // the new view itself.
+            continue;
+          }
+          if (Utils.rectIntersect(view2.rect(), rect)) {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) {
+          return {
+            left: rect.x,
+            top: rect.y
+          };
+        }
+      }
+    }
+    if (!hasOtherViews) {
+      // If no other views have containers, then put the new view at (0, 0).
+      return {
+        left: 0,
+        top: 0
+      };
+    } else {
+      // Other views fully occupy the screen. Put the new view at the center.
+      return {
+        left: $(window).width() / 2 - newRect.w / 2,
+        top: $(window).height() / 2 - newRect.h / 2
+      };
+    }
+  },
+
+  /**
+   * Gets the next available suffix number for the default name of a newly
+   * created view. When the number is 1, the number is omitted. Otherwise,
+   * the number is appended to the default name, e.g. 'Network 2'.
+   * @param {string} defaultName Default name of the view.
+   * @return {number} Available suffix.
+   */
+  nextSuffixName: function(defaultName) {
+    for (var i = 1;; i++) {
+      var name = i == 1 ? defaultName : defaultName + ' ' + i;
+      if (!(name in this.views)) {
+        return name;
+      }
+    }
+  },
+
   /*
   supportBinding: function (name) {
     name = name.toLowerCase();
@@ -200,13 +304,7 @@ var ViewManager = {
     return {'success': false};
   },
 
-  closeAllViews: function () {
-    for (var i = 0; i < this.views.length; i++) {
-      this.views[i].content.close();
-    }
-    this.views = new Array();
-    this.resetFlags();
-  },
+
 
   closeView: function (viewname) {
     var found = -1;

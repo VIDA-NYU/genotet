@@ -19,8 +19,6 @@ var Core = {
       ViewManager.blurAllViews();
     });
 
-
-
     Test.run();
   },
 
@@ -38,7 +36,3 @@ var Core = {
     $('#error').parent().slideDown();
   }
 };
-
-
-
-

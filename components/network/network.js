@@ -23,4 +23,3 @@ function NetworkView(viewName) {
 NetworkView.prototype = Object.create(View.prototype);
 NetworkView.prototype.constructor = NetworkView;
 NetworkView.base = View.prototype;
-
