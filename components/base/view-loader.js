@@ -7,17 +7,22 @@
 
 /**
  * ViewLoader class is the base class for all components' data loaders.
+ * @param {!Object} data Data object to be written.
  * @constructor
  */
-function ViewLoader() {
-
+function ViewLoader(data) {
+  if (!data) {
+    Core.error('null data passed to ViewLoader');
+    return;
+  }
+  /** protected {!Object} */
+  this.data = data;
 }
 
 /**
  * Loads the data for the view.
  */
 ViewLoader.prototype.load = function() {
-
 };
 
 /**
@@ -25,6 +30,14 @@ ViewLoader.prototype.load = function() {
  */
 ViewLoader.prototype.update = function() {
 
+};
+
+/**
+ * Triggers a jQuery event to the data object.
+ * @param {string} eventType Type of event.
+ */
+ViewLoader.prototype.signal = function(eventType) {
+  $(this.data).trigger('genotet.' + eventType);
 };
 
 /*

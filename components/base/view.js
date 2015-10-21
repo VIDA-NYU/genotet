@@ -10,23 +10,37 @@
  * @constructor
  */
 function View(viewName) {
-  var view = this;
-
   /** @private {string} */
   this.viewName_ = viewName;
 
   /** @private {string} */
   this.headerText_ = '';
 
-  /** @private {?jQuery} */
-  this.container = null;
-
-  $('<div></div>')
+  /** @protected {!jQuery} */
+  this.container = $('<div></div>')
     .addClass('view')
     .load('templates/view.html', function() {
-      view.container = $(this).appendTo('#main');
-      view.init();
-    });
+      this.container.appendTo('#main');
+      this.init();
+      // Shall trigger 'ready' event after init.
+      this.container.trigger('genotet.ready');
+    }.bind(this));
+
+  /** @protected {!Object} */
+  this.data = {};
+
+  $(this.data)
+    .on('genotet.loadStart', function() {
+      this.renderer.showLoading();
+    }.bind(this))
+    .on('genotet.loadComplete', function() {
+      this.renderer.hideLoading();
+    }.bind(this))
+    .on('genotet.loadFail', function() {
+      this.renderer.hideLoading();
+      this.renderer.showFailure();
+    }.bind(this));
+
   /*
   var layout = this.layout;
   this.parentView = null;
@@ -194,6 +208,11 @@ View.prototype.init = function() {
     ViewManager.closeView(this);
     this.close();
   }.bind(this));
+
+  // Block pointer click on view loading.
+  this.container.find('.loading').click(function(event) {
+    event.stopPropagation();
+  });
 };
 
 /**
@@ -224,9 +243,6 @@ View.prototype.headerText = function(headerText) {
  * Makes the view appear focused.
  */
 View.prototype.focus = function() {
-  if (!this.container) {
-    return;
-  }
   this.container.addClass('focused');
   // Re-append to appear on top of other views.
   this.container.appendTo('#main');
@@ -236,9 +252,6 @@ View.prototype.focus = function() {
  * Removes the focused effect of the view.
  */
 View.prototype.blur = function() {
-  if (!this.container) {
-    return;
-  }
   this.container.removeClass('focused');
 };
 
@@ -246,9 +259,6 @@ View.prototype.blur = function() {
  * Closes the view and removes it from the screen.
  */
 View.prototype.close = function() {
-  if (!this.container) {
-    return;
-  }
   this.container.remove();
 };
 

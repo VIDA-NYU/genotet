@@ -8,10 +8,11 @@ var ViewManager = {
 
   /**
    * Creates a view with the given type and name.
-   * @param type Type of the view.
-   * @param viewName Name of the view.
+   * @param {stirng} type Type of the view.
+   * @param {string} viewName Name of the view.
+   * @param {Object} params Additional parameters passed to the view.
    */
-  createView: function(type, viewName) {
+  createView: function(type, viewName, params) {
     if (!viewName) {
       Core.error('empty view name');
       return;
@@ -20,17 +21,20 @@ var ViewManager = {
       Core.error('duplicate view name');
       return;
     }
+    if (!params) {
+      params = {};
+    }
 
     var newView;
     switch(type) {
     case 'network':
-      newView = new NetworkView(viewName);
+      newView = new NetworkView(viewName, params);
       break;
     case 'expression':
-      newView = new ExpressionView(viewName);
+      newView = new ExpressionView(viewName, params);
       break;
     case 'binding':
-      newView = new BindingView(viewName);
+      newView = new BindingView(viewName, params);
       break;
     default:
       Core.error('unknown view type');
@@ -83,10 +87,8 @@ var ViewManager = {
     var hasOtherViews = false;
     for (var name in this.views) {
       var view = this.views[name];
-      if (!view.container || view == newView) {
-        // Skip the views without containers, which are typically
-        // due to batch creation of multiple views.
-        // Also skip the new view itself.
+      if (view == newView) {
+        // Skip the new view itself.
         continue;
       }
       // Another view has valid container.
@@ -116,9 +118,8 @@ var ViewManager = {
         var ok = true;
         for (var name2 in this.views) {
           var view2 = this.views[name2]
-          if (!view2.container || view2 == newView) {
-            // Skip intersection check of views without containers, and
-            // the new view itself.
+          if (view2 == newView) {
+            // Skip the new view itself.
             continue;
           }
           if (Utils.rectIntersect(view2.rect(), rect)) {

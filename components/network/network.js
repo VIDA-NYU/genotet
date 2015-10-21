@@ -7,17 +7,28 @@
 /**
  * NetworkView extends the base View class, and renders the regulatory network
  * topology.
+ * @param {string} viewName Name of the view.
+ * @param {!Object} params Additional parameters.
  * @extends {View}
  * @constructor
  */
-function NetworkView(viewName) {
+function NetworkView(viewName, params) {
   NetworkView.base.constructor.call(this, viewName);
 
   /** @type {NetworkLoader} */
-  this.loader = new NetworkLoader();
+  this.loader = new NetworkLoader(this.data);
 
   /** @type {NetworkRenderer} */
-  this.renderer = new NetworkRenderer();
+  this.renderer = new NetworkRenderer(this.container);
+
+  // Set up data loading callbacks.
+  $(this.loader).on('genotet.loadComplete', function() {
+    console.log('?');
+  });
+
+  $(this.container).on('genotet.ready', function() {
+    this.loader.load(params.networkName, params.geneRegex);
+  }.bind(this));
 }
 
 NetworkView.prototype = Object.create(View.prototype);

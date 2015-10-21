@@ -4,11 +4,12 @@
 
 /**
  * ExpressionLoader loads the expression matrix data for the ExpressionView.
+ * @param {!Object} data Data object to be written.
  * @extends {ExpressionLoader}
  * @constructor
  */
-function ExpressionLoader() {
-
+function ExpressionLoader(data) {
+	ExpressionLoader.base.constructor.call(this, data);
 }
 
 ExpressionLoader.prototype = Object.create(ViewLoader.prototype);

@@ -6,11 +6,12 @@
 
 /**
  * NetworkRenderer renders the visualizations for the NetworkView.
+ * @param {!jQuery} container View container.
  * @extends {ViewRenderer}
  * @constructor
  */
-function NetworkRenderer() {
-
+function NetworkRenderer(container) {
+	NetworkRenderer.base.constructor.call(this, container);
 }
 
 NetworkRenderer.prototype = Object.create(ViewRenderer.prototype);

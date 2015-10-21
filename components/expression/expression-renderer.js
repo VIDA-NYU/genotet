@@ -6,11 +6,12 @@
 
 /**
  * ExpressionRenderer renders the visualizations for the ExpressionView.
+ * @param {!jQuery} container View container.
  * @extends {ViewRenderer}
  * @constructor
  */
-function ExpressionRenderer() {
-
+function ExpressionRenderer(container) {
+	ExpressionRenderer.base.constructor.call(this, container);
 }
 
 ExpressionRenderer.prototype = Object.create(ViewRenderer.prototype);

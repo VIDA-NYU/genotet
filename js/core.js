@@ -1,5 +1,5 @@
 // request json data file via http & jsonp
-var addr = 'jsonp.php';
+var addr = 'http://localhost:3000/genotet';
 
 var Core = {
   init: function() {

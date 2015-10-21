@@ -6,11 +6,12 @@
 
 /**
  * BindingRenderer renders the visualizations for the BindingView.
+ * @param {!jQuery} container View container.
  * @extends {ViewRenderer}
  * @constructor
  */
-function BindingRenderer() {
-
+function BindingRenderer(container) {
+	BindingRenderer.base.constructor.call(this, container);
 }
 
 BindingRenderer.prototype = Object.create(ViewRenderer.prototype);

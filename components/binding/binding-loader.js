@@ -4,11 +4,12 @@
 
 /**
  * BindingLoader loads the binding data for the BindingView.
+ * @param {!Object} data Data object to be written.
  * @extends {ViewLoader}
  * @constructor
  */
-function BindingLoader() {
-
+function BindingLoader(data) {
+	BindingLoader.base.constructor.call(this, data);
 }
 
 BindingLoader.prototype = Object.create(ViewLoader.prototype);
