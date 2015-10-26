@@ -2,7 +2,7 @@ $(function(){
   $('#slidebar').on('click', function(){
     $('#slider').toggle('slide', { direction: 'right' }, 300);
     $('#slidebar').animate({
-      'right' : $('#slidebar').css('right') == '0px' ? '250px' : '0px'
+      'right' : $('#slidebar').css('right') == '0px' ? '249px' : '0px'
     }, 300);
     setTimeout(function(){
         $('#icon-button').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
