@@ -19,12 +19,12 @@ function NetworkView(viewName, params) {
   this.loader = new NetworkLoader(this.data);
 
   /** @type {NetworkRenderer} */
-  this.renderer = new NetworkRenderer(this.container);
+  this.renderer = new NetworkRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
-  $(this.loader).on('genotet.loadComplete', function() {
-    console.log('?');
-  });
+  $(this.data).on('genotet.loadComplete', function() {
+    this.renderer.render();
+  }.bind(this));
 
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.networkName, params.geneRegex);

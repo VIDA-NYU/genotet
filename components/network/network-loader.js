@@ -17,89 +17,37 @@ NetworkLoader.prototype = Object.create(ViewLoader.prototype);
 NetworkLoader.prototype.constructor = NetworkLoader;
 NetworkLoader.base = ViewLoader.prototype;
 
+
 /**
  * Loads the network data, adding the genes given by geneRegex
  * @param {string} networkName Network name.
  * @param {string} geneRegex Regex for gene selection.
+ * @override
  */
 NetworkLoader.prototype.load = function(networkName, geneRegex) {
   this.loadNetwork_(networkName, geneRegex);
 };
 
+
 /**
- * Implements the network loading ajax call.
- * @param {string} networkName Name of the network.
- * @param {string} geneRegex Regex that selects the gene set.
- * @private
+ * Adds selected nodes to the network.
+ * @param {string} nodes Regular expression selecting the nodes to be added.
  */
-NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
-  this.signal('loadStart');
-  var params = {
-    type: 'net',
-    net: networkName,
-    exp: geneRegex
-  };
-  $.get(addr, params, function(data) {
-    console.log(data);
-    $(this.data).trigger('genotet.loadComplete');
-  }.bind(this), 'jsonp')
-    .fail(function() {
-        Core.error('cannot load network data', JSON.stringify(params));
-        this.signal('loadFail');
-    }.bind(this));
-  /*
-  $.ajax({
-    type: 'GET', url: addr, dataType: 'jsonp',
-    data: {
-      args: 'type=net&net=' + net + '&exp=' + exp
-    },
-    error: function(xhr, status, err) { loader.error('cannot load network\n' + status + '\n' + err); },
-    success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
-      if (data == null) {
-        loader.error('selected network is empty, or network not found');
-        return;
-      }
-      //if(loader.parentView.viewdata==null) loader.parentView.viewdata = {};
-      loader.parentView.viewdata.nodes = data.nodes;
-      loader.parentView.viewdata.links = data.links;
-      loader.parentView.viewdata.wmin = data.wmax;
-      loader.parentView.viewdata.wmax = data.wmin;
-      if (notInit == null) loader.initData(loader.parentView.viewdata);
-      else loader.filterData(loader.parentView.viewdata);
-      loader.parentView.layout.reloadData();
-    }
-  });
-  */
-};
-
-/*
-function LoaderGraph() {
-  this.lastIdentifier = null;
-}
-
-
-
-LoaderGraph.prototype.updateData = function(identifier) {
-  if (identifier.action == 'show') {
-    this.addEdges(identifier.data);
-  }else if (identifier.action == 'hide') {
-    this.removeEdges(identifier.data);
-  }
-};
-
-LoaderGraph.prototype.addNodes = function(nodes) {  // nodes are regexp
-  var data = this.parentView.viewdata;
+NetworkLoader.prototype.addNodes = function(nodes) {  // nodes are regexp
   var exp = 'a^';
-  for (var i = 0; i < data.nodes.length; i++) {
-    exp += '|^' + data.nodes[i].name + '$';
+  for (var i = 0; i < this.data.nodes.length; i++) {
+    exp += '|^' + this.data.nodes[i].name + '$';
   }
-    exp += '|' + nodes;
-  this.loadNetwork(this.lastIdentifier.net, exp);
+  exp += '|' + nodes;
+  this.loadNetwork_(this.data.networkName, exp);
 };
 
-LoaderGraph.prototype.removeNodes = function(exp) {
-  var data = this.parentView.viewdata;
+
+/**
+ * Removes selected nodes from the network.
+ * @param {string} exp Regular expression selecting the nodes to be removed.
+ */
+NetworkLoader.prototype.removeNodes = function(exp) {
   var reg = RegExp(exp, 'i');
   for (var i = 0; i < data.nodes.length; i++) {
     if (data.nodes[i].name.match(reg)) {
@@ -114,7 +62,12 @@ LoaderGraph.prototype.removeNodes = function(exp) {
   this.reparseData(true);
 };
 
-LoaderGraph.prototype.addEdges = function(edges) {
+
+/**
+ * Adds the given edges to the network.
+ * @param {!Array<!Object>} edges Array of the edges to be added.
+ */
+NetworkLoader.prototype.addEdges = function(edges) {
   var data = this.parentView.viewdata;
   var nodes = data.nodes, nodeids = {};
   var exp = '';
@@ -139,7 +92,12 @@ LoaderGraph.prototype.addEdges = function(edges) {
   this.updateNetwork(exp);
 };
 
-LoaderGraph.prototype.removeEdges = function(edges) {
+
+/**
+ * Removes the given edges from the network.
+ * @param {!Array<!Object>} edges Array of edges to be removed.
+ */
+NetworkLoader.prototype.removeEdges = function(edges) {
   var data = this.parentView.viewdata;
   var links = data.links;
   for (var i = 0; i < edges.length; i++) {
@@ -148,104 +106,47 @@ LoaderGraph.prototype.removeEdges = function(edges) {
   this.reparseData(true); // removal of edges
 };
 
-LoaderGraph.prototype.updateNetwork = function(exp) {
-  //console.log("update", exp);
-  var loader = this;
-  this.recordPos(loader.parentView.viewdata);  // first record all the positions before load new data
-  $.ajax({
-      type: 'POST', url: addr, dataType: 'jsonp',
-      data: {
-      args: { 'type': 'net', 'net': loader.lastIdentifier.net, 'exp': exp},
-      },
-    error: function(xhr, status, err) { loader.error('cannot update network\n' + status + '\n' + err); },
-      success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
-      if (data == null || loader.parentView.viewdata == null) {
-        loader.error('cannot update network due to an internal error');
-        return;
-      }
-      loader.parentView.viewdata.nodes = data.nodes;
-      loader.parentView.viewdata.links = data.links;
-      loader.filterData(loader.parentView.viewdata);
-      loader.parentView.layout.reloadData();
-      }
-  });
+
+/**
+ * Implements the network loading ajax call.
+ * @param {string} networkName Name of the network.
+ * @param {string} geneRegex Regex that selects the gene set.
+ * @private
+ */
+NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
+  this.signal('loadStart');
+  var params = {
+    type: 'net',
+    net: networkName,
+    exp: geneRegex
+  };
+  $.get(addr, params, function(data) {
+    _(this.data).extend(data);
+
+    // Store the last applied networkName and geneRegex.
+    data.networkName = networkName;
+    data.geneRegex = geneRegex;
+
+    $(this.data).trigger('genotet.loadComplete');
+  }.bind(this), 'jsonp')
+    .fail(function() {
+      Core.error('cannot load network data', JSON.stringify(params));
+      this.signal('loadFail');
+    }.bind(this));
 };
 
-
-
-LoaderGraph.prototype.initData = function(data) {
-  data.lastPos = {};
-  this.parseBidir(data);
-  data.visibleNodes = {};
-  data.visibleLinks = {};
-  for (var i = 0; i < data.nodes.length; i++) data.visibleNodes[data.nodes[i].id] = true;
-  for (var i = 0; i < data.links.length; i++) data.visibleLinks[data.links[i].id] = true;  // initially every node & edge is visible
-};
-
-LoaderGraph.prototype.parseBidir = function(data) {
-  data.bidir = {};  // save bidirectonal edges
-  for (var i = 0; i < data.links.length; i++) {
-    data.bidir[data.links[i].source + '*'+ data.links[i].target] = true;
+/*
+LoaderGraph.prototype.updateData = function(identifier) {
+  if (identifier.action == 'show') {
+    this.addEdges(identifier.data);
+  }else if (identifier.action == 'hide') {
+    this.removeEdges(identifier.data);
   }
 };
+*/
 
-LoaderGraph.prototype.filterData = function(data) {
-  var remap = {}; // remapping index of node
-  var fnodes = new Array(), flinks = new Array();
-  var nodes = data.nodes, links = data.links, lastPos = data.lastPos, visibleNodes = data.visibleNodes, visibleLinks = data.visibleLinks;
-  var j = 0;
-  for (var i = 0; i < nodes.length; i++) {
-    if (visibleNodes[nodes[i].id] == true) {  // show only visible nodes
-      fnodes.push({'id': nodes[i].id, 'index': j, 'name': nodes[i].name, 'isTF': nodes[i].isTF});
-      remap[nodes[i].id] = j++;
-    }
-  }
-  j = 0;
-  for (var i = 0; i < links.length; i++) {  // show only visible edges
-    var sid = links[i].source.id, tid = links[i].target.id;
-    if (sid == null) sid = nodes[links[i].source].id; //
-    if (tid == null) tid = nodes[links[i].target].id; // from server, the source and target are index instead of id
-    if (visibleLinks[links[i].id] == true && visibleNodes[sid] == true && visibleNodes[tid] == true) {
-      flinks.push({'id': links[i].id, 'index': j++, 'source': remap[sid], 'target': remap[tid], 'weight': links[i].weight});
-    }
-  }
-  for (var i = 0; i < fnodes.length; i++) {  // reset position to memorized locations
-    if (lastPos[fnodes[i].id] != null) {
-      fnodes[i].x = lastPos[fnodes[i].id].x;
-      fnodes[i].y = lastPos[fnodes[i].id].y;
-    }
-  }
-  lastPos = {}; // clear after every usage
-  data.links = flinks;
-  data.nodes = fnodes;
-  data.visibleNodes = visibleNodes;
-  data.visibleLinks = visibleLinks;
-  this.parseBidir(data);
-};
 
-LoaderGraph.prototype.recordPos = function(data) {
-  for (var i = 0; i < data.nodes.length; i++) {
-    data.lastPos[data.nodes[i].id] = {'x': data.nodes[i].x, 'y': data.nodes[i].y};
-  }
-};
-
-LoaderGraph.prototype.reparseData = function(removeOnly) {  // use for mouse click removal
-  this.recordPos(this.parentView.viewdata);
-  this.filterData(this.parentView.viewdata);
-  this.parentView.layout.reloadData(removeOnly);
-};
-
-LoaderGraph.prototype.showEdges = function(net, name) {
-  var viewname = this.parentView.viewname + '-list';
-  var view = getView(viewname), launch = true;
-  if (view != null) {
-    if (view.viewdata.net == net && view.viewdata.name == name) launch = false; // toggle list
-    closeView(viewname);
-  }
-  if (launch) this.loadEdges(net, name);
-};
-
+/*
 LoaderGraph.prototype.loadComb = function(net, exp) {
     var loader = this;
   var oexp = exp;
@@ -306,14 +207,5 @@ LoaderGraph.prototype.loadEdges = function(net, name) {
       getView(viewname).layout.reloadData();
     }
   });
-};
-
-LoaderGraph.prototype.error = function(msg) {
-  this.parentView.viewdata = null;
-  msg = this.parentView.viewname + ': ' + msg;
-  console.error(msg);
-  options.alert(msg);
-  this.parentView.layout.showError();
-  //this.parentView.layout.showError();
 };
 */

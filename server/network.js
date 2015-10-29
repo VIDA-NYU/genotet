@@ -104,7 +104,14 @@ module.exports = {
     for (var i = 0; i < result.numEdge; i++) {
       var s = result.edges[i].source, t = result.edges[i].target, w = result.edges[i].weight;
       if (result.names[s] == name || result.names[t] == name) {
-        edges.push({'id': i, 'source': result.names[s], 'target': result.names[t], 'weight': w, 'sourceId': s, 'targetId': t}); // source and target are names
+        edges.push({
+          'id': i,
+          'source': result.names[s],
+          'target': result.names[t],
+          'weight': w,
+          'sourceId': s,
+          'targetId': t
+        }); // source and target are names
       }
     }
     return edges;

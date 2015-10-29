@@ -19,7 +19,7 @@ function BindingView(viewName, params) {
   this.loader = new BindingLoader(this.data);
 
   /** @type {BindingRenderer} */
-  this.renderer = new BindingRenderer(this.container);
+  this.renderer = new BindingRenderer(this.container, this.data);
 }
 
 BindingView.prototype = Object.create(View.prototype);

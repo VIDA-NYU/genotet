@@ -19,9 +19,12 @@ function View(viewName) {
   /** @protected {!jQuery} */
   this.container = $('<div></div>')
     .addClass('view')
-    .load('templates/view.html', function() {
+    .load('components/base/view.html', function() {
       this.container.appendTo('#main');
       this.init();
+      this.loader.init();
+      this.renderer.init();
+
       // Shall trigger 'ready' event after init.
       this.container.trigger('genotet.ready');
     }.bind(this));
@@ -34,6 +37,7 @@ function View(viewName) {
       this.renderer.showLoading();
     }.bind(this))
     .on('genotet.loadComplete', function() {
+      this.renderer.render();
       this.renderer.hideLoading();
     }.bind(this))
     .on('genotet.loadFail', function() {

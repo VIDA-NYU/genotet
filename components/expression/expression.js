@@ -19,7 +19,7 @@ function ExpressionView(viewName, params) {
   this.loader = new ExpressionLoader(this.data);
 
   /** @type {ExpressionRenderer} */
-  this.renderer = new ExpressionRenderer(this.container);
+  this.renderer = new ExpressionRenderer(this.container, this.data);
 }
 
 ExpressionView.prototype = Object.create(View.prototype);

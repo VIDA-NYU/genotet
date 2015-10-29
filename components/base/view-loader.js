@@ -19,18 +19,27 @@ function ViewLoader(data) {
   this.data = data;
 }
 
+
+/**
+ * Initializes the view loader.
+ */
+ViewLoader.prototype.init = function() {
+};
+
+
 /**
  * Loads the data for the view.
  */
 ViewLoader.prototype.load = function() {
 };
 
+
 /**
  * Updates the data for the view.
  */
 ViewLoader.prototype.update = function() {
-
 };
+
 
 /**
  * Triggers a jQuery event to the data object.

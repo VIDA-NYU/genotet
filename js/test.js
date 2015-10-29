@@ -15,8 +15,10 @@ var Test = {
       networkName: 'th17',
       geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
     });
-    ViewManager.createView('expression', 'My Expression Matrix');
-    ViewManager.createView('binding', 'My Genome Browser');
+    ViewManager.createView('expression', 'My Expression Matrix', {
+    });
+    ViewManager.createView('binding', 'My Genome Browser', {
+    });
   }
 };
 

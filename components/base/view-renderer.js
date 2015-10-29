@@ -8,9 +8,10 @@
 /**
  * ViewRenderer class is the base class for all components' renderers.
  * @param {!jQuery} container Container of the view.
+ * @param {!Object} data Data object to be written.
  * @constructor
  */
-function ViewRenderer(container) {
+function ViewRenderer(container, data) {
   if (!container) {
     Core.error('null container passed to ViewRenderer');
     return;
@@ -23,18 +24,46 @@ function ViewRenderer(container) {
   this.container = container;
 
   /**
+   * D3 selection of the view canvas.
+   * @protected {?d3.selection}
+   */
+  this.canvas;
+
+  /**
+   * View data object is shared between the view, loader and renderer.
+   * @protected {!Object}
+   */
+  this.data = data;
+
+  /**
    * Loading screen is only displayed when this value is positive.
    * @private {number}
    */
   this.loadCounter_ = 0;
 }
 
+
+/**
+ * Initializes the view renderer properties, e.g. the view canvas.
+ */
+ViewRenderer.prototype.init = function() {
+  this.canvas = d3.selectAll(this.container.find('.canvas-svg').toArray());
+};
+
+
 /**
  * Renders the view graphics.
  */
 ViewRenderer.prototype.render = function() {
-
 };
+
+
+/**
+ * Handles the resize update of the view.
+ */
+ViewRenderer.prototype.resize = function() {
+};
+
 
 /**
  * Shows loading message on the view.
@@ -49,6 +78,7 @@ ViewRenderer.prototype.showLoading = function() {
   popup.css('height', height);
 };
 
+
 /**
  * Hides loading message on the view.
  */
@@ -59,12 +89,14 @@ ViewRenderer.prototype.hideLoading = function() {
   }
 };
 
+
 /**
  * Shows data load failure message.
  */
 ViewRenderer.prototype.showFailure = function() {
   this.container.find('.popup .failure').show();
 };
+
 
 /**
  * Hides data load failure message.
