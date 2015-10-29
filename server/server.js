@@ -20,6 +20,8 @@ var	segtree = require('./segtree.js'),
 	expmat = require('./expmat.js');
 
 var app = express();
+
+/*
 app.use(bodyParser.urlencoded({
 	extended: true,
 	limit: '50mb'
@@ -27,7 +29,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json({
   limit: '50mb'
 }));
-
+*/
 
 var wiggleAddr, networkAddr, expmatAddr;
 if (runEnv == 'vida') {
@@ -55,7 +57,6 @@ var tfamatFile = {
 };
 
 
-
 var genecodes = {};
 function readCodes(input) {
   var remaining = '';
@@ -66,7 +67,7 @@ function readCodes(input) {
     });
 }
 
-app.post('/', function(req, res) {
+app.post('/genotet', function(req, res) {
 	var type = req.body.type;
 	console.log('POST', type);
 	var data;
@@ -84,16 +85,12 @@ app.post('/', function(req, res) {
 		var file = expmatFile[mat];
 		data = expmat.getExpmat(file, width, height, exprows, expcols, resol);
 	}
-	res.send(data);
+	res.jsonp(data);
 });
 
-app.get('/', function(req, res) {
+app.get('/genotet', function(req, res) {
 	var type = req.query.type;
-	//var nodeId = parseInt(req.query.nodeId);
-	console.log('GET', type);
-
 	var data;
-
   // network queries
 	if (type == 'net') {	// (sub) network
     var net = req.query.net.toLowerCase(),
@@ -151,23 +148,19 @@ app.get('/', function(req, res) {
 		data = binding.getBindingSampling(file);
 	  data.name = name;
 	  data.chr = chr;
-	}
-
-	// expression matrix query
-	else if (type == 'expmatline') {
+	} else if (type == 'expmatline') {
+		// expression matrix query
 		var mat = req.query.mat;
 		var name = req.query.name;
 		var fileExp = expmatFile[mat], fileTfa = tfamatFile[mat];
 		name = name.toLowerCase();
 		data = expmat.getExpmatLine(fileExp, fileTfa, name);
-	}
-
-  else {
+	} else {
     console.log('invalid argument');
-    res.send('');
+		data = '';
 	}
 
-	res.send(data); // send response
+	res.jsonp(data); // send response
 
 });
 
@@ -175,5 +168,4 @@ app.get('/', function(req, res) {
 var codestream = fs.createReadStream(codeFile);
 readCodes(codestream);
 
-//http.createServer(app).listen(80);
 app.listen(3000);

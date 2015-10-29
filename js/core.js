@@ -1,5 +1,5 @@
 // request json data file via http & jsonp
-var addr = 'jsonp.php';
+var addr = 'http://localhost:3000/genotet';
 
 var Core = {
   init: function() {
@@ -9,8 +9,14 @@ var Core = {
     Menu.init();
     Options.init();
 
+    // Allow turning off an alert.
     $('.alert button').click(function() {
       $(this).parent().slideUp();
+    });
+
+    // Blur all the views upon clicking on the background.
+    $('html').click(function() {
+      ViewManager.blurAllViews();
     });
 
     Test.run();
@@ -30,7 +36,3 @@ var Core = {
     $('#error').parent().slideDown();
   }
 };
-
-
-
-

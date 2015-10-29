@@ -1,3 +1,24 @@
+/**
+ * @fileoverview Renderer of the ExpressionView.
+ */
+
+'use strict';
+
+/**
+ * ExpressionRenderer renders the visualizations for the ExpressionView.
+ * @param {!jQuery} container View container.
+ * @extends {ViewRenderer}
+ * @constructor
+ */
+function ExpressionRenderer(container) {
+	ExpressionRenderer.base.constructor.call(this, container);
+}
+
+ExpressionRenderer.prototype = Object.create(ViewRenderer.prototype);
+ExpressionRenderer.prototype.constructor = ExpressionRenderer;
+ExpressionRenderer.base = ViewRenderer.prototype;
+
+/*
 function LayoutHeatmap(htmlid, width, height) {
   this.htmlid = htmlid;
   this.width = width;
@@ -697,3 +718,4 @@ LayoutHeatmap.prototype.setCompact = function(compact) {
 	this.initLayout();
 	this.renderLayout();
 };
+*/

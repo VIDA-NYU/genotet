@@ -1,4 +1,6 @@
-
+/**
+ * @fileoverview Specifications of the constant data values used by Genotet.
+ */
 
 var Data = {
 

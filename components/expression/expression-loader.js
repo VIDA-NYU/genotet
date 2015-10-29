@@ -1,3 +1,22 @@
+/**
+ * @fileoverview Expression matrix data loader.
+ */
+
+/**
+ * ExpressionLoader loads the expression matrix data for the ExpressionView.
+ * @param {!Object} data Data object to be written.
+ * @extends {ExpressionLoader}
+ * @constructor
+ */
+function ExpressionLoader(data) {
+	ExpressionLoader.base.constructor.call(this, data);
+}
+
+ExpressionLoader.prototype = Object.create(ViewLoader.prototype);
+ExpressionLoader.prototype.constructor = ExpressionLoader;
+ExpressionLoader.base = ViewLoader.prototype;
+
+/*
 function LoaderHeatmap() {
 	this.lastExprows = '.*';
 	this.lastExpcols = '.*';
@@ -141,3 +160,4 @@ LoaderHeatmap.prototype.error = function(msg, type) {
 	if (type != 'line')	// if cannot add line, it is ok
 		this.parentView.layout.showError();
 };
+*/

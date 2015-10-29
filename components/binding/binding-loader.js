@@ -1,3 +1,22 @@
+/**
+ * @fileoverview Binding data loader.
+ */
+
+/**
+ * BindingLoader loads the binding data for the BindingView.
+ * @param {!Object} data Data object to be written.
+ * @extends {ViewLoader}
+ * @constructor
+ */
+function BindingLoader(data) {
+	BindingLoader.base.constructor.call(this, data);
+}
+
+BindingLoader.prototype = Object.create(ViewLoader.prototype);
+BindingLoader.prototype.constructor = BindingLoader;
+BindingLoader.base = ViewLoader.prototype;
+
+/*
 function LoaderHistogram() {
 
 }
@@ -180,3 +199,4 @@ LoaderHistogram.prototype.error = function(msg) {
 	options.alert(msg);
 	console.error(msg);
 };
+*/

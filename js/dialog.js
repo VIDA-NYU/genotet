@@ -73,6 +73,8 @@ var Dialog = {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-network.html', function() {
       modal.modal();
+      var viewName = modal.find('#view-name');
+      viewName.val(ViewManager.nextSuffixName(viewName.val()));
       modal.find('.selectpicker').selectpicker();
       modal.find('#btnCreate').click(function() {
         var viewName = modal.find('#view-name').val();
@@ -85,6 +87,8 @@ var Dialog = {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-binding.html', function() {
       modal.modal();
+      var viewName = modal.find('#view-name');
+      viewName.val(ViewManager.nextSuffixName(viewName.val()));
       modal.find('#btnDone').click(function() {
       });
       var chrs = Data.bindingChrs.map(function(chr, index) {
@@ -112,6 +116,8 @@ var Dialog = {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-expression.html', function() {
       modal.modal();
+      var viewName = modal.find('#view-name');
+      viewName.val(ViewManager.nextSuffixName(viewName.val()));
       modal.find('.selectpicker').selectpicker();
       modal.find('#btnDone').click(function() {
       });

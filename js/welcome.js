@@ -1,3 +1,4 @@
+/*
 var Welcome = {
 
   init: function() {
@@ -36,5 +37,5 @@ var Welcome = {
     $('#welcome').remove();
     $('#block').remove();
   }
-
 };
+*/

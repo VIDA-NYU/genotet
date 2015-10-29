@@ -6,6 +6,7 @@ var Menu = {
     $('#view-create').click(function() {
       Dialog.create('create-view');
     });
+    /*
     $('#view-link').click(function() {
       return;
     });
@@ -15,21 +16,22 @@ var Menu = {
     $('#view-group').click(function() {
       return;
     });
-    $('#view-close').click(function() {
-      closeAllViews();
+    */
+    $('#view-closeall').click(function() {
+      ViewManager.closeAllViews();
     });
 
     $('#preset-default').click(function() {
-      ViewManager.loadPreset('default');
+      Preset.loadPreset('default');
     });
     $('#preset-network').click(function() {
-      ViewManager.loadPreset('network');
+      Preset.loadPreset('network');
     });
     $('#preset-expression').click(function() {
-      ViewManager.loadPreset('expmat');
+      Preset.loadPreset('expression');
     });
     $('#preset-binding').click(function() {
-      ViewManager.loadPreset('binding_3');
+      Preset.loadPreset('binding');
     });
 
     $('#help').click(function() {

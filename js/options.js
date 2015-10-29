@@ -1,3 +1,7 @@
+/**
+ * @fileoverview System options variables.
+ */
+
 'use strict';
 
 var Options = {
@@ -16,5 +20,4 @@ var Options = {
       alert(msg);
     }
   }
-
 };

@@ -1,3 +1,24 @@
+/**
+ * @fileoverview Renderer of the NetworkView.
+ */
+
+'use strict';
+
+/**
+ * NetworkRenderer renders the visualizations for the NetworkView.
+ * @param {!jQuery} container View container.
+ * @extends {ViewRenderer}
+ * @constructor
+ */
+function NetworkRenderer(container) {
+	NetworkRenderer.base.constructor.call(this, container);
+}
+
+NetworkRenderer.prototype = Object.create(ViewRenderer.prototype);
+NetworkRenderer.prototype.constructor = NetworkRenderer;
+NetworkRenderer.base = ViewRenderer.prototype;
+
+/*
 function LayoutGraph(htmlid, width, height) {
 
   this.htmlid = htmlid;
@@ -328,24 +349,22 @@ LayoutGraph.prototype.renderGraph = function() {
 LayoutGraph.prototype.updateLayout = function() {
 
 	// similar with renderLayout, except no clearing svg and no function attr
-	/*
-	var embWidth = manager.embedSize(this.width),
-	    embHeight = manager.embedSize(this.graphHeight);
-	this.svg
-	  .style("width", embWidth)
-	  .style("height", embHeight);
-	  */
+	//var embWidth = manager.embedSize(this.width),
+	//    embHeight = manager.embedSize(this.graphHeight);
+	//this.svg
+	//  .style("width", embWidth)
+	//  .style("height", embHeight);
 
 	var nodes = this.nodes,
 		links = this.links,
 		layout = this;
 
     var link = this.svg.selectAll('.link').data(links)
-        .style('stroke', function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
-		.attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-        .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-        .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-        .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
+				.style('stroke', function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
+				.attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
+				.attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
+				.attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
+				.attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
 
     var linkdir = this.svg.selectAll('.linkdir').data(links)
         .style('stroke', function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
@@ -353,9 +372,9 @@ LayoutGraph.prototype.updateLayout = function() {
 
 	var linkiobj = this.svg.selectAll('.linkiobj').data(links)
 		.attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-        .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-        .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-        .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
+		.attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
+		.attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
+		.attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
 
 
     var node = this.svg.selectAll('.node').data(nodes)
@@ -814,3 +833,4 @@ LayoutGraph.prototype.setCompact = function(compact) {
 	if (!this.compactLayout) this.renderUI();
 	this.renderLayout();
 };
+*/
