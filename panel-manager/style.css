@@ -12,7 +12,7 @@
     display: none;
 }
 #slidebar {
-    position: absolute;
+    position: fixed;
     top: 30px;
     right: 249px;
     /*transform: rotate(-90deg);*/
@@ -33,7 +33,7 @@
     width: 250px;
     /*margin-left: -1px;*/
     overflow-y: scroll;
-    position: absolute;
+    position: fixed;
     top: 30px;
     right: 0px;
     bottom: 30px;
