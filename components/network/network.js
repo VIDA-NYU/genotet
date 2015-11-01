@@ -15,10 +15,13 @@
 function NetworkView(viewName, params) {
   NetworkView.base.constructor.call(this, viewName);
 
-  /** @type {NetworkLoader} */
+  /** @protected {NetworkLoader} */
   this.loader = new NetworkLoader(this.data);
 
-  /** @type {NetworkRenderer} */
+  /** @protected {NetworkPanel} */
+  this.panel = new NetworkPanel(this.data);
+
+  /** @protected {NetworkRenderer} */
   this.renderer = new NetworkRenderer(this.container, this.data);
 
   // Set up data loading callbacks.

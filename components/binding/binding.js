@@ -15,10 +15,13 @@
 function BindingView(viewName, params) {
   BindingView.base.constructor.call(this, viewName);
 
-  /** @type {BindingLoader} */
+  /** @protected {BindingLoader} */
   this.loader = new BindingLoader(this.data);
 
-  /** @type {BindingRenderer} */
+  /** @protected {BindingPanel} */
+  this.controller = new BindingPanel(this.data);
+
+  /** @protected {BindingRenderer} */
   this.renderer = new BindingRenderer(this.container, this.data);
 
   this.container.addClass('binding');

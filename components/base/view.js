@@ -30,7 +30,9 @@ function View(viewName) {
     }.bind(this));
 
   /** @protected {!Object} */
-  this.data = {};
+  this.data = {
+    options: {}
+  };
 
   $(this.data)
     .on('genotet.loadStart', function() {

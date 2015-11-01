@@ -76,9 +76,15 @@ var Dialog = {
       var viewName = modal.find('#view-name');
       viewName.val(ViewManager.nextSuffixName(viewName.val()));
       modal.find('.selectpicker').selectpicker();
+
+      // Create
       modal.find('#btnCreate').click(function() {
         var viewName = modal.find('#view-name').val();
-        ViewManager.createView('network', viewName);
+        console.log(viewName);
+        ViewManager.createView('network', viewName, {
+          networkName: modal.find('#network').val(),
+          geneRegex: modal.find('#geneRegex').val()
+        });
       });
     });
   },
@@ -89,8 +95,7 @@ var Dialog = {
       modal.modal();
       var viewName = modal.find('#view-name');
       viewName.val(ViewManager.nextSuffixName(viewName.val()));
-      modal.find('#btnDone').click(function() {
-      });
+
       var chrs = Data.bindingChrs.map(function(chr, index) {
         return {
           id: index,
@@ -109,6 +114,10 @@ var Dialog = {
       modal.find('#gene').select2({
         data: genes
       });
+
+      // Create
+      modal.find('#btnCreate').click(function() {
+      });
     });
   },
 
@@ -119,7 +128,9 @@ var Dialog = {
       var viewName = modal.find('#view-name');
       viewName.val(ViewManager.nextSuffixName(viewName.val()));
       modal.find('.selectpicker').selectpicker();
-      modal.find('#btnDone').click(function() {
+
+      // Create
+      modal.find('#btnCreate').click(function() {
       });
     });
   },
