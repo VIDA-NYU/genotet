@@ -31,7 +31,7 @@ var Data = {
   /**
    * Color scale from red to green.
    */
-  redGreenScale: ['#ab1e1e', 'gray', '#1e6eab'],
+  redBlueScale: ['#ab1e1e', 'gray', '#1e6eab'],
 
   /**
    * Initializes Data properties.

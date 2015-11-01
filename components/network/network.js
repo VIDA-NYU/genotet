@@ -29,6 +29,8 @@ function NetworkView(viewName, params) {
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.networkName, params.geneRegex);
   }.bind(this));
+
+  this.container.addClass('network');
 }
 
 NetworkView.prototype = Object.create(View.prototype);

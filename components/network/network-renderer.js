@@ -13,7 +13,6 @@
  */
 function NetworkRenderer(container, data) {
   NetworkRenderer.base.constructor.call(this, container, data);
-  this.init();
 }
 
 NetworkRenderer.prototype = Object.create(ViewRenderer.prototype);
@@ -30,12 +29,28 @@ NetworkRenderer.prototype.MouseState = {
   ZOOM: 2
 };
 
+/**
+ * Scaling extent for D3 zoom.
+ * @const {!Array<number>}
+ */
+NetworkRenderer.prototype.ZOOM_EXTENT = [0.125, 8];
+
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_SIZE = 14;
 /** @const {number} */
 NetworkRenderer.prototype.NODE_LABEL_OFFSET_X = 10;
 /** @const {number} */
-NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y = 5;
+NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y =
+    NetworkRenderer.prototype.NODE_LABEL_SIZE / 2;
 /** @const {number} */
 NetworkRenderer.prototype.NODE_SIZE = 5;
+/** @const {number} */
+NetworkRenderer.prototype.EDGE_ARROW_LENGTH = 10;
+/**
+ * Shifting percentage of curved edge.
+ * @const {number}
+ */
+NetworkRenderer.prototype.EDGE_CURVE_SHIFT = 0.1;
 
 
 /** @inheritDoc */
@@ -64,17 +79,6 @@ NetworkRenderer.prototype.init = function() {
   // Color scale encoding edge weights.
   /** @private {!d3.scale} */
   this.colorScale_ = d3.scale.linear();
-
-  // Navigation state.
-  /** @private {!Array<number>} */
-  this.translate_ = [0, 0];
-  /** @private {number} */
-  this.scale_ = 1.0;
-  /** @private {NetworkRenderer.MouseState} */
-  this.mouseState_ = this.MouseState.NONE;
-
-  /** @private {d3.zoom} */
-  this.zoom = d3.behavior.zoom();
 
   /**
    * Node objects storing the rendering properties of network nodes.
@@ -122,19 +126,33 @@ NetworkRenderer.prototype.init = function() {
    * @private {!d3.selection}
    */
   this.svgEdges_ = this.canvas.append('g')
-    .classed('edges', true);
+    .classed('edges render-group', true);
   /**
    * Svg group for nodes.
    * @private {!d3.selection}
    */
   this.svgNodes_ = this.canvas.append('g')
-    .classed('nodes', true);
+    .classed('nodes render-group', true);
   /**
    * Svg group for node labels.
    * @private {!d3.selection}
    */
   this.svgNodeLabels_ = this.canvas.append('g')
-    .classed('node-labels', true);
+    .classed('node-labels render-group', true);
+
+  // Navigation state.
+  /** @private {!Array<number>} */
+  this.zoomTranslate_ = [0, 0];
+  /** @private {number} */
+  this.zoomScale_ = 1.0;
+  /** @private {NetworkRenderer.MouseState} */
+  this.mouseState_ = this.MouseState.NONE;
+
+  /** @private {d3.zoom} */
+  this.zoom_ = d3.behavior.zoom()
+    .scaleExtent(this.ZOOM_EXTENT)
+    .on('zoom', this.zoomHandler_.bind(this));
+  this.canvas.call(this.zoom_);
 };
 
 
@@ -170,12 +188,31 @@ NetworkRenderer.prototype.resize = function() {
 };
 
 /**
+ * Handles mouse zoom event.
+ * @private
+ */
+NetworkRenderer.prototype.zoomHandler_ = function() {
+  var translate = d3.event.translate;
+  var scale = d3.event.scale;
+
+  this.zoom_.translate(translate);
+  this.canvas.selectAll('.render-group')
+    .attr('transform', Utils.getTransform(translate, scale));
+
+  this.zoomTranslate_ = translate;
+  this.zoomScale_ = scale;
+
+  this.drawNetwork_();
+};
+
+/**
  * Checks whether the data has been loaded.
  * @private
  */
 NetworkRenderer.prototype.dataReady_ = function() {
   return this.data.nodes;
 };
+
 
 /**
  * Prepares necessary things for rendering the data, e.g. color scale.
@@ -184,7 +221,7 @@ NetworkRenderer.prototype.dataReady_ = function() {
 NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
     .domain([this.data.wmin, this.data.wmax])
-    .range(Data.redGreenScale);
+    .range(Data.redBlueScale);
 
   this.data.nodes.forEach(function(node) {
     if (!this.nodes_[node.id]) {
@@ -236,15 +273,48 @@ NetworkRenderer.prototype.drawNetwork_ = function() {
  * @private
  */
 NetworkRenderer.prototype.drawNodes_ = function() {
-  var nodes = this.svgNodes_.selectAll('circle')
-    .data(_.toArray(this.nodes_), function(node) {
+  var genesRegular = [];
+  var genesTF = [];
+  $.each(this.nodes_, function(id, node) {
+    if (node.isTF) {
+      genesTF.push(node);
+    } else {
+      genesRegular.push(node);
+    }
+  });
+
+  // Draw regular genes as circles.
+  var nodesRegular = this.svgNodes_.selectAll('circle')
+    .data(genesRegular, function(node) {
       return node.id;
     });
-  nodes.enter().append('circle')
+  nodesRegular.enter().append('circle')
     .attr('r', this.NODE_SIZE);
-  nodes.exit().remove();
-  nodes.attr('cx', function(node) { return node.x; })
-    .attr('cy', function(node) { return node.y; });
+  nodesRegular.exit().remove();
+  nodesRegular
+    .attr('cx', function(node) {
+      return node.x;
+    })
+    .attr('cy', function(node) {
+      return node.y;
+    });
+
+  var nodesTF = this.svgNodes_.selectAll('rect')
+    .data(genesTF, function(node) {
+      return node.id;
+    });
+  nodesTF.enter().append('rect')
+    .attr('width', this.NODE_SIZE * 2)
+    .attr('height', this.NODE_SIZE * 2);
+  nodesTF.exit().remove();
+  nodesTF
+    .attr('x', function(node) {
+      return node.x - this.NODE_SIZE;
+    }.bind(this))
+    .attr('y', function(node) {
+      return node.y - this.NODE_SIZE;
+    }.bind(this));
+
   if (this.options.showLabels) {
     this.drawNodeLabels_();
   }
@@ -265,12 +335,15 @@ NetworkRenderer.prototype.drawNodeLabels_ = function() {
       return node.name;
     })
   labels.exit().remove();
+  var fontSize = this.NODE_LABEL_SIZE / this.zoomScale_;
+  var yOffset = this.NODE_LABEL_OFFSET_Y / this.zoomScale_;
   labels
+    .style('font-size', fontSize)
     .attr('x', function(node) {
       return node.x + this.NODE_LABEL_OFFSET_X;
     }.bind(this))
     .attr('y', function(node) {
-      return node.y + this.NODE_LABEL_OFFSET_Y;
+      return node.y + yOffset;
     }.bind(this));
 };
 
@@ -279,61 +352,79 @@ NetworkRenderer.prototype.drawNodeLabels_ = function() {
  * @private
  */
 NetworkRenderer.prototype.drawEdges_ = function() {
-  var line = d3.svg.line().interpolate('linear');
-  var edges = this.svgEdges_.selectAll('path')
+  // Use color to encode edge weight.
+  var getEdgeColor = function(edge) {
+    return this.colorScale_(edge.weight);
+  }.bind(this);
+
+  // Create a shifted point around the middle of the edge to be the control
+  // point of the edge's curve.
+  var getShiftPoint = function(ps, pt) {
+    var m = Utils.middlePoint(ps, pt);
+    var d = Utils.subtractVector(ps, pt);
+    d = Utils.perpendicularVector(d);
+    d = Utils.normalizeVector(d);
+    d = Utils.multiplyVector(d, Utils.vectorDistance(ps, pt) *
+      this.EDGE_CURVE_SHIFT);
+    return Utils.addVector(m, d);
+  }.bind(this);
+
+  var gs = this.svgEdges_.selectAll('g')
     .data(_.toArray(this.edges_), function(edge) {
       return edge.id;
     });
-  edges.enter().append('path')
-    .style('stroke', function(edge) {
-      return this.colorScale_(edge.weight);
-    }.bind(this));
-  edges.exit().remove();
-  edges.attr('d', function(edge) {
-    var points = [
-      [edge.source.x, edge.source.y],
-      [edge.target.x, edge.target.y]
-    ];
-    return line(points);
-  });
+  var gsEnter = gs.enter().append('g')
+    .style('stroke', getEdgeColor)
+    .style('fill', getEdgeColor);
+  gsEnter.append('path')
+    .classed('edge', true);
+  gsEnter.append('path')
+    .classed('arrow', true);
+  gs.exit().remove();
+
+  var curve = d3.svg.line().interpolate('basis');
+  this.svgEdges_.selectAll('path.edge')
+    .data(_.toArray(this.edges_), function(edge) {
+      return edge.id;
+    })
+    .attr('d', function(edge) {
+      var ps = [edge.source.x, edge.source.y];
+      var pt = [edge.target.x, edge.target.y];
+      var pm = getShiftPoint(ps, pt);
+      return curve([ps, pm, pt]);
+    });
+
+  // Create a stroke that looks like an arrow.
+  var getArrowPoints = function(ps, pt) {
+    var pm = getShiftPoint(ps, pt);
+    var ds = Utils.normalizeVector(Utils.subtractVector(ps, pt));
+    var dm = Utils.normalizeVector(Utils.subtractVector(pm, pt));
+    var p1 = Utils.addVector(pt, Utils.multiplyVector(dm, this.NODE_SIZE));
+    var p2 = Utils.addVector(p1, Utils.multiplyVector(ds, this.EDGE_ARROW_LENGTH));
+    var p3 = Utils.mirrorPoint(p2, p1, pm, 1);
+    return [p1, p2, p3];
+  }.bind(this);
+
+  var line = d3.svg.line().interpolate('linear-closed');
+  this.svgEdges_.selectAll('path.arrow')
+    .data(_.toArray(this.edges_), function(edge) {
+      return edge.id;
+    })
+    .attr('d', function(edge) {
+      var ps = [edge.source.x, edge.source.y];
+      var pt = [edge.target.x, edge.target.y];
+      var points = getArrowPoints(ps, pt);
+      return line(points);
+    });
 };
 
 
-NetworkRenderer.prototype.initLayout = function(removeOnly) {
-  var layout = this;
-  this.nodes = this.data.nodes;
-  this.links = this.data.links;
-  // replace node id by reference
-  for (var i = 0; i < this.nodes.length; i++) {
-    if (this.nodes[i].x == null) this.nodes[i].x = Math.floor(Math.random() * this.width);
-    if (this.nodes[i].y == null) this.nodes[i].y = Math.floor(Math.random() * this.graphHeight);
-  }
-  for (var i = 0; i < this.links.length; i++) {
-    this.links[i].source = this.nodes[this.links[i].source];
-    this.links[i].target = this.nodes[this.links[i].target];
-  }
-
-
-  this.forcing = true;
-  $('#'+ this.htmlid + ' #force').attr('checked', true);
-
-    //var color = d3.scale.category20();
-  // compute an initial layout
-  this.renderLayout();
-  this.computeForce();
-  if (removeOnly == true) this.force.stop();
-};
-
-
+/*
 NetworkRenderer.prototype.computeForce = function() {
   this.force.nodes(this.nodes).links(this.links).size([this.width, this.graphHeight]);
   //this.force.start(); // even if force is not needed, you need to start force because it replaces node index of links by node references
   //for(var i=0; i<300; i++) this.force.tick();
   //this.force.stop();
-};
-
-NetworkRenderer.prototype.renderLayout = function() {
-  this.renderGraph();
 };
 
 NetworkRenderer.prototype.removeLayout = function() {
@@ -433,7 +524,6 @@ NetworkRenderer.prototype.renderGraph = function() {
     this.svg
       .style('width', embWidth)
       .style('height', embHeight);
-
 
     var background = this.svg.selectAll('#background').data([{'zone': 'background'}]).enter().append('rect')
     .attr('class', 'iobj')
@@ -563,109 +653,6 @@ NetworkRenderer.prototype.renderGraph = function() {
     .attr('x', 5)
     .attr('y', this.graphHeight - 10)
     .text('');
-};
-
-NetworkRenderer.prototype.visualizeElement = function(element, type) {
-
-  var elementProcessed;
-  if (type == 'highlight') {
-    elementProcessed = this.highlightedElement;
-  }else if (type == 'select') {
-    elementProcessed = this.selectedElement;
-  }
-
-  if (elementProcessed.content != null) {
-    // clear selected
-    if (elementProcessed.type == 'node') {
-      this.svg.selectAll('#node_'+ type)
-        .attr('visibility', 'hidden');
-    }else if (elementProcessed.type == 'link') {
-      this.svg.selectAll('#link_'+ type)
-        .attr('visibility', 'hidden');
-      this.svg.selectAll('#linkdir_'+ type)
-        .attr('visibility', 'hidden');
-    }
-  }
-
-  if (element == null) {
-    elementProcessed = {};
-    return;
-  }else {
-    elementProcessed.content = element.content;
-    elementProcessed.type = element.type;
-  }
-  var d = element.content;
-  var layout = this;
-
-  if (elementProcessed.type == 'node') {
-    var node_ = this.svg.selectAll('#node_'+ type).data([d])
-      .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-      .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; })
-      .attr('r', function(d) { return d.focus ? 6 : 5; })
-      .attr('visibility', 'visible');
-  }else if (elementProcessed.type == 'link') {
-    var link_ = this.svg.selectAll('#link_'+ type).data([d])
-      .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-      .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-      .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-      .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; })
-      .attr('visibility', 'visible');
-    var linkdir_ = this.svg.selectAll('#linkdir_'+ type).data([d])
-      .attr('points', function(d) { return layout.edgeArrow(d); })
-      .attr('visibility', 'visible');
-  }
-
-  // send selection to children view
-  var msg = {'action': type, 'type': elementProcessed.type};
-  if (elementProcessed.type == 'node') {
-    msg.para = [d.name, this.parentView.loader.lastIdentifier.net];
-    if (type == 'select' && this.edgeListing) this.parentView.loader.showEdges(this.parentView.loader.lastIdentifier.net, d.name);
-  }else if (elementProcessed.type == 'link') {
-    msg.para = [d.source.name, d.target.name];
-  }
-  this.parentView.postViewMessage(msg);
-};
-
-NetworkRenderer.prototype.edgeCoordinate = function(d, which) {
-  var layout = this;
-  if (this.data.bidir[d.source.index + '*'+ d.target.index] == true && this.data.bidir[d.target.index + '*'+ d.source.index] == true) { // bidirectional edges
-    var dy = d.target.y - d.source.y, dx = d.target.x - d.source.x;
-    var dl = Math.sqrt(dx * dx + dy * dy), th = -Math.acos(0.0);
-    dx /= dl; dy /= dl;
-    var ddx = Math.cos(th) * dx - Math.sin(th) * dy,
-      ddy = Math.sin(th) * dx + Math.cos(th) * dy;
-    switch (which) {
-      case 'x1': return d.source.x + ddx * 2 / layout.scale;
-      case 'y1': return d.source.y + ddy * 2 / layout.scale;
-      case 'x2': return d.target.x + ddx * 2 / layout.scale;
-      case 'y2': return d.target.y + ddy * 2 / layout.scale;
-      default: console.error('edgeCoordinate: unidentified which bidir', which);
-    }
-  }else {
-    switch (which) {
-      case 'x1': return d.source.x;
-      case 'y1': return d.source.y;
-      case 'x2': return d.target.x;
-      case 'y2': return d.target.y;
-      default: console.error('edgeCoordinate: unidentified which', which);
-    }
-  }
-};
-
-NetworkRenderer.prototype.edgeArrow = function(d) {
-  var layout = this;
-  var g = 5.0, h = g + 10.0, w = 5.0;
-  var dy = d.target.y - d.source.y, dx = d.target.x - d.source.x;
-  var theta = Math.atan2(dy, dx),
-  theta2 = Math.atan2(-dx, dy);
-  var sint = Math.sin(theta), cost = Math.cos(theta),
-  sint2 = Math.sin(theta2), cost2 = Math.cos(theta2);
-  var x2 = this.edgeCoordinate(d, 'x2'), y2 = this.edgeCoordinate(d, 'y2');
-  var arrowx = x2 * layout.scale - cost * h + layout.trans[0],
-  arrowy = y2 * layout.scale - sint * h + layout.trans[1];
-  return ''+ (x2 * layout.scale - g * cost + layout.trans[0]) + ','+ (y2 * layout.scale - g * sint + layout.trans[1]) + ' ' +
-        (arrowx + w * cost2) + ','+ (arrowy + w * sint2) + ' ' +
-        (arrowx - w * cost2) + ','+ (arrowy - w * sint2);
 };
 
 NetworkRenderer.prototype.graphZoomstart = function(d) {
@@ -911,51 +898,4 @@ NetworkRenderer.prototype.toggleForce = function() {
   else this.force.resume();
   this.forcing = !this.forcing;
 };
-
-
-NetworkRenderer.prototype.showMsg = function(msg, ui) {
-  this.removeLayout();
-  if (ui == null) ui = false;
-  $('#'+ this.htmlid).append("<div id='hint' class='hint'></div>");
-  $('#'+ this.htmlid + ' #hint').text(msg).css({'width': this.width, 'height': this.rawheight - (ui && !this.compactLayou ? this.uiHeight : 0) });
-};
-
-NetworkRenderer.prototype.showError = function() {
-  this.showMsg('Oops..this guy is dead. x_X', false);
-  this.renderUI();
-};
-
-NetworkRenderer.prototype.updateGraphSize = function(newsize) {
-  if (this.nodes == null) return;
-  var oldwidth = this.width, oldheight = this.graphHeight;
-  this.graphHeight = newsize[1] - (this.compactLayout ? 0 : this.uiHeight);
-  var xratio = newsize[0] / oldwidth, yratio = this.graphHeight / oldheight;
-  var dx = (newsize[0] - oldwidth) / 2, dy = (this.graphHeight - oldheight) / 2;
-  if (xratio >= 1.0 && yratio >= 1.0) {
-    var ratio = Math.max(xratio, yratio);
-  }else if (xratio < 1.0 && yratio < 1.0) {
-    var ratio = Math.min(xratio, yratio);
-  }else {
-    var ratio = 1.0;
-  }
-  for (var i = 0; i < this.nodes.length; i++) {
-    this.nodes[i].x += dx;
-    this.nodes[i].y += dy;
-    //this.nodes[i].x += dx;
-    //this.nodes[i].y += dy;
-    }
-  this.force.size([newsize[0], this.graphHeight]);
-};
-
-NetworkRenderer.prototype.resizeLayout = function(newsize) {
-  if (this.parentView.showHeader == false) newsize[1] += manager.headerHeight;
-
-  this.updateGraphSize(newsize);
-  this.width = newsize[0];
-    this.rawheight = newsize[1];
-  this.removeLayout();
-  if (!this.compactLayout) this.renderUI();
-
-  if (this.nodes == null) return;
-    this.renderLayout();
-};
+*/
