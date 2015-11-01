@@ -411,48 +411,11 @@ NetworkRenderer.prototype.drawEdges_ = function() {
 
 
 /*
-NetworkRenderer.prototype.computeForce = function() {
-  this.force.nodes(this.nodes).links(this.links).size([this.width, this.graphHeight]);
-  //this.force.start(); // even if force is not needed, you need to start force because it replaces node index of links by node references
-  //for(var i=0; i<300; i++) this.force.tick();
-  //this.force.stop();
-};
-
 NetworkRenderer.prototype.removeLayout = function() {
    $('#'+ this.htmlid + " div[name='ui']").remove();
    $('#'+ this.htmlid + ' #layoutwrapper').remove();
    $('#'+ this.htmlid + ' #hint').remove();
    $('#'+ this.htmlid + ' svg').remove();
-};
-
-NetworkRenderer.prototype.renderUI = function() {
-
-};
-
-NetworkRenderer.prototype.uiUpdate = function(type) {
-  var loader = this.parentView.loader;
-  if (type == 'gene') {
-    var srch = $('#'+ this.htmlid + ' #gene').val();
-    var cmd = srch.split(' ');
-    if (cmd.length == 1 || (cmd.length == 2 && cmd[0] == 'sel')) {
-      var exp = cmd.length == 1 ? cmd[0] : cmd[1];
-      this.showMsg('Loading...');
-      loader.loadNetwork(loader.lastIdentifier.net, exp);
-    }else if (cmd.length == 2 && (cmd[0] == 'add' || cmd[0] == 'rm')) {
-      if (cmd[0] == 'add') {
-        loader.addNodes(cmd[1]);
-      }else if (cmd[0] == 'rm') {
-        loader.removeNodes(cmd[1]);
-      }
-    }else {
-      options.alert('invalid syntax, usage: add/rm/sel regexp | regexp');
-      return;
-    }
-  }else if (type == 'comb') {
-    var exp = $('#'+ this.htmlid + ' #comb').val();
-    if (exp == '') return;
-    loader.loadComb(loader.lastIdentifier.net, exp);
-  }
 };
 
 NetworkRenderer.prototype.renderGraph = function() {
@@ -603,31 +566,6 @@ NetworkRenderer.prototype.renderGraph = function() {
     .attr('x', 5)
     .attr('y', this.graphHeight - 10)
     .text('');
-};
-
-NetworkRenderer.prototype.graphZoomstart = function(d) {
-  if (this.dragging) return;
-  //if(d.zone == "foreground") this.zoom.center([this.width/2, this.height/2]);
-  //else if(d.zone == "background") this.zoom.center(null);
-  this.zooming = true;
-  this.svg.selectAll('.node_highlight').attr('visibility', 'hidden');
-  this.svg.selectAll('.link_highlight').attr('visibility', 'hidden');
-  this.svg.selectAll('.linkdir_highlight').attr('visibility', 'hidden');
-};
-
-NetworkRenderer.prototype.graphZoom = function(d) {
-  if (this.dragging) return;
-  //if(manager.ctrlDown) return;
-  var trans = d3.event.translate;
-  var scale = d3.event.scale;
-  this.trans = [trans[0], trans[1]];
-  this.scale = scale;
-  this.updateLayout();
-};
-
-NetworkRenderer.prototype.graphZoomend = function(d) {
-  if (this.dragging) return;
-  this.zooming = false;
 };
 
 NetworkRenderer.prototype.nodeDragStart = function(d) {

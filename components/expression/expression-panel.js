@@ -11,8 +11,15 @@
  */
 function ExpressionPanel(data) {
   ExpressionPanel.base.constructor.call(this, data);
+
+  this.template = 'components/expression/expression-panel.html';
 }
 
 ExpressionPanel.prototype = Object.create(ViewPanel.prototype);
 ExpressionPanel.prototype.constructor = ExpressionPanel;
 ExpressionPanel.base = ViewPanel.prototype;
+
+/** @inheritDoc */
+ExpressionPanel.prototype.panel = function() {
+  ExpressionPanel.base.panel.call(this);
+};

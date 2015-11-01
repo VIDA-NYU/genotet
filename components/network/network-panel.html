@@ -1,0 +1,20 @@
+<div name="ui">
+  <span style="margin-left: 5px; font-weight:900">NETWORK</span>
+  <select id="netname" title="Choose the network data">
+    <option value="th17">TH17</option>
+    <option value="confidence">Confidence</option>
+    <option value="prediction">Prediction</option>
+    <option value="strength">Strength</option>
+  </select>
+
+  <span style="margin-left: 5px; font-weight:900">GENE</span>
+  <input type="text" id="gene" size="10" title="Add/remove/select genes in the network. Usage: [add/rm/sel] regexp |regexp. If no action is specified, default behavior is sel.">
+  <span style="margin-left: 5px;">COMBREG</span>
+  <input type="text" id="comb" size="10" title="Add nodes into the graph that are regulated by selected genes. Usage: regexp">
+
+  <input type="checkbox" id="label" title="Show/hide node labels"> Label
+  <input type="checkbox" id="tf2tf" title="Show/hide edges between 2 TFs"> TF-TF
+  <input type="checkbox" id="tf2ntf" title="Show/hide edges bettwen a TF and a non-TF"> TF-nonTF
+  <input type="checkbox" id="force" title="Turn on/off force of the graph layout"> Force
+  <input type="checkbox" id="edgelist" title="Auto pop incident edge list when a node is clicked"> EdgeList
+</div>
