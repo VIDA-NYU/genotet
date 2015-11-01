@@ -16,14 +16,12 @@
   border-color: #ddd;
 }
 
-.view.focused .view-header {
-  background-image: linear-gradient(to bottom,#d5d5d5 0,#c8c8c8 100%);
+.view-header #header-text {
+  pointer-events: none;
 }
 
-.view-body {
-  min-height: 10px;
-  padding: 10px;
-  top: 0px;
+.view.focused .view-header {
+  background-image: linear-gradient(to bottom,#d5d5d5 0,#c8c8c8 100%);
 }
 
 .view .popup {
@@ -67,4 +65,10 @@
 .view .popup .icon-failure {
   left: calc(50% - 50px/2);
   top: calc(55% - 50px);
+}
+
+.view-content {
+}
+
+.view-body {
 }

@@ -22,12 +22,19 @@ function ViewRenderer(container, data) {
    * @protected {!jQuery}
    */
   this.container = container;
+  $(this.container).resize(this.resize.bind(this));
 
   /**
    * D3 selection of the view canvas.
    * @protected {?d3.selection}
    */
   this.canvas;
+
+  // Size of the canvas, automatically updated by the resize handler.
+  /** @private {number} */
+  this.canvasWidth_;
+  /** @private {number} */
+  this.canvasHeight_;
 
   /**
    * View data object is shared between the view, loader and renderer.
@@ -48,6 +55,7 @@ function ViewRenderer(container, data) {
  */
 ViewRenderer.prototype.init = function() {
   this.canvas = d3.selectAll(this.container.find('.canvas-svg').toArray());
+  this.resize();
 };
 
 
@@ -59,9 +67,23 @@ ViewRenderer.prototype.render = function() {
 
 
 /**
+ * Handles data loadComplete event, e.g. processing the data.
+ * Typically, the scene is rendered after loadComplete event is fired.
+ */
+ViewRenderer.prototype.dataLoaded = function() {
+};
+
+
+/**
  * Handles the resize update of the view.
  */
 ViewRenderer.prototype.resize = function() {
+  this.canvasWidth_ = this.container.width();
+  this.canvasHeight_ = this.container.height() -
+    this.container.find('.view-header').outerHeight();
+  this.canvas
+    .attr('width', this.canvasWidth_)
+    .attr('height', this.canvasHeight_);
 };
 
 

@@ -1,5 +1,6 @@
-
-// server handler for binding data
+/**
+ * @fileoverview Server handler for binding data.
+ */
 
 'use strict';
 

@@ -1,5 +1,6 @@
-
-// server segment tree for on-the-fly sampling on histogram
+/**
+ * @fileoverview Server segment tree for on-the-fly sampling of histogram.
+ */
 
 'use strict';
 

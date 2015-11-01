@@ -37,7 +37,7 @@ function View(viewName) {
       this.renderer.showLoading();
     }.bind(this))
     .on('genotet.loadComplete', function() {
-      this.renderer.render();
+      this.renderer.dataLoaded();
       this.renderer.hideLoading();
     }.bind(this))
     .on('genotet.loadFail', function() {
@@ -184,14 +184,18 @@ View.prototype.init = function() {
   this.container
     .draggable({
       handle: '.view-header',
-      snap: true
+      snap: true,
+      start: function(event) {
+        ViewManager.blurAllViews();
+        this.focus();
+      }.bind(this)
     })
     .resizable({
       handles: 'all'
     })
     .css({ // TODO(bowen): use better size init mechanism
       width: 500,
-      height: 300
+      height: 500 / (16 / 10)
     });
 
   var pos = ViewManager.findPosition(this);

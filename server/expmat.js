@@ -1,5 +1,6 @@
-
-// server handler for expression matrix
+/**
+ * @fileoverview Server handler for expression matrix.
+ */
 
 'use strict';
 

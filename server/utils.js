@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Server utility functions.
+ */
 
 'use strict';
 
@@ -35,5 +38,4 @@ module.exports = {
     url = url.replace(/%3F/g, '?');
     return url;
   }
-
 };

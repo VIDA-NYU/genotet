@@ -20,10 +20,25 @@ NetworkRenderer.prototype = Object.create(ViewRenderer.prototype);
 NetworkRenderer.prototype.constructor = NetworkRenderer;
 NetworkRenderer.base = ViewRenderer.prototype;
 
-
 /**
- * Initializes the renderer properties.
+ * State of mouse interaction.
+ * @enum {number}
  */
+NetworkRenderer.prototype.MouseState = {
+  NONE: 0,
+  SELECT: 1,
+  ZOOM: 2
+};
+
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_OFFSET_X = 10;
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y = 5;
+/** @const {number} */
+NetworkRenderer.prototype.NODE_SIZE = 5;
+
+
+/** @inheritDoc */
 NetworkRenderer.prototype.init = function() {
   NetworkRenderer.base.init.call(this);
 
@@ -33,8 +48,8 @@ NetworkRenderer.prototype.init = function() {
    */
   this.filter = {
     edgeWeight: [-Infinity, Infinity],
-    showTfToTf: true,
-    showTfToNonTf: true
+    showTFToTF: true,
+    showTFToNonTF: true
   };
 
   /**
@@ -42,17 +57,21 @@ NetworkRenderer.prototype.init = function() {
    * @protected {!Object}
    */
   this.options = {
-    showLabel: true,
+    showLabels: true,
     labelGap: 10.0
   };
 
-  /** @private {d3.scale} */
+  // Color scale encoding edge weights.
+  /** @private {!d3.scale} */
   this.colorScale_ = d3.scale.linear();
 
-  this.trans = [0, 0];
-  this.scale = 1.0;
-  this.dragging = false;
-  this.zooming = false;
+  // Navigation state.
+  /** @private {!Array<number>} */
+  this.translate_ = [0, 0];
+  /** @private {number} */
+  this.scale_ = 1.0;
+  /** @private {NetworkRenderer.MouseState} */
+  this.mouseState_ = this.MouseState.NONE;
 
   /** @private {d3.zoom} */
   this.zoom = d3.behavior.zoom();
@@ -95,6 +114,27 @@ NetworkRenderer.prototype.init = function() {
    * @private {boolean}
    */
   this.forcing_ = false;
+
+  // Create group elements in the svg for nodes, edges, etc.
+  // Groups shall be created in the reverse order of their appearing order.
+  /**
+   * Svg group for edges.
+   * @private {!d3.selection}
+   */
+  this.svgEdges_ = this.canvas.append('g')
+    .classed('edges', true);
+  /**
+   * Svg group for nodes.
+   * @private {!d3.selection}
+   */
+  this.svgNodes_ = this.canvas.append('g')
+    .classed('nodes', true);
+  /**
+   * Svg group for node labels.
+   * @private {!d3.selection}
+   */
+  this.svgNodeLabels_ = this.canvas.append('g')
+    .classed('node-labels', true);
 };
 
 
@@ -103,10 +143,39 @@ NetworkRenderer.prototype.init = function() {
  * @override
  */
 NetworkRenderer.prototype.render = function() {
-  this.prepareData_();
-  this.force_.start();
+  if (!this.dataReady_()) {
+    return;
+  }
+  this.force_
+    .size([this.canvasWidth_, this.canvasHeight_])
+    .start();
 };
 
+/**
+ * Prepares the network data and renders the network.
+ * @override
+ */
+NetworkRenderer.prototype.dataLoaded = function() {
+  this.prepareData_();
+  this.render();
+};
+
+/**
+ * Re-renders the scene upon resize.
+ * @override
+ */
+NetworkRenderer.prototype.resize = function() {
+  NetworkRenderer.base.resize.call(this);
+  this.render();
+};
+
+/**
+ * Checks whether the data has been loaded.
+ * @private
+ */
+NetworkRenderer.prototype.dataReady_ = function() {
+  return this.data.nodes;
+};
 
 /**
  * Prepares necessary things for rendering the data, e.g. color scale.
@@ -117,29 +186,39 @@ NetworkRenderer.prototype.prepareData_ = function() {
     .domain([this.data.wmin, this.data.wmax])
     .range(Data.redGreenScale);
 
+  this.data.nodes.forEach(function(node) {
+    if (!this.nodes_[node.id]) {
+      this.nodes_[node.id] = _.extend({}, node);
+    }
+  }, this);
+  this.data.edges.forEach(function(edge) {
+    if (!this.nodes_[edge.source] || !this.nodes_[edge.target]) {
+      Core.error('edge contains nodes that do not exist', JSON.stringify(edge));
+    }
+    if (!this.edges_[edge.id]) {
+      this.edges_[edge.id] = {
+        id: edge.id,
+        source: this.nodes_[edge.source],
+        target: this.nodes_[edge.target],
+        weight: edge.weight
+      };
+    }
+  }, this);
+
   this.force_ = d3.layout.force()
+    .nodes(_.toArray(this.nodes_))
+    .links(_.toArray(this.edges_))
     .charge(this.forceParams_.charge)
     .gravity(this.forceParams_.gravity)
     .linkDistance(this.forceParams_.linkDistance)
     .friction(this.forceParams_.friction)
-    .size([this.width, this.graphHeight])
     .on('start', function() {
       this.forcing = true;
     }.bind(this))
-    .on('tick', this.drawNetwork_)
+    .on('tick', this.drawNetwork_.bind(this))
     .on('end', function() {
       this.forcing = false;
     }.bind(this));
-};
-
-
-/**
- * Handles force ending event.
- * @private
- */
-NetworkRenderer.prototype.forceComplete_ = function() {
-  this.forcing_ = false;
-  //$('#'+ this.htmlid + ' #force').attr('checked', false);
 };
 
 /**
@@ -148,78 +227,76 @@ NetworkRenderer.prototype.forceComplete_ = function() {
  * @private
  */
 NetworkRenderer.prototype.drawNetwork_ = function() {
-  // TODO(bowen): Implement this.
-  return;
-  var nodes = this.nodes,
-    links = this.links,
-    layout = this;
+  this.drawNodes_();
+  this.drawEdges_();
+};
 
-  var link = this.svg.selectAll('.link').data(links)
-    .style('stroke', function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
-    .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-    .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-    .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-    .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
-
-  var linkdir = this.svg.selectAll('.linkdir').data(links)
-    .style('stroke', function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
-    .attr('points', function(d) { return layout.edgeArrow(d); });
-
-  var linkiobj = this.svg.selectAll('.linkiobj').data(links)
-    .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-    .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-    .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-    .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
-
-
-  var node = this.svg.selectAll('.node').data(nodes)
-    .attr('r', function(d) { return d.focus ? 6 : 5; })
-    //.style("fill", function(d) { return d.selected?"orange":(d.focus?"red":"white"); })
-    .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-    .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; });
-
-  var nodeiobj = this.svg.selectAll('.nodeiobj').data(nodes)
-    .attr('r', 10.0)
-    .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-    .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; });
-
-  var label = this.svg.selectAll('.label').data(nodes)
-    .attr('x', function(d) { return layout.nodes[d.index].x * layout.scale + layout.trans[0]; })
-    .attr('y', function(d) { return layout.nodes[d.index].y * layout.scale - layout.labelGap + layout.trans[1]; });
-
-
-  if (this.selectedElement.content != null) {
-    if (this.selectedElement.type == 'node') {
-      var node_ = this.svg.selectAll('#node_select').data([this.selectedElement.content])
-        .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-        .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; });
-    }else if (this.selectedElement.type == 'link') {
-      var link_ = this.svg.selectAll('#link_select').data([this.selectedElement.content])
-        .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-        .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-        .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-        .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
-      var linkdir_ = this.svg.selectAll('#linkdir_select').data([this.selectedElement.content])
-        .attr('points', function(d) { return layout.edgeArrow(d); });
-    }
-  }
-  if (this.highlightedElement.content != null) {
-    if (this.highlightedElement.type == 'node') {
-      var node_ = this.svg.selectAll('#node_highlight').data([this.highlightedElement.content])
-        .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-        .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; });
-    }else if (this.highlightedElement.type == 'link') {
-      var link_ = this.svg.selectAll('#link_highlight').data([this.highlightedElement.content])
-        .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-        .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-        .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-        .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
-      var linkdir_ = this.svg.selectAll('#linkdir_highlight').data([this.highlightedElement.content])
-        .attr('points', function(d) { return layout.edgeArrow(d); });
-    }
+/**
+ * Renders the network nodes.
+ * @private
+ */
+NetworkRenderer.prototype.drawNodes_ = function() {
+  var nodes = this.svgNodes_.selectAll('circle')
+    .data(_.toArray(this.nodes_), function(node) {
+      return node.id;
+    });
+  nodes.enter().append('circle')
+    .attr('r', this.NODE_SIZE);
+  nodes.exit().remove();
+  nodes.attr('cx', function(node) { return node.x; })
+    .attr('cy', function(node) { return node.y; });
+  if (this.options.showLabels) {
+    this.drawNodeLabels_();
   }
 };
 
+/**
+ * Renders the node labels. This is only called from drawNodes_
+ * when options.showLabels is set.
+ * @private
+ */
+NetworkRenderer.prototype.drawNodeLabels_ = function() {
+  var labels = this.svgNodeLabels_.selectAll('text')
+    .data(_.toArray(this.nodes_), function(node) {
+      return node.id;
+    });
+  labels.enter().append('text')
+    .text(function(node) {
+      return node.name;
+    })
+  labels.exit().remove();
+  labels
+    .attr('x', function(node) {
+      return node.x + this.NODE_LABEL_OFFSET_X;
+    }.bind(this))
+    .attr('y', function(node) {
+      return node.y + this.NODE_LABEL_OFFSET_Y;
+    }.bind(this));
+};
+
+/**
+ * Renders the network edges.
+ * @private
+ */
+NetworkRenderer.prototype.drawEdges_ = function() {
+  var line = d3.svg.line().interpolate('linear');
+  var edges = this.svgEdges_.selectAll('path')
+    .data(_.toArray(this.edges_), function(edge) {
+      return edge.id;
+    });
+  edges.enter().append('path')
+    .style('stroke', function(edge) {
+      return this.colorScale_(edge.weight);
+    }.bind(this));
+  edges.exit().remove();
+  edges.attr('d', function(edge) {
+    var points = [
+      [edge.source.x, edge.source.y],
+      [edge.target.x, edge.target.y]
+    ];
+    return line(points);
+  });
+};
 
 
 NetworkRenderer.prototype.initLayout = function(removeOnly) {
