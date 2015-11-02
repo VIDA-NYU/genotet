@@ -14,26 +14,28 @@
     </tr>
     <tr>
       <td>Data</td>
-      <td><select id="data" class="selectpicker">
+      <td><select id="matrix" class="selectpicker">
         <option value="b-subtilis">B. Subtilis</option>
         <option value="rna-seq">RNA-Seq</option>
       </select></td>
     </tr>
+    <!--
     <tr>
       <td>Profile</td>
       <td><input id="plot" class="form-control" size="20" title="name of gene to be plotted as polyline"></td>
     </tr>
+    -->
     <tr>
       <td>Genes</td>
-      <td><input id="gene" class="form-control" size="20" title="regex for genes to be shown in the heatmap"></td>
+      <td><input id="geneRegex" class="form-control" size="20" title="regex for genes to be shown in the heatmap"></td>
     </tr>
     <tr>
       <td>Conditions</td>
-      <td><input id="cond" class="form-control" size="20" title="Regexp for conditions to be shown in the heatmap"></td>
+      <td><input id="condRegex" class="form-control" size="20" title="Regexp for conditions to be shown in the heatmap"></td>
     </tr>
   </table>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-  <button type="button" class="btn btn-primary">Create</button>
+  <button class="btn btn-default" data-dismiss="modal">Close</button>
+  <button id="btnCreate" class="btn btn-primary" data-dismiss="modal">Create</button>
 </div>

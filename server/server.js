@@ -49,12 +49,12 @@ if (runEnv == 'vida') {
 var codeFile = wiggleAddr + 'namecode';
 var exonFile = wiggleAddr + 'exons.bin';
 var expmatFile = {
-  'B-Subtilis': expmatAddr + 'expressionMatrix.bin',
-  'RNA-Seq': expmatAddr + 'rnaseq.bin'
+  'b-subtilis': expmatAddr + 'expressionMatrix.bin',
+  'rna-seq': expmatAddr + 'rnaseq.bin'
 };
 var tfamatFile = {
-  'B-Subtilis': expmatAddr + 'tfa.matrix2.bin',
-  'RNA-Seq': null
+  'b-subtilis': expmatAddr + 'tfa.matrix2.bin',
+  'rna-seq': null
 };
 
 
@@ -76,15 +76,6 @@ app.post('/genotet', function(req, res) {
     var net = req.body.net,
      exp = req.body.exp;
     data = network.getNet(networkAddr + net + '.bnet', exp);
-  }else if (type == 'expmat') {
-    var mat = req.body.mat,
-      width = req.body.width,
-      height = req.body.height,
-      exprows = req.body.exprows,
-      expcols = req.body.expcols,
-      resol = req.body.resol;
-    var file = expmatFile[mat];
-    data = expmat.getExpmat(file, width, height, exprows, expcols, resol);
   }
   res.jsonp(data);
 });
@@ -92,6 +83,7 @@ app.post('/genotet', function(req, res) {
 app.get('/genotet', function(req, res) {
   var type = req.query.type;
   var data;
+  console.log('GET', type);
   // network queries
   if (type == 'net') {  // (sub) network
     var net = req.query.net.toLowerCase(),
@@ -149,6 +141,11 @@ app.get('/genotet', function(req, res) {
     data = binding.getBindingSampling(file);
     data.name = name;
     data.chr = chr;
+  } else if (type == 'expmat') {
+    var file = expmatFile[req.query.mat];
+    var exprows = req.query.exprows;
+    var expcols = req.query.expcols;
+    data = expmat.getExpmat(file, exprows, expcols);
   } else if (type == 'expmatline') {
     // expression matrix query
     var mat = req.query.mat;

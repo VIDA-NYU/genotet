@@ -15,6 +15,8 @@
 function NetworkView(viewName, params) {
   NetworkView.base.constructor.call(this, viewName);
 
+  this.container.addClass('network');
+
   /** @protected {NetworkLoader} */
   this.loader = new NetworkLoader(this.data);
 
@@ -28,12 +30,9 @@ function NetworkView(viewName, params) {
   $(this.data).on('genotet.loadComplete', function() {
     this.renderer.render();
   }.bind(this));
-
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.networkName, params.geneRegex);
   }.bind(this));
-
-  this.container.addClass('network');
 }
 
 NetworkView.prototype = Object.create(View.prototype);

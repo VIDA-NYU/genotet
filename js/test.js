@@ -15,9 +15,14 @@ var Test = {
       networkName: 'th17',
       geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
     });
-    ViewManager.createView('expression', 'My Expression Matrix', {
-    });
     ViewManager.createView('binding', 'My Genome Browser', {
+      gene: 'BATF',
+      chr: '1'
+    });
+    ViewManager.createView('expression', 'My Expression Matrix', {
+      matrixName: 'rna-seq',
+      geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
+      condRegex: ''
     });
   }
 };

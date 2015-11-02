@@ -15,6 +15,8 @@
 function BindingView(viewName, params) {
   BindingView.base.constructor.call(this, viewName);
 
+  this.container.addClass('binding');
+
   /** @protected {BindingLoader} */
   this.loader = new BindingLoader(this.data);
 
@@ -24,7 +26,13 @@ function BindingView(viewName, params) {
   /** @protected {BindingRenderer} */
   this.renderer = new BindingRenderer(this.container, this.data);
 
-  this.container.addClass('binding');
+  // Set up data loading callbacks.
+  $(this.data).on('genotet.loadComplete', function() {
+    this.renderer.render();
+  }.bind(this));
+  $(this.container).on('genotet.ready', function() {
+    this.loader.load(params.gene, params.chr);
+  }.bind(this));
 }
 
 BindingView.prototype = Object.create(View.prototype);

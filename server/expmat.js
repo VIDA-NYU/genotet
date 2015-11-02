@@ -122,9 +122,7 @@ module.exports = {
     return data;
   },
 
-  getExpmat: function(file, width, height, exprows, expcols, resol) {
-    if (width == null || height == null)
-      return console.error('width or height is null'), '';
+  getExpmat: function(file, exprows, expcols) {
     console.log(file);
 
     var buf = utils.readFileToBuf(file);
@@ -139,11 +137,11 @@ module.exports = {
       console.log('incorrect regular expression');
       expr = expc = '.*';
     }
-    console.log(width, height, expr, expc);
+    console.log(expr, expc);
 
-    var selrows = {}, selcols = {},
-      selrowids = new Array(), selcolids = new Array(),
-      selrownames = new Array(), selcolnames = new Array();
+    var selrows = {}, selcols = {};
+    var selrowids = [], selcolids = [];
+    var selrownames = [], selcolnames = [];
     for (var i = 0; i < result.numrows; i++) {
       if (result.rownames[i].match(expr)) {
         selrows[i] = true;
@@ -159,13 +157,19 @@ module.exports = {
       }
     }
     var numSelrows = selrownames.length, numSelcols = selcolnames.length;
-    var values = new Array();
+    var values = [];
+    var min = Infinity, max = -Infinity;
     for (var i = 0; i < numSelrows; i++) {
+      var row = [];
       for (var j = 0; j < numSelcols; j++) {
-        values.push(result.values[selrowids[i] * result.numcols + selcolids[j]]);
+        var val = result.values[selrowids[i] * result.numcols + selcolids[j]];
+        min = Math.min(min, val);
+        max = Math.max(max, val);
+        row.push(val);
       }
+      values.push(row);
     }
-
+    /*
       resol = Math.max(1, resol);
     var nresol = Math.ceil(height / resol), mresol = Math.ceil(width / resol);
     var n = numSelrows, m = numSelcols; // note that x,y are reversed between svg and matrix data
@@ -213,17 +217,21 @@ module.exports = {
         data.data.push({'x': j / m * width, 'y': i / n * height, 'count': cnt});
       }
     }
-    data.max = max; data.min = min;
-    data.maxAll = result.max; data.minAll = result.min;
-    data.numcols = numSelcols;
-    data.numrows = numSelrows;
-    data.rownames = selrownames;
-    data.colnames = selcolnames;
-    data.selrows = selrows;
-    data.selcols = selcols;
-    data.n = n;
-    data.m = m;
-    console.log('returning size', data.numrows, data.numcols, n, m, max, min);
+    */
+
+    var data = {
+      data: values,
+      min: min,
+      max: max,
+      minAll: result.min,
+      maxAll: result.max,
+      numGenes: numSelrows,
+      numConds: numSelcols,
+      geneNames: selrownames,
+      condNames: selcolnames
+    }
+    console.log('return', data.numGenes, 'rows', data.numConds,
+        'columns with value range [' + min + ', ' + max + ']');
     return data;
   }
 

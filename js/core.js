@@ -1,5 +1,9 @@
-// request json data file via http & jsonp
-var addr = 'http://localhost:3000/genotet';
+/**
+ * @fileoverview Core of Genotet that contains the main entry of the system.
+ */
+
+'use strict';
+
 
 var Core = {
   init: function() {

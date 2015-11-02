@@ -3,6 +3,10 @@
  */
 
 var Data = {
+  /**
+   * Data queries are sent to this address via http and received via jsonp.
+   */
+  serverURL: 'http://localhost:3000/genotet',
 
   /**
    * Genes with binding data available in the Genotet system.
