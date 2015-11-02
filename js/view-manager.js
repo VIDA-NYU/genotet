@@ -60,6 +60,7 @@ var ViewManager = {
     }
     // Remove the view reference.
     delete this.views[view.name()];
+    PanelManager.removePanel(view.name());
   },
 
   /**
@@ -79,6 +80,7 @@ var ViewManager = {
       view.close();
     });
     this.views = {};
+//    PanelManager.closeAllPanels();
   },
 
   /**
