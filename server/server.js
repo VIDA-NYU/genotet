@@ -3,7 +3,7 @@
 
 'use strict';
 
-var runEnv = 'laptop';
+var runEnv = 'jm_mac';
 
 var express = require('express'),
 	fs = require('fs'),
@@ -17,7 +17,8 @@ var	segtree = require('./segtree.js'),
 	utils = require('./utils.js'),
   network = require('./network.js'),
 	binding = require('./binding.js'),
-	expmat = require('./expmat.js');
+	expmat = require('./expmat.js'),
+	upload = require('./uploader.js');
 
 var app = express();
 
@@ -44,6 +45,10 @@ if (runEnv == 'vida') {
 	wiggleAddr = '/home/bowen/bnetvis_data/wiggle/';
 	networkAddr = '/home/bowen/bnetvis_data/network/';
 	expmatAddr = '/home/bowen/bnetvis_data/';
+} else if (runEnv == 'jm_mac') {
+	wiggleAddr = '/Users/JiamingDong/Documents/vida_data/wiggle/';
+	networkAddr = '/Users/JiamingDong/Documents/vida_data/network/';
+	expmatAddr = '/Users/JiamingDong/Documents/vida_data/'
 }
 var codeFile = wiggleAddr + 'namecode';
 var exonFile = wiggleAddr + 'exons.bin';
@@ -155,10 +160,12 @@ app.get('/genotet', function(req, res) {
 		var fileExp = expmatFile[mat], fileTfa = tfamatFile[mat];
 		name = name.toLowerCase();
 		data = expmat.getExpmatLine(fileExp, fileTfa, name);
-	} else {
+	} else if (type == 'upload') {
+    data = uploader.uploadFile(app, req, res, runEnv);
+  } else {
     console.log('invalid argument');
-		data = '';
-	}
+    data = '';
+  }
 
 	res.jsonp(data); // send response
 
