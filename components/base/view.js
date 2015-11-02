@@ -19,7 +19,7 @@ function View(viewName) {
   /** @protected {!jQuery} */
   this.container = $('<div></div>')
     .addClass('view')
-    .load('components/base/view.html', function() {
+    .load(this.template, function() {
       this.container.appendTo('#main');
       this.init();
       this.loader.init();
@@ -48,15 +48,6 @@ function View(viewName) {
     }.bind(this));
 
   /*
-  var layout = this.layout;
-  this.parentView = null;
-  this.childrenView = new Array();
-  this.layout.parentView = this;
-  if (this.loader) this.loader.parentView = this;
-
-  $('#view'+ this.viewid + ' .ui-icon-gripsmall-diagonal-se')
-    .removeClass('ui-icon-gripsmall-diagonal-se ui-icon'); // hide the handle!
-
   if (this.type !== 'menu') {
     $('#view' + this.viewid).addClass('viewshadow');
     $('#view' + this.viewid).draggable({
@@ -180,6 +171,12 @@ function View(viewName) {
 }
 
 /**
+ * HTML template of the view.
+ * @protected {string}
+ */
+View.prototype.template = 'components/base/view.html';
+
+/**
  * Initializes the view: adds the mouse event listeners, sets the header.
  */
 View.prototype.init = function() {
@@ -195,9 +192,9 @@ View.prototype.init = function() {
     .resizable({
       handles: 'all'
     })
-    .css({ // TODO(bowen): use better size init mechanism
-      width: 500,
-      height: 500 / (16 / 10)
+    .css({
+      width: this.defaultWidth(),
+      height: this.defaultHeight()
     });
 
   var pos = ViewManager.findPosition(this);
@@ -283,4 +280,20 @@ View.prototype.rect = function() {
     w: this.container.outerWidth(),
     h: this.container.outerHeight()
   };
+};
+
+/**
+ * Gets the default width of the view.
+ * @returns {number} Default view width.
+ */
+View.prototype.defaultWidth = function() {
+  return 500;
+};
+
+/**
+ * Gets the default height of the view.
+ * @returns {number} Default view height.
+ */
+View.prototype.defaultHeight = function() {
+  return this.defaultWidth() / (16 / 10);
 };

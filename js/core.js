@@ -6,6 +6,10 @@
 
 
 var Core = {
+  /**
+   * Initializes the system components.
+   * Run tests in the development environment.
+   */
   init: function() {
     //Welcome.init();
     Data.init();
@@ -26,17 +30,27 @@ var Core = {
     Test.run();
   },
 
+  /**
+   * Displays a user visible warning message at the top of the screen.
+   */
   warning: function() {
     var msg = Array.prototype.slice.call(arguments).join(' ');
     console.warn(msg);
-    $('#warning').text(msg);
-    $('#warning').parent().slideDown();
+    if (Options.allowAlert) {
+      $('#warning').text(msg);
+      $('#warning').parent().slideDown();
+    }
   },
 
+  /**
+   * Displays a user visible error message at the top of the screen.
+   */
   error: function() {
     var msg = Array.prototype.slice.call(arguments).join(' ');
     console.error(msg);
-    $('#error').text(msg);
-    $('#error').parent().slideDown();
+    if (Options.allowAlert) {
+      $('#error').text(msg);
+      $('#error').parent().slideDown();
+    }
   }
 };

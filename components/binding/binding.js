@@ -38,3 +38,13 @@ function BindingView(viewName, params) {
 BindingView.prototype = Object.create(View.prototype);
 BindingView.prototype.constructor = BindingView;
 BindingView.base = View.prototype;
+
+/** @override */
+BindingView.prototype.defaultWidth = function() {
+  return $(window).width();
+};
+
+/** @override */
+BindingView.prototype.defaultHeight = function() {
+  return 200;
+};

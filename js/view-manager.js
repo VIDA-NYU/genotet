@@ -27,18 +27,18 @@ var ViewManager = {
 
     var newView;
     switch(type) {
-    case 'network':
-      newView = new NetworkView(viewName, params);
-      break;
-    case 'expression':
-      newView = new ExpressionView(viewName, params);
-      break;
-    case 'binding':
-      newView = new BindingView(viewName, params);
-      break;
-    default:
-      Core.error('unknown view type');
-      return;
+      case 'network':
+        newView = new NetworkView(viewName, params);
+        break;
+      case 'expression':
+        newView = new ExpressionView(viewName, params);
+        break;
+      case 'binding':
+        newView = new BindingView(viewName, params);
+        break;
+      default:
+        Core.error('unknown view type');
+        return;
     }
     this.views[viewName] = newView;
   },

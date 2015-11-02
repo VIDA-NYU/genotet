@@ -7,7 +7,17 @@
 var utils = require('./utils');
 
 module.exports = {
-
+  /**
+   * Reads the network data from the buffer.
+   * @param {Buffer} buf File buffer of the network data.
+   * @returns {{
+   *     numNode: number,
+   *     numEdge: number,
+   *     nodes: !Array,
+   *     edges: !Array,
+   *     names: !Array<string>
+   *   }}
+   */
   readNet: function(buf) {
     // Read number of nodes, number of TFs, and number of bytes for node names.
     var numNode = buf.readInt32LE(0);
@@ -52,6 +62,17 @@ module.exports = {
     };
   },
 
+  /**
+   * Reads and returns the network data.
+   * @param {string} file Network file name.
+   * @param {string} exp Regex for gene selection.
+   * @returns {{
+   *     nodes: Array,
+   *     edges: Array,
+   *     wmax: number,
+   *     wmin: number
+   *   }} The network data JS object.
+   */
   getNet: function(file, exp) {
     console.log(file, exp);
     var buf = utils.readFileToBuf(file);
@@ -104,6 +125,12 @@ module.exports = {
     };
   },
 
+  /**
+   * Gets the genes being targeted by the given gene.
+   * @param {string} file Network file name.
+   * @param {string} name Regulator gene name.
+   * @returns {{exp: string}} Regex selecting the targeted genes.
+   */
   getNetTargets: function(file, name) {
     var buf = utils.readFileToBuf(file);
     if (buf == null)
@@ -121,12 +148,18 @@ module.exports = {
     };
   },
 
+  /**
+   * Gets the incident edges of a given gene.
+   * @param {string} file Network file name.
+   * @param {string} name Gene name of which to get the incident edges.
+   * @returns {!Array} Incident edges.
+   */
   getEdges: function(file, name) {
     var buf = utils.readFileToBuf(file);
     if (buf == null)
       return console.error('cannot read file', file), [];
     var result = this.readNet(buf);
-    var edges = new Array();
+    var edges = [];
     for (var i = 0; i < result.numEdge; i++) {
       var s = result.edges[i].source, t = result.edges[i].target, w = result.edges[i].weight;
       if (result.names[s] == name || result.names[t] == name) {
@@ -143,6 +176,12 @@ module.exports = {
     return edges;
   },
 
+  /**
+   * Finds the combined regulators that regulate the selected genes.
+   * @param {string} file Network file name.
+   * @param {string} exp Regex selecting the regulated targets.
+   * @returns {!Array} The combined regulators.
+   */
   getComb: function(file, exp) {
     console.log(file, exp);
     var buf = utils.readFileToBuf(file);
@@ -181,5 +220,4 @@ module.exports = {
     console.log('comb request returns', nodes.length);
     return nodes;
   }
-
 };

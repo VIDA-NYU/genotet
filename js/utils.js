@@ -6,6 +6,9 @@
 'use strict';
 
 var Utils = {
+  /** @const {number} */
+  TOLERANCE: .001,
+
   /**
    * Vector type of arbitrary length.
    * @typedef {!Array<number>} Vector
@@ -41,8 +44,10 @@ var Utils = {
    * @return {boolean} Whether the rectangle is inside the screen window.
    */
   rectInsideWindow: function(rect) {
-    return rect.x >= 0 && rect.x + rect.w < $(window).width() &&
-        rect.y >= 0 && rect.y + rect.h < $(window).height();
+    return rect.x >= 0 &&
+        rect.x + rect.w < $(window).width() + this.TOLERANCE &&
+        rect.y >= 0 &&
+        rect.y + rect.h < $(window).height() + this.TOLERANCE;
   },
 
   /**

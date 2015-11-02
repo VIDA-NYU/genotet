@@ -177,7 +177,7 @@ LayoutTable.prototype.uiFilterSelect = function(cmd, type) {
 
 LayoutTable.prototype.uiAction = function(type) {
 	var rows = this.data.rows;
-	var msg = {}, edges = new Array();
+	var msg = {}, edges = [];
 	if (type == 'show') {
 		msg.action = 'show';
 		for (var i = 0; i < rows.length; i++) {
