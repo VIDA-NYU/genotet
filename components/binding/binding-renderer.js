@@ -22,7 +22,15 @@ BindingRenderer.base = ViewRenderer.prototype;
 /**
  * Initializes the BindingRenderer properties.
  */
-BindingRenderer.init = function() {
+BindingRenderer.prototype.init = function() {
+  BindingRenderer.base.init.call(this);
+
+  /**
+   * Height of a single binding track, including the overview track.
+   * @private {number}
+   */
+  this.trackHeight_ = this.canvasHeight_;
+
   /*
   // margin of main bars
   this.mainbarTop = 8;
@@ -74,7 +82,34 @@ BindingRenderer.init = function() {
 };
 
 /** @inheritDoc */
+BindingRenderer.prototype.initLayout = function() {
+  // Create groups for the (multiple) binding tracks, and exons.
+  /**
+   * SVG group for the binding tracks.
+   * @private {!d3.selection}
+   */
+  this.svgTracks_ = this.canvas.append('g')
+    .classed('tracks', true);
+  /**
+   * SVG group for the exons.
+   * @private {!d3.selection}
+   */
+  this.svgExons_ = this.canvas.append('g')
+    .classed('exons', true);
+};
+
+/**
+ * Arranges the binding tracks so that they are stacked vertically.
+ * This function also layouts the exon group.
+ */
+BindingRenderer.prototype.layout = function() {
+  var numTracks = this.data.tracks.length;
+  console.log(numTracks);
+};
+
+/** @inheritDoc */
 BindingRenderer.prototype.render = function() {
+  this.layout();
   this.drawBindingOverview_();
   this.drawBinding_();
   this.drawExons_();

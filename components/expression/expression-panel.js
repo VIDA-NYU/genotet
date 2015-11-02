@@ -20,6 +20,6 @@ ExpressionPanel.prototype.constructor = ExpressionPanel;
 ExpressionPanel.base = ViewPanel.prototype;
 
 /** @inheritDoc */
-ExpressionPanel.prototype.panel = function() {
-  ExpressionPanel.base.panel.call(this);
+ExpressionPanel.prototype.panel = function(container) {
+  ExpressionPanel.base.panel.call(this, container);
 };

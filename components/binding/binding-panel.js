@@ -20,6 +20,6 @@ BindingPanel.prototype.constructor = BindingPanel;
 BindingPanel.base = ViewPanel.prototype;
 
 /** @inheritDoc */
-BindingPanel.prototype.panel = function() {
-  BindingPanel.base.panel.call(this);
+BindingPanel.prototype.panel = function(container) {
+  BindingPanel.base.panel.call(this, container);
 };

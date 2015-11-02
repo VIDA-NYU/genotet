@@ -10,6 +10,8 @@
  */
 function BindingLoader(data) {
   BindingLoader.base.constructor.call(this, data);
+
+  this.data.tracks = [];
 }
 
 BindingLoader.prototype = Object.create(ViewLoader.prototype);
@@ -20,9 +22,11 @@ BindingLoader.base = ViewLoader.prototype;
  * Loads the binding data for a given gene and chromosome.
  * @param {string} gene Name of the gene.
  * @param {chr} chr ID of the chromosome.
+ * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
-BindingLoader.prototype.load = function(gene, chr) {
+BindingLoader.prototype.load = function(gene, chr, opt_track) {
+  var track = opt_track ? opt_track : 0;
   this.signal('loadStart');
   var params = {
     type: 'binding',
@@ -31,13 +35,11 @@ BindingLoader.prototype.load = function(gene, chr) {
   };
 
   $.get(Data.serverURL, params, function(data) {
-    // Store the last applied data selectors.
-    _(data).extend({
+    this.data.tracks[track] = {
       gene: gene,
-      chr: chr
-    });
-
-    _(this.data).extend(data);
+      chr: chr,
+      data: data
+    };
 
     $(this.data).trigger('genotet.loadComplete');
   }.bind(this), 'jsonp')

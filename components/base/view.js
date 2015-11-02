@@ -10,6 +10,13 @@
  * @constructor
  */
 function View(viewName) {
+  /** @protected {ViewRenderer} */
+  this.renderer;
+  /** @protected {ViewLoader} */
+  this.loader;
+  /** @protected {ViewPanel} */
+  this.panel;
+
   /** @private {string} */
   this.viewName_ = viewName;
 
@@ -284,7 +291,7 @@ View.prototype.rect = function() {
 
 /**
  * Gets the default width of the view.
- * @returns {number} Default view width.
+ * @return {number} Default view width.
  */
 View.prototype.defaultWidth = function() {
   return 500;
@@ -292,8 +299,17 @@ View.prototype.defaultWidth = function() {
 
 /**
  * Gets the default height of the view.
- * @returns {number} Default view height.
+ * @return {number} Default view height.
  */
 View.prototype.defaultHeight = function() {
   return this.defaultWidth() / (16 / 10);
 };
+
+/**
+ * Sets the panel container and creates the panel user interface.
+ * @param {!jQuery} container jQuery container of the side panel.
+ */
+View.prototype.createPanel = function(container) {
+  this.panel.create(container);
+};
+

@@ -110,27 +110,6 @@ NetworkRenderer.prototype.init = function() {
    */
   this.forcing_ = false;
 
-  // Create group elements in the svg for nodes, edges, etc.
-  // Groups shall be created in the reverse order of their appearing order.
-  /**
-   * Svg group for edges.
-   * @private {!d3.selection}
-   */
-  this.svgEdges_ = this.canvas.append('g')
-    .classed('edges render-group', true);
-  /**
-   * Svg group for nodes.
-   * @private {!d3.selection}
-   */
-  this.svgNodes_ = this.canvas.append('g')
-    .classed('nodes render-group', true);
-  /**
-   * Svg group for node labels.
-   * @private {!d3.selection}
-   */
-  this.svgNodeLabels_ = this.canvas.append('g')
-    .classed('node-labels render-group', true);
-
   // Navigation state.
   /** @private {!Array<number>} */
   this.zoomTranslate_ = [0, 0];
@@ -146,6 +125,29 @@ NetworkRenderer.prototype.init = function() {
   this.canvas.call(this.zoom_);
 };
 
+/** @inheritDoc */
+NetworkRenderer.prototype.initLayout = function() {
+  // Create group elements in the svg for nodes, edges, etc.
+  // Groups shall be created in the reverse order of their appearing order.
+  /**
+   * SVG group for edges.
+   * @private {!d3.selection}
+   */
+  this.svgEdges_ = this.canvas.append('g')
+    .classed('edges render-group', true);
+  /**
+   * SVG group for nodes.
+   * @private {!d3.selection}
+   */
+  this.svgNodes_ = this.canvas.append('g')
+    .classed('nodes render-group', true);
+  /**
+   * SVG group for node labels.
+   * @private {!d3.selection}
+   */
+  this.svgNodeLabels_ = this.canvas.append('g')
+    .classed('node-labels render-group', true);
+};
 
 /**
  * Renders the network onto the scene.

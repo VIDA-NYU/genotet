@@ -35,7 +35,7 @@ function ViewPanel(data) {
  * Displays a control panel in the given container.
  * @param {!jQuery} container Panel container.
  */
-ViewPanel.prototype.panel = function(container) {
+ViewPanel.prototype.create = function(container) {
   this.container_ = container;
 
   this.container_ = $('<div></div>')

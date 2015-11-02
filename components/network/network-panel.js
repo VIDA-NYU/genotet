@@ -26,8 +26,8 @@ NetworkPanel.base = ViewPanel.prototype;
 
 
 /** @inheritDoc */
-NetworkPanel.prototype.panel = function() {
-  NetworkPanel.base.panel.call(this);
+NetworkPanel.prototype.panel = function(container) {
+  NetworkPanel.base.panel.call(this, container);
   /*
   // Init
   $('#'+ this.htmlid + " #netname option[value='" + this.parentView.loader.lastIdentifier.net + "']")

@@ -41,6 +41,9 @@ var ViewManager = {
         return;
     }
     this.views[viewName] = newView;
+
+    // var panel = PanelManager.addPanel(newView);
+    // newView.panelManger
   },
 
   /**

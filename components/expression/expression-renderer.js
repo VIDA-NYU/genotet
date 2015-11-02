@@ -22,6 +22,7 @@ ExpressionRenderer.base = ViewRenderer.prototype;
 
 /** @inheritDoc */
 ExpressionRenderer.prototype.init = function() {
+  ExpressionRenderer.base.init.call(this);
   /*
   // polyline properties
   this.lineWidth = this.width;
