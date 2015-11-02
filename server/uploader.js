@@ -15,7 +15,7 @@ var upload = multer();
 
 module.exports = {
 
-  uploadFile: function(app, req, res, runEnv) {
+  uploadFile: function(req, res, runEnv) {
 
     if (runEnv == 'jm_mac') {
       path = '/Users/JiamingDong/Documents/vida_data/';

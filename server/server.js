@@ -161,7 +161,7 @@ app.get('/genotet', function(req, res) {
 		name = name.toLowerCase();
 		data = expmat.getExpmatLine(fileExp, fileTfa, name);
 	} else if (type == 'upload') {
-    data = uploader.uploadFile(app, req, res, runEnv);
+    data = uploader.uploadFile(req, res, runEnv);
   } else {
     console.log('invalid argument');
     data = '';
