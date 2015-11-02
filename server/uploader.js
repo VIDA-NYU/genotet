@@ -30,11 +30,6 @@ module.exports = {
 			fullPath = path;
 		}
 
-    if (fileName == null || fileName.length == 0) {
-      console.log('no file name');
-      return;
-    }
-
     upload = multer({dest: fullPath});
     return upload(req,res,function(err){
       if (err)
