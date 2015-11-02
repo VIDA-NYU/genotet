@@ -36,7 +36,7 @@ module.exports = {
     }
 
     upload = multer({dest: fullPath});
-    upload(req,res,function(err){
+    return upload(req,res,function(err){
       if (err)
         return -1;
       return 1;
