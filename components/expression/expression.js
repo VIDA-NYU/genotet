@@ -21,13 +21,13 @@ function ExpressionView(viewName, params) {
   this.loader = new ExpressionLoader(this.data);
 
   /** @protected {ExpressionPanel} */
-  this.controller = new ExpressionPanel(this.data);
+  this.panel = new ExpressionPanel(this.data);
 
   /** @protected {ExpressionRenderer} */
   this.renderer = new ExpressionRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
-  $(this.data).on('genotet.loadComplete', function() {
+  $(this.loader).on('genotet.loadComplete', function() {
     this.renderer.render();
   }.bind(this));
   $(this.container).on('genotet.ready', function() {

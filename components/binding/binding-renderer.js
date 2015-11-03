@@ -19,6 +19,13 @@ BindingRenderer.prototype = Object.create(ViewRenderer.prototype);
 BindingRenderer.prototype.constructor = BindingRenderer;
 BindingRenderer.base = ViewRenderer.prototype;
 
+/** @const {number} */
+BindingRenderer.prototype.EXON_HEIGHT = 35;
+/** @const {number} */
+BindingRenderer.prototype.EXON_SIZE = 20;
+/** @const {number} */
+BindingRenderer.prototype.OVERVIEW_HEIGHT = 30;
+
 /**
  * Initializes the BindingRenderer properties.
  */
@@ -27,31 +34,31 @@ BindingRenderer.prototype.init = function() {
 
   /**
    * Height of a single binding track, including the overview track.
+   * This is computed by default for a single track, and will be re-computed
+   * upon resize event.
    * @private {number}
    */
-  this.trackHeight_ = this.canvasHeight_;
+  this.trackHeight_ = this.canvasHeight_ - this.EXON_HEIGHT;
+
+  // Navigation state.
+  /** @private {!Array<number>} */
+  this.zoomTranslate_ = [0, 0];
+  /** @private {number} */
+  this.zoomScale_ = 1.0;
 
   /*
   // margin of main bars
   this.mainbarTop = 8;
-  this.overviewHeight = 40;
-
   // exons
   //this.exonsMargin = 20;
-  this.exonsSize = 20;
-  this.exonsHeight = 35;
   this.exonLabelSize = 6;
-
   // focus range
   this.focusleft = 0.0;
   this.focusright = 0.0;
-
   // target range
   this.targetleft = 0.0;
   this.targetright = 0.0;
-
   this.targetname = '';
-
   this.focusiborder = 10.0;
 
   // cursor line position (by data x)
@@ -70,14 +77,7 @@ BindingRenderer.prototype.init = function() {
   this.zoombarHeight = 10;
 
   // auto-adjusted y-scale
-  this.autoScale = true;
-
-  this.showExons = true;
-  this.showOverview = true;
-
   this.bottomMargin = 5;
-  // ui
-  this.uiHeight = 26;
   */
 };
 
@@ -104,29 +104,80 @@ BindingRenderer.prototype.initLayout = function() {
  */
 BindingRenderer.prototype.layout = function() {
   var numTracks = this.data.tracks.length;
-  console.log(numTracks);
+  var tracks = this.svgTracks_.selectAll('g.track')
+    .data(this.data.tracks, function(track) {
+      return track.gene;
+    });
+  tracks.enter().append('g')
+    .attr('id', function(track) {
+      return track.gene;
+    })
+    .classed('track', true)
+    .attr('transform', function(track, index) {
+      return Utils.getTransform([0, this.trackHeight_ * index]);
+    }.bind(this));
+  tracks.exit().remove();
 };
 
 /** @inheritDoc */
 BindingRenderer.prototype.render = function() {
+  // Call layout to adjust the binding track positions so as to adapt to
+  // multiple binding tracks.
   this.layout();
-  this.drawBindingOverview_();
+
   this.drawBinding_();
   this.drawExons_();
 };
 
 /**
- * Renders the binding data as histogram.
+ * Renders the binding data as histograms.
+ * The function iterate the binding tracks and renders each of them.
  * @private
  */
 BindingRenderer.prototype.drawBinding_ = function() {
+  this.data.tracks.forEach(function(track) {
+    this.drawBindingTrack_(track);
+  }.bind(this));
+};
+
+/**
+ * Renders a single binding track, including the binding histogram and
+ * the overview.
+ * @param {!Object} track Binding track data.
+ * @private
+ */
+BindingRenderer.prototype.drawBindingTrack_ = function(track) {
+  var svg = this.canvas.select('#' + track.gene);
+  if (svg.select('.overview').empty()) {
+    svg.append('g').classed('overview', true);
+  }
+  if (svg.select('.histogram').empty()) {
+    svg.append('g')
+      .classed('histogram', true)
+      .attr('transform', Utils.getTransform([0, this.OVERVIEW_HEIGHT]));
+  }
+  var overview = svg.select('.overview');
+  this.drawBindingOverview_(overview, track);
+  var histogram = svg.select('.histogram');
+  this.drawBindingHistogram_(histogram, track);
 };
 
 /**
  * Renders the binding data overview as smaller histogram.
+ * @param {!d3.selection} svg SVG group for the overview.
+ * @param {!Object} track Track data.
  * @private
  */
-BindingRenderer.prototype.drawBindingOverview_ = function() {
+BindingRenderer.prototype.drawBindingOverview_ = function(svg, track) {
+};
+
+/**
+ * Renders the binding histogram.
+ * @param {!d3.selection} svg SVG group for the overview.
+ * @param {!Object} track Track data.
+ * @private
+ */
+BindingRenderer.prototype.drawBindingHistogram_ = function(svg, track) {
 };
 
 /**
@@ -134,6 +185,17 @@ BindingRenderer.prototype.drawBindingOverview_ = function() {
  */
 BindingRenderer.prototype.drawExons_ = function() {
 };
+
+/**
+ * Re-computes the track height.
+ */
+BindingRenderer.prototype.resize = function() {
+  BindingRenderer.base.resize.call(this);
+  var totalHeight = this.canvasHeight_ - this.EXON_HEIGHT;
+  var numTracks = this.data.tracks.length;
+  this.trackHeight_ = totalHeight / (numTracks ? numTracks : 1);
+};
+
 
 /*
 LayoutHistogram.prototype.formatExons = function() {
@@ -286,87 +348,6 @@ LayoutHistogram.prototype.renderLayout = function() {
   if (this.showOverview == true) this.renderOverview();
   this.renderMain();
   if (this.showExons == true) this.updateExons();
-};
-
-LayoutHistogram.prototype.renderUI = function() {
-  if (this.compactLayout) return;
-
-  var data = this.data;
-  var layout = this;
-
-  $('#' + this.htmlid + ' .ui-widget-header').after("<div name='ui'>" +
-  "<span style='margin-left: 5px; font-weight:900'>BINDING DATA</span>" +
-  "<input id='gene' type='text' size='6' title='Change gene data and press ENTER to take effect'>" +
-  "<span style='margin-left: 5px; font-weight:900'>CHROMOSOME</span>" +
-  "<select name='chr' title='Switch chromosome'></select>" +
-  "Start <input type='text' id='xl' size='8' title='Edit start coordinate'>" +
-  "End <input type='text' id='xr' size='8' title='Edit end coordinate'>" +
-  "Locate Gene <input type='text' id='search' size='8' title='Search for a specific gene among all chromosomes. Usage: regexp.'> " +
-  "<input type='checkbox' id='autoscale' title='Auto adjust the maximum height to the maximum data value'>AutoScale" +
-  "<input type='checkbox' id='overview' title='Show/hide overview'>Overview" +
-  "<input type='checkbox' id='exons' title='Show/hide exons'>Exons" +
-  '</div>');
-
-  $('#' + this.htmlid + ' #gene').val(data.name).keydown(function(e) { if (e.which == 13) return layout.uiUpdate('gene');})
-  .autocomplete({ source: manager.bindingNames, appendTo: 'body'});
-
-  var chrs = manager.bindingChrs;
-  for (var i = 0; i < chrs.length; i++) {
-    $('#' + this.htmlid + ' div select').append('<option value=' + chrs[i] + '>' + chrs[i] + '</option>');
-    if (chrs[i] == data.chr) $('#' + this.htmlid + " div select option[value='" + chrs[i] + "']").attr('selected', 'selected');
-  }
-  var htmlid = this.htmlid;
-  $('#' + this.htmlid + ' div select').change(function() {
-    //console.log(data.name, $("#"+htmlid+" div select option:selected").text(), this.loading);
-    if (layout.loading == false) {
-      var chr = $('#' + htmlid + ' div select option:selected').text();
-      layout.parentView.loadData(data.name, chr);
-      layout.parentView.postGroupMessage({'action': 'chr', 'chr': chr});
-    }
-  });
-  $('#' + this.htmlid + ' #xl').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('range'); });
-  $('#' + this.htmlid + ' #xr').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('range'); });
-  $('#' + this.htmlid + ' #search').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('search'); });
-  $('#' + this.htmlid + ' #autoscale').attr('checked', this.autoScale)
-    .change(function() { return layout.toggleAutoScale(); });
-  $('#' + this.htmlid + ' #overview').attr('checked', this.showOverview)
-    .change(function() { return layout.toggleOverview(); });
-  $('#' + this.htmlid + ' #exons').attr('checked', this.showExons)
-    .change(function() { return layout.toggleExons(); });
-
-  this.uiHeight = $('#' + this.htmlid + " div[name='ui']").height();
-};
-
-LayoutHistogram.prototype.uiUpdate = function(type) {
-  var layout = this;
-  if (layout.loading == true) return;
-  if (type == 'range') {
-    var xl = parseInt($('#' + layout.htmlid + ' #xl').val()),
-      xr = parseInt($('#' + layout.htmlid + ' #xr').val());
-    if (isNaN(xl)) xl = this.focusleft;
-    if (isNaN(xr)) xr = this.focusright;
-    if (xr < xl) {
-      options.alert('xl, xr value incorrect');
-      return;
-    }
-    layout.focusleft = xl;
-    layout.focusright = xr;
-    layout.loadBindingLayout();
-  }else if (type == 'search') {
-    srch = $('#' + layout.htmlid + ' #search').val();
-    if (srch != '') {
-      this.removeLayout();
-      this.parentView.loader.locateGene(srch);
-    }
-  }else if (type == 'gene') {
-    var name = $('#' + this.htmlid + ' #gene').val();
-    if (manager.supportBinding(name) == false) {
-      options.alert('Please type in a supported binding track');
-      return;
-    }
-    this.removeLayout();
-    this.parentView.loader.loadData({'name': name});
-  }
 };
 
 LayoutHistogram.prototype.renderMain = function() {

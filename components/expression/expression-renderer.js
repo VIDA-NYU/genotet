@@ -399,52 +399,6 @@ LayoutHeatmap.prototype.renderHeatmap = function() {
   );
 };
 
-LayoutHeatmap.prototype.renderUI = function() {
-  var data = this.data;
-  var layout = this;
-  $('#'+ this.htmlid + ' .ui-widget-header').after("<div name='ui'>" +
-  "<span class='uibar-text-bold'>DATA</span>" +
-  "<select id='data'>" +
-  "<option value='B-Subtilis'>B. Subtilis</option>" +
-    "<option value='RNA-Seq'>RNA-seq</option>" +
-  '</select>' +
-  "<span class='uibar-text-bold'>PROFILE</span><input type='text' id='addline' size='5' title='Add gene to the polyline plot. Usage: regexp.'> " +
-  "<span class='uibar-text-bold'>GENES</span><input type='text' id='exprow' size='7' title='Add/remove/select genes in the heatmap. Usage: [add/rm/sel] regexp | regexp. If no action is specified, default behavior is sel.'> " +
-  "<span class='uibar-text-bold'>CONDITIONS</span><input type='text' id='expcol' size='7' title='Add/remove/select conditions in the heatmap. Usage: [add/rm/sel] regexp | regexp. If no action is specified, default behavior is sel.'> " +
-  '<div>' +
-  "<input type='checkbox' id='labelrow' title='Show/hide gene labels in the heatmap'><span>GeneLabel</span>" +
-  "<input type='checkbox' id='labelcol' title='Show/hide condidtion labels in the heatmap'><span>CondLabel</span>" +
-  "<input type='checkbox' id='showplot' title='Show/hide expression matrix polyline'><span>Plot</span>" +
-  "<input type='checkbox' id='showtfa' title='Show/hide TFA data'><span>TFA</span>" +
-  "<input type='checkbox' id='showgrad' title='Show/hide gradient in the heatmap'><span>Gradient</span>" +
-    "<input type='checkbox' id='autoscale' title='Turn on/off auto gradient scale in the heatmap'><span>AutoScale</span>" +
-    "<span style='margin-left:10px'>Resolution</span><span id='resol' style='margin:5px 10px; width:70px; position:absolute;'></span>" +
-  '</div>' +
-  '</div>');
-  //<span style='margin-top:5px;float:right;' title='Adjust the resolution of the heatmap'>Resolution</span>" +
-
-
-  $('#'+ this.htmlid + ' #resol').slider({'value': this.resolutionPercent})
-  .on('slidechange', function(evt, ui) {
-    $('#'+ layout.htmlid + ' #heatmap').remove();
-    layout.resolutionPercent = ui.value;
-    layout.parentView.loader.loadHeatmap(null, null, null, (1.0 - layout.resolutionPercent / 100) * layout.heatmapResolution);
-  });
-  $('#'+ this.htmlid + ' #labelrow').attr('checked', this.labelrows).change(function() { return layout.toggleLabelrows(); });
-  $('#'+ this.htmlid + ' #labelcol').attr('checked', this.labelcols).change(function() { return layout.toggleLablecols(); });
-  $('#'+ this.htmlid + ' #showplot').attr('checked', this.showPlot).change(function() { return layout.toggleShowPlot(); });
-  $('#'+ this.htmlid + ' #showtfa').attr('checked', this.showTFA).change(function() { return layout.toggleShowTFA(); });
-  $('#'+ this.htmlid + ' #showgrad').attr('checked', this.showGradient).change(function() { return layout.toggleShowGradient(); });
-  $('#'+ this.htmlid + ' #autoscale').attr('checked', this.autoScale).change(function() { return layout.toggleAutoScale(); });
-  $('#'+ this.htmlid + ' #addline').keydown(function(e) { if (e.which == 13) layout.uiUpdate('addline');});
-  $('#'+ this.htmlid + ' #exprow').keydown(function(e) { if (e.which == 13) layout.uiUpdate('exprow');});
-  $('#'+ this.htmlid + ' #expcol').keydown(function(e) { if (e.which == 13) layout.uiUpdate('expcol');});
-  $('#'+ this.htmlid + " #data option[value='" + this.parentView.loader.lastIdentifier.mat + "']").attr('selected', true);
-  $('#'+ this.htmlid + ' #data').change(function(e) { return layout.uiUpdate('data');});
-  this.uiHeight = $('#'+ this.htmlid + " div[name='ui']").height();
-  //$("#"+this.htmlid+" #autoscale").attr("checked", this.autoScale).change(function(){ return layout.toggleAutoScale(); });
-};
-
 LayoutHeatmap.prototype.uiUpdate = function(type) {
   var data = this.parentView.viewdata.heatmapData;
   if (type == 'data') {

@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title>Genotet - Help Document</title>
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="utf-8">
+  <title>Genotet - Help Document</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     
-	<link type="text/css" rel="stylesheet" href="css/help.css" />
+  <link type="text/css" rel="stylesheet" href="css/help.css" />
 </head>
 <body>
+<p>Under construction</p>
+
+<div style="display:none">
 
 <h2> Genotet - Help Document </h2>
 <p> For help, contact <a href="mailto:bowen.yu@nyu.edu">bowen.yu@nyu.edu</a>. </p>
@@ -23,7 +26,7 @@
     returns a view object that can be manipulated. For example,
     <pre>createView("myNetwork", "graph").loadData("th17", "^BATF3$")</pre>
     creates a view named "myNetwork" of type "graph", and load the genes that matched the regular expression "^BATF3$".
-	Menu equivalent: Menu -> Panel -> Create View
+  Menu equivalent: Menu -> Panel -> Create View
 </li>
 <li>To access a view object after creation, use
     <pre>getView(string viewname)</pre>
@@ -31,34 +34,34 @@
 </li>
 <li>To close a view, use
     <pre>closeView(string viewname)</pre>
-	You can also click the close button at the top-right of each view.
+  You can also click the close button at the top-right of each view.
 </li>
 <li>Certain types of views can be linked to another. 
 For example, a "histogram" view may listen to a "graph" view so as to load the histogram of selected node in graph.
 To link two views, use
     <pre>linkView(sourceViewname, targetViewname)</pre>
-	Menu equivalent: Menu -> Panel -> Link Views
-	You can also left-click the SendMessage button at the top-left of each view (wifi icon).
+  Menu equivalent: Menu -> Panel -> Link Views
+  You can also left-click the SendMessage button at the top-left of each view (wifi icon).
 </li>
 <li>To unlink two linked views, use
     <pre>unlinkView(sourceViewname, targetViewname)</pre>
-	Menu equivalent: Menu -> Panel -> Unlink Views
-	You can also left-click the GetMessage button at the top-left of each view (signal strength icon).
-	Right-clicking the SendMessage button unlinks the view and all of its listeners.
-	Right-clicking the GetMessage button unlinks the view and its listening view.
+  Menu equivalent: Menu -> Panel -> Unlink Views
+  You can also left-click the GetMessage button at the top-left of each view (signal strength icon).
+  Right-clicking the SendMessage button unlinks the view and all of its listeners.
+  Right-clicking the GetMessage button unlinks the view and its listening view.
 </li>
 <li>Views can be grouped together. The grouped views will move and resize together.
 For certain type of views such as histograms, grouping can also synchronize their ranges.
 To group two views, use
     <pre>groupView(sourceViewname, targetViewname)</pre>
-	Menu equivalent: Menu -> Panel -> Group Views
-	You can also left-click the Group button at the top-left of each view (double window icon).
-	Right-clicking the Group button let the view quit from its current group.
+  Menu equivalent: Menu -> Panel -> Group Views
+  You can also left-click the Group button at the top-left of each view (double window icon).
+  Right-clicking the Group button let the view quit from its current group.
 </li>
 <li>
-	When you hover on the SendMessage button, the listeners of the current view will be highlighted.
-	When you hover on the GetMessage button, the view that is being listened by the current view will be highlighted.
-	When you hover on the Group button, the views that are in the same group as the current view will be highlighted.
+  When you hover on the SendMessage button, the listeners of the current view will be highlighted.
+  When you hover on the GetMessage button, the view that is being listened by the current view will be highlighted.
+  When you hover on the Group button, the views that are in the same group as the current view will be highlighted.
 </li>
 <li>Drag the header to move a view. Drag the bottom-right corner to resize a view. Click the buttons on the header to close/minimize views.
 When a view is minizied, the UI bar will be hidden.
@@ -177,51 +180,54 @@ view its usage.
 <ul>
 <li> Networks
 <table>
-	<tr><th>Network</th><th>Provider</th><th>#Nodes</th><th>#Edges</th><th>Description</th></tr>
-	<tr><td>th17</td><td>Aviv</td><td>2218</td><td>4237</td><td>network.eda</td></tr>
-	<tr><td>confidence</td><td>Xi</td><td>15912</td><td>29394</td><td>confidence.tsv</td></tr>
-	<tr><td>prediction</td><td>Mario</td><td>3119</td><td>4425</td><td>finalPrediction..xls</td></tr>
-	<tr><td>strength</td><td>Mario</td><td>4891</td><td>61535</td><td>strength.matrix</td></tr>
+  <tr><th>Network</th><th>Provider</th><th>#Nodes</th><th>#Edges</th><th>Description</th></tr>
+  <tr><td>th17</td><td>Aviv</td><td>2218</td><td>4237</td><td>network.eda</td></tr>
+  <tr><td>confidence</td><td>Xi</td><td>15912</td><td>29394</td><td>confidence.tsv</td></tr>
+  <tr><td>prediction</td><td>Mario</td><td>3119</td><td>4425</td><td>finalPrediction..xls</td></tr>
+  <tr><td>strength</td><td>Mario</td><td>4891</td><td>61535</td><td>strength.matrix</td></tr>
 </table>
 </li>
 <li> Binding Data
 <table>
-	<tr><th>Name</th><th>Library Code</th></tr>
-	<tr><td>BATF</td><td>SL3037_SL3036</td>
-	<tr><td>IRF4</td><td>SL2872_SL2876</td></tr>
-	<tr><td>MAF</td><td>SL3032_SL2871</td></tr>
-	<tr><td>RORC</td><td>SL2870_SL2871</td></tr>
-	<tr><td>STAT3</td><td>SL3315_SL3319</td></tr>
-	<tr><td>Hif1a</td><td>SL10572_SL10566</td></tr>
-	<tr><td>Etv6</td><td>SL13368_SL13364</td></tr>
-	<tr><td>Jmjd3</td><td>SL12384_SL12382</td></tr>
-	<tr><td>BATF-Th0</td><td>SL3039_SL3038</td></tr>
-	<tr><td>BATF-Th17</td><td>SL3033_SL3036</td></tr>
-	<tr><td>cMaf-Th0</td><td>SL4424_SL4425</td></tr>
-	<tr><td>cMaf-Th17</td><td>SL3031_SL2871</td></tr>
-	<tr><td>Fosl2-Th0</td><td>SL6500_SL6499</td></tr>
-	<tr><td>Fosl2-Th17</td><td>SL6498_SL6497</td></tr>
-	<tr><td>IRF4-Th0</td><td>SL1044_SL1043</td></tr>
-	<tr><td>IRF4-Th17</td><td>SL971_SL970</td></tr>
-	<tr><td>p300-Th0</td><td>SL1948_SL1947</td></tr>
-	<tr><td>p300-Th17</td><td>SL1041_SL972</td></tr>
-	<tr><td>RORg-Th0</td><td>SL3779_SL3778</td></tr>
-	<tr><td>RORg-Th17</td><td>SL1944_SL1943</td></tr>
-	<tr><td>STAT3-Th0</td><td>SL3780_SL3778</td></tr>
-	<tr><td>STAT3-Th17</td><td>SL973_SL972</td></tr>
-	<tr><td>RNA-Seq-1h</td><td>SL1851</td></tr>
-	<tr><td>RNA-Seq-3h</td><td>SL1852</td></tr>
-	<tr><td>RNA-Seq-6h</td><td>SL1853</td></tr>
-	<tr><td>RNA-Seq-9h</td><td>SL1854</td></tr>
-	<tr><td>RNA-Seq-16h</td><td>SL8355</td></tr>
-	<tr><td>RNA-Seq-24h</td><td>SL1857</td></tr>
-	<tr><td>RNA-Seq-48h</td><td>SL1858</td></tr>
-	<tr><td>FAIRE-Seq-IRF4+</td><td>SL14406</td></tr>
-	<tr><td>FAIRE-Seq-IRF4-</td><td>SL14408</td></tr>
-	<tr><td>FAIRE-Seq-Batf+</td><td>SL14523</td></tr>
-	<tr><td>FAIRE-Seq-Batf-</td><td>SL14526</td></tr>
+  <tr><th>Name</th><th>Library Code</th></tr>
+  <tr><td>BATF</td><td>SL3037_SL3036</td>
+  <tr><td>IRF4</td><td>SL2872_SL2876</td></tr>
+  <tr><td>MAF</td><td>SL3032_SL2871</td></tr>
+  <tr><td>RORC</td><td>SL2870_SL2871</td></tr>
+  <tr><td>STAT3</td><td>SL3315_SL3319</td></tr>
+  <tr><td>Hif1a</td><td>SL10572_SL10566</td></tr>
+  <tr><td>Etv6</td><td>SL13368_SL13364</td></tr>
+  <tr><td>Jmjd3</td><td>SL12384_SL12382</td></tr>
+  <tr><td>BATF-Th0</td><td>SL3039_SL3038</td></tr>
+  <tr><td>BATF-Th17</td><td>SL3033_SL3036</td></tr>
+  <tr><td>cMaf-Th0</td><td>SL4424_SL4425</td></tr>
+  <tr><td>cMaf-Th17</td><td>SL3031_SL2871</td></tr>
+  <tr><td>Fosl2-Th0</td><td>SL6500_SL6499</td></tr>
+  <tr><td>Fosl2-Th17</td><td>SL6498_SL6497</td></tr>
+  <tr><td>IRF4-Th0</td><td>SL1044_SL1043</td></tr>
+  <tr><td>IRF4-Th17</td><td>SL971_SL970</td></tr>
+  <tr><td>p300-Th0</td><td>SL1948_SL1947</td></tr>
+  <tr><td>p300-Th17</td><td>SL1041_SL972</td></tr>
+  <tr><td>RORg-Th0</td><td>SL3779_SL3778</td></tr>
+  <tr><td>RORg-Th17</td><td>SL1944_SL1943</td></tr>
+  <tr><td>STAT3-Th0</td><td>SL3780_SL3778</td></tr>
+  <tr><td>STAT3-Th17</td><td>SL973_SL972</td></tr>
+  <tr><td>RNA-Seq-1h</td><td>SL1851</td></tr>
+  <tr><td>RNA-Seq-3h</td><td>SL1852</td></tr>
+  <tr><td>RNA-Seq-6h</td><td>SL1853</td></tr>
+  <tr><td>RNA-Seq-9h</td><td>SL1854</td></tr>
+  <tr><td>RNA-Seq-16h</td><td>SL8355</td></tr>
+  <tr><td>RNA-Seq-24h</td><td>SL1857</td></tr>
+  <tr><td>RNA-Seq-48h</td><td>SL1858</td></tr>
+  <tr><td>FAIRE-Seq-IRF4+</td><td>SL14406</td></tr>
+  <tr><td>FAIRE-Seq-IRF4-</td><td>SL14408</td></tr>
+  <tr><td>FAIRE-Seq-Batf+</td><td>SL14523</td></tr>
+  <tr><td>FAIRE-Seq-Batf-</td><td>SL14526</td></tr>
 </table>
 </li>
 </ul>
+
+</div>
+
 </body>
 </html>

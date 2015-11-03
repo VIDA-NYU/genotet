@@ -21,13 +21,13 @@ function BindingView(viewName, params) {
   this.loader = new BindingLoader(this.data);
 
   /** @protected {BindingPanel} */
-  this.controller = new BindingPanel(this.data);
+  this.panel = new BindingPanel(this.data);
 
   /** @protected {BindingRenderer} */
   this.renderer = new BindingRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
-  $(this.data).on('genotet.loadComplete', function() {
+  $(this.loader).on('genotet.loadComplete', function() {
     this.renderer.render();
   }.bind(this));
   $(this.container).on('genotet.ready', function() {

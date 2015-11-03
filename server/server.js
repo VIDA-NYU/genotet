@@ -138,6 +138,7 @@ app.get('/genotet', function(req, res) {
       var net = req.query.net.toLowerCase(),
         exp = utils.decodeSpecialChar(req.query.exp),
         file = networkAddr + net + '.bnet';
+      exp = exp == '' ? 'a^' : exp;
       data = network.getNet(file, exp);
       break;
     case 'edges':
@@ -204,6 +205,8 @@ app.get('/genotet', function(req, res) {
       var file = expmatFile[req.query.mat];
       var exprows = req.query.exprows;
       var expcols = req.query.expcols;
+      exprows = exprows == '' ? 'a^' : exprows;
+      expcols = expcols == '' ? 'a^' : expcols;
       data = expmat.getExpmat(file, exprows, expcols);
       break;
     case 'expmatline':

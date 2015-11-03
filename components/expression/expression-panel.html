@@ -1,1 +1,26 @@
-<div>Expression matrix panel</div>
+<div>
+  <span>Data</span>
+  <select id="data">
+    <option value="b-subtilis">B. Subtilis</option>
+    <option value="rna-seq">RNA-Seq</option>
+  </select>
+  <span>Profile</span>
+  <input type="text" id="addline" size="5" title="Add gene to the polyline plot. Usage: regex.">
+  <span>Genes</span>
+  <input type="text" id="exprow" size="7" title="Add/remove/select genes in the heatmap. Usage: [add/rm/sel] regex | regex. If no action is specified, default behavior is sel.">
+  <span>Conditions</span>
+  <input type="text" id="expcol" size="7" title="Add/remove/select conditions in the heatmap. Usage: [add/rm/sel] regex | regex. If no action is specified, default behavior is sel.">
+
+  <input type="checkbox" id="labelrow" title="show/hide gene labels">
+  <span>Gene Labels</span>
+  <input type="checkbox" id="labelcol" title="show/hide condition labels">
+  <span>Condition Labels</span>
+  <input type="checkbox" id="showprofile" title="show/hide gene profiles">
+  <span>Gene Profiles</span>
+  <input type="checkbox" id="showtfa" title="show/hide TFA profiles">
+  <span>TFA Profiles</span>
+  <input type="checkbox" id="showgradient" title="show/hide gradient">
+  <span>Gradient</span>
+  <input type="checkbox" id="autoscale" title="turn on/off auto gradient heatmap scale">
+  <span>Auto-Scale Gradient</span>
+</div>

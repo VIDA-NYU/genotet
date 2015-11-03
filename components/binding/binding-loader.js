@@ -41,7 +41,7 @@ BindingLoader.prototype.load = function(gene, chr, opt_track) {
       data: data
     };
 
-    $(this.data).trigger('genotet.loadComplete');
+    $(this).trigger('genotet.loadComplete');
   }.bind(this), 'jsonp')
     .fail(function() {
       Core.error('cannot load binding data', JSON.stringify(params));

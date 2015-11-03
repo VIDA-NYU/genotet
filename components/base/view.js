@@ -41,19 +41,6 @@ function View(viewName) {
     options: {}
   };
 
-  $(this.data)
-    .on('genotet.loadStart', function() {
-      this.renderer.showLoading();
-    }.bind(this))
-    .on('genotet.loadComplete', function() {
-      this.renderer.dataLoaded();
-      this.renderer.hideLoading();
-    }.bind(this))
-    .on('genotet.loadFail', function() {
-      this.renderer.hideLoading();
-      this.renderer.showFailure();
-    }.bind(this));
-
   /*
   if (this.type !== 'menu') {
     $('#view' + this.viewid).addClass('viewshadow');
@@ -227,6 +214,20 @@ View.prototype.init = function() {
   this.container.find('.loading').click(function(event) {
     event.stopPropagation();
   });
+
+  // Set up data loading callbacks.
+  $(this.loader)
+    .on('genotet.loadStart', function() {
+      this.renderer.showLoading();
+    }.bind(this))
+    .on('genotet.loadComplete', function() {
+      this.renderer.dataLoaded();
+      this.renderer.hideLoading();
+    }.bind(this))
+    .on('genotet.loadFail', function() {
+      this.renderer.hideLoading();
+      this.renderer.showFailure();
+    }.bind(this));
 };
 
 /**

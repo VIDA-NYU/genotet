@@ -18,18 +18,17 @@ function ViewPanel(data) {
   this.data = data;
 
   /**
-   * Panel template.
-   * @protected {string}
-   */
-  this.template = 'components/base/view-panel.html';
-
-  /**
    * Panel container, assigned when panel() is called.
    * @private {jQuery}
    */
   this.container_;
 }
 
+/**
+ * Panel template.
+ * @protected {string}
+ */
+ViewPanel.prototype.template = 'components/base/view-panel.html';
 
 /**
  * Displays a control panel in the given container.
@@ -38,10 +37,9 @@ function ViewPanel(data) {
 ViewPanel.prototype.create = function(container) {
   this.container_ = container;
 
-  this.container_ = $('<div></div>')
-    .load(this.template, function() {
+  this.container_.load(this.template, function() {
       this.initPanel();
-      this.container.trigger('genotet.panelReady');
+      $(this).trigger('genotet.panelReady');
     }.bind(this));
 };
 

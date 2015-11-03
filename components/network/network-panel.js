@@ -12,8 +12,6 @@
 function NetworkPanel(data) {
   NetworkPanel.base.constructor.call(this, data);
 
-  this.template = 'components/network/network-panel.html';
-
   // Set the view options.
   _(this.data.options).extend({
     showLabels: true
@@ -24,6 +22,8 @@ NetworkPanel.prototype = Object.create(ViewPanel.prototype);
 NetworkPanel.prototype.constructor = NetworkPanel;
 NetworkPanel.base = ViewPanel.prototype;
 
+/** @inheritDoc */
+NetworkPanel.prototype.template = 'components/network/network-panel.html';
 
 /** @inheritDoc */
 NetworkPanel.prototype.panel = function(container) {
