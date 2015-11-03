@@ -33,6 +33,13 @@ BindingRenderer.prototype.OVERVIEW_HEIGHT = 30;
  */
 BindingRenderer.prototype.EXON_ABSTRACT_LIMIT = 100;
 
+/** @const {number} */
+BindingRenderer.prototype.STRAND_HORIZONTAL_SIZE = 5;
+/** @const {number} */
+BindingRenderer.prototype.STRAND_VERTICAL_SIZE = 3;
+/** @const {number} */
+BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
+
 /**
  * Initializes the BindingRenderer properties.
  */
@@ -63,7 +70,6 @@ BindingRenderer.prototype.init = function() {
   this.mainbarTop = 8;
   // exons
   //this.exonsMargin = 20;
-  this.exonLabelSize = 6;
   // focus range
   this.focusleft = 0.0;
   this.focusright = 0.0;
@@ -242,115 +248,128 @@ BindingRenderer.prototype.drawExons_ = function() {
     .domain(detailRange)
     .range([0, this.canvasWidth_]);
 
-  var exonY = this.EXON_HEIGHT / 2 - this.EXON_SIZE / 2;
+  var exonCenterY = this.EXON_HEIGHT / 2;
+  var exonHalfY = exonCenterY - this.EXON_SIZE / 4;
+  var exonY = exonCenterY - this.EXON_SIZE / 2;
 
   if (exons.length > this.EXON_ABSTRACT_LIMIT) {
-    var tx = this.svgExons_.selectAll('.exonbox').data(exons);
+    // Render the exons in abstract shapes.
+    var tx = this.svgExons_.selectAll('.abstract').data(exons);
     tx.enter().append('rect')
-      .classed('exonbox', true);
+      .classed('abstract', true)
+      .attr('y', exonY);
     tx.exit().remove();
     tx.attr('x', function(exon) {
         return xScale(exon.txStart);
       })
-      .attr('y', exonY)
       .attr('width', function(exon) {
         return xScale(exon.txEnd) - xScale(exon.txStart);
       })
       .attr('height', this.EXON_SIZE);
 
+    this.svgExons_.selectAll('g.exon').remove();
+  } else {
+    // Render detailed exons.
+    var gs = this.svgExons_.selectAll('g.exon').data(exons);
+    var gsEnter = gs.enter().append('g')
+      .classed('exon', true);
+    gsEnter.append('text'); // For label
+    gsEnter.append('line'); // For base line
+    gs.exit().remove();
 
-    /*
-    for (var i = 0; i < exons.length; i++) {
-      // base line
-      var tx = this.svg.selectAll('#exonbox' + i).data([exons[i]]).enter().append('rect')
-        .attr('id', '#exonbox' + i)
-        .attr('class', 'exonbox')
-        .attr('x', function(d) { return (d.txStart - layout.focusleft) / focusspan * layout.mainbarWidth; })
-        .attr('y', layout.exonsY - layout.exonsSize / 4.0)
-        .attr('width', function(d) { return (d.txEnd - d.txStart) / focusspan * layout.mainbarWidth; })
-        .attr('height', layout.exonsSize / 2.0);
-    }
-    */
-  }
+    // Base lines
+    gs.select('line')
+      .attr('y1', exonCenterY)
+      .attr('y2', exonCenterY)
+      .attr('x1', function(exon) {
+        return xScale(exon.txStart);
+      })
+      .attr('x2', function(exon) {
+        return xScale(exon.txEnd);
+      });
 
-  /*
-   // name, reduced overlap
-   if (exons.length <= 100) {
-   var name = this.svg.selectAll('#exonname' + i).data(exons).enter().append('text')
-   .attr('id', '#exonname' + i)
-   .attr('class', 'exonname')
-   .text(function(d, j) { {
-   var lj = d.name2.length;
-   var jMiddle = ((d.txEnd + d.txStart) / 2.0 - layout.focusleft) / focusspan * layout.mainbarWidth;
-   for (var i = j + 1; i < exons.length; i++) {
-   if (i == j) continue;  // skip itself
-   var iMiddle = ((exons[i].txEnd + exons[i].txStart) / 2.0 - layout.focusleft) / focusspan * layout.mainbarWidth;
-   var diff = Math.abs(iMiddle - jMiddle);
-   if ((exons[i].name2.length + lj) * layout.exonLabelSize / 2.0 > diff) return '';
-   }
-   return d.name2;
-   }})
-   .attr("x", function(d){ return ((d.txEnd+d.txStart)/2.0-layout.focusleft)/focusspan*layout.mainbarWidth; })
-   .attr("y", layout.exonsY + layout.exonsSize*0.95);
-   }
-   */
-};
+    // Outside cds range, half size
+    var txs = gs.selectAll('.txbox').data(function(exon) {
+      return exon.txRanges;
+    });
+    txs.enter().append('rect')
+      .classed('txbox', true)
+      .attr('y', exonHalfY)
+      .attr('height', this.EXON_SIZE / 2);
+    txs.exit().remove();
+    txs
+      .attr('x', function(range) {
+        return xScale(range.start);
+      })
+      .attr('width', function(range) {
+        return xScale(range.end) - xScale(range.start);
+      });
 
-/*
-LayoutHistogram.prototype.updateExons = function() {
-  this.svg.selectAll('.txbox').remove();
-  this.svg.selectAll('.exonbox').remove();
-  this.svg.selectAll('.exonline').remove();
-  this.svg.selectAll('.exonstrand').remove();
-  this.svg.selectAll('.exonname').remove();
+    // Full size
+    var exs = gs.selectAll('.box').data(function(exon) {
+      return exon.exRanges;
+    });
+    exs.enter().append('rect')
+      .classed('box', true)
+      .attr('y', exonY)
+      .attr('height', this.EXON_SIZE);
+    exs.exit().remove();
+    exs
+      .attr('x', function(range) {
+        return xScale(range.start);
+      })
+      .attr('width', function(range) {
+        return xScale(range.end) - xScale(range.start);
+      });
 
-  var focusspan = layout.focusright - layout.focusleft;
-  for (var i = 0; i < exons.length; i++) {
-    if (exons.length < 100) {
-      // base line
-      var line = this.svg.selectAll('#exline' + i).data([exons[i]]).enter().append('line')
-        .attr('id', '#exline' + i)
-        .attr('class', 'exonline')
-        .attr('x1', function(d) { return (d.txStart - layout.focusleft) / focusspan * layout.mainbarWidth; })
-        .attr('x2', function(d) { return (d.txEnd - layout.focusleft) / focusspan * layout.mainbarWidth; })
-        .attr('y1', layout.exonsY)
-        .attr('y2', layout.exonsY);
-      // outside cds range
-      var txed = this.svg.selectAll('#txseg' + i).data(exons[i].txRanges).enter().append('rect')
-        .attr('id', '#txseg' + i)
-        .attr('class', 'txbox')
-        .attr('x', function(d) { return (d.start - layout.focusleft) / focusspan * layout.mainbarWidth; })
-        .attr('y', layout.exonsY - layout.exonsSize / 4.0)
-        .attr('width', function(d) { return (d.end - d.start) / focusspan * layout.mainbarWidth; })
-        .attr('height', layout.exonsSize / 2.0);
-      // full-size exons
-      var ex = this.svg.selectAll('#exseg' + i).data(exons[i].exRanges).enter().append('rect')
-        .attr('id', '#exseg' + i)
-        .attr('class', 'exonbox')
-        .attr('x', function(d) { return (d.start - layout.focusleft) / focusspan * layout.mainbarWidth; })
-        .attr('y', layout.exonsY - layout.exonsSize / 2.0)
-        .attr('width', function(d, j) { return (d.end - d.start) / focusspan * layout.mainbarWidth; })
-        .attr('height', layout.exonsSize);
-      // strand
-      var strands = [];
-      for (var j = 0.25; j <= 0.75; j += 0.25) {
-        strands.push({'x': exons[i].txStart * (1.0 - j) + exons[i].txEnd * j, 'strand': exons[i].strand });
-      }
-      var strand = this.svg.selectAll('#exstrand' + i).data(strands).enter().append('polygon')
-        .attr('class', 'exonstrand')
-        .attr('points', function(d) {
-          var x = (d.x - layout.focusleft) / focusspan * layout.mainbarWidth, y = layout.exonsY;
-          var dx = d.strand == '+' ? 5 : -5;
-          return (x + dx) + ',' + y + ' ' + x + ',' + (y + 3) + ' ' + x + ',' + (y - 3);
+    // Strands
+    var strands = gs.selectAll('.strand').data(function(exon) {
+      var data = [];
+      for (var i = 0.25; i <= 0.75; i += 0.25) {
+        data.push({
+          x: exon.txStart * (1.0 - i) + exon.txEnd * i,
+          direction: exon.strand
         });
-    }else {
-      // abstract version
+      }
+      return data;
+    });
+    var line = d3.svg.line();
+    strands.enter().append('path')
+      .classed('strand', true);
+    strands.exit().remove();
+    strands.attr('d', function(strand) {
+      var x = xScale(strand.x);
+      var dx = strand.direction == '+' ?
+          this.STRAND_HORIZONTAL_SIZE : -this.STRAND_HORIZONTAL_SIZE;
+      return line([
+        [x + dx, exonCenterY],
+        [x, exonCenterY + this.STRAND_VERTICAL_SIZE],
+        [x, exonCenterY - this.STRAND_VERTICAL_SIZE]
+      ]);
+    }.bind(this));
 
-    }
+    // Labels
+    gs.select('text')
+      .attr('y', exonY)
+      .attr('x', function(exon) {
+        return xScale((exon.txStart + exon.txEnd) / 2);
+      })
+      .text(function(exon, index) {
+        if (index) {
+          // Prevent overlap with the label on the left.
+          var prevExon = exons[index - 1];
+          var dist = Math.abs(xScale((prevExon.txStart + prevExon.txEnd) / 2 -
+              (exon.txStart + exon.txEnd) / 2));
+          var nameWidth = (exon.name2.length + prevExon.name2.length) / 2 *
+              this.EXON_LABEL_SIZE;
+          if (nameWidth > dist) {
+            return '';
+          }
+        }
+        return exon.name2;
+      });
   }
 };
-*/
-
 
 /**
  * Re-computes the track height.

@@ -7,9 +7,19 @@
   stroke: none;
 }
 
-.binding .exonbox {
+.binding .exons rect {
   fill: #031c51;
   stroke: none;
+}
+
+.binding .exons line {
+  stroke: #031c51;
+  stroke-width: 1;
+}
+
+.binding .exons text {
+  font-size: 10px;
+  text-anchor: middle;
 }
 
 .txbox {
@@ -20,15 +30,6 @@
 .exonstrand {
   fill: #4f455c;
   stroke: none;
-}
-.exonline {
-  stroke: #61576d;
-  stroke-width: 1;
-}
-.exonname {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-  font-size: 10px;
-  text-anchor: middle;
 }
 
 .label {
