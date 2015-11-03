@@ -5,10 +5,10 @@ var PanelManager = {
     $('.panel-manager').load('templates/panel-manager.html', function(e) {
       $('#btnToggle').on('click', function(e) {
         $('#slider').animate({
-          'right' : $('#slider').css('right') == '0px' ? '-208px' : '0px'
+          'right' : $('#slider').css('right') == '0px' ? '-209px' : '0px'
         }, PanelManager.TRANSITION_TIME);
         $('#btnToggle').animate({
-          'right' : $('#btnToggle').css('right') == '0px' ? '208px' : '0px'
+          'right' : $('#btnToggle').css('right') == '0px' ? '209px' : '0px'
         }, PanelManager.TRANSITION_TIME);
         setTimeout(function(e) {
           $('#icon-button').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
