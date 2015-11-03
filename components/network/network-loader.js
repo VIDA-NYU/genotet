@@ -19,7 +19,7 @@ NetworkLoader.base = ViewLoader.prototype;
 
 
 /**
- * Loads the network data, adding the genes given by geneRegex
+ * Loads the network data, adding the genes given by geneRegex.
  * @param {string} networkName Network name.
  * @param {string} geneRegex Regex for gene selection.
  * @override
@@ -120,12 +120,14 @@ NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
     net: networkName,
     exp: geneRegex
   };
-  $.get(addr, params, function(data) {
-    _(this.data).extend(data);
-
+  $.get(Data.serverURL, params, function(data) {
     // Store the last applied networkName and geneRegex.
-    data.networkName = networkName;
-    data.geneRegex = geneRegex;
+    _(data).extend({
+      networkName: networkName,
+      geneRegex: geneRegex
+    });
+
+    _(this.data).extend(data);
 
     $(this.data).trigger('genotet.loadComplete');
   }.bind(this), 'jsonp')
@@ -143,10 +145,7 @@ LoaderGraph.prototype.updateData = function(identifier) {
     this.removeEdges(identifier.data);
   }
 };
-*/
 
-
-/*
 LoaderGraph.prototype.loadComb = function(net, exp) {
     var loader = this;
   var oexp = exp;

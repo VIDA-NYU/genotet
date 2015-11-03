@@ -23,6 +23,7 @@ BindingRenderer.base = ViewRenderer.prototype;
  * Initializes the BindingRenderer properties.
  */
 BindingRenderer.init = function() {
+  /*
   // margin of main bars
   this.mainbarTop = 8;
   this.overviewHeight = 40;
@@ -69,6 +70,34 @@ BindingRenderer.init = function() {
   this.bottomMargin = 5;
   // ui
   this.uiHeight = 26;
+  */
+};
+
+/** @inheritDoc */
+BindingRenderer.prototype.render = function() {
+  this.drawBindingOverview_();
+  this.drawBinding_();
+  this.drawExons_();
+};
+
+/**
+ * Renders the binding data as histogram.
+ * @private
+ */
+BindingRenderer.prototype.drawBinding_ = function() {
+};
+
+/**
+ * Renders the binding data overview as smaller histogram.
+ * @private
+ */
+BindingRenderer.prototype.drawBindingOverview_ = function() {
+};
+
+/**
+ * Renders the exons below the binding tracks.
+ */
+BindingRenderer.prototype.drawExons_ = function() {
 };
 
 /*

@@ -15,17 +15,21 @@
 function NetworkView(viewName, params) {
   NetworkView.base.constructor.call(this, viewName);
 
-  /** @type {NetworkLoader} */
+  this.container.addClass('network');
+
+  /** @protected {NetworkLoader} */
   this.loader = new NetworkLoader(this.data);
 
-  /** @type {NetworkRenderer} */
+  /** @protected {NetworkPanel} */
+  this.panel = new NetworkPanel(this.data);
+
+  /** @protected {NetworkRenderer} */
   this.renderer = new NetworkRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
   $(this.data).on('genotet.loadComplete', function() {
     this.renderer.render();
   }.bind(this));
-
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.networkName, params.geneRegex);
   }.bind(this));

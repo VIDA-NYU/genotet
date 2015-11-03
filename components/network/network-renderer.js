@@ -13,17 +13,47 @@
  */
 function NetworkRenderer(container, data) {
   NetworkRenderer.base.constructor.call(this, container, data);
-  this.init();
 }
 
 NetworkRenderer.prototype = Object.create(ViewRenderer.prototype);
 NetworkRenderer.prototype.constructor = NetworkRenderer;
 NetworkRenderer.base = ViewRenderer.prototype;
 
+/**
+ * State of mouse interaction.
+ * @enum {number}
+ */
+NetworkRenderer.prototype.MouseState = {
+  NONE: 0,
+  SELECT: 1,
+  ZOOM: 2
+};
 
 /**
- * Initializes the renderer properties.
+ * Scaling extent for D3 zoom.
+ * @const {!Array<number>}
  */
+NetworkRenderer.prototype.ZOOM_EXTENT = [0.125, 8];
+
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_SIZE = 14;
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_OFFSET_X = 10;
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y =
+    NetworkRenderer.prototype.NODE_LABEL_SIZE / 2;
+/** @const {number} */
+NetworkRenderer.prototype.NODE_SIZE = 5;
+/** @const {number} */
+NetworkRenderer.prototype.EDGE_ARROW_LENGTH = 10;
+/**
+ * Shifting percentage of curved edge.
+ * @const {number}
+ */
+NetworkRenderer.prototype.EDGE_CURVE_SHIFT = 0.1;
+
+
+/** @inheritDoc */
 NetworkRenderer.prototype.init = function() {
   NetworkRenderer.base.init.call(this);
 
@@ -33,29 +63,13 @@ NetworkRenderer.prototype.init = function() {
    */
   this.filter = {
     edgeWeight: [-Infinity, Infinity],
-    showTfToTf: true,
-    showTfToNonTf: true
+    showTFToTF: true,
+    showTFToNonTF: true
   };
 
-  /**
-   * Display settings.
-   * @protected {!Object}
-   */
-  this.options = {
-    showLabel: true,
-    labelGap: 10.0
-  };
-
-  /** @private {d3.scale} */
+  // Color scale encoding edge weights.
+  /** @private {!d3.scale} */
   this.colorScale_ = d3.scale.linear();
-
-  this.trans = [0, 0];
-  this.scale = 1.0;
-  this.dragging = false;
-  this.zooming = false;
-
-  /** @private {d3.zoom} */
-  this.zoom = d3.behavior.zoom();
 
   /**
    * Node objects storing the rendering properties of network nodes.
@@ -95,6 +109,41 @@ NetworkRenderer.prototype.init = function() {
    * @private {boolean}
    */
   this.forcing_ = false;
+
+  // Create group elements in the svg for nodes, edges, etc.
+  // Groups shall be created in the reverse order of their appearing order.
+  /**
+   * Svg group for edges.
+   * @private {!d3.selection}
+   */
+  this.svgEdges_ = this.canvas.append('g')
+    .classed('edges render-group', true);
+  /**
+   * Svg group for nodes.
+   * @private {!d3.selection}
+   */
+  this.svgNodes_ = this.canvas.append('g')
+    .classed('nodes render-group', true);
+  /**
+   * Svg group for node labels.
+   * @private {!d3.selection}
+   */
+  this.svgNodeLabels_ = this.canvas.append('g')
+    .classed('node-labels render-group', true);
+
+  // Navigation state.
+  /** @private {!Array<number>} */
+  this.zoomTranslate_ = [0, 0];
+  /** @private {number} */
+  this.zoomScale_ = 1.0;
+  /** @private {NetworkRenderer.MouseState} */
+  this.mouseState_ = this.MouseState.NONE;
+
+  /** @private {d3.zoom} */
+  this.zoom_ = d3.behavior.zoom()
+    .scaleExtent(this.ZOOM_EXTENT)
+    .on('zoom', this.zoomHandler_.bind(this));
+  this.canvas.call(this.zoom_);
 };
 
 
@@ -103,8 +152,56 @@ NetworkRenderer.prototype.init = function() {
  * @override
  */
 NetworkRenderer.prototype.render = function() {
+  if (!this.dataReady_()) {
+    return;
+  }
+  this.force_
+    .size([this.canvasWidth_, this.canvasHeight_])
+    .start();
+};
+
+/**
+ * Prepares the network data and renders the network.
+ * @override
+ */
+NetworkRenderer.prototype.dataLoaded = function() {
   this.prepareData_();
-  this.force_.start();
+  this.render();
+};
+
+/**
+ * Re-renders the scene upon resize.
+ * @override
+ */
+NetworkRenderer.prototype.resize = function() {
+  NetworkRenderer.base.resize.call(this);
+  this.render();
+};
+
+/**
+ * Handles mouse zoom event.
+ * @private
+ */
+NetworkRenderer.prototype.zoomHandler_ = function() {
+  var translate = d3.event.translate;
+  var scale = d3.event.scale;
+
+  this.zoom_.translate(translate);
+  this.canvas.selectAll('.render-group')
+    .attr('transform', Utils.getTransform(translate, scale));
+
+  this.zoomTranslate_ = translate;
+  this.zoomScale_ = scale;
+
+  this.drawNetwork_();
+};
+
+/**
+ * Checks whether the data has been loaded.
+ * @private
+ */
+NetworkRenderer.prototype.dataReady_ = function() {
+  return this.data.nodes;
 };
 
 
@@ -115,31 +212,41 @@ NetworkRenderer.prototype.render = function() {
 NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
     .domain([this.data.wmin, this.data.wmax])
-    .range(Data.redGreenScale);
+    .range(Data.redBlueScale);
+
+  this.data.nodes.forEach(function(node) {
+    if (!this.nodes_[node.id]) {
+      this.nodes_[node.id] = _.extend({}, node);
+    }
+  }, this);
+  this.data.edges.forEach(function(edge) {
+    if (!this.nodes_[edge.source] || !this.nodes_[edge.target]) {
+      Core.error('edge contains nodes that do not exist', JSON.stringify(edge));
+    }
+    if (!this.edges_[edge.id]) {
+      this.edges_[edge.id] = {
+        id: edge.id,
+        source: this.nodes_[edge.source],
+        target: this.nodes_[edge.target],
+        weight: edge.weight
+      };
+    }
+  }, this);
 
   this.force_ = d3.layout.force()
+    .nodes(_.toArray(this.nodes_))
+    .links(_.toArray(this.edges_))
     .charge(this.forceParams_.charge)
     .gravity(this.forceParams_.gravity)
     .linkDistance(this.forceParams_.linkDistance)
     .friction(this.forceParams_.friction)
-    .size([this.width, this.graphHeight])
     .on('start', function() {
       this.forcing = true;
     }.bind(this))
-    .on('tick', this.drawNetwork_)
+    .on('tick', this.drawNetwork_.bind(this))
     .on('end', function() {
       this.forcing = false;
     }.bind(this));
-};
-
-
-/**
- * Handles force ending event.
- * @private
- */
-NetworkRenderer.prototype.forceComplete_ = function() {
-  this.forcing_ = false;
-  //$('#'+ this.htmlid + ' #force').attr('checked', false);
 };
 
 /**
@@ -148,193 +255,167 @@ NetworkRenderer.prototype.forceComplete_ = function() {
  * @private
  */
 NetworkRenderer.prototype.drawNetwork_ = function() {
-  // TODO(bowen): Implement this.
-  return;
-  var nodes = this.nodes,
-    links = this.links,
-    layout = this;
+  this.drawNodes_();
+  this.drawEdges_();
+};
 
-  var link = this.svg.selectAll('.link').data(links)
-    .style('stroke', function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
-    .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-    .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-    .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-    .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
-
-  var linkdir = this.svg.selectAll('.linkdir').data(links)
-    .style('stroke', function(d) { return layout.colorEdge(d.weight[layout.weightIndex]); })
-    .attr('points', function(d) { return layout.edgeArrow(d); });
-
-  var linkiobj = this.svg.selectAll('.linkiobj').data(links)
-    .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-    .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-    .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-    .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
-
-
-  var node = this.svg.selectAll('.node').data(nodes)
-    .attr('r', function(d) { return d.focus ? 6 : 5; })
-    //.style("fill", function(d) { return d.selected?"orange":(d.focus?"red":"white"); })
-    .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-    .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; });
-
-  var nodeiobj = this.svg.selectAll('.nodeiobj').data(nodes)
-    .attr('r', 10.0)
-    .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-    .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; });
-
-  var label = this.svg.selectAll('.label').data(nodes)
-    .attr('x', function(d) { return layout.nodes[d.index].x * layout.scale + layout.trans[0]; })
-    .attr('y', function(d) { return layout.nodes[d.index].y * layout.scale - layout.labelGap + layout.trans[1]; });
-
-
-  if (this.selectedElement.content != null) {
-    if (this.selectedElement.type == 'node') {
-      var node_ = this.svg.selectAll('#node_select').data([this.selectedElement.content])
-        .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-        .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; });
-    }else if (this.selectedElement.type == 'link') {
-      var link_ = this.svg.selectAll('#link_select').data([this.selectedElement.content])
-        .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-        .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-        .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-        .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
-      var linkdir_ = this.svg.selectAll('#linkdir_select').data([this.selectedElement.content])
-        .attr('points', function(d) { return layout.edgeArrow(d); });
+/**
+ * Renders the network nodes.
+ * @private
+ */
+NetworkRenderer.prototype.drawNodes_ = function() {
+  var genesRegular = [];
+  var genesTF = [];
+  $.each(this.nodes_, function(id, node) {
+    if (node.isTF) {
+      genesTF.push(node);
+    } else {
+      genesRegular.push(node);
     }
-  }
-  if (this.highlightedElement.content != null) {
-    if (this.highlightedElement.type == 'node') {
-      var node_ = this.svg.selectAll('#node_highlight').data([this.highlightedElement.content])
-        .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-        .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; });
-    }else if (this.highlightedElement.type == 'link') {
-      var link_ = this.svg.selectAll('#link_highlight').data([this.highlightedElement.content])
-        .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-        .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-        .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-        .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; });
-      var linkdir_ = this.svg.selectAll('#linkdir_highlight').data([this.highlightedElement.content])
-        .attr('points', function(d) { return layout.edgeArrow(d); });
-    }
+  });
+
+  // Draw regular genes as circles.
+  var nodesRegular = this.svgNodes_.selectAll('circle')
+    .data(genesRegular, function(node) {
+      return node.id;
+    });
+  nodesRegular.enter().append('circle')
+    .attr('r', this.NODE_SIZE);
+  nodesRegular.exit().remove();
+  nodesRegular
+    .attr('cx', function(node) {
+      return node.x;
+    })
+    .attr('cy', function(node) {
+      return node.y;
+    });
+
+  var nodesTF = this.svgNodes_.selectAll('rect')
+    .data(genesTF, function(node) {
+      return node.id;
+    });
+  nodesTF.enter().append('rect')
+    .attr('width', this.NODE_SIZE * 2)
+    .attr('height', this.NODE_SIZE * 2);
+  nodesTF.exit().remove();
+  nodesTF
+    .attr('x', function(node) {
+      return node.x - this.NODE_SIZE;
+    }.bind(this))
+    .attr('y', function(node) {
+      return node.y - this.NODE_SIZE;
+    }.bind(this));
+
+  if (this.data.options.showLabels) {
+    this.drawNodeLabels_();
   }
 };
 
+/**
+ * Renders the node labels. This is only called from drawNodes_
+ * when options.showLabels is set.
+ * @private
+ */
+NetworkRenderer.prototype.drawNodeLabels_ = function() {
+  var labels = this.svgNodeLabels_.selectAll('text')
+    .data(_.toArray(this.nodes_), function(node) {
+      return node.id;
+    });
+  labels.enter().append('text')
+    .text(function(node) {
+      return node.name;
+    })
+  labels.exit().remove();
+  var fontSize = this.NODE_LABEL_SIZE / this.zoomScale_;
+  var yOffset = this.NODE_LABEL_OFFSET_Y / this.zoomScale_;
+  labels
+    .style('font-size', fontSize)
+    .attr('x', function(node) {
+      return node.x + this.NODE_LABEL_OFFSET_X;
+    }.bind(this))
+    .attr('y', function(node) {
+      return node.y + yOffset;
+    }.bind(this));
+};
 
+/**
+ * Renders the network edges.
+ * @private
+ */
+NetworkRenderer.prototype.drawEdges_ = function() {
+  // Use color to encode edge weight.
+  var getEdgeColor = function(edge) {
+    return this.colorScale_(edge.weight);
+  }.bind(this);
 
-NetworkRenderer.prototype.initLayout = function(removeOnly) {
-  var layout = this;
-  this.nodes = this.data.nodes;
-  this.links = this.data.links;
-  // replace node id by reference
-  for (var i = 0; i < this.nodes.length; i++) {
-    if (this.nodes[i].x == null) this.nodes[i].x = Math.floor(Math.random() * this.width);
-    if (this.nodes[i].y == null) this.nodes[i].y = Math.floor(Math.random() * this.graphHeight);
-  }
-  for (var i = 0; i < this.links.length; i++) {
-    this.links[i].source = this.nodes[this.links[i].source];
-    this.links[i].target = this.nodes[this.links[i].target];
-  }
+  // Create a shifted point around the middle of the edge to be the control
+  // point of the edge's curve.
+  var getShiftPoint = function(ps, pt) {
+    var m = Utils.middlePoint(ps, pt);
+    var d = Utils.subtractVector(ps, pt);
+    d = Utils.perpendicularVector(d);
+    d = Utils.normalizeVector(d);
+    d = Utils.multiplyVector(d, Utils.vectorDistance(ps, pt) *
+      this.EDGE_CURVE_SHIFT);
+    return Utils.addVector(m, d);
+  }.bind(this);
 
+  var gs = this.svgEdges_.selectAll('g')
+    .data(_.toArray(this.edges_), function(edge) {
+      return edge.id;
+    });
+  var gsEnter = gs.enter().append('g')
+    .style('stroke', getEdgeColor)
+    .style('fill', getEdgeColor);
+  gsEnter.append('path')
+    .classed('edge', true);
+  gsEnter.append('path')
+    .classed('arrow', true);
+  gs.exit().remove();
 
-  this.forcing = true;
-  $('#'+ this.htmlid + ' #force').attr('checked', true);
+  var curve = d3.svg.line().interpolate('basis');
+  this.svgEdges_.selectAll('path.edge')
+    .data(_.toArray(this.edges_), function(edge) {
+      return edge.id;
+    })
+    .attr('d', function(edge) {
+      var ps = [edge.source.x, edge.source.y];
+      var pt = [edge.target.x, edge.target.y];
+      var pm = getShiftPoint(ps, pt);
+      return curve([ps, pm, pt]);
+    });
 
-    //var color = d3.scale.category20();
-  // compute an initial layout
-  this.renderLayout();
-  this.computeForce();
-  if (removeOnly == true) this.force.stop();
+  // Create a stroke that looks like an arrow.
+  var getArrowPoints = function(ps, pt) {
+    var pm = getShiftPoint(ps, pt);
+    var ds = Utils.normalizeVector(Utils.subtractVector(ps, pt));
+    var dm = Utils.normalizeVector(Utils.subtractVector(pm, pt));
+    var p1 = Utils.addVector(pt, Utils.multiplyVector(dm, this.NODE_SIZE));
+    var p2 = Utils.addVector(p1, Utils.multiplyVector(ds, this.EDGE_ARROW_LENGTH));
+    var p3 = Utils.mirrorPoint(p2, p1, pm, 1);
+    return [p1, p2, p3];
+  }.bind(this);
+
+  var line = d3.svg.line().interpolate('linear-closed');
+  this.svgEdges_.selectAll('path.arrow')
+    .data(_.toArray(this.edges_), function(edge) {
+      return edge.id;
+    })
+    .attr('d', function(edge) {
+      var ps = [edge.source.x, edge.source.y];
+      var pt = [edge.target.x, edge.target.y];
+      var points = getArrowPoints(ps, pt);
+      return line(points);
+    });
 };
 
 
-NetworkRenderer.prototype.computeForce = function() {
-  this.force.nodes(this.nodes).links(this.links).size([this.width, this.graphHeight]);
-  //this.force.start(); // even if force is not needed, you need to start force because it replaces node index of links by node references
-  //for(var i=0; i<300; i++) this.force.tick();
-  //this.force.stop();
-};
-
-NetworkRenderer.prototype.renderLayout = function() {
-  this.renderGraph();
-};
-
+/*
 NetworkRenderer.prototype.removeLayout = function() {
    $('#'+ this.htmlid + " div[name='ui']").remove();
    $('#'+ this.htmlid + ' #layoutwrapper').remove();
    $('#'+ this.htmlid + ' #hint').remove();
    $('#'+ this.htmlid + ' svg').remove();
-};
-
-NetworkRenderer.prototype.renderUI = function() {
-  var layout = this;
-  $('#'+ this.htmlid + ' .ui-widget-header').after("<div name='ui'><div>" +
-  "<span style='margin-left: 5px; font-weight:900'>NETWORK</span>" +
-  "<select id='netname' title='Choose the network data'>" +
-    "<option value='th17'>TH17</option>" +
-    "<option value='confidence'>Confidence</option>" +
-    "<option value='prediction'>Prediction</option>" +
-    "<option value='strength'>Strength</option>" +
-    '</select>' +
-    "<span style='margin-left: 5px; font-weight:900'>GENE</span>" +
-  "<input type='text' id='gene' size='10' title='Add/remove/select genes in the network. " +
-  " Usage: [add/rm/sel] regexp | regexp. If no action is specified, default behavior is sel.'>" +
-  "<span style='margin-left: 5px;'>COMBREG</span>" +
-  "<input type='text' id='comb' size='10' title='Add nodes into the graph that are regulated by selected genes. Usage: regexp'>" +
-  '</div>' +
-  "<input type='checkbox' id='label' title='Show/hide node labels'> Label " +
-  "<input type='checkbox' id='tf2tf' title='Show/hide edges between 2 TFs'> TF-TF " +
-  "<input type='checkbox' id='tf2ntf' title='Show/hide edges bettwen a TF and a non-TF'> TF-nonTF " +
-  "<input type='checkbox' id='force' title='Turn on/off force of the graph layout'> Force " +
-  "<input type='checkbox' id='edgelist' title='Auto pop incident edge list when a node is clicked'> EdgeList " +
-  '</div>');
-
-  $('#'+ this.htmlid + " #netname option[value='" + this.parentView.loader.lastIdentifier.net + "']").attr('selected', true);
-  $('#'+ this.htmlid + ' #netname').change(function() {
-    var net = $(this).select('option:selected').val();
-    console.log(net);
-    if (net != layout.parentView.loader.lastIdentifier.net)
-      layout.parentView.loader.loadData({'net': net, 'exp': 'a^'});
-  });
-  $('#'+ this.htmlid + ' #gene').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('gene'); });
-  $('#'+ this.htmlid + ' #comb').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('comb'); });
-  $('#'+ this.htmlid + ' #label').attr('checked', this.showLabel)
-    .change(function() { return layout.toggleLabel(); });
-  $('#'+ this.htmlid + ' #tf2tf').attr('checked', this.showTF2TFEdge)
-    .change(function() { return layout.toggleTF2TFEdge(); });
-  $('#'+ this.htmlid + ' #tf2ntf').attr('checked', this.showTF2nTFEdge)
-    .change(function() { return layout.toggleTF2nTFEdge(); });
-  $('#'+ this.htmlid + ' #force').attr('checked', this.forcing)
-    .change(function() { return layout.toggleForce(); });
-  $('#'+ this.htmlid + ' #edgelist').attr('checked', this.edgeListing)
-    .change(function() { return layout.toggleEdgeListing(); });
-  this.uiHeight = $('#'+ this.htmlid + " div[name='ui']").height();
-};
-
-NetworkRenderer.prototype.uiUpdate = function(type) {
-  var loader = this.parentView.loader;
-  if (type == 'gene') {
-    var srch = $('#'+ this.htmlid + ' #gene').val();
-    var cmd = srch.split(' ');
-    if (cmd.length == 1 || (cmd.length == 2 && cmd[0] == 'sel')) {
-      var exp = cmd.length == 1 ? cmd[0] : cmd[1];
-      this.showMsg('Loading...');
-      loader.loadNetwork(loader.lastIdentifier.net, exp);
-    }else if (cmd.length == 2 && (cmd[0] == 'add' || cmd[0] == 'rm')) {
-      if (cmd[0] == 'add') {
-        loader.addNodes(cmd[1]);
-      }else if (cmd[0] == 'rm') {
-        loader.removeNodes(cmd[1]);
-      }
-    }else {
-      options.alert('invalid syntax, usage: add/rm/sel regexp | regexp');
-      return;
-    }
-  }else if (type == 'comb') {
-    var exp = $('#'+ this.htmlid + ' #comb').val();
-    if (exp == '') return;
-    loader.loadComb(loader.lastIdentifier.net, exp);
-  }
 };
 
 NetworkRenderer.prototype.renderGraph = function() {
@@ -356,7 +437,6 @@ NetworkRenderer.prototype.renderGraph = function() {
     this.svg
       .style('width', embWidth)
       .style('height', embHeight);
-
 
     var background = this.svg.selectAll('#background').data([{'zone': 'background'}]).enter().append('rect')
     .attr('class', 'iobj')
@@ -486,134 +566,6 @@ NetworkRenderer.prototype.renderGraph = function() {
     .attr('x', 5)
     .attr('y', this.graphHeight - 10)
     .text('');
-};
-
-NetworkRenderer.prototype.visualizeElement = function(element, type) {
-
-  var elementProcessed;
-  if (type == 'highlight') {
-    elementProcessed = this.highlightedElement;
-  }else if (type == 'select') {
-    elementProcessed = this.selectedElement;
-  }
-
-  if (elementProcessed.content != null) {
-    // clear selected
-    if (elementProcessed.type == 'node') {
-      this.svg.selectAll('#node_'+ type)
-        .attr('visibility', 'hidden');
-    }else if (elementProcessed.type == 'link') {
-      this.svg.selectAll('#link_'+ type)
-        .attr('visibility', 'hidden');
-      this.svg.selectAll('#linkdir_'+ type)
-        .attr('visibility', 'hidden');
-    }
-  }
-
-  if (element == null) {
-    elementProcessed = {};
-    return;
-  }else {
-    elementProcessed.content = element.content;
-    elementProcessed.type = element.type;
-  }
-  var d = element.content;
-  var layout = this;
-
-  if (elementProcessed.type == 'node') {
-    var node_ = this.svg.selectAll('#node_'+ type).data([d])
-      .attr('cx', function(d) { return d.x * layout.scale + layout.trans[0]; })
-      .attr('cy', function(d) { return d.y * layout.scale + layout.trans[1]; })
-      .attr('r', function(d) { return d.focus ? 6 : 5; })
-      .attr('visibility', 'visible');
-  }else if (elementProcessed.type == 'link') {
-    var link_ = this.svg.selectAll('#link_'+ type).data([d])
-      .attr('x1', function(d) { return layout.edgeCoordinate(d, 'x1') * layout.scale + layout.trans[0]; })
-      .attr('y1', function(d) { return layout.edgeCoordinate(d, 'y1') * layout.scale + layout.trans[1]; })
-      .attr('x2', function(d) { return layout.edgeCoordinate(d, 'x2') * layout.scale + layout.trans[0]; })
-      .attr('y2', function(d) { return layout.edgeCoordinate(d, 'y2') * layout.scale + layout.trans[1]; })
-      .attr('visibility', 'visible');
-    var linkdir_ = this.svg.selectAll('#linkdir_'+ type).data([d])
-      .attr('points', function(d) { return layout.edgeArrow(d); })
-      .attr('visibility', 'visible');
-  }
-
-  // send selection to children view
-  var msg = {'action': type, 'type': elementProcessed.type};
-  if (elementProcessed.type == 'node') {
-    msg.para = [d.name, this.parentView.loader.lastIdentifier.net];
-    if (type == 'select' && this.edgeListing) this.parentView.loader.showEdges(this.parentView.loader.lastIdentifier.net, d.name);
-  }else if (elementProcessed.type == 'link') {
-    msg.para = [d.source.name, d.target.name];
-  }
-  this.parentView.postViewMessage(msg);
-};
-
-NetworkRenderer.prototype.edgeCoordinate = function(d, which) {
-  var layout = this;
-  if (this.data.bidir[d.source.index + '*'+ d.target.index] == true && this.data.bidir[d.target.index + '*'+ d.source.index] == true) { // bidirectional edges
-    var dy = d.target.y - d.source.y, dx = d.target.x - d.source.x;
-    var dl = Math.sqrt(dx * dx + dy * dy), th = -Math.acos(0.0);
-    dx /= dl; dy /= dl;
-    var ddx = Math.cos(th) * dx - Math.sin(th) * dy,
-      ddy = Math.sin(th) * dx + Math.cos(th) * dy;
-    switch (which) {
-      case 'x1': return d.source.x + ddx * 2 / layout.scale;
-      case 'y1': return d.source.y + ddy * 2 / layout.scale;
-      case 'x2': return d.target.x + ddx * 2 / layout.scale;
-      case 'y2': return d.target.y + ddy * 2 / layout.scale;
-      default: console.error('edgeCoordinate: unidentified which bidir', which);
-    }
-  }else {
-    switch (which) {
-      case 'x1': return d.source.x;
-      case 'y1': return d.source.y;
-      case 'x2': return d.target.x;
-      case 'y2': return d.target.y;
-      default: console.error('edgeCoordinate: unidentified which', which);
-    }
-  }
-};
-
-NetworkRenderer.prototype.edgeArrow = function(d) {
-  var layout = this;
-  var g = 5.0, h = g + 10.0, w = 5.0;
-  var dy = d.target.y - d.source.y, dx = d.target.x - d.source.x;
-  var theta = Math.atan2(dy, dx),
-  theta2 = Math.atan2(-dx, dy);
-  var sint = Math.sin(theta), cost = Math.cos(theta),
-  sint2 = Math.sin(theta2), cost2 = Math.cos(theta2);
-  var x2 = this.edgeCoordinate(d, 'x2'), y2 = this.edgeCoordinate(d, 'y2');
-  var arrowx = x2 * layout.scale - cost * h + layout.trans[0],
-  arrowy = y2 * layout.scale - sint * h + layout.trans[1];
-  return ''+ (x2 * layout.scale - g * cost + layout.trans[0]) + ','+ (y2 * layout.scale - g * sint + layout.trans[1]) + ' ' +
-        (arrowx + w * cost2) + ','+ (arrowy + w * sint2) + ' ' +
-        (arrowx - w * cost2) + ','+ (arrowy - w * sint2);
-};
-
-NetworkRenderer.prototype.graphZoomstart = function(d) {
-  if (this.dragging) return;
-  //if(d.zone == "foreground") this.zoom.center([this.width/2, this.height/2]);
-  //else if(d.zone == "background") this.zoom.center(null);
-  this.zooming = true;
-  this.svg.selectAll('.node_highlight').attr('visibility', 'hidden');
-  this.svg.selectAll('.link_highlight').attr('visibility', 'hidden');
-  this.svg.selectAll('.linkdir_highlight').attr('visibility', 'hidden');
-};
-
-NetworkRenderer.prototype.graphZoom = function(d) {
-  if (this.dragging) return;
-  //if(manager.ctrlDown) return;
-  var trans = d3.event.translate;
-  var scale = d3.event.scale;
-  this.trans = [trans[0], trans[1]];
-  this.scale = scale;
-  this.updateLayout();
-};
-
-NetworkRenderer.prototype.graphZoomend = function(d) {
-  if (this.dragging) return;
-  this.zooming = false;
 };
 
 NetworkRenderer.prototype.nodeDragStart = function(d) {
@@ -834,51 +786,4 @@ NetworkRenderer.prototype.toggleForce = function() {
   else this.force.resume();
   this.forcing = !this.forcing;
 };
-
-
-NetworkRenderer.prototype.showMsg = function(msg, ui) {
-  this.removeLayout();
-  if (ui == null) ui = false;
-  $('#'+ this.htmlid).append("<div id='hint' class='hint'></div>");
-  $('#'+ this.htmlid + ' #hint').text(msg).css({'width': this.width, 'height': this.rawheight - (ui && !this.compactLayou ? this.uiHeight : 0) });
-};
-
-NetworkRenderer.prototype.showError = function() {
-  this.showMsg('Oops..this guy is dead. x_X', false);
-  this.renderUI();
-};
-
-NetworkRenderer.prototype.updateGraphSize = function(newsize) {
-  if (this.nodes == null) return;
-  var oldwidth = this.width, oldheight = this.graphHeight;
-  this.graphHeight = newsize[1] - (this.compactLayout ? 0 : this.uiHeight);
-  var xratio = newsize[0] / oldwidth, yratio = this.graphHeight / oldheight;
-  var dx = (newsize[0] - oldwidth) / 2, dy = (this.graphHeight - oldheight) / 2;
-  if (xratio >= 1.0 && yratio >= 1.0) {
-    var ratio = Math.max(xratio, yratio);
-  }else if (xratio < 1.0 && yratio < 1.0) {
-    var ratio = Math.min(xratio, yratio);
-  }else {
-    var ratio = 1.0;
-  }
-  for (var i = 0; i < this.nodes.length; i++) {
-    this.nodes[i].x += dx;
-    this.nodes[i].y += dy;
-    //this.nodes[i].x += dx;
-    //this.nodes[i].y += dy;
-    }
-  this.force.size([newsize[0], this.graphHeight]);
-};
-
-NetworkRenderer.prototype.resizeLayout = function(newsize) {
-  if (this.parentView.showHeader == false) newsize[1] += manager.headerHeight;
-
-  this.updateGraphSize(newsize);
-  this.width = newsize[0];
-    this.rawheight = newsize[1];
-  this.removeLayout();
-  if (!this.compactLayout) this.renderUI();
-
-  if (this.nodes == null) return;
-    this.renderLayout();
-};
+*/

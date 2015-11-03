@@ -15,11 +15,24 @@
 function ExpressionView(viewName, params) {
   ExpressionView.base.constructor.call(this, viewName);
 
-  /** @type {ExpressionLoader} */
+  this.container.addClass('expression');
+
+  /** @protected {ExpressionLoader} */
   this.loader = new ExpressionLoader(this.data);
 
-  /** @type {ExpressionRenderer} */
+  /** @protected {ExpressionPanel} */
+  this.controller = new ExpressionPanel(this.data);
+
+  /** @protected {ExpressionRenderer} */
   this.renderer = new ExpressionRenderer(this.container, this.data);
+
+  // Set up data loading callbacks.
+  $(this.data).on('genotet.loadComplete', function() {
+    this.renderer.render();
+  }.bind(this));
+  $(this.container).on('genotet.ready', function() {
+    this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
+  }.bind(this));
 }
 
 ExpressionView.prototype = Object.create(View.prototype);

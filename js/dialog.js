@@ -1,13 +1,20 @@
+/**
+ * @fileoverview Genotet dialog (modal) specification.
+ */
+
 'use strict';
 
-var Dialog = {
 
-  create: function(params) {
-    if (params == null) {
-      console.error('undefined params in create');
+var Dialog = {
+  /**
+   * Creates a dialog with the given parameter.
+   * @param {string} type Type of the dialog.
+   */
+  create: function(type) {
+    if (type == null) {
+      console.error('undefined dialog type in create');
       return;
     }
-    var type = params;
     switch (type) {
     case 'create-view':
       this.createView();
@@ -30,6 +37,9 @@ var Dialog = {
     }
   },
 
+  /**
+   * Creates a organism selection dialog.
+   */
   organism: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/organism.html', function() {
@@ -44,6 +54,9 @@ var Dialog = {
     });
   },
 
+  /**
+   * Creates a dialog for view creation.
+   */
   createView: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-view.html', function() {
@@ -69,6 +82,9 @@ var Dialog = {
     });
   },
 
+  /**
+   * Creates a dialog for network creation.
+   */
   createNetwork: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-network.html', function() {
@@ -76,21 +92,28 @@ var Dialog = {
       var viewName = modal.find('#view-name');
       viewName.val(ViewManager.nextSuffixName(viewName.val()));
       modal.find('.selectpicker').selectpicker();
+
+      // Create
       modal.find('#btnCreate').click(function() {
         var viewName = modal.find('#view-name').val();
-        ViewManager.createView('network', viewName);
+        ViewManager.createView('network', viewName, {
+          networkName: modal.find('#network').val(),
+          geneRegex: modal.find('#geneRegex').val()
+        });
       });
     });
   },
 
+  /**
+   * Creates a dialog for genome browser creation.
+   */
   createBinding: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-binding.html', function() {
       modal.modal();
       var viewName = modal.find('#view-name');
       viewName.val(ViewManager.nextSuffixName(viewName.val()));
-      modal.find('#btnDone').click(function() {
-      });
+
       var chrs = Data.bindingChrs.map(function(chr, index) {
         return {
           id: index,
@@ -109,9 +132,21 @@ var Dialog = {
       modal.find('#gene').select2({
         data: genes
       });
+
+      // Create
+      modal.find('#btnCreate').click(function() {
+        var viewName = modal.find('#view-name').val();
+        ViewManager.createView('binding', viewName, {
+          gene: modal.find('#gene').val(),
+          chr: modal.find('#chr').val()
+        });
+      });
     });
   },
 
+  /**
+   * Creates a dialog for expression matrix creation.
+   */
   createExpression: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-expression.html', function() {
@@ -119,137 +154,62 @@ var Dialog = {
       var viewName = modal.find('#view-name');
       viewName.val(ViewManager.nextSuffixName(viewName.val()));
       modal.find('.selectpicker').selectpicker();
-      modal.find('#btnDone').click(function() {
+
+      // Create
+      modal.find('#btnCreate').click(function() {
+        var viewName = modal.find('#view-name').val();
+        ViewManager.createView('expression', viewName, {
+          matrixName: modal.find('#matrix').val(),
+          geneRegex: modal.find('#geneRegex').val(),
+          condRegex: modal.find('#condRegex').val()
+        });
       });
     });
-  },
-  /*
-  dialogLayout = function(type) {
-    switch(type){
-      case 'link_change':
-        var names = manager.getViewNames();
-        var name = $('#dialog #source').val();
-        var children = manager.getViewChildren(name);
-        $('#dialog').append('<div id="targetdiv">Target view <select id="target" title="View as a listener"></select></div>');
-        for(var i=0; i<names.length; i++){
-          if(children.indexOf(names[i])!=-1 || names[i]==name) continue;
-          $('#dialog #target').append('<option value="'+names[i]+'">'+names[i]+'</option>');
+  }
+};
+
+/*
+// TODO(bowen): View linking and grouping are obsolete.
+dialogLink = function(src) {
+  var layout = this;
+  $('#dialog').remove();
+  $('body').append('<div id='dialog' title='Link Views'>' +
+  '<div>Source view <select id='source' title='View to be listened to'></select></div>' +
+  '</div>');
+  var names = manager.getViewNames();
+  for(var i=0; i<names.length; i++){
+    $('#dialog #source').append('<option value=''+names[i]+''>'+names[i]+'</option>');
+  }
+  if(src!=null) $('#dialog #source option[value=''+src+'']').attr('selected', true);
+
+  this.dialogLayout('link_change');
+  $('#dialog #source').change(function(){
+    $('#dialog #targetdiv').remove();
+    return layout.dialogLayout('link_change');
+  });
+  $('#dialog').dialog({
+    buttons: {
+      'OK': function(){
+        var source = $('#dialog #source').val(),
+          target = $('#dialog #target').val();
+        if(target==null || target==''){
+          console.error('Cannot link an empty view');
+          options.alert('Cannot link an empty view');
+          return;
         }
-        break;
-      case 'unlink_change':
-        var names = manager.getViewNames();
-        var name = $('#dialog #source').val();
-        var children = manager.getViewChildren(name);
-        $('#dialog').append('<div id="targetdiv">Target view <select id="target" title="View as a listener"></select></div>');
-        for(var i=0; i<children.length; i++){
-          $('#dialog #target').append('<option value="'+children[i]+'">'+children[i]+'</option>');
-        }
-        break;
-      case 'group':
-        var name = $('#dialog #source').val();
-        var names = manager.getViewNames('togroup', name);
-        $('#dialog').append('<div id="targetdiv">Target view<select id="target" title="View that is in the group to be joined"></select></div>');
-        for(var i=0; i<names.length; i++){
-          $('#dialog #target').append('<option value="'+names[i]+'">'+names[i]+'</option>');
-        }
-        break;
-      default:
-        options.alert('undefined behavior for dialog layout '+type);
-    }
-  },
-
-  dialogCreate = function() {
-    var layout = this;
-    $('#dialog').remove();
-    $('body').append();
-    $('#dialog #viewname').val('View' + manager.availViewID());
-    $('#dialog').addClass('viewshadow');
-    this.dialogLayout('create_graph');
-
-    $('#dialog #type').change(function(){
-      var type = $('#dialog #type option:selected').val();
-      $('#dialog #datadiv').remove();
-      $('#dialog').append('<div id="datadiv"></div>');
-      layout.dialogLayout('create_'+type);
-    });
-    $('#dialog').dialog({
-      buttons: {
-        'OK': function() {
-          var name = $('#dialog #viewname').val();
-          var type = $('#dialog #type option:selected').val();
-          if(type=='graph'){
-            var data = $('#dialog #data').val();
-            var exp = $('#dialog #datadiv #exp').val();
-            if(exp=='') exp='a^';
-            var view = createView(name, type);
-            if(view) view.loadData(data, exp);
-          }else if(type=='histogram'){
-            var data = $('#dialog #data').val();
-            if (manager.supportBinding(data)==false){
-              options.alert('Please type in a supported binding track');
-              return;
-            }
-            var chr = $('#dialog #datadiv #chr').val();
-            if(chr=='') chr = '1';
-            var view = createView(name, type);
-            if(view) view.loadData(data, chr);
-          }else if(type=='heatmap'){
-            var mat = $('#dialog #data option:selected').val();
-            var plot = $('#dialog #datadiv #plot').val();
-            var exprows = $('#dialog #datadiv #gene').val();
-            var expcols = $('#dialog #datadiv #cond').val();
-            if(exprows=='') exprows='.*';
-            if(expcols=='') expcols='.*';
-            var view = createView(name, type);
-            if(view) view.loadData(mat, plot, exprows, expcols);
-          }
-          if(view) $('#dialog').remove();
-        },
-        'Cancel': function(){ $('#dialog').remove(); }
-      }
-    });
-  },
-
-  dialogLink = function(src) {
-    var layout = this;
-    $('#dialog').remove();
-    $('body').append('<div id='dialog' title='Link Views'>' +
-      '<div>Source view <select id='source' title='View to be listened to'></select></div>' +
-      '</div>');
-    var names = manager.getViewNames();
-    for(var i=0; i<names.length; i++){
-      $('#dialog #source').append('<option value=''+names[i]+''>'+names[i]+'</option>');
-    }
-    if(src!=null) $('#dialog #source option[value=''+src+'']').attr('selected', true);
-
-    this.dialogLayout('link_change');
-    $('#dialog #source').change(function(){
-      $('#dialog #targetdiv').remove();
-      return layout.dialogLayout('link_change');
-    });
-    $('#dialog').dialog({
-      buttons: {
-        'OK': function(){
-          var source = $('#dialog #source').val(),
-            target = $('#dialog #target').val();
-          if(target==null || target==''){
-            console.error('Cannot link an empty view');
-            options.alert('Cannot link an empty view');
-            return;
-          }
-          var success =linkView(source, target);
-          if(success) $('#dialog').remove();
-        },
-        'Cancel': function(){ $('#dialog').remove(); }
-      }});
-  },
+        var success =linkView(source, target);
+        if(success) $('#dialog').remove();
+      },
+      'Cancel': function(){ $('#dialog').remove(); }
+    }});
+},
 
   dialogUnlink = function(src) {
     var layout = this;
     $('#dialog').remove();
     $('body').append('<div id='dialog' title='Unlink Views'>' +
-      '<div>Source view <select id='source' title='View to be listened to'></select></div>' +
-      '</div>');
+    '<div>Source view <select id='source' title='View to be listened to'></select></div>' +
+    '</div>');
     var names = manager.getViewNames();
     for(var i=0; i<names.length; i++){
       $('#dialog #source').append('<option value=''+names[i]+''>'+names[i]+'</option>');
@@ -278,36 +238,35 @@ var Dialog = {
   },
 
   dialogGroup: function() {
-    var layout = this;
-    $('#dialog').remove();
-    $('body').append('<div id='dialog' title='Group Views'>' +
-      '<div>Source view <select id='source' title='View to join the group'></select></div>' +
-      '</div>');
-    var names = manager.getViewNames();
-    for(var i=0; i<names.length; i++){
-      $('#dialog #source').append('<option value=''+names[i]+''>'+names[i]+'</option>');
-    }
-    if(src!=null) $('#dialog #source option[value=''+src+'']').attr('selected', true);
-    this.dialogLayout('group');
-    $('#dialog #source').change(function(){
-      $('#dialog #targetdiv').remove();
-      return layout.dialogLayout('group');
-    });
-    $('#dialog').dialog({
-      buttons: {
-        'OK': function(){
-          var source = $('#dialog #source').val(),
-            target = $('#dialog #target').val();
-          if(target==null || target==''){
-            console.error('Cannot group an empty view');
-            options.alert('Cannot group an empty view');
-            return;
-          }
-          var success = groupView(source, target);
-          if(success) $('#dialog').remove();
-        },
-        'Cancel': function(){ $('#dialog').remove(); }
-      }});
+  var layout = this;
+  $('#dialog').remove();
+  $('body').append('<div id='dialog' title='Group Views'>' +
+  '<div>Source view <select id='source' title='View to join the group'></select></div>' +
+  '</div>');
+  var names = manager.getViewNames();
+  for(var i=0; i<names.length; i++){
+    $('#dialog #source').append('<option value=''+names[i]+''>'+names[i]+'</option>');
   }
+  if(src!=null) $('#dialog #source option[value=''+src+'']').attr('selected', true);
+  this.dialogLayout('group');
+  $('#dialog #source').change(function(){
+    $('#dialog #targetdiv').remove();
+    return layout.dialogLayout('group');
+  });
+  $('#dialog').dialog({
+    buttons: {
+      'OK': function(){
+        var source = $('#dialog #source').val(),
+          target = $('#dialog #target').val();
+        if(target==null || target==''){
+          console.error('Cannot group an empty view');
+          options.alert('Cannot group an empty view');
+          return;
+        }
+        var success = groupView(source, target);
+        if(success) $('#dialog').remove();
+      },
+      'Cancel': function(){ $('#dialog').remove(); }
+    }});
+}
 */
-};

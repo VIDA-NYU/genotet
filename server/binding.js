@@ -1,5 +1,6 @@
-
-// server handler for binding data
+/**
+ * @fileoverview Server handler for binding data.
+ */
 
 'use strict';
 
@@ -8,17 +9,37 @@ var fs = require('fs');
 var utils = require('./utils'),
   segtree = require('./segtree');
 
-// binging data cache, maximum size 4
+
+/**
+ * Number of samples created for each query.
+ * @const {number}
+ */
+// TODO(bowen): User number of pixels on the screen.
 var numSamples = 1000;
+
+/**
+ * Binging data cache, maximum size 4.
+ * @const {number}
+ */
 var cacheSize = 4;
-var bindingCache = {};
-bindingCache.list = new Array();
-bindingCache.cache = {};
+
+/**
+ * Binding data cache, used to avoid repeated file reading.
+ * @type {!Object}
+ */
+var bindingCache = {
+  list: [],
+  cache: {}
+};
 
 module.exports = {
-
+  /**
+   * Reads the exon data from the buffer.
+   * @param {Buffer} buf File buffer of the exon data.
+   * @return {!Array<Object>} Exons info.
+   */
   readExons: function(buf) {
-    var result = new Array();
+    var result = [];
     var offset = 0;
     while (true) {
       var lstr = buf.readInt32LE(offset); offset += 4;
@@ -30,30 +51,57 @@ module.exports = {
         cdsStart = buf.readInt32LE(offset + 8), cdsEnd = buf.readInt32LE(offset + 12),
         exonCount = buf.readInt32LE(offset + 16);
       offset += 20;
-      var exonRanges = new Array();
+      var exonRanges = [];
       for (var i = 0; i < exonCount; i++) {
         var s = buf.readInt32LE(offset), t = buf.readInt32LE(offset + 4);
         offset += 8;
         exonRanges.push({'start': s, 'end': t});
       }
-      var exon = {'name': name, 'name2': name2, 'chr': chr, 'strand': strand,
-      'txStart': txStart, 'txEnd': txEnd, 'cdsStart': cdsStart, 'cdsEnd': cdsEnd,
-      'exonCount': exonCount, 'exonRanges': exonRanges};
+      var exon = {
+        name: name,
+        name2: name2,
+        chr: chr,
+        strand: strand,
+        txStart: txStart,
+        txEnd: txEnd,
+        cdsStart: cdsStart,
+        cdsEnd: cdsEnd,
+        exonCount: exonCount,
+        exonRanges: exonRanges
+      };
       result.push(exon);
     }
     return result;
   },
 
+  /**
+   * Gets the exons from the given file and chromosome.
+   * @param {string} file File name of the exon data.
+   * @param {string} chr Chromosome.
+   * @return {!Array} Exons info.
+   */
   getExons: function(file, chr) {
     var buf = utils.readFileToBuf(file);
-    if (buf == null)
+    if (buf == null) {
       return console.error('cannot read file', file), [];
+    }
     var result = this.readExons(buf);
     var data = [];
-    for (var i = 0; i < result.length; i++) if (result[i].chr == chr) data.push(result[i]);
+    for (var i = 0; i < result.length; i++) {
+      if (result[i].chr == chr) {
+        data.push(result[i]);
+      }
+    }
     return data;
   },
 
+  /**
+   * Gets the binding data between coordinates [x1, x2].
+   * @param {string} file File name of the binding data.
+   * @param {number} x1 Left coordinate.
+   * @param {number} x2 Right coordinate.
+   * @return {!Array<{x: number, value: number}>} Binding data as histogram.
+   */
   getBinding: function(file, x1, x2) {
     console.log(file, x1, x2);
     var cache = this.loadHistogram(file);
@@ -73,7 +121,7 @@ module.exports = {
     var hist = {};
     hist.xMin = xl;
     hist.xMax = xr;
-    hist.values = new Array();
+    hist.values = [];
     var n = numSamples,
         span = xr - xl,
         segslen = (cache.nodes.length + 1) >> 1;
@@ -93,17 +141,31 @@ module.exports = {
         continue;
       }
       var val = segtree.querySegmentTree(cache.nodes, 0, li, ri, 0, segslen - 1);
-      hist.values.push({'x': l, 'value': val});
+      hist.values.push({
+        x: l,
+        value: val
+      });
     }
     console.log('returning', n, 'samples of', xl, xr);
     return hist;
   },
 
+  /**
+   * Gets the sampled binding data.
+   * @param {string} file File name of the binding data.
+   * @return {!Array<{x: number, value: number}>} Binding data as histogram.
+   */
   getBindingSampling: function(file) {
     // currently the auto sampling size based on view width is disabled
     return this.getBinding(file);
   },
 
+  /**
+   * Searches for an exon and returns its coordinates.
+   * @param {string} file File name of binding data to be searched within.
+   * @param {string} name Name of the exon.
+   * @returns {!Object} Search result.
+   */
   searchExon: function(file, name) {
     var buf = utils.readFileToBuf(file);
 
@@ -115,20 +177,25 @@ module.exports = {
     for (var i = 0; i < result.length; i++) {
       if (result[i].name2.toLowerCase() == name) {
         return {
-          'success' : true,
-          'chr' : result[i].chr,
-          'txStart' : result[i].txStart,
-          'txEnd' : result[i].txEnd
+          success : true,
+          chr : result[i].chr,
+          txStart : result[i].txStart,
+          txEnd : result[i].txEnd
         };
       }
     }
-
     return {
       'success': false
     };
   },
 
-  loadHistogram: function(file) {  // return the cached intervals & rmq
+  /**
+   * Loads the histogram stored in the given file.
+   * @param {string} file File name.
+   * @returns {*}
+   */
+  loadHistogram: function(file) {
+    // Return the cached intervals & RMQ result.
     console.log('check cache', file);
 
     if (bindingCache.cache[file] != null) {
@@ -145,7 +212,7 @@ module.exports = {
 
     var n = buf.length / 6;
     var offset = 0;
-    var segs = new Array();
+    var segs = [];
 
     for (var i = 0; i < n; i++) {
       var x = buf.readInt32LE(offset),
@@ -179,7 +246,7 @@ module.exports = {
     var segfile = file.substr(0, file.length - 4) + '.seg';
     var buf = utils.readFileToBuf(segfile);
     if (buf == null) {  // no segtree file, build the tree
-      var nodes = new Array();
+      var nodes = [];
       segtree.buildSegmentTree(nodes, segs, buf);
       cache.nodes = nodes;
       console.log('SegmentTree constructed');
@@ -192,7 +259,7 @@ module.exports = {
       console.log('SegmentTree written');
     }else {
       var num = buf.readInt32LE(0);
-      var nodes = new Array();
+      var nodes = [];
       for (var i = 0, offset = 4; i < num; i++, offset += 2) nodes.push(buf.readInt16LE(offset));
       cache.nodes = nodes;
       console.log('SegmentTree read');

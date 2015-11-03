@@ -15,27 +15,40 @@ var upload = multer();
 
 module.exports = {
 
-  uploadFile: function(req, res, runEnv) {
+  uploadFile: function(req, res, wiggleAddr, networkAddr, expmatAddr) {
 
-    if (runEnv == 'jm_mac') {
-      path = '/Users/JiamingDong/Documents/vida_data/';
-    }
+    var fileType = req.query.type;
 
     var fullPath;
 		if (fileType == 'network') {
-			fullPath = path + 'network/';
+			fullPath = networkAddr;
 		} else if (fileType == 'wiggle') {
-			fullPath = path + 'wiggle'
+			fullPath = wiggleAddr;
 		} else if (fileType == 'expmat') {
-			fullPath = path;
+			fullPath = expmatAddr;
 		}
 
     upload = multer({dest: fullPath});
-    return upload(req,res,function(err){
+    var isFinish = upload(req,res,function(err){
       if (err)
         return -1;
       return 1;
     });
+
+    if (!isFinish)
+      return {
+        success: 'false'
+      };
+    if (fileType == 'wiggle') {
+
+    } else if (fileType == 'network') {
+
+    } else if (fileType == 'expmat') {
+
+    }
+    return {
+      success: 'true'
+    };
   }
 	
 };
