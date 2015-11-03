@@ -28,6 +28,7 @@ var PanelManager = {
     $('.tab-content').append('<div class="tab-pane" id="'+viewID+'">property'+count+'</div>');
     $('#li'+viewID+' a[href="#'+viewID+'"]').tab('show');
     $('.panel-manager').css('display','inline');
+//    $('.panel-manager').show();
     if ($('#slidebar').css('right') == '0px'){ $('#slidebar').trigger('click'); }
   },
 //  $('#btn-remove').click(function(e){
