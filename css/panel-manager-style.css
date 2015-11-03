@@ -2,7 +2,7 @@
   display: none;
 }
 
-#slidebar {
+#btnToggle {
   position: fixed;
   top: 70px;
   right: 249px;
@@ -10,7 +10,7 @@
   /* transform: rotate(-90deg); */
 }
 
-#slidebar button {
+#btnToggle button {
   border-radius: 4px 0 0 4px;
   border-right: none;
   height: 123px;
@@ -35,14 +35,15 @@
   z-index: 10;
 }
 
-#tab-slidebar {
+#tab-slider {
   padding-left: 0px;
 }
 
 .sideways li:first-child {
-  margin-top: -3px;
+  display: none;
+  /* margin-top: -3px; */
 }
 
-#tab-content-slidebar {
+#tab-content-slider {
   margin-top: 10px;
 }
