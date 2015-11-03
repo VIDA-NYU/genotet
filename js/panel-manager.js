@@ -25,6 +25,8 @@ var PanelManager = {
     if ($('#btnToggle').css('right') == '0px') {
       $('#btnToggle').trigger('click');
     }
+    var container = $('#view-' + viewID);
+    return container;
   },
 
   removePanel: function(viewName) {

@@ -41,11 +41,7 @@ var ViewManager = {
         return;
     }
     this.views[viewName] = newView;
-
-    // TODO(liana): Replace this by PanelManager container return, e.g.
-    // var panelContainer = PanelManager.addPanel(newView);
-    // You shall be able to see the panel UI rendered.
-    var panelContainer = $('#dummy-panel');
+    var panelContainer = PanelManager.addPanel(viewName);
     newView.createPanel(panelContainer);
   },
 
