@@ -11,7 +11,10 @@
 function BindingLoader(data) {
   BindingLoader.base.constructor.call(this, data);
 
-  this.data.tracks = [];
+  _(this.data).extend({
+    tracks: [],
+    exons: []
+  });
 }
 
 BindingLoader.prototype = Object.create(ViewLoader.prototype);
@@ -27,28 +30,54 @@ BindingLoader.base = ViewLoader.prototype;
  */
 BindingLoader.prototype.load = function(gene, chr, opt_track) {
   var track = opt_track ? opt_track : 0;
+  this.loadTrack_(track, gene, chr);
+  this.loadExons_(chr);
+};
+
+/**
+ * Loads the data of a single binding track.
+ * @param {number} track Track index.
+ * @param {string} gene Gene name.
+ * @param {string} chr Chromosome.
+ * @private
+ */
+BindingLoader.prototype.loadTrack_ = function(track, gene, chr) {
   this.signal('loadStart');
   var params = {
     type: 'binding',
-    name: gene,
+    gene: gene,
     chr: chr
   };
-
   $.get(Data.serverURL, params, function(data) {
-    this.data.tracks[track] = {
-      gene: gene,
-      chr: chr,
-      data: data
-    };
+    this.data.tracks[track] = data;
+    this.signal('loadComplete');
+  }.bind(this), 'jsonp')
+    .fail(function() {
+      Core.error('cannot load binding data', JSON.stringify(params));
+      this.signal('loadFail');
+    }.bind(this));
+}
 
-    $(this).trigger('genotet.loadComplete');
+/**
+ * Loads the exons info.
+ * @param {string} chr Chromosome.
+ * @private
+ */
+BindingLoader.prototype.loadExons_ = function(chr) {
+  this.signal('loadStart');
+  var params = {
+    type: 'exons',
+    chr: chr
+  };
+  $.get(Data.serverURL, params, function(data) {
+    this.data.exons = data;
+    this.signal('loadComplete');
   }.bind(this), 'jsonp')
     .fail(function() {
       Core.error('cannot load binding data', JSON.stringify(params));
       this.signal('loadFail');
     }.bind(this));
 };
-
 /*
 LoaderHistogram.prototype.loadData = function(identifier) {
   var name = identifier.name,
@@ -84,21 +113,6 @@ LoaderHistogram.prototype.updateData = function(identifier) {
   this.lastIdentifier.name = identifier.name;
   this.lastIdentifier.chr = '1';
   this.locateGene(identifier.srch);
-};
-
-LoaderHistogram.prototype.loadComplete = function() {
-  var data = this.parentView.viewdata;
-  // do nothing when data is not completely loaded
-  if (data.overviewData == null || data.histogramData == null || data.exonsData == null) return;
-  if (this.trackChanged == true) {
-    this.parentView.layout.prepareData();
-    this.trackChanged = null;
-  }
-  if (this.toLocate != null) {
-    this.parentView.layout.initFocus(this.toLocate.xl, this.toLocate.xr);
-    this.toLocate = null;
-  }
-  this.parentView.layout.reloadData();
 };
 
 LoaderHistogram.prototype.loadBindingsmp = function(name, chr) {

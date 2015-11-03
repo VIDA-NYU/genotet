@@ -15,8 +15,15 @@ function ViewLoader(data) {
     Core.error('null data passed to ViewLoader');
     return;
   }
-  /** protected {!Object} */
+  /** @protected {!Object} */
   this.data = data;
+
+  /**
+   * Count of pending loads.
+   * Loading screen is only displayed when this value is positive.
+   * @protected {number}
+   */
+  this.loadCounter = 0;
 }
 
 
@@ -46,6 +53,22 @@ ViewLoader.prototype.update = function() {
  * @param {string} eventType Type of event.
  */
 ViewLoader.prototype.signal = function(eventType) {
+  switch(eventType) {
+    case 'loadStart':
+      this.loadCounter++;
+      this.signal('loading');
+      break;
+    case 'loadComplete':
+    case 'loadFail':
+      this.loadCounter--;
+      if (this.loadCounter == 0) {
+        this.signal('loaded');
+        if (eventType == 'loadComplete') {
+          this.signal('loadSuccess');
+        }
+      }
+      break;
+  }
   $(this).trigger('genotet.' + eventType);
 };
 

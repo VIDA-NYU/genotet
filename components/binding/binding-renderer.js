@@ -22,9 +22,16 @@ BindingRenderer.base = ViewRenderer.prototype;
 /** @const {number} */
 BindingRenderer.prototype.EXON_HEIGHT = 35;
 /** @const {number} */
-BindingRenderer.prototype.EXON_SIZE = 20;
+BindingRenderer.prototype.EXON_SIZE = 10;
 /** @const {number} */
 BindingRenderer.prototype.OVERVIEW_HEIGHT = 30;
+
+/**
+ * When there are more than this limit number of exons, we draw exons as
+ * abstract rectangles.
+ * @type {number}
+ */
+BindingRenderer.prototype.EXON_ABSTRACT_LIMIT = 100;
 
 /**
  * Initializes the BindingRenderer properties.
@@ -40,12 +47,17 @@ BindingRenderer.prototype.init = function() {
    */
   this.trackHeight_ = this.canvasHeight_ - this.EXON_HEIGHT;
 
+  // LOD range.
+  /** @private {number} */
+  this.detailXMin_ = Infinity;
+  /** @private {numebr} */
+  this.detailXMax_ = -Infinity;
+
   // Navigation state.
   /** @private {!Array<number>} */
   this.zoomTranslate_ = [0, 0];
   /** @private {number} */
   this.zoomScale_ = 1.0;
-
   /*
   // margin of main bars
   this.mainbarTop = 8;
@@ -79,6 +91,18 @@ BindingRenderer.prototype.init = function() {
   // auto-adjusted y-scale
   this.bottomMargin = 5;
   */
+};
+
+/** @inheritDoc */
+BindingRenderer.prototype.dataLoaded = function() {
+  if (this.detailXMin_ == Infinity) {
+    // Detail range has never been set.
+    this.data.tracks.forEach(function(track) {
+      this.detailXMin_ = Math.min(this.detailXMin_, track.xMin);
+      this.detailXMax_ = Math.max(this.detailXMax_, track.xMax);
+    }, this);
+  }
+  this.render();
 };
 
 /** @inheritDoc */
@@ -117,6 +141,10 @@ BindingRenderer.prototype.layout = function() {
       return Utils.getTransform([0, this.trackHeight_ * index]);
     }.bind(this));
   tracks.exit().remove();
+  tracks.attr('height', this.trackHeight_);
+
+  this.svgExons_.attr('transform',
+      Utils.getTransform([0, this.canvasHeight_ - this.EXON_HEIGHT]));
 };
 
 /** @inheritDoc */
@@ -149,42 +177,180 @@ BindingRenderer.prototype.drawBinding_ = function() {
 BindingRenderer.prototype.drawBindingTrack_ = function(track) {
   var svg = this.canvas.select('#' + track.gene);
   if (svg.select('.overview').empty()) {
-    svg.append('g').classed('overview', true);
-  }
-  if (svg.select('.histogram').empty()) {
     svg.append('g')
-      .classed('histogram', true)
+      .classed('overview', true)
+      .attr('height', this.OVERVIEW_HEIGHT);
+  }
+  if (svg.select('.detail').empty()) {
+    svg.append('g')
+      .classed('detail', true)
       .attr('transform', Utils.getTransform([0, this.OVERVIEW_HEIGHT]));
   }
   var overview = svg.select('.overview');
-  this.drawBindingOverview_(overview, track);
-  var histogram = svg.select('.histogram');
-  this.drawBindingHistogram_(histogram, track);
+  this.drawHistogram_(overview, track);
+  var histogram = svg.select('.detail')
+    .attr('height', this.trackHeight_ - this.OVERVIEW_HEIGHT);
+  this.drawHistogram_(histogram, track);
 };
 
 /**
- * Renders the binding data overview as smaller histogram.
+ * Renders the binding data as a histogram.
  * @param {!d3.selection} svg SVG group for the overview.
  * @param {!Object} track Track data.
  * @private
  */
-BindingRenderer.prototype.drawBindingOverview_ = function(svg, track) {
-};
+BindingRenderer.prototype.drawHistogram_ = function(svg, track) {
+  var bars = svg.selectAll('rect').data(track.values);
+  bars.enter().append('rect');
+  bars.exit().remove();
+  if (!track.values.length) {
+    // Avoid rendering empty data.
+    return;
+  }
+  var height = svg.attr('height');
+  var xScale = d3.scale.linear()
+    .domain([track.xMin, track.xMax])
+    .range([0, this.canvasWidth_]);
+  var yScale = d3.scale.linear()
+    .domain([0, track.maxValue])
+    .range([0, height]);
 
-/**
- * Renders the binding histogram.
- * @param {!d3.selection} svg SVG group for the overview.
- * @param {!Object} track Track data.
- * @private
- */
-BindingRenderer.prototype.drawBindingHistogram_ = function(svg, track) {
+  var barWidth = this.canvasWidth_ / track.values.length;
+  bars
+    .attr('transform', function(bar) {
+      return Utils.getTransform([xScale(bar.x), height - yScale(bar.value)]);
+    }.bind(this))
+    .attr('width', barWidth)
+    .attr('height', function(bar) {
+      return yScale(bar.value);
+    });
 };
 
 /**
  * Renders the exons below the binding tracks.
  */
 BindingRenderer.prototype.drawExons_ = function() {
+  var exons = [];
+  var detailRange = [this.detailXMin_, this.detailXMax_];
+  this.data.exons.forEach(function(exon) {
+    if (Utils.rangeIntersect([exon.txStart, exon.txEnd], detailRange)) {
+      exons.push(exon);
+    }
+  }, this);
+
+  var xScale = d3.scale.linear()
+    .domain(detailRange)
+    .range([0, this.canvasWidth_]);
+
+  var exonY = this.EXON_HEIGHT / 2 - this.EXON_SIZE / 2;
+
+  if (exons.length > this.EXON_ABSTRACT_LIMIT) {
+    var tx = this.svgExons_.selectAll('.exonbox').data(exons);
+    tx.enter().append('rect')
+      .classed('exonbox', true);
+    tx.exit().remove();
+    tx.attr('x', function(exon) {
+        return xScale(exon.txStart);
+      })
+      .attr('y', exonY)
+      .attr('width', function(exon) {
+        return xScale(exon.txEnd) - xScale(exon.txStart);
+      })
+      .attr('height', this.EXON_SIZE);
+
+
+    /*
+    for (var i = 0; i < exons.length; i++) {
+      // base line
+      var tx = this.svg.selectAll('#exonbox' + i).data([exons[i]]).enter().append('rect')
+        .attr('id', '#exonbox' + i)
+        .attr('class', 'exonbox')
+        .attr('x', function(d) { return (d.txStart - layout.focusleft) / focusspan * layout.mainbarWidth; })
+        .attr('y', layout.exonsY - layout.exonsSize / 4.0)
+        .attr('width', function(d) { return (d.txEnd - d.txStart) / focusspan * layout.mainbarWidth; })
+        .attr('height', layout.exonsSize / 2.0);
+    }
+    */
+  }
+
+  /*
+   // name, reduced overlap
+   if (exons.length <= 100) {
+   var name = this.svg.selectAll('#exonname' + i).data(exons).enter().append('text')
+   .attr('id', '#exonname' + i)
+   .attr('class', 'exonname')
+   .text(function(d, j) { {
+   var lj = d.name2.length;
+   var jMiddle = ((d.txEnd + d.txStart) / 2.0 - layout.focusleft) / focusspan * layout.mainbarWidth;
+   for (var i = j + 1; i < exons.length; i++) {
+   if (i == j) continue;  // skip itself
+   var iMiddle = ((exons[i].txEnd + exons[i].txStart) / 2.0 - layout.focusleft) / focusspan * layout.mainbarWidth;
+   var diff = Math.abs(iMiddle - jMiddle);
+   if ((exons[i].name2.length + lj) * layout.exonLabelSize / 2.0 > diff) return '';
+   }
+   return d.name2;
+   }})
+   .attr("x", function(d){ return ((d.txEnd+d.txStart)/2.0-layout.focusleft)/focusspan*layout.mainbarWidth; })
+   .attr("y", layout.exonsY + layout.exonsSize*0.95);
+   }
+   */
 };
+
+/*
+LayoutHistogram.prototype.updateExons = function() {
+  this.svg.selectAll('.txbox').remove();
+  this.svg.selectAll('.exonbox').remove();
+  this.svg.selectAll('.exonline').remove();
+  this.svg.selectAll('.exonstrand').remove();
+  this.svg.selectAll('.exonname').remove();
+
+  var focusspan = layout.focusright - layout.focusleft;
+  for (var i = 0; i < exons.length; i++) {
+    if (exons.length < 100) {
+      // base line
+      var line = this.svg.selectAll('#exline' + i).data([exons[i]]).enter().append('line')
+        .attr('id', '#exline' + i)
+        .attr('class', 'exonline')
+        .attr('x1', function(d) { return (d.txStart - layout.focusleft) / focusspan * layout.mainbarWidth; })
+        .attr('x2', function(d) { return (d.txEnd - layout.focusleft) / focusspan * layout.mainbarWidth; })
+        .attr('y1', layout.exonsY)
+        .attr('y2', layout.exonsY);
+      // outside cds range
+      var txed = this.svg.selectAll('#txseg' + i).data(exons[i].txRanges).enter().append('rect')
+        .attr('id', '#txseg' + i)
+        .attr('class', 'txbox')
+        .attr('x', function(d) { return (d.start - layout.focusleft) / focusspan * layout.mainbarWidth; })
+        .attr('y', layout.exonsY - layout.exonsSize / 4.0)
+        .attr('width', function(d) { return (d.end - d.start) / focusspan * layout.mainbarWidth; })
+        .attr('height', layout.exonsSize / 2.0);
+      // full-size exons
+      var ex = this.svg.selectAll('#exseg' + i).data(exons[i].exRanges).enter().append('rect')
+        .attr('id', '#exseg' + i)
+        .attr('class', 'exonbox')
+        .attr('x', function(d) { return (d.start - layout.focusleft) / focusspan * layout.mainbarWidth; })
+        .attr('y', layout.exonsY - layout.exonsSize / 2.0)
+        .attr('width', function(d, j) { return (d.end - d.start) / focusspan * layout.mainbarWidth; })
+        .attr('height', layout.exonsSize);
+      // strand
+      var strands = [];
+      for (var j = 0.25; j <= 0.75; j += 0.25) {
+        strands.push({'x': exons[i].txStart * (1.0 - j) + exons[i].txEnd * j, 'strand': exons[i].strand });
+      }
+      var strand = this.svg.selectAll('#exstrand' + i).data(strands).enter().append('polygon')
+        .attr('class', 'exonstrand')
+        .attr('points', function(d) {
+          var x = (d.x - layout.focusleft) / focusspan * layout.mainbarWidth, y = layout.exonsY;
+          var dx = d.strand == '+' ? 5 : -5;
+          return (x + dx) + ',' + y + ' ' + x + ',' + (y + 3) + ' ' + x + ',' + (y - 3);
+        });
+    }else {
+      // abstract version
+
+    }
+  }
+};
+*/
+
 
 /**
  * Re-computes the track height.
@@ -198,94 +364,6 @@ BindingRenderer.prototype.resize = function() {
 
 
 /*
-LayoutHistogram.prototype.formatExons = function() {
-  // now do the adjustment at the db
-  var data = this.data;
-
-  for (var i = 0; i < data.exonsData.length; i++) {
-    // adjust exon1Start to cdsStart, exonNEnd to cdsEnd
-    var exon = data.exonsData[i];
-    exon.txRanges = new Array();  // half height
-    exon.exRanges = new Array();  // actual exons to be drawn (full height)
-    for (var j = 0; j < exon.exonCount; j++) {
-      var start = exon.exonRanges[j].start, end = exon.exonRanges[j].end;
-      if (start < exon.cdsStart) {
-        if (end > exon.cdsStart) {
-          if (end > exon.cdsEnd) {
-            exon.txRanges.push({'start': start, 'end': exon.cdsStart});
-            exon.txRanges.push({'start': exon.cdsEnd, 'end': end});
-            exon.exRanges.push({'start': exon.cdsStart, 'end': exon.cdsEnd});
-          }else if (end <= exon.cdsEnd) {
-            exon.txRanges.push({'start': start, 'end': exon.cdsStart});
-            exon.exRanges.push({'start': exon.cdsStart, 'end': end});
-          }
-        }else if (end <= exon.cdsStart) {
-          exon.txRanges.push({'start': start, 'end': end});
-        }
-      }else if (start >= exon.cdsStart && start <= exon.cdsEnd) {
-        if (end <= exon.cdsEnd) {
-          exon.exRanges.push({'start': start, 'end': end});
-        }else if (end > exon.cdsEnd) {
-          exon.exRanges.push({'start': start, 'end': exon.cdsEnd});
-          exon.txRanges.push({'start': exon.cdsEnd, 'end': end});
-        }
-      }else if (start > exon.cdsEnd) {
-        exon.txRanges.push({'start': start, 'end': end});
-      }
-    }
-  }
-  for (var i = 0; i < exon.exRanges.length; i++) if (exon.exRanges[i].start > exon.exRanges[i].end) console.log(exon.exRanges[i]);
-  for (var i = 0; i < exon.txRanges.length; i++) if (exon.txRanges[i].start > exon.txRanges[i].end) console.log(exon.txRanges[i]);
-};
-
-LayoutHistogram.prototype.prepareData = function() {  // get xmin, xmax, etc. called when binding data (gene,chr) changed
-  // default focus region is all
-  this.data = this.parentView.viewdata;
-
-  var hdata = this.data.overviewData;  // must use overview data as it contains the correct xmin, xmax and maxval
-  this.focusleft = hdata.values[0].x;
-  this.focusright = hdata.values[hdata.values.length - 1].x;
-
-  // x range
-  this.xmin = hdata.xMin;
-  this.xmax = hdata.xMax;
-  this.xspan = this.xmax - this.xmin;
-
-  // y range
-  this.omaxval = 0;
-  for (var i = 0; i < hdata.values.length; i++) this.omaxval = Math.max(this.omaxval, hdata.values[i].value);
-
-  // find min and max of data value
-  var valsall = hdata.values;
-  var maxval = valsall[0].value,
-    minval = valsall[0].value;
-  for (var i = 1; i < valsall.length; i++) {
-    maxval = Math.max(maxval, valsall[i].value);
-    minval = Math.min(minval, valsall[i].value);
-  }
-  this.maxval = Math.max(maxval, 10.0);
-  this.minval = minval;
-  this.maxvalGlobal = this.maxval;
-  this.minvalGlobal = this.minval;
-};
-
-LayoutHistogram.prototype.updateBarSize = function() {
-  // height depends on current view size
-  this.layoutHeight = this.rawheight - (this.compactLayout ? 0 : this.uiHeight);
-  this.mainHeight = this.rawheight - (this.showOverview ? this.overviewHeight : 0) - (this.compactLayout ? 0 : this.uiHeight) - this.bottomMargin;
-  this.mainbarY = this.mainbarTop;
-  this.mainbarHeight = this.mainHeight - this.mainbarTop - (this.showExons ? this.exonsHeight : 0) - this.zoombarHeight;
-  this.mainbarWidth = this.width;
-  // number of coordinate lines
-  this.numCoords = 5;
-  // overview position
-  this.overviewWidth = this.width - 10;
-  this.overviewX = this.width - this.overviewWidth - 5.0;
-  this.overviewY = 0.0;
-  // exons position
-  this.exonsY = this.mainHeight - this.exonsHeight * 0.65;
-};
-
 LayoutHistogram.prototype.reloadData = function() {
   var data = this.data;
   //if(data.histogramData==null) data.histogramData = data.overviewData; // if high resolution not ready, display normal data
@@ -301,53 +379,6 @@ LayoutHistogram.prototype.reloadData = function() {
 LayoutHistogram.prototype.initFocus = function(xl, xr) {  // only called by the loader
   this.focusleft = xl;
   this.focusright = xr;
-};
-
-LayoutHistogram.prototype.initLayout = function() {
-  if (this.data == null || this.data.histogramData == null) return;
-
-  this.updateBarSize();
-
-  if (this.autoScale == true) {
-    var valsall = this.data.histogramData.values;
-    var maxval = valsall[0].value,
-      minval = valsall[0].value;
-    for (var i = 1; i < valsall.length; i++) {
-      maxval = Math.max(maxval, valsall[i].value);
-      minval = Math.min(minval, valsall[i].value);
-    }
-    this.maxval = maxval;
-    this.minval = minval;
-  }else {
-    this.maxval = this.maxvalGlobal;
-    this.minval = this.minvalGlobal;
-  }
-  this.barHeightFactor = this.mainbarHeight / (this.maxval == 0 ? 1E-6 : this.maxval);  // avoid Infinity
-  this.obarWidth = this.overviewWidth / this.data.overviewData.values.length;
-  this.obarHeightFactor = (this.overviewHeight - 5 - 5) / this.omaxval;  // 5 for bottom/top margin each
-
-  this.zoombarLeft = this.zoombarRight = 0;
-};
-
-LayoutHistogram.prototype.removeLayout = function() {
-  $('#' + this.htmlid + " div[name='ui']").remove();
-  $('#' + this.htmlid + ' svg').remove();
-  $('#' + this.htmlid + ' #hint').remove();
-  $('#' + this.htmlid + ' #layoutwrapper').remove();
-};
-
-LayoutHistogram.prototype.renderLayout = function() {
-  if (this.data == null || this.data.histogramData == null) return;
-  var layout = this;
-  this.renderUI(); // selection for chromosome
-  $('#' + this.htmlid).append("<div id='layoutwrapper' class='renderdiv'></div>");
-  $('#' + this.htmlid + ' #layoutwrapper')
-    .css('width', manager.embedSize(this.width))
-    .css('height', manager.embedSize(this.layoutHeight));
-
-  if (this.showOverview == true) this.renderOverview();
-  this.renderMain();
-  if (this.showExons == true) this.updateExons();
 };
 
 LayoutHistogram.prototype.renderMain = function() {
@@ -532,98 +563,6 @@ LayoutHistogram.prototype.updateMainbar = function(d) {
     .text(function(d) { return Math.floor(d).toString(); });
 
   if (this.showExons) this.updateExons();
-};
-
-LayoutHistogram.prototype.updateExons = function() {
-  var layout = this;
-  var exons = new Array(), exonsall = this.data.exonsData;
-  // first binary search the first exon
-  var ll = 0, rr = exonsall.length - 1;
-  while (ll <= rr) {
-    var m = Math.floor((ll + rr) / 2);
-    if (exonsall[m].txEnd < this.focusleft) ll = m + 1;
-    else rr = m - 1;
-  }
-  for (var i = ll; i < exonsall.length && exonsall[i].txStart <= this.focusright; i++) exons.push(exonsall[i]);
-
-  this.svg.selectAll('.txbox').remove();
-  this.svg.selectAll('.exonbox').remove();
-  this.svg.selectAll('.exonline').remove();
-  this.svg.selectAll('.exonstrand').remove();
-  this.svg.selectAll('.exonname').remove();
-
-  var focusspan = layout.focusright - layout.focusleft;
-  for (var i = 0; i < exons.length; i++) {
-    if (exons.length < 100) {
-      // base line
-      var line = this.svg.selectAll('#exline' + i).data([exons[i]]).enter().append('line')
-      .attr('id', '#exline' + i)
-      .attr('class', 'exonline')
-      .attr('x1', function(d) { return (d.txStart - layout.focusleft) / focusspan * layout.mainbarWidth; })
-      .attr('x2', function(d) { return (d.txEnd - layout.focusleft) / focusspan * layout.mainbarWidth; })
-      .attr('y1', layout.exonsY)
-      .attr('y2', layout.exonsY);
-      // outside cds range
-      var txed = this.svg.selectAll('#txseg' + i).data(exons[i].txRanges).enter().append('rect')
-      .attr('id', '#txseg' + i)
-      .attr('class', 'txbox')
-      .attr('x', function(d) { return (d.start - layout.focusleft) / focusspan * layout.mainbarWidth; })
-      .attr('y', layout.exonsY - layout.exonsSize / 4.0)
-      .attr('width', function(d) { return (d.end - d.start) / focusspan * layout.mainbarWidth; })
-      .attr('height', layout.exonsSize / 2.0);
-      // full-size exons
-      var ex = this.svg.selectAll('#exseg' + i).data(exons[i].exRanges).enter().append('rect')
-      .attr('id', '#exseg' + i)
-      .attr('class', 'exonbox')
-      .attr('x', function(d) { return (d.start - layout.focusleft) / focusspan * layout.mainbarWidth; })
-      .attr('y', layout.exonsY - layout.exonsSize / 2.0)
-      .attr('width', function(d, j) { return (d.end - d.start) / focusspan * layout.mainbarWidth; })
-      .attr('height', layout.exonsSize);
-      // strand
-      var strands = [];
-      for (var j = 0.25; j <= 0.75; j += 0.25) {
-        strands.push({'x': exons[i].txStart * (1.0 - j) + exons[i].txEnd * j, 'strand': exons[i].strand });
-      }
-      var strand = this.svg.selectAll('#exstrand' + i).data(strands).enter().append('polygon')
-      .attr('class', 'exonstrand')
-      .attr('points', function(d) {
-        var x = (d.x - layout.focusleft) / focusspan * layout.mainbarWidth, y = layout.exonsY;
-        var dx = d.strand == '+' ? 5 : -5;
-        return (x + dx) + ',' + y + ' ' + x + ',' + (y + 3) + ' ' + x + ',' + (y - 3);
-      });
-    }else {
-      // abstract version
-      for (var i = 0; i < exons.length; i++) {
-        // base line
-        var tx = this.svg.selectAll('#exonbox' + i).data([exons[i]]).enter().append('rect')
-        .attr('id', '#exonbox' + i)
-        .attr('class', 'exonbox')
-        .attr('x', function(d) { return (d.txStart - layout.focusleft) / focusspan * layout.mainbarWidth; })
-        .attr('y', layout.exonsY - layout.exonsSize / 4.0)
-        .attr('width', function(d) { return (d.txEnd - d.txStart) / focusspan * layout.mainbarWidth; })
-        .attr('height', layout.exonsSize / 2.0);
-      }
-    }
-  }
-  // name, reduced overlap
-  if (exons.length <= 100) {
-    var name = this.svg.selectAll('#exonname' + i).data(exons).enter().append('text')
-    .attr('id', '#exonname' + i)
-    .attr('class', 'exonname')
-    .text(function(d, j) { {
-      var lj = d.name2.length;
-      var jMiddle = ((d.txEnd + d.txStart) / 2.0 - layout.focusleft) / focusspan * layout.mainbarWidth;
-      for (var i = j + 1; i < exons.length; i++) {
-        if (i == j) continue;  // skip itself
-        var iMiddle = ((exons[i].txEnd + exons[i].txStart) / 2.0 - layout.focusleft) / focusspan * layout.mainbarWidth;
-        var diff = Math.abs(iMiddle - jMiddle);
-        if ((exons[i].name2.length + lj) * layout.exonLabelSize / 2.0 > diff) return '';
-      }
-      return d.name2;
-    }})
-    .attr("x", function(d){ return ((d.txEnd+d.txStart)/2.0-layout.focusleft)/focusspan*layout.mainbarWidth; })
-    .attr("y", layout.exonsY + layout.exonsSize*0.95);
-  }
 };
 
 LayoutHistogram.prototype.updateFocusrange = function(){

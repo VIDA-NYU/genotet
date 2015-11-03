@@ -217,15 +217,17 @@ View.prototype.init = function() {
 
   // Set up data loading callbacks.
   $(this.loader)
-    .on('genotet.loadStart', function() {
+    .on('genotet.loading', function() {
       this.renderer.showLoading();
     }.bind(this))
-    .on('genotet.loadComplete', function() {
-      this.renderer.dataLoaded();
+    .on('genotet.loaded', function() {
       this.renderer.hideLoading();
     }.bind(this))
+    .on('genotet.loadSuccess', function() {
+      this.renderer.dataLoaded();
+    }.bind(this))
     .on('genotet.loadFail', function() {
-      this.renderer.hideLoading();
+      console.log('fail');
       this.renderer.showFailure();
     }.bind(this));
 };

@@ -41,12 +41,6 @@ function ViewRenderer(container, data) {
    * @protected {!Object}
    */
   this.data = data;
-
-  /**
-   * Loading screen is only displayed when this value is positive.
-   * @private {number}
-   */
-  this.loadCounter_ = 0;
 }
 
 
@@ -94,7 +88,6 @@ ViewRenderer.prototype.resize = function() {
  * Shows loading message on the view.
  */
 ViewRenderer.prototype.showLoading = function() {
-  this.loadCounter_++;
   var popup = this.container.find('.popup');
   popup.show();
   popup.find('.loading').show();
@@ -108,10 +101,7 @@ ViewRenderer.prototype.showLoading = function() {
  * Hides loading message on the view.
  */
 ViewRenderer.prototype.hideLoading = function() {
-  this.loadCounter_--;
-  if (this.loadCounter_ == 0) {
-    this.container.find('.popup .loading').hide();
-  }
+  this.container.find('.popup .loading').hide();
 };
 
 

@@ -116,7 +116,7 @@ var Dialog = {
 
       var chrs = Data.bindingChrs.map(function(chr, index) {
         return {
-          id: index,
+          id: chr,
           text: chr
         };
       });
@@ -125,7 +125,7 @@ var Dialog = {
       });
       var genes = Data.bindingGenes.map(function(gene, index) {
         return {
-          id: index,
+          id: gene,
           text: gene
         };
       });

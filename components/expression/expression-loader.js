@@ -56,7 +56,7 @@ ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 
     _(this.data).extend(data);
 
-    $(this).trigger('genotet.loadComplete');
+    this.signal('loadComplete');
   }.bind(this), 'jsonp')
     .fail(function() {
       Core.error('cannot load expression matrix', JSON.stringify(params));
