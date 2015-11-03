@@ -29,15 +29,15 @@ var PanelManager = {
 
   removePanel: function(viewName) {
     var count = $('.sideways').children().length - 1;
-    var actived = false;
+    var activated = false;
     var viewID = viewName.replace(/\s/g, '');
     if ($('#li' + viewID).hasClass('active')) {
-      actived = true;
+      activated = true;
     }
     $('#li' + viewID).remove();
     $('#' + viewID).remove();
     count--;
-    if (actived) {
+    if (activated) {
       $('#li' + viewID + ' a[href="#' + viewID + '"]').tab('show');
     }
     $('.panel-manager').css('display', count > -1 ? 'inline' : 'none');
