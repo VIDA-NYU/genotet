@@ -1,16 +1,7 @@
-/*.panel-manager {
-    display: none;
-    bottom: 30px;
-    right: 0px;
-    top: 30px;
-    height: auto;
-    width: 200px;
-    overflow-y: scroll;
-    position: fixed;
-}*/
 .panel-manager {
     display: none;
 }
+
 #slidebar {
     position: fixed;
     top: 70px;
@@ -18,6 +9,7 @@
     z-index: 100;
     /*transform: rotate(-90deg);*/
 }
+
 #slidebar button {
     border-radius: 4px 0 0 4px;
     border-right: none;
@@ -25,6 +17,7 @@
     width: 30px;
     /*border-right: none;*/
 }
+
 #slider {
     background-color: white;
     border: solid 1px #ccc;
@@ -41,12 +34,15 @@
     bottom: 30px;
     z-index: 10;
 }
+
 #tab-slidebar {
     padding-left: 0px;
 }
+
 .sideways li:first-child {
     margin-top: -3px;
 }
+
 #tab-content-slidebar {
     margin-top: 10px;
 }
