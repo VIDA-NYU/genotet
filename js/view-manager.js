@@ -41,6 +41,12 @@ var ViewManager = {
         return;
     }
     this.views[viewName] = newView;
+
+    // TODO(liana): Replace this by PanelManager container return, e.g.
+    // var panelContainer = PanelManager.addPanel(newView);
+    // You shall be able to see the panel UI rendered.
+    var panelContainer = $('#dummy-panel');
+    newView.createPanel(panelContainer);
   },
 
   /**
@@ -85,6 +91,7 @@ var ViewManager = {
   findPosition: function(newView) {
     var newRect = newView.rect();
     var hasOtherViews = false;
+    var candidateRects = [];
     for (var name in this.views) {
       var view = this.views[name];
       if (view == newView) {
@@ -95,44 +102,44 @@ var ViewManager = {
       hasOtherViews = true;
 
       var rect = view.rect();
-      // Create candidate rectangles.
-      var rects = [
-        // Put on the right.
-        $.extend({}, newRect, {
-          x: rect.x + rect.w,
-          y: rect.y
-        }),
-        // Put at the bottom.
-        $.extend({}, newRect, {
-          x: rect.x,
-          y: rect.y + rect.h
-        })
-      ];
-
-      for (var i = 0; i < rects.length; i++) {
-        var rect = rects[i];
-        if (!Utils.rectInsideWindow(rect)) {
-          // Make sure that the rect is inside the screen window.
+      // Add candidate rectangles.
+      // Put on the right.
+      candidateRects.push($.extend({}, newRect, {
+        x: rect.x + rect.w,
+        y: rect.y
+      }));
+      // Put at the bottom.
+      candidateRects.push($.extend({}, newRect, {
+        x: rect.x,
+        y: rect.y + rect.h
+      }));
+    }
+    candidateRects.sort(function(r1, r2) {
+      return Utils.sign(r1.y - r2.y) || Utils.sign(r1.x - r2.x);
+    });
+    for(var i = 0; i < candidateRects.length; i++) {
+      var rect = candidateRects[i];
+      if (!Utils.rectInsideWindow(rect)) {
+        // Make sure that the rect is inside the screen window.
+        continue;
+      }
+      var ok = true;
+      for (var name2 in this.views) {
+        var view2 = this.views[name2]
+        if (view2 == newView) {
+          // Skip the new view itself.
           continue;
         }
-        var ok = true;
-        for (var name2 in this.views) {
-          var view2 = this.views[name2]
-          if (view2 == newView) {
-            // Skip the new view itself.
-            continue;
-          }
-          if (Utils.rectIntersect(view2.rect(), rect)) {
-            ok = false;
-            break;
-          }
+        if (Utils.rectIntersect(view2.rect(), rect)) {
+          ok = false;
+          break;
         }
-        if (ok) {
-          return {
-            left: rect.x,
-            top: rect.y
-          };
-        }
+      }
+      if (ok) {
+        return {
+          left: rect.x,
+          top: rect.y
+        };
       }
     }
     if (!hasOtherViews) {

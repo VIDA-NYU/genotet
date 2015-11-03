@@ -7,7 +7,7 @@
 
 var Utils = {
   /** @const {number} */
-  TOLERANCE: .001,
+  TOLERANCE: .1,
 
   /**
    * Vector type of arbitrary length.
@@ -22,6 +22,19 @@ var Utils = {
   Vector2: null,
 
   /**
+   * Gets the sign of a number.
+   * @param {number} x The number to be signed.
+   * @return {number} 1 if x is positive, -1 if x is negative,
+   *     and 0 if x is zero.
+   */
+  sign: function(x) {
+    if (x == 0) {
+      return 0;
+    }
+    return x > 0 ? 1 : -1;
+  },
+
+  /**
    * Checks whether two 2D rectangles intersect.
    * @param {{x: number, y: number, w: number, h: number}} rect1
    *     Definition of the first rectangle.
@@ -34,7 +47,8 @@ var Utils = {
     var xMax = Math.min(rect1.x + rect1.w, rect2.x + rect2.w);
     var yMin = Math.max(rect1.y, rect2.y);
     var yMax = Math.min(rect1.y + rect1.h, rect2.y + rect2.h);
-    return xMin < xMax && yMin < yMax;
+    return xMin < xMax - this.TOLERANCE &&
+        yMin < yMax - this.TOLERANCE;
   },
 
   /**
@@ -44,20 +58,24 @@ var Utils = {
    * @return {boolean} Whether the rectangle is inside the screen window.
    */
   rectInsideWindow: function(rect) {
-    return rect.x >= 0 &&
-        rect.x + rect.w < $(window).width() + this.TOLERANCE &&
-        rect.y >= 0 &&
-        rect.y + rect.h < $(window).height() + this.TOLERANCE;
+    return rect.x >= -this.TOLERANCE &&
+        rect.x + rect.w <= $(window).width() + this.TOLERANCE &&
+        rect.y >= -this.TOLERANCE &&
+        rect.y + rect.h <= $(window).height() + this.TOLERANCE;
   },
 
   /**
    * Combines translate and scale into a CSS transform string.
    * @param {Vector2} translate Zoom translate.
-   * @param {number} scale Zoom scale.
+   * @param {number=} opt_scale Zoom scale.
    * @return {string} CSS string of the transform.
    */
-  getTransform: function(translate, scale) {
-    return 'translate(' + translate + ')scale(' + scale + ')';
+  getTransform: function(translate, opt_scale) {
+    var result = 'translate(' + translate + ')';
+    if (opt_scale != undefined) {
+      result += 'scale(' + opt_scal + ')';
+    }
+    return result;
   },
 
   /**

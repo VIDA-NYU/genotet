@@ -55,24 +55,27 @@ function ViewRenderer(container, data) {
  */
 ViewRenderer.prototype.init = function() {
   this.canvas = d3.selectAll(this.container.find('.canvas-svg').toArray());
+  this.initLayout();
   this.resize();
 };
 
 
 /**
+ * Creates rendering layout (e.g. SVG groups).
+ */
+ViewRenderer.prototype.initLayout = function() {};
+
+/**
  * Renders the view graphics.
  */
-ViewRenderer.prototype.render = function() {
-};
+ViewRenderer.prototype.render = function() {};
 
 
 /**
  * Handles data loadComplete event, e.g. processing the data.
  * Typically, the scene is rendered after loadComplete event is fired.
  */
-ViewRenderer.prototype.dataLoaded = function() {
-};
-
+ViewRenderer.prototype.dataLoaded = function() {};
 
 /**
  * Handles the resize update of the view.

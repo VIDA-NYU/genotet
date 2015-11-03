@@ -4,15 +4,6 @@
 
 'use strict';
 
-/**
- * Configuration flag for running environment.
- * Data path changes w.r.t. this flag.
- * @const {string}
- */
-// TODO(bowen): This is sort of hacky and we may think of a better way of
-// System configuration
-var runEnv = 'jm_mbp';
-
 // Include libraries.
 var express = require('express');
 var fs = require('fs');
@@ -30,6 +21,7 @@ var expmat = require('./expmat.js');
 // Application
 var app = express();
 
+
 /**
  * Path of wiggle files.
  * @type {string}
@@ -46,34 +38,59 @@ var networkAddr;
  */
 var expmatAddr;
 
-// Determine the file paths.
-switch(runEnv) {
-  case 'vida':
-    wiggleAddr = '/data/bonneau/wiggle/';
-    networkAddr = '/data/bonneau/network/';
-    expmatAddr = '/data/bonneau/';
-    break;
-  case 'laptop':
-    wiggleAddr = 'D:/bnetvis_data/wiggle/';
-    networkAddr = 'D:/bnetvis_data/network/';
-    expmatAddr = 'D:/bnetvis_data/';
-    break;
-  case 'lab':
-    wiggleAddr = '/home/bowen/bnetvis_data/wiggle/';
-    networkAddr = '/home/bowen/bnetvis_data/network/';
-    expmatAddr = '/home/bowen/bnetvis_data/';
-    break;
-  case 'jm_mbp':
-    wiggleAddr = '/Users/JiamingDong/Documents/vida_data/wiggle/';
-    networkAddr = '/Users/JiamingDong/Documents/vida_data/network';
-    expmatAddr = '/Users/JiamingDong/Documents/vida_data/';
-    break;
+/**
+ * Reads the configuration file and gets the file paths.
+ */
+function config() {
+  var tokens = fs.readFileSync('config')
+    .toString()
+    .split(RegExp(/\s+/));
+  for (var i = 0; i < tokens.length; i += 3) {
+    var variable = tokens[i];
+    var value = tokens[i + 2];
+    switch(variable) {
+      case 'bindingPath':
+        wiggleAddr = value;
+        break;
+      case 'networkPath':
+        networkAddr = value;
+        break;
+      case 'expressionPath':
+        expmatAddr = value;
+        break;
+    }
+  }
 }
+// Configures the server paths.
+config();
+
+
+/**
+ * Mapping from expression matrix names to their binding data track names.
+ * @type {!Object<string>}
+ */
+var genecodes = {};
 /**
  * Path of the name code file that maps gene names to binding data track names.
  * @type {string}
  */
 var codeFile = wiggleAddr + 'namecode';
+/**
+ * Reads the genes' name codes and stores the mapping in genecodes.
+ */
+function readCodes() {
+  var tokens = fs.readFileSync(codeFile)
+    .toString()
+    .split(RegExp(/\s+/));
+  for (var i = 0; i < tokens.length; i += 2) {
+    var gene = tokens[i].toLowerCase();
+    var code = tokens[i + 1];
+    genecodes[gene] = code;
+  }
+}
+// Read the name code file.
+readCodes();
+
 
 /**
  * Path of the exon info file.
@@ -99,28 +116,6 @@ var tfamatFile = {
   'rna-seq': null
 };
 
-/**
- * Mapping from expression matrix names to their binding data track names.
- * @type {!Object<string>}
- */
-var genecodes = {};
-
-/**
- * Reads the genes' name codes and stores the mapping in genecodes.
- * @param {fs.ReadStream} input
- */
-function readCodes(input) {
-  var remaining = '';
-  input.on('data', function(data) {
-    remaining += data;
-  });
-  input.on('end', function() {
-    var w = remaining.split(RegExp(/\s+/));
-    for (var i = 0; i < w.length; i += 2) {
-      genecodes[w[i].toLowerCase()] = w[i + 1];
-    }
-  });
-}
 
 /**
  * POST request is not used as it conflicts with jsonp.
@@ -144,6 +139,7 @@ app.get('/genotet', function(req, res) {
       var net = req.query.net.toLowerCase(),
         exp = utils.decodeSpecialChar(req.query.exp),
         file = networkAddr + net + '.bnet';
+      exp = exp == '' ? 'a^' : exp;
       data = network.getNet(file, exp);
       break;
     case 'edges':
@@ -210,6 +206,8 @@ app.get('/genotet', function(req, res) {
       var file = expmatFile[req.query.mat];
       var exprows = req.query.exprows;
       var expcols = req.query.expcols;
+      exprows = exprows == '' ? 'a^' : exprows;
+      expcols = expcols == '' ? 'a^' : expcols;
       data = expmat.getExpmat(file, exprows, expcols);
       break;
     case 'expmatline':
@@ -222,7 +220,7 @@ app.get('/genotet', function(req, res) {
 
     // Upload data
     case 'upload':
-      uploader.uploadFile(req, res, wiggleAddr, networkAddr, expmatAddr);
+      uploader.uploadFile(req.query, wiggleAddr, networkAddr, expmatAddr);
 
     // Undefined type, error
     default:
@@ -231,10 +229,6 @@ app.get('/genotet', function(req, res) {
   }
   res.jsonp(data);
 });
-
-// Rad the name code file.
-var codestream = fs.createReadStream(codeFile);
-readCodes(codestream);
 
 // Start the application.
 app.listen(3000);

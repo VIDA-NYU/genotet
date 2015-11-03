@@ -10,6 +10,13 @@
  * @constructor
  */
 function View(viewName) {
+  /** @protected {ViewRenderer} */
+  this.renderer;
+  /** @protected {ViewLoader} */
+  this.loader;
+  /** @protected {ViewPanel} */
+  this.panel;
+
   /** @private {string} */
   this.viewName_ = viewName;
 
@@ -33,19 +40,6 @@ function View(viewName) {
   this.data = {
     options: {}
   };
-
-  $(this.data)
-    .on('genotet.loadStart', function() {
-      this.renderer.showLoading();
-    }.bind(this))
-    .on('genotet.loadComplete', function() {
-      this.renderer.dataLoaded();
-      this.renderer.hideLoading();
-    }.bind(this))
-    .on('genotet.loadFail', function() {
-      this.renderer.hideLoading();
-      this.renderer.showFailure();
-    }.bind(this));
 
   /*
   if (this.type !== 'menu') {
@@ -220,6 +214,20 @@ View.prototype.init = function() {
   this.container.find('.loading').click(function(event) {
     event.stopPropagation();
   });
+
+  // Set up data loading callbacks.
+  $(this.loader)
+    .on('genotet.loadStart', function() {
+      this.renderer.showLoading();
+    }.bind(this))
+    .on('genotet.loadComplete', function() {
+      this.renderer.dataLoaded();
+      this.renderer.hideLoading();
+    }.bind(this))
+    .on('genotet.loadFail', function() {
+      this.renderer.hideLoading();
+      this.renderer.showFailure();
+    }.bind(this));
 };
 
 /**
@@ -284,7 +292,7 @@ View.prototype.rect = function() {
 
 /**
  * Gets the default width of the view.
- * @returns {number} Default view width.
+ * @return {number} Default view width.
  */
 View.prototype.defaultWidth = function() {
   return 500;
@@ -292,8 +300,17 @@ View.prototype.defaultWidth = function() {
 
 /**
  * Gets the default height of the view.
- * @returns {number} Default view height.
+ * @return {number} Default view height.
  */
 View.prototype.defaultHeight = function() {
   return this.defaultWidth() / (16 / 10);
 };
+
+/**
+ * Sets the panel container and creates the panel user interface.
+ * @param {!jQuery} container jQuery container of the side panel.
+ */
+View.prototype.createPanel = function(container) {
+  this.panel.create(container);
+};
+

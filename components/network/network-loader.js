@@ -129,7 +129,7 @@ NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
 
     _(this.data).extend(data);
 
-    $(this.data).trigger('genotet.loadComplete');
+    $(this).trigger('genotet.loadComplete');
   }.bind(this), 'jsonp')
     .fail(function() {
       Core.error('cannot load network data', JSON.stringify(params));

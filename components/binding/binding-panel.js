@@ -12,7 +12,13 @@
 function BindingPanel(data) {
   BindingPanel.base.constructor.call(this, data);
 
-  this.template = 'components/binding/binding-panel.html';
+  // Set the view options.
+  _(this.data.options).extend({
+    autoScale: true,
+    showExons: true,
+    // TODO(bowen): showOverview shall be set for each track
+    showOverview: []
+  });
 }
 
 BindingPanel.prototype = Object.create(ViewPanel.prototype);
@@ -20,6 +26,76 @@ BindingPanel.prototype.constructor = BindingPanel;
 BindingPanel.base = ViewPanel.prototype;
 
 /** @inheritDoc */
-BindingPanel.prototype.panel = function() {
-  BindingPanel.base.panel.call(this);
+BindingPanel.prototype.template = 'components/binding/binding-panel.html';
+
+/** @inheritDoc */
+BindingPanel.prototype.panel = function(container) {
+  BindingPanel.base.panel.call(this, container);
 };
+
+/** @inheritDoc */
+BindingPanel.prototype.initPanel = function() {
+  /*
+  $('#' + this.htmlid + ' #gene').val(data.name)
+    .keydown(function(e) { if (e.which == 13) return layout.uiUpdate('gene');})
+    .autocomplete({ source: manager.bindingNames, appendTo: 'body'});
+
+  var chrs = manager.bindingChrs;
+  for (var i = 0; i < chrs.length; i++) {
+    $('#' + this.htmlid + ' div select').append('<option value=' + chrs[i] + '>' + chrs[i] + '</option>');
+    if (chrs[i] == data.chr) $('#' + this.htmlid + " div select option[value='" + chrs[i] + "']").attr('selected', 'selected');
+  }
+  var htmlid = this.htmlid;
+  $('#' + this.htmlid + ' div select').change(function() {
+//console.log(data.name, $("#"+htmlid+" div select option:selected").text(), this.loading);
+    if (layout.loading == false) {
+      var chr = $('#' + htmlid + ' div select option:selected').text();
+      layout.parentView.loadData(data.name, chr);
+      layout.parentView.postGroupMessage({'action': 'chr', 'chr': chr});
+    }
+  });
+  $('#' + this.htmlid + ' #xl').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('range'); });
+  $('#' + this.htmlid + ' #xr').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('range'); });
+  $('#' + this.htmlid + ' #search').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('search'); });
+  $('#' + this.htmlid + ' #autoscale').attr('checked', this.autoScale)
+    .change(function() { return layout.toggleAutoScale(); });
+  $('#' + this.htmlid + ' #overview').attr('checked', this.showOverview)
+    .change(function() { return layout.toggleOverview(); });
+  $('#' + this.htmlid + ' #exons').attr('checked', this.showExons)
+    .change(function() { return layout.toggleExons(); });
+    */
+};
+
+/*
+LayoutHistogram.prototype.uiUpdate = function(type) {
+  var layout = this;
+  if (layout.loading == true) return;
+  if (type == 'range') {
+    var xl = parseInt($('#' + layout.htmlid + ' #xl').val()),
+      xr = parseInt($('#' + layout.htmlid + ' #xr').val());
+    if (isNaN(xl)) xl = this.focusleft;
+    if (isNaN(xr)) xr = this.focusright;
+    if (xr < xl) {
+      options.alert('xl, xr value incorrect');
+      return;
+    }
+    layout.focusleft = xl;
+    layout.focusright = xr;
+    layout.loadBindingLayout();
+  }else if (type == 'search') {
+    srch = $('#' + layout.htmlid + ' #search').val();
+    if (srch != '') {
+      this.removeLayout();
+      this.parentView.loader.locateGene(srch);
+    }
+  }else if (type == 'gene') {
+    var name = $('#' + this.htmlid + ' #gene').val();
+    if (manager.supportBinding(name) == false) {
+      options.alert('Please type in a supported binding track');
+      return;
+    }
+    this.removeLayout();
+    this.parentView.loader.loadData({'name': name});
+  }
+};
+*/

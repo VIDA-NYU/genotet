@@ -46,7 +46,7 @@ ViewLoader.prototype.update = function() {
  * @param {string} eventType Type of event.
  */
 ViewLoader.prototype.signal = function(eventType) {
-  $(this.data).trigger('genotet.' + eventType);
+  $(this).trigger('genotet.' + eventType);
 };
 
 /*

@@ -27,7 +27,7 @@ function NetworkView(viewName, params) {
   this.renderer = new NetworkRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
-  $(this.data).on('genotet.loadComplete', function() {
+  $(this.loader).on('genotet.loadComplete', function() {
     this.renderer.render();
   }.bind(this));
   $(this.container).on('genotet.ready', function() {
