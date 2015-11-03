@@ -4,9 +4,11 @@ var PanelManager = {
   init: function(e) {
     $('.panel-manager').load('templates/panel-manager.html', function(e) {
       $('#btnToggle').on('click', function(e) {
-        $('#slider').toggle('slide', { direction: 'right' }, PanelManager.TRANSITION_TIME);
+        $('#slider').animate({
+          'right' : $('#slider').css('right') == '0px' ? '-208px' : '0px'
+        }, PanelManager.TRANSITION_TIME);
         $('#btnToggle').animate({
-          'right' : $('#btnToggle').css('right') == '0px' ? '249px' : '0px'
+          'right' : $('#btnToggle').css('right') == '0px' ? '208px' : '0px'
         }, PanelManager.TRANSITION_TIME);
         setTimeout(function(e) {
           $('#icon-button').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
@@ -42,7 +44,7 @@ var PanelManager = {
     if (activated) {
       var lastView = $('.sideways li').last().find('a').tab('show');
     }
-    $('.panel-manager').css('display', count > -1 ? 'inline' : 'none');
+    $('.panel-manager').css('display', count > 0 ? 'inline' : 'none');
   }
 
 //  TODO(liana): Fixed closeAllPanels function.

@@ -5,17 +5,14 @@
 #btnToggle {
   position: fixed;
   top: 70px;
-  right: 249px;
+  right: 208px;
   z-index: 100;
-  /* transform: rotate(-90deg); */
 }
 
 #btnToggle button {
   border-radius: 4px 0 0 4px;
-  border-right: none;
-  height: 123px;
-  width: 30px;
-  /* border-right: none; */
+  height: 50px;
+  width: 42px;
 }
 
 #slider {
@@ -23,10 +20,10 @@
   border: solid 1px #ccc;
   border-radius: 0px;
   border-bottom-left-radius: 4px;
-  /* border-right-color: white; */
+  border-top-left-radius: 4px;
+  border-left-color: #E6E6E6;
   height: auto;
   width: 250px;
-  /* margin-left: -1px; */
   overflow-y: scroll;
   position: fixed;
   top: 70px;
@@ -41,7 +38,10 @@
 
 .sideways li:first-child {
   display: none;
-  /* margin-top: -3px; */
+}
+
+.sideways li:nth-child(2) {
+  margin-top: 46.5px;
 }
 
 #tab-content-slider {
