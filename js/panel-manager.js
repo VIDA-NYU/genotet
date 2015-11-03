@@ -3,10 +3,10 @@ var PanelManager = {
 
   init: function(e) {
     $('.panel-manager').load('templates/panel-manager.html', function(e) {
-      $('#slidebar').on('click', function(e) {
+      $('#btnToggle').on('click', function(e) {
         $('#slider').toggle('slide', { direction: 'right' }, PanelManager.TRANSITION_TIME);
-        $('#slidebar').animate({
-          'right' : $('#slidebar').css('right') == '0px' ? '249px' : '0px'
+        $('#btnToggle').animate({
+          'right' : $('#btnToggle').css('right') == '0px' ? '249px' : '0px'
         }, PanelManager.TRANSITION_TIME);
         setTimeout(function(e) {
           $('#icon-button').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
@@ -15,15 +15,15 @@ var PanelManager = {
     });
   },
 
-  addPanel: function(view) {
-    var count = $('.sideways').children().length;
-    var viewID = view.name().replace(/\s/g, '');
-    $('.sideways').append('<li id="li' + viewID + '"><a href="#' + viewID + '" data-toggle="tab">' + view.name() + '</a></li>');
-    $('.tab-content').append('<div class="tab-pane" id="' + viewID + '">property' + count + '</div>');
-    $('#li' + viewID + ' a[href="#' + viewID + '"]').tab('show');
+  addPanel: function(viewName) {
+    var viewID = viewName.replace(/\s/g, '');
+    $('#li-init').clone().attr('id', 'li-' + viewID).appendTo('.sideways');
+    $('#li-' + viewID + ' a').attr('href', '#view-' + viewID).append(viewName);
+    $('#view-init').clone().attr('id', 'view-' + viewID).appendTo('.tab-content');
+    $('#li-' + viewID + ' a[href="#view-' + viewID + '"]').tab('show');
     $('.panel-manager').css('display','inline');
-    if ($('#slidebar').css('right') == '0px') {
-      $('#slidebar').trigger('click');
+    if ($('#btnToggle').css('right') == '0px') {
+      $('#btnToggle').trigger('click');
     }
   },
 
@@ -31,14 +31,14 @@ var PanelManager = {
     var count = $('.sideways').children().length - 1;
     var activated = false;
     var viewID = viewName.replace(/\s/g, '');
-    if ($('#li' + viewID).hasClass('active')) {
+    if ($('#li-' + viewID).hasClass('active')) {
       activated = true;
     }
-    $('#li' + viewID).remove();
-    $('#' + viewID).remove();
+    $('#li-' + viewID).remove();
+    $('#view-' + viewID).remove();
     count--;
     if (activated) {
-      $('#li' + viewID + ' a[href="#' + viewID + '"]').tab('show');
+      var lastView = $('.sideways li').last().find('a').tab('show');
     }
     $('.panel-manager').css('display', count > -1 ? 'inline' : 'none');
   }
