@@ -6,10 +6,10 @@ var PanelManager = {
     $('.side-panel').load('templates/side-panel.html', function(e) {
       $('#btnToggle').on('click', function(e) {
         $('#slider').animate({
-          'right' : $('#slider').css('right') == '0px' ? - PanelManager.TOGGLE_DISTANCE + 'px': '0px'
+          right : $('#slider').css('right') == '0px' ? - PanelManager.TOGGLE_DISTANCE + 'px': '0px'
         }, PanelManager.TRANSITION_TIME);
         $('#btnToggle').animate({
-          'right' : $('#btnToggle').css('right') == '0px' ? PanelManager.TOGGLE_DISTANCE + 'px' : '0px'
+          right : $('#btnToggle').css('right') == '0px' ? PanelManager.TOGGLE_DISTANCE + 'px' : '0px'
         }, PanelManager.TRANSITION_TIME);
         setTimeout(function(e) {
           $('#icon-button').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
@@ -54,9 +54,7 @@ var PanelManager = {
    * @param {string} viewName Name of the view.
    */
   removePanel: function(viewName) {
-    var count = $('.sideways')
-                    .children()
-                        .length - 1;
+    var count = $('.sideways').children().length - 1;
     var activated = false;
     var viewID = viewName.replace(/\s/g, '');
     if ($('#panel-tab-' + viewID).hasClass('active')) {
