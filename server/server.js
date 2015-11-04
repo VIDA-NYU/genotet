@@ -37,12 +37,16 @@ var networkAddr;
  * @type {string}
  */
 var expmatAddr;
+/**
+ *
+ */
+var bigwigtoWigAddr;
 
 /**
  * Reads the configuration file and gets the file paths.
  */
 function config() {
-  var tokens = fs.readFileSync('config')
+  var tokens = fs.readFileSync('server/config')
     .toString()
     .split(RegExp(/\s+/));
   for (var i = 0; i < tokens.length; i += 3) {
@@ -60,6 +64,7 @@ function config() {
         break;
     }
   }
+  bigwigtoWigAddr = tokens[9];
 }
 // Configures the server paths.
 config();
@@ -220,7 +225,7 @@ app.get('/genotet', function(req, res) {
 
     // Upload data
     case 'upload':
-      uploader.uploadFile(req.query, wiggleAddr, networkAddr, expmatAddr);
+      uploader.uploadFile(req.query, wiggleAddr, networkAddr, expmatAddr, bigwigtoWigAddr, genecodes);
 
     // Undefined type, error
     default:
