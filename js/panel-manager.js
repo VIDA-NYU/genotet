@@ -5,14 +5,20 @@ var PanelManager = {
     $('.panel-manager').load('templates/panel-manager.html', function(e) {
       $('#btnToggle').on('click', function(e) {
         $('#slider').animate({
-          'right' : $('#slider').css('right') == '0px' ? '-209px' : '0px'
+          'right' : $('#slider').css('right') == '0px' ? '-218px' : '0px'
         }, PanelManager.TRANSITION_TIME);
         $('#btnToggle').animate({
-          'right' : $('#btnToggle').css('right') == '0px' ? '209px' : '0px'
+          'right' : $('#btnToggle').css('right') == '0px' ? '218px' : '0px'
         }, PanelManager.TRANSITION_TIME);
         setTimeout(function(e) {
           $('#icon-button').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
         }, PanelManager.TRANSITION_TIME);
+      });
+      $('.sideways').on('click', function(e) {
+        console.log('hi');
+        if ($('#btnToggle').css('right') == '0px') {
+          $('#btnToggle').trigger('click');
+        }
       });
     });
   },
@@ -42,7 +48,7 @@ var PanelManager = {
     $('#view-' + viewID).remove();
     count--;
     if (activated) {
-      var lastView = $('.sideways li').last().find('a').tab('show');
+      $('.sideways li').last().find('a').tab('show');
     }
     $('.panel-manager').css('display', count > 0 ? 'inline' : 'none');
   }
