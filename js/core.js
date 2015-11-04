@@ -28,7 +28,7 @@ var Core = {
       ViewManager.blurAllViews();
     });
 
-//    Test.run();
+    Test.run();
   },
 
   /**

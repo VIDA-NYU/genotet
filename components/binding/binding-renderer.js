@@ -138,9 +138,9 @@ BindingRenderer.prototype.layout = function() {
       Utils.getTransform([0, this.canvasHeight_ - this.EXON_HEIGHT]));
 
   this.zoom_ = d3.behavior.zoom()
-  	.scaleExtent([1, 1000])
-	.on('zoom', this.zoomHandler.bind(this)),
-	.on('zoomEnd', this.zoomHandler.bind(this, true)); 
+    .scaleExtent([1, 1000])
+    .on('zoom', this.zoomHandler_.bind(this))
+    .on('zoomend', this.zoomHandler_.bind(this, true));
 
   this.svgBinding_.call(this.zoom_);
 };
