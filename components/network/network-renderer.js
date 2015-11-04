@@ -13,49 +13,6 @@
  */
 function NetworkRenderer(container, data) {
   NetworkRenderer.base.constructor.call(this, container, data);
-}
-
-NetworkRenderer.prototype = Object.create(ViewRenderer.prototype);
-NetworkRenderer.prototype.constructor = NetworkRenderer;
-NetworkRenderer.base = ViewRenderer.prototype;
-
-/**
- * State of mouse interaction.
- * @enum {number}
- */
-NetworkRenderer.prototype.MouseState = {
-  NONE: 0,
-  SELECT: 1,
-  ZOOM: 2
-};
-
-/**
- * Scaling extent for D3 zoom.
- * @const {!Array<number>}
- */
-NetworkRenderer.prototype.ZOOM_EXTENT = [0.125, 8];
-
-/** @const {number} */
-NetworkRenderer.prototype.NODE_LABEL_SIZE = 14;
-/** @const {number} */
-NetworkRenderer.prototype.NODE_LABEL_OFFSET_X = 10;
-/** @const {number} */
-NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y =
-    NetworkRenderer.prototype.NODE_LABEL_SIZE / 2;
-/** @const {number} */
-NetworkRenderer.prototype.NODE_SIZE = 5;
-/** @const {number} */
-NetworkRenderer.prototype.EDGE_ARROW_LENGTH = 10;
-/**
- * Shifting percentage of curved edge.
- * @const {number}
- */
-NetworkRenderer.prototype.EDGE_CURVE_SHIFT = 0.1;
-
-
-/** @inheritDoc */
-NetworkRenderer.prototype.init = function() {
-  NetworkRenderer.base.init.call(this);
 
   /**
    * Filter settings.
@@ -117,6 +74,49 @@ NetworkRenderer.prototype.init = function() {
   this.zoomScale_ = 1.0;
   /** @private {NetworkRenderer.MouseState} */
   this.mouseState_ = this.MouseState.NONE;
+}
+
+NetworkRenderer.prototype = Object.create(ViewRenderer.prototype);
+NetworkRenderer.prototype.constructor = NetworkRenderer;
+NetworkRenderer.base = ViewRenderer.prototype;
+
+/**
+ * State of mouse interaction.
+ * @enum {number}
+ */
+NetworkRenderer.prototype.MouseState = {
+  NONE: 0,
+  SELECT: 1,
+  ZOOM: 2
+};
+
+/**
+ * Scaling extent for D3 zoom.
+ * @const {!Array<number>}
+ */
+NetworkRenderer.prototype.ZOOM_EXTENT = [0.125, 8];
+
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_SIZE = 14;
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_OFFSET_X = 10;
+/** @const {number} */
+NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y =
+    NetworkRenderer.prototype.NODE_LABEL_SIZE / 2;
+/** @const {number} */
+NetworkRenderer.prototype.NODE_SIZE = 5;
+/** @const {number} */
+NetworkRenderer.prototype.EDGE_ARROW_LENGTH = 10;
+/**
+ * Shifting percentage of curved edge.
+ * @const {number}
+ */
+NetworkRenderer.prototype.EDGE_CURVE_SHIFT = 0.1;
+
+
+/** @inheritDoc */
+NetworkRenderer.prototype.init = function() {
+  NetworkRenderer.base.init.call(this);
 
   /** @private {d3.zoom} */
   this.zoom_ = d3.behavior.zoom()
@@ -188,7 +188,6 @@ NetworkRenderer.prototype.zoomHandler_ = function() {
   var translate = d3.event.translate;
   var scale = d3.event.scale;
 
-  this.zoom_.translate(translate);
   this.canvas.selectAll('.render-group')
     .attr('transform', Utils.getTransform(translate, scale));
 

@@ -98,4 +98,25 @@ LayoutHistogram.prototype.uiUpdate = function(type) {
     this.parentView.loader.loadData({'name': name});
   }
 };
+
+LayoutHistogram.prototype.toggleAutoScale = function(){
+  this.autoScale = !this.autoScale;
+  this.removeLayout();
+  this.initLayout();
+  this.renderLayout();
+};
+
+LayoutHistogram.prototype.toggleOverview = function(){
+  this.showOverview = !this.showOverview;
+  this.removeLayout();
+  this.initLayout();
+  this.renderLayout();
+};
+
+LayoutHistogram.prototype.toggleExons = function(){
+  this.sho  wExons = !this.showExons;
+  this.removeLayout();
+  this.initLayout();
+  this.renderLayout();
+};
 */

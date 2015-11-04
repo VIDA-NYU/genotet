@@ -22,6 +22,12 @@
   text-anchor: middle;
 }
 
+.binding .zoom-handle {
+  fill: white;
+  opacity: 0.0;
+  width: 100%;
+}
+
 .txbox {
   fill: #61576d;
   stroke: none;

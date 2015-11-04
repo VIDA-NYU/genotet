@@ -13,6 +13,41 @@
  */
 function BindingRenderer(container, data) {
   BindingRenderer.base.constructor.call(this, container, data);
+
+  /**
+   * Height of a single detail binding track. This is re-computed upon
+   * resize event.
+   * @private {number}
+   */
+  this.detailHeight_ = 0;
+
+  // LOD range.
+  /** @private {number} */
+  this.detailXMin_ = Infinity;
+  /** @private {numebr} */
+  this.detailXMax_ = -Infinity;
+
+  // Navigation state.
+  /** @private {!Array<number>} */
+  this.zoomTranslate_ = [0, 0];
+  /** @private {number} */
+  this.zoomScale_ = 1.0;
+  /**
+   * Zooming state of the binding data tracks.
+   * @private {!d3.zoom}
+   */
+  this.zoom_ = d3.behavior.zoom();
+
+  /**
+   * Vertical translate value of the detail SVG group.
+   * @private {number}
+   */
+  this.detailTranslateY_;
+  /**
+   * Vertical translate value of the exons SVG group.
+   * @private {number}
+   */
+  this.exonsTranslateY_;
 }
 
 BindingRenderer.prototype = Object.create(ViewRenderer.prototype);
@@ -24,7 +59,7 @@ BindingRenderer.prototype.EXON_HEIGHT = 35;
 /** @const {number} */
 BindingRenderer.prototype.EXON_SIZE = 10;
 /** @const {number} */
-BindingRenderer.prototype.OVERVIEW_HEIGHT = 30;
+BindingRenderer.prototype.OVERVIEW_HEIGHT = 25;
 
 /**
  * When there are more than this limit number of exons, we draw exons as
@@ -40,48 +75,21 @@ BindingRenderer.prototype.STRAND_VERTICAL_SIZE = 3;
 /** @const {number} */
 BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
 
+/** @const {!Array<number>} */
+BindingRenderer.prototype.ZOOM_EXTENT = [1, 1000];
+
 /**
  * Initializes the BindingRenderer properties.
  */
 BindingRenderer.prototype.init = function() {
   BindingRenderer.base.init.call(this);
 
-  /**
-   * Height of a single binding track, including the overview track.
-   * This is computed by default for a single track, and will be re-computed
-   * upon resize event.
-   * @private {number}
-   */
-  this.trackHeight_ = this.canvasHeight_ - this.EXON_HEIGHT;
-
-  // LOD range.
-  /** @private {number} */
-  this.detailXMin_ = Infinity;
-  /** @private {numebr} */
-  this.detailXMax_ = -Infinity;
-
-  // Navigation state.
-  /** @private {!Array<number>} */
-  this.zoomTranslate_ = [0, 0];
-  /** @private {number} */
-  this.zoomScale_ = 1.0;
-  /**
-   * Zooming state of the binding data tracks. 
-   * @private {d3.zoom}
-   */
-  this.zoom_;
-
-  /*
-  // target range
-  this.targetleft = 0.0;
-  this.targetright = 0.0;
-  this.targetname = '';
-  this.focusiborder = 10.0;
-
-  // cursor line position (by data x)
-  this.cursorX = 0.0;
-  this.cursorPercent = -1.0;
-  */
+  this.zoom_ = d3.behavior.zoom()
+    .scaleExtent(this.ZOOM_EXTENT)
+    .on('zoom', this.zoomHandler_.bind(this))
+    .on('zoomend', this.zoomEndHandler_.bind(this));
+  this.detailHandle_.call(this.zoom_);
+  this.exonsHandle_.call(this.zoom_);
 };
 
 /** @inheritDoc */
@@ -89,8 +97,8 @@ BindingRenderer.prototype.dataLoaded = function() {
   if (this.detailXMin_ == Infinity) {
     // Detail range has never been set.
     this.data.tracks.forEach(function(track) {
-      this.detailXMin_ = Math.min(this.detailXMin_, track.xMin);
-      this.detailXMax_ = Math.max(this.detailXMax_, track.xMax);
+      this.detailXMin_ = Math.min(this.detailXMin_, track.detail.xMin);
+      this.detailXMax_ = Math.max(this.detailXMax_, track.detail.xMax);
     }, this);
   }
   this.render();
@@ -98,19 +106,65 @@ BindingRenderer.prototype.dataLoaded = function() {
 
 /** @inheritDoc */
 BindingRenderer.prototype.initLayout = function() {
-  // Create groups for the (multiple) binding tracks, and exons.
+  // Create groups for the overviews, binding tracks, and exons.
   /**
-   * SVG group for the binding tracks.
+   * SVG group for the binding overviews.
    * @private {!d3.selection}
    */
-  this.svgBinding_ = this.canvas.append('g')
-    .classed('tracks', true);
+  this.svgOverview_ = this.canvas.append('g')
+    .classed('overviews', true)
   /**
-   * SVG group for the exons.
+   * SVG group for the detailed binding tracks.
+   * @private {!d3.selection}
+   */
+  this.svgDetail_ = this.canvas.append('g')
+    .classed('details', true);
+  /**
+   * SVG group for the binding overviews.
    * @private {!d3.selection}
    */
   this.svgExons_ = this.canvas.append('g')
     .classed('exons', true);
+
+  /**
+   * SVG group for the overview content.
+   */
+  this.overviewContent_ = this.svgOverview_.append('g')
+    .classed('content', true);
+  /**
+   * SVG group for the detailed binding tracks content.
+   * @private {!d3.selection}
+   */
+  this.detailContent_ = this.svgDetail_.append('g')
+    .classed('content', true);
+  /**
+   * SVG group for the exons content.
+   * @private {!d3.selection}
+   */
+  this.exonsContent_ = this.svgExons_.append('g')
+    .classed('content', true);
+
+  // Add invisible handles for zooming. Handles shall be created after
+  // the contents so that the handles appear on top of the rendered
+  // elements.
+  /**
+   * Handle for the overview group.
+   * @private {!d3.selection}
+   */
+  this.overviewHandle_ = this.svgOverview_.append('rect')
+    .classed('zoom-handle', true);
+  /**
+   * Handle for the detail group.
+   * @private {!d3.selection}
+   */
+  this.detailHandle_ = this.svgDetail_.append('rect')
+    .classed('zoom-handle', true);
+  /**
+   * Handle for the exons group.
+   * @private {!d3.selection}
+   */
+  this.exonsHandle_ = this.svgExons_.append('rect')
+    .classed('zoom-handle', true);
 };
 
 /**
@@ -118,31 +172,50 @@ BindingRenderer.prototype.initLayout = function() {
  * This function also layouts the exon group.
  */
 BindingRenderer.prototype.layout = function() {
+  // Must update first, as data may have been reloaded.
+  this.updateDetailHeight_();
+  // Update zoom handle sizes based on track height.
+  this.updateZoomHandles_();
+
   var numTracks = this.data.tracks.length;
-  var tracks = this.svgBinding_.selectAll('g.track')
-    .data(this.data.tracks, function(track) {
-      return track.gene;
-    });
-  tracks.enter().append('g')
-    .attr('id', function(track) {
-      return track.gene;
-    })
-    .classed('track', true)
-    .attr('transform', function(track, index) {
-      return Utils.getTransform([0, this.trackHeight_ * index]);
-    }.bind(this));
-  tracks.exit().remove();
-  tracks.attr('height', this.trackHeight_);
 
+  // Compute translate values.
+  this.detailTranslateY_ = numTracks * this.OVERVIEW_HEIGHT;
+  this.exonsTranslateY_ = this.canvasHeight_ - this.EXON_HEIGHT;
+
+  // Translate SVG groups to place.
+  this.svgDetail_.attr('transform',
+    Utils.getTransform([0, this.detailTranslateY_]));
   this.svgExons_.attr('transform',
-      Utils.getTransform([0, this.canvasHeight_ - this.EXON_HEIGHT]));
+    Utils.getTransform([0, this.exonsTranslateY_]));
 
-  this.zoom_ = d3.behavior.zoom()
-    .scaleExtent([1, 1000])
-    .on('zoom', this.zoomHandler_.bind(this))
-    .on('zoomend', this.zoomHandler_.bind(this, true));
+  var getGene = function(track) {
+    return track.gene;
+  };
 
-  this.svgBinding_.call(this.zoom_);
+  // Set up overview tracks.
+  var overviews = this.overviewContent_.selectAll('g')
+    .data(this.data.tracks, getGene);
+  overviews.enter().append('g')
+    .attr('id', getGene);
+  overviews.exit().remove();
+  overviews
+    .attr('height', this.OVERVIEW_HEIGHT)
+    .attr('transform', function(track, index) {
+      return Utils.getTransform([0, this.OVERVIEW_HEIGHT * index]);
+    }.bind(this));
+
+  // Set up detail tracks.
+  var details = this.detailContent_.selectAll('g')
+    .data(this.data.tracks, getGene);
+  details.enter().append('g')
+    .attr('id', getGene);
+  details.exit().remove();
+  details
+    .attr('height', this.detailHeight_)
+    .attr('transform', function(track, index) {
+      return Utils.getTransform([0, this.detailHeight_ * index]);
+    }.bind(this));
 };
 
 /** @inheritDoc */
@@ -151,44 +224,31 @@ BindingRenderer.prototype.render = function() {
   // multiple binding tracks.
   this.layout();
 
-  this.drawBinding_();
+  this.drawOverviews_();
+  this.drawDetails_();
   this.drawExons_();
 };
 
 /**
- * Renders the binding data as histograms.
- * The function iterate the binding tracks and renders each of them.
+ * Renders the binding overview tracks.
  * @private
  */
-BindingRenderer.prototype.drawBinding_ = function() {
+BindingRenderer.prototype.drawOverviews_ = function() {
   this.data.tracks.forEach(function(track) {
-    this.drawBindingTrack_(track);
-  }.bind(this));
+    var svg = this.overviewContent_.select('#' + track.gene);
+    this.drawHistogram_(svg, track.overview);
+  }, this);
 };
 
 /**
- * Renders a single binding track, including the binding histogram and
- * the overview.
- * @param {!Object} track Binding track data.
+ * Renders the binding detail tracks.
  * @private
  */
-BindingRenderer.prototype.drawBindingTrack_ = function(track) {
-  var svg = this.canvas.select('#' + track.gene);
-  if (svg.select('.overview').empty()) {
-    svg.append('g')
-      .classed('overview', true)
-      .attr('height', this.OVERVIEW_HEIGHT);
-  }
-  if (svg.select('.detail').empty()) {
-    svg.append('g')
-      .classed('detail', true)
-      .attr('transform', Utils.getTransform([0, this.OVERVIEW_HEIGHT]));
-  }
-  var overview = svg.select('.overview');
-  this.drawHistogram_(overview, track);
-  var histogram = svg.select('.detail')
-    .attr('height', this.trackHeight_ - this.OVERVIEW_HEIGHT);
-  this.drawHistogram_(histogram, track);
+BindingRenderer.prototype.drawDetails_ = function() {
+  this.data.tracks.forEach(function(track) {
+    var svg = this.detailContent_.select('#' + track.gene);
+    this.drawHistogram_(svg, track.detail);
+  }, this);
 };
 
 /**
@@ -246,7 +306,7 @@ BindingRenderer.prototype.drawExons_ = function() {
 
   if (exons.length > this.EXON_ABSTRACT_LIMIT) {
     // Render the exons in abstract shapes.
-    var tx = this.svgExons_.selectAll('.abstract').data(exons);
+    var tx = this.exonsContent_.selectAll('.abstract').data(exons);
     tx.enter().append('rect')
       .classed('abstract', true)
       .attr('y', exonY);
@@ -259,10 +319,10 @@ BindingRenderer.prototype.drawExons_ = function() {
       })
       .attr('height', this.EXON_SIZE);
 
-    this.svgExons_.selectAll('g.exon').remove();
+    this.exonsContent_.selectAll('g.exon').remove();
   } else {
     // Render detailed exons.
-    var gs = this.svgExons_.selectAll('g.exon').data(exons);
+    var gs = this.exonsContent_.selectAll('g.exon').data(exons);
     var gsEnter = gs.enter().append('g')
       .classed('exon', true);
     gsEnter.append('text'); // For label
@@ -364,13 +424,37 @@ BindingRenderer.prototype.drawExons_ = function() {
 };
 
 /**
- * Re-computes the track height.
+ * Re-computes the detail track height.
+ */
+BindingRenderer.prototype.updateDetailHeight_ = function() {
+  var numTracks = this.data.tracks.length;
+  var totalDetailHeight = this.canvasHeight_ - this.EXON_HEIGHT -
+    this.OVERVIEW_HEIGHT * numTracks;
+  this.detailHeight_ = totalDetailHeight / (numTracks ? numTracks : 1);
+};
+
+/**
+ * Handles resize event.
  */
 BindingRenderer.prototype.resize = function() {
   BindingRenderer.base.resize.call(this);
-  var totalHeight = this.canvasHeight_ - this.EXON_HEIGHT;
+  this.updateZoomHandles_();
+  this.render();
+};
+
+/**
+ * Updates background sizes.
+ * @private
+ */
+BindingRenderer.prototype.updateZoomHandles_ = function() {
   var numTracks = this.data.tracks.length;
-  this.trackHeight_ = totalHeight / (numTracks ? numTracks : 1);
+  var heights = [
+    this.OVERVIEW_HEIGHT * numTracks,
+    this.detailHeight_ * numTracks,
+    this.EXON_HEIGHT
+  ];
+  this.canvas.selectAll('.zoom-handle').data(heights)
+    .attr('height', _.identity);
 };
 
 /**
@@ -381,29 +465,30 @@ BindingRenderer.prototype.zoomHandler_ = function() {
   var translate = d3.event.translate;
   var scale = d3.event.scale;
 
+  // Prevent horizontal panning out of range.
+  translate[0] = Math.max(this.canvasWidth_ * (1 - scale), translate[0]);
+  translate[0] = Math.min(0, translate[0]);
+  // Prevent vertical panning.
+  translate[1] = 0;
+
   this.zoomTranslate_ = translate;
   this.zoomScale_ = scale;
-  
-  this.svgBinding_.attr('transform', Utils.getTransform(translate, scale));
+
+  var transform = Utils.getTransform(translate, [scale, 1]);
+  this.detailContent_.attr('transform', transform);
+  this.exonsContent_.attr('transform', transform);
+  this.drawDetails_();
 };
+
+/**
+ * Handles mouse zoom end event.
+ * @private
+ */
+BindingRenderer.prototype.zoomEndHandler_ = function() {
+
+};
+
 /*
-LayoutHistogram.prototype.reloadData = function() {
-  var data = this.data;
-  //if(data.histogramData==null) data.histogramData = data.overviewData; // if high resolution not ready, display normal data
-
-  this.loading = false;
-
-  this.formatExons();
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-
-LayoutHistogram.prototype.initFocus = function(xl, xr) {  // only called by the loader
-  this.focusleft = xl;
-  this.focusright = xr;
-};
-
 LayoutHistogram.prototype.renderMain = function() {
   var layout = this;
   this.svg = d3.select('#' + this.htmlid + ' #layoutwrapper').append('svg')
@@ -557,47 +642,6 @@ LayoutHistogram.prototype.renderOverview = function() {
     );
 };
 
-LayoutHistogram.prototype.updateMainbar = function(d) {
-  this.updateFocusrange();
-  var layout = this;
-  var vals = new Array(),
-    valsall = this.data.histogramData.values;
-
-  for (var i = 0; i < valsall.length; i++) {
-      if (valsall[i].x >= this.focusleft && valsall[i].x <= this.focusright) vals.push(valsall[i]);
-  }
-  if (vals.length == 0) vals.push({'x': Math.round(this.focusleft), 'value': 0}); // focusleft = focusright
-
-  var focusspan = this.focusright - this.focusleft;
-  var barWidth = (vals[vals.length - 1].x - vals[0].x) / focusspan * this.mainbarWidth / vals.length;
-
-  var mainbar = this.svg.selectAll('.bar').data(vals);
-
-  mainbar.exit().remove();
-  mainbar.enter().append('rect');
-  mainbar.attr('class', 'bar')
-    .attr('x', function(d, i) { return (vals[0].x - layout.focusleft) / focusspan * layout.mainbarWidth + i * barWidth; })
-    .attr('y', function(d) { return layout.mainbarTop + layout.mainbarHeight - d.value * layout.barHeightFactor; })
-    .attr('width', barWidth)
-    .attr('height', function(d) { return Math.max(d.value * layout.barHeightFactor, 0.1); });
-
-  // xlabel
-  var sidelabel = this.svg.selectAll('.xlabel').data([this.focusleft, this.focusright])
-    .text(function(d) { return Math.floor(d).toString(); });
-
-  if (this.showExons) this.updateExons();
-};
-
-LayoutHistogram.prototype.updateFocusrange = function(){
-  if(this.showOverview==false) return;
-  this.svgov.selectAll("#focusrange").data([{}])
-    .attr("x", this.overviewX + (this.focusleft-this.xmin)/this.xspan*this.overviewWidth)
-    .attr("y", this.overviewY)
-    .attr("width", (this.focusright-this.focusleft)/this.xspan*this.overviewWidth)
-    .attr("height", this.overviewHeight);
-  //this.updateTargetrange();
-};
-
 LayoutHistogram.prototype.selectOverviewStart = function(d){
   if(this.loading == true) return;
   this.zooming = true;
@@ -631,104 +675,6 @@ LayoutHistogram.prototype.selectOverviewEnd = function(d){
   this.loadBindingLayout();
 };
 
-LayoutHistogram.prototype.updateCursorline = function(layoutX, valueX){
-  this.svg.select("#cursorlabel").data([{}])
-    .attr("visibility", this.cursorPercent<0?"hidden":"visible")
-    .attr("x", layoutX)
-    .text(Math.round(valueX).toString());
-  this.svg.select("#cursorline").data([{}])
-    .attr("visibility", this.cursorPercent<0?"hidden":"visible")
-    .attr("x1", layoutX)
-    .attr("x2", layoutX);
-};
-
-LayoutHistogram.prototype.mainbarZoomstart = function(d){
-  if(this.loading == true) return;
-  this.zooming = true;
-  this.lastdx = 0;
-  this.lastscale = 1.0;
-};
-
-LayoutHistogram.prototype.mainbarZoom = function(d){
-  if(this.loading == true) return;
-  var d3trans = d3.event.translate, d3scale = d3.event.scale;
-  var dx = d3trans[0] - this.lastdx, dscale = d3scale/this.lastscale;
-  var width = this.mainbarWidth;
-  this.lastdx = d3trans[0];
-  this.lastscale = d3scale;
-
-  //console.log(d3trans, d3scale, dx, dscale);
-  clearTimeout(this.timer);
-  if(dscale == 1.0){ // translate, no scale
-    var trans = -dx/this.width*(this.focusright-this.focusleft);
-    this.focusleft += trans;
-    this.focusright += trans;
-    this.focusleft = Math.max(this.xmin, this.focusleft);
-    this.focusright = Math.min(this.xmax, this.focusright);
-  }else{ // mouse wheel, scale
-    this.wheeled = true;
-    var rect = this.mainbariobj[0][0];
-    var mx = d3.mouse(rect)[0]; // get mouse x
-    var fm = this.focusleft + 1.0*mx/width*(this.focusright-this.focusleft);
-    this.focusleft += (dscale-1.0)*(this.focusleft-fm);
-    this.focusright += (dscale-1.0)*(this.focusright-fm);
-    this.focusleft = Math.max(this.xmin, this.focusleft);
-    this.focusright = Math.min(this.xmax, this.focusright);
-  }
-  this.updateFocusrange();
-  this.updateMainbar();
-  //this.mainbar.attr("transform", "translate(" + d3trans + ")scale(" + d3scale + ")");
-};
-
-LayoutHistogram.prototype.mainbarZoomend = function(d){
-  if(this.loading == true) return;
-  this.zoom.scale(1.0);
-  this.zoom.translate([0,0]);
-  this.zooming = false;
-
-  timerLayout = this;
-  clearTimeout(this.timer); // reset timer to wait for more wheel
-  this.timer = setTimeout ( this.zoomTimer, 500 );
-  //this.loadBinding();
-};
-
-LayoutHistogram.prototype.zoombarZoomstart = function(d){
-  if(this.loading == true) return;
-  this.zooming = true;
-  this.lastzbx = 0;
-  var rect = this.zoombar[0][0];
-  var mx = d3.mouse(rect)[0]; // get mouse x
-  this.zoombarLeft = this.zoombarRight = mx;
-  this.svg.select("#zoombarSel").attr("x", mx).attr("width",0);
-};
-
-LayoutHistogram.prototype.zoombarZoom = function(d){
-  if(this.loading == true) return;
-  var rect = this.zoombar[0][0];
-  var mx = d3.mouse(rect)[0]; // get mouse x
-  this.zoombarRight = mx;
-  if(this.zoombarRight < this.zoombarLeft){
-    this.svg.select("#zoombarSel")
-      .attr("x", this.zoombarRight)
-      .attr("width", this.zoombarLeft - this.zoombarRight);
-  }else{
-    this.svg.select("#zoombarSel")
-      .attr("width", this.zoombarRight - this.zoombarLeft);
-  }
-};
-
-LayoutHistogram.prototype.zoombarZoomend = function(d){
-  if(this.loading == true) return;
-  this.zbzoom.translate([0,0]);
-  var xl = Math.min(this.zoombarLeft, this.zoombarRight),
-    xr = Math.max(this.zoombarLeft, this.zoombarRight),
-  xl = Math.max(xl, 0); xr = Math.min(xr, this.width);
-  var focusspan = this.focusright - this.focusleft, fb = this.focusleft;
-  this.focusleft = 1.0*xl/this.width*focusspan + fb;
-  this.focusright = 1.0*xr/this.width*focusspan + fb;
-  this.loadBindingLayout();
-};
-
 LayoutHistogram.prototype.zoomTimer = function(){
   timerLayout.loadBindingLayout();
 };
@@ -742,57 +688,5 @@ LayoutHistogram.prototype.loadBindingLayout = function(acrossChr){
   this.parentView.postGroupMessage(msg);
 };
 
-LayoutHistogram.prototype.showMsg = function(msg, ui){
-  this.removeLayout();
-  //$("#"+this.htmlid+" #hint").remove();
-  if (ui==null) ui = false;
-  $("#"+this.htmlid).append("<div id='hint' class='hint'></div>");
-  $("#"+this.htmlid+" #hint").text(msg).css({"width": this.width, "height":this.rawheight-(ui && !this.compactLayou?this.uiHeight:0) });
-};
 
-LayoutHistogram.prototype.showError = function(){
-  this.showMsg("Oops..this guy is dead. x_X", true);
-  this.renderUI();
-};
-
-LayoutHistogram.prototype.resizeLayout = function(newsize){
-  if (this.parentView.showHeader==false) newsize[1] += manager.headerHeight;
-
-  this.width = newsize[0];
-  this.rawheight = newsize[1];
-  this.height = newsize[1]-manager.headerHeight;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-
-LayoutHistogram.prototype.toggleAutoScale = function(){
-  this.autoScale = !this.autoScale;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-
-LayoutHistogram.prototype.toggleOverview = function(){
-  this.showOverview = !this.showOverview;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-
-LayoutHistogram.prototype.toggleExons = function(){
-  this.showExons = !this.showExons;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-
-LayoutHistogram.prototype.setCompact = function(compact){
-  this.compactLayout = compact;
-  //this.showOverview = !compact;
-  //this.showExons = !compact;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
 */

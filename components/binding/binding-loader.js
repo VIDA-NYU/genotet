@@ -29,19 +29,19 @@ BindingLoader.base = ViewLoader.prototype;
  * @override
  */
 BindingLoader.prototype.load = function(gene, chr, opt_track) {
-  var track = opt_track ? opt_track : 0;
-  this.loadTrack_(track, gene, chr);
+  var trackIndex = opt_track ? opt_track : 0;
+  this.loadTrack_(trackIndex, gene, chr);
   this.loadExons_(chr);
 };
 
 /**
  * Loads the data of a single binding track.
- * @param {number} track Track index.
+ * @param {number} trackIndex Track index.
  * @param {string} gene Gene name.
  * @param {string} chr Chromosome.
  * @private
  */
-BindingLoader.prototype.loadTrack_ = function(track, gene, chr) {
+BindingLoader.prototype.loadTrack_ = function(trackIndex, gene, chr) {
   this.signal('loadStart');
   var params = {
     type: 'binding',
@@ -49,7 +49,13 @@ BindingLoader.prototype.loadTrack_ = function(track, gene, chr) {
     chr: chr
   };
   $.get(Data.serverURL, params, function(data) {
-    this.data.tracks[track] = data;
+    var track = {
+      gene: gene,
+      chr: chr,
+      overview: data,
+      detail: data
+    };
+    this.data.tracks[trackIndex] = track;
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
     .fail(function() {
