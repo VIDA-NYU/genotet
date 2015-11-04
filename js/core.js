@@ -16,6 +16,7 @@ var Core = {
     ViewManager.init();
     Menu.init();
     Options.init();
+    PanelManager.init();
 
     // Allow turning off an alert.
     $('.alert button').click(function() {
@@ -27,7 +28,7 @@ var Core = {
       ViewManager.blurAllViews();
     });
 
-    Test.run();
+//    Test.run();
   },
 
   /**
