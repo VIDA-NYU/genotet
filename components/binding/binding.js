@@ -30,6 +30,10 @@ function BindingView(viewName, params) {
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.gene, params.chr);
   }.bind(this));
+
+  $(this.renderer).on('genotet.zoom', function(event, data) {
+    this.loader.loadTrackDetail(data.xl, data.xr);
+  }.bind(this));
 }
 
 BindingView.prototype = Object.create(View.prototype);

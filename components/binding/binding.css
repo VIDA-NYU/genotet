@@ -1,8 +1,8 @@
-.binding .overview rect {
+.binding .overviews rect {
   fill: #666;
 }
 
-.binding .detail rect {
+.binding .details rect {
   fill: #222;
   stroke: none;
 }
@@ -49,45 +49,9 @@
 }
 
 .binding.background {
-  fill: white;
   opacity: .0;
   x: 0;
   y: 0;
-}
-
-.iobj {
-  fill: red;
-  opacity: .0;
-}
-
-.izone {
-  fill: #4297d7;
-  opacity: .5;
-}
-
-.buttonOn {
-  fill: #4297d7;
-  opacity: .5;
-}
-.buttonOff {
-  fill: grey;
-  opacity: .5;
-}
-.buttonText {
-  text-anchor: middle;
-  pointer-events: none;
-}
-
-.bar {
-  fill: grey;
-  stroke: grey;
-  stroke-width: 0.5;
-}
-
-.obar {
-  fill: grey;
-  stroke: grey;
-  stroke-width: 0.5;
 }
 
 .frame {

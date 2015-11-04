@@ -119,3 +119,13 @@ ViewRenderer.prototype.showFailure = function() {
 ViewRenderer.prototype.hideFailure = function() {
   this.container.find('.popup .failure').hide();
 };
+
+
+/**
+ * Triggers a jQuery event on the renderer.
+ * @param {string} eventType Type of event.
+ * @param {Object} data Data object to be sent via the event.
+ */
+ViewRenderer.prototype.signal = function(eventType, data) {
+  $(this).trigger('genotet.' + eventType, [data]);
+};

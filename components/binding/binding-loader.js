@@ -30,7 +30,7 @@ BindingLoader.base = ViewLoader.prototype;
  */
 BindingLoader.prototype.load = function(gene, chr, opt_track) {
   var trackIndex = opt_track ? opt_track : 0;
-  this.loadTrack_(trackIndex, gene, chr);
+  this.loadFullTrack_(trackIndex, gene, chr);
   this.loadExons_(chr);
 };
 
@@ -41,7 +41,7 @@ BindingLoader.prototype.load = function(gene, chr, opt_track) {
  * @param {string} chr Chromosome.
  * @private
  */
-BindingLoader.prototype.loadTrack_ = function(trackIndex, gene, chr) {
+BindingLoader.prototype.loadFullTrack_ = function(trackIndex, gene, chr) {
   this.signal('loadStart');
   var params = {
     type: 'binding',
@@ -58,11 +58,31 @@ BindingLoader.prototype.loadTrack_ = function(trackIndex, gene, chr) {
     this.data.tracks[trackIndex] = track;
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
-    .fail(function() {
-      Core.error('cannot load binding data', JSON.stringify(params));
-      this.signal('loadFail');
-    }.bind(this));
-}
+    .fail(this.fail.bind(this, 'cannot load full binding track', params));
+};
+
+/**
+ * Loads the detail binding data for all tracks in a given range.
+ * @param {number} xl Range's left coordinate.
+ * @param {number} xr Range's right coordinate.
+ */
+BindingLoader.prototype.loadTrackDetail = function(xl ,xr) {
+  this.data.tracks.forEach(function(track) {
+    this.signal('loadStart');
+    var params = {
+      type: 'binding',
+      gene: track.gene,
+      chr: track.chr,
+      xl: xl,
+      xr: xr
+    };
+    $.get(Data.serverURL, params, function(data) {
+      track.detail = data;
+      this.signal('loadComplete');
+    }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot load binding detail', params));
+  }, this);
+};
 
 /**
  * Loads the exons info.

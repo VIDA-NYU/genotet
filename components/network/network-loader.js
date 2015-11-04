@@ -129,10 +129,7 @@ NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
     _(this.data).extend(data);
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
-    .fail(function() {
-      Core.error('cannot load network data', JSON.stringify(params));
-      this.signal('loadFail');
-    }.bind(this));
+    .fail(this.fail.bind(this, 'cannot load network', params));
 };
 
 /*

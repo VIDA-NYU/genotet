@@ -39,6 +39,12 @@ function BindingRenderer(container, data) {
   this.zoom_ = d3.behavior.zoom();
 
   /**
+   * X scale for the detail zooming.
+   * @private {!d3.zoom}
+   */
+  this.xScaleZoom_ = d3.scale.linear();
+
+  /**
    * Vertical translate value of the detail SVG group.
    * @private {number}
    */
@@ -48,6 +54,12 @@ function BindingRenderer(container, data) {
    * @private {number}
    */
   this.exonsTranslateY_;
+
+  /**
+   * Timer handle for the zoom interval.
+   * @private {number}
+   */
+  this.zoomTimer_;
 }
 
 BindingRenderer.prototype = Object.create(ViewRenderer.prototype);
@@ -58,6 +70,10 @@ BindingRenderer.base = ViewRenderer.prototype;
 BindingRenderer.prototype.EXON_HEIGHT = 35;
 /** @const {number} */
 BindingRenderer.prototype.EXON_SIZE = 10;
+/** @const {number} */
+BindingRenderer.prototype.EXON_CENTER_Y = 20;
+/** @const {number} */
+BindingRenderer.prototype.EXON_LABEL_OFFSET = 3;
 /** @const {number} */
 BindingRenderer.prototype.OVERVIEW_HEIGHT = 25;
 
@@ -76,7 +92,9 @@ BindingRenderer.prototype.STRAND_VERTICAL_SIZE = 3;
 BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
 
 /** @const {!Array<number>} */
-BindingRenderer.prototype.ZOOM_EXTENT = [1, 1000];
+BindingRenderer.prototype.ZOOM_EXTENT = [0.001, 1000];
+/** @const {number} */
+BindingRenderer.prototype.ZOOM_INTERVAL = 500;
 
 /**
  * Initializes the BindingRenderer properties.
@@ -89,18 +107,32 @@ BindingRenderer.prototype.init = function() {
     .on('zoom', this.zoomHandler_.bind(this))
     .on('zoomend', this.zoomEndHandler_.bind(this));
   this.detailHandle_.call(this.zoom_);
-  this.exonsHandle_.call(this.zoom_);
 };
 
 /** @inheritDoc */
 BindingRenderer.prototype.dataLoaded = function() {
-  if (this.detailXMin_ == Infinity) {
-    // Detail range has never been set.
-    this.data.tracks.forEach(function(track) {
-      this.detailXMin_ = Math.min(this.detailXMin_, track.detail.xMin);
-      this.detailXMax_ = Math.max(this.detailXMax_, track.detail.xMax);
-    }, this);
-  }
+  // Computes the detail range across all tracks.
+  this.detailXMin_ = Infinity;
+  this.detailXMax_ = -Infinity;
+  this.data.tracks.forEach(function(track) {
+    this.detailXMin_ = Math.min(this.detailXMin_, track.detail.xMin);
+    this.detailXMax_ = Math.max(this.detailXMax_, track.detail.xMax);
+  }, this);
+
+  // Reset zoom states.
+  this.zoomTranslate_ = [0, 0];
+  this.zoomScale_ = 1;
+  this.zoom_
+    .translate(this.zoomTranslate_)
+    .scale(this.zoomScale_);
+  this.xScaleZoom_
+    .domain([this.detailXMin_, this.detailXMax_])
+    .range([0, this.canvasWidth_]);
+  this.zoom_.x(this.xScaleZoom_);
+
+  this.detailContent_.attr('transform', '');
+  this.exonsContent_.attr('transform', '');
+
   this.render();
 };
 
@@ -234,9 +266,14 @@ BindingRenderer.prototype.render = function() {
  * @private
  */
 BindingRenderer.prototype.drawOverviews_ = function() {
+
   this.data.tracks.forEach(function(track) {
     var svg = this.overviewContent_.select('#' + track.gene);
-    this.drawHistogram_(svg, track.overview);
+    // TODO(bowen): Use global overview xMin, xMax.
+    var xScale = d3.scale.linear()
+      .domain([track.overview.xMin, track.overview.xMax])
+      .range([0, this.canvasWidth_]);
+    this.drawHistogram_(svg, track.overview, xScale);
   }, this);
 };
 
@@ -247,7 +284,7 @@ BindingRenderer.prototype.drawOverviews_ = function() {
 BindingRenderer.prototype.drawDetails_ = function() {
   this.data.tracks.forEach(function(track) {
     var svg = this.detailContent_.select('#' + track.gene);
-    this.drawHistogram_(svg, track.detail);
+    this.drawHistogram_(svg, track.detail, this.xScaleZoom_);
   }, this);
 };
 
@@ -255,9 +292,10 @@ BindingRenderer.prototype.drawDetails_ = function() {
  * Renders the binding data as a histogram.
  * @param {!d3.selection} svg SVG group for the overview.
  * @param {!Object} track Track data.
+ * @param {!d3.scale} xScale xScale applied for the histogram.
  * @private
  */
-BindingRenderer.prototype.drawHistogram_ = function(svg, track) {
+BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
   var bars = svg.selectAll('rect').data(track.values);
   bars.enter().append('rect');
   bars.exit().remove();
@@ -266,9 +304,6 @@ BindingRenderer.prototype.drawHistogram_ = function(svg, track) {
     return;
   }
   var height = svg.attr('height');
-  var xScale = d3.scale.linear()
-    .domain([track.xMin, track.xMax])
-    .range([0, this.canvasWidth_]);
   var yScale = d3.scale.linear()
     .domain([0, track.maxValue])
     .range([0, height]);
@@ -296,16 +331,18 @@ BindingRenderer.prototype.drawExons_ = function() {
     }
   }, this);
 
-  var xScale = d3.scale.linear()
-    .domain(detailRange)
-    .range([0, this.canvasWidth_]);
+  var xScale = this.xScaleZoom_;
 
-  var exonCenterY = this.EXON_HEIGHT / 2;
+  var exonCenterY = this.EXON_CENTER_Y;
   var exonHalfY = exonCenterY - this.EXON_SIZE / 4;
   var exonY = exonCenterY - this.EXON_SIZE / 2;
 
   if (exons.length > this.EXON_ABSTRACT_LIMIT) {
     // Render the exons in abstract shapes.
+
+    // First remove detailed exons.
+    this.exonsContent_.selectAll('g.exon').remove();
+
     var tx = this.exonsContent_.selectAll('.abstract').data(exons);
     tx.enter().append('rect')
       .classed('abstract', true)
@@ -319,9 +356,13 @@ BindingRenderer.prototype.drawExons_ = function() {
       })
       .attr('height', this.EXON_SIZE);
 
-    this.exonsContent_.selectAll('g.exon').remove();
+
   } else {
     // Render detailed exons.
+
+    // First remove abstract exons.
+    this.exonsContent_.selectAll('.abstract').remove();
+
     var gs = this.exonsContent_.selectAll('g.exon').data(exons);
     var gsEnter = gs.enter().append('g')
       .classed('exon', true);
@@ -401,8 +442,9 @@ BindingRenderer.prototype.drawExons_ = function() {
     }.bind(this));
 
     // Labels
+    var labelY = exonY - this.EXON_LABEL_OFFSET;
     gs.select('text')
-      .attr('y', exonY)
+      .attr('y', labelY)
       .attr('x', function(exon) {
         return xScale((exon.txStart + exon.txEnd) / 2);
       })
@@ -462,10 +504,13 @@ BindingRenderer.prototype.updateZoomHandles_ = function() {
  * @private
  */
 BindingRenderer.prototype.zoomHandler_ = function() {
+  clearTimeout(this.zoomTimer_);
+
   var translate = d3.event.translate;
   var scale = d3.event.scale;
 
   // Prevent horizontal panning out of range.
+  // TODO(bowen): Fix zoom-out out of range.
   translate[0] = Math.max(this.canvasWidth_ * (1 - scale), translate[0]);
   translate[0] = Math.min(0, translate[0]);
   // Prevent vertical panning.
@@ -476,8 +521,8 @@ BindingRenderer.prototype.zoomHandler_ = function() {
 
   var transform = Utils.getTransform(translate, [scale, 1]);
   this.detailContent_.attr('transform', transform);
-  this.exonsContent_.attr('transform', transform);
   this.drawDetails_();
+  this.drawExons_();
 };
 
 /**
@@ -485,7 +530,20 @@ BindingRenderer.prototype.zoomHandler_ = function() {
  * @private
  */
 BindingRenderer.prototype.zoomEndHandler_ = function() {
+  clearTimeout(this.zoomTimer_);
+  this.zoomTimer_ = setTimeout(this.zoomDetail_.bind(this), this.ZOOM_INTERVAL);
+};
 
+/**
+ * Fires an event to zoom the histogram details.
+ * @private
+ */
+BindingRenderer.prototype.zoomDetail_ = function() {
+  var xScaleInvert = this.xScaleZoom_.invert;
+  this.signal('zoom', {
+    xl: xScaleInvert(0),
+    xr: xScaleInvert(this.canvasWidth_)
+  });
 };
 
 /*

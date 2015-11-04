@@ -31,7 +31,7 @@
   border-top-left-radius: 4px;
   width: 250px;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #tab-slider {
