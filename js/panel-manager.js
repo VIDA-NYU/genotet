@@ -51,12 +51,13 @@ var PanelManager = {
       $('.sideways li').last().find('a').tab('show');
     }
     $('.panel-manager').css('display', count > 0 ? 'inline' : 'none');
-  }
+  },
 
-//  TODO(liana): Fixed closeAllPanels function.
-//  closeAllPanels: function(e){
-//    $('.sideways').empty();
-//    $('.tab-content').empty();
-//    $('.panel-manager').css('display', 'none');
-//  },
+  closeAllPanels: function(e){
+    $('.sideways').empty();
+    $('.sideways').append('<li id="li-init"><a href="#view-init" data-toggle="tab"></a></li>');
+    $('.tab-content').empty();
+    $('.tab-content').append('<div id="view-init" class="tab-pane active"></div>');
+    $('.panel-manager').css('display', 'none');
+  }
 };

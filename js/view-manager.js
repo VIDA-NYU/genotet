@@ -76,7 +76,7 @@ var ViewManager = {
       view.close();
     });
     this.views = {};
-//    PanelManager.closeAllPanels();
+    PanelManager.closeAllPanels();
   },
 
   /**
