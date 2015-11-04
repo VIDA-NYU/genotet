@@ -65,14 +65,13 @@ BindingRenderer.prototype.init = function() {
   this.zoomTranslate_ = [0, 0];
   /** @private {number} */
   this.zoomScale_ = 1.0;
+  /**
+   * Zooming state of the binding data tracks. 
+   * @private {d3.zoom}
+   */
+  this.zoom_;
+
   /*
-  // margin of main bars
-  this.mainbarTop = 8;
-  // exons
-  //this.exonsMargin = 20;
-  // focus range
-  this.focusleft = 0.0;
-  this.focusright = 0.0;
   // target range
   this.targetleft = 0.0;
   this.targetright = 0.0;
@@ -82,20 +81,6 @@ BindingRenderer.prototype.init = function() {
   // cursor line position (by data x)
   this.cursorX = 0.0;
   this.cursorPercent = -1.0;
-
-  // translation (by data x)
-  this.transX = 0.0;
-
-  // when zooming/dragging, render sample
-  this.zooming = false;
-  this.dragging = false;
-  this.loading = false;
-
-  // zoom bar
-  this.zoombarHeight = 10;
-
-  // auto-adjusted y-scale
-  this.bottomMargin = 5;
   */
 };
 
@@ -118,7 +103,7 @@ BindingRenderer.prototype.initLayout = function() {
    * SVG group for the binding tracks.
    * @private {!d3.selection}
    */
-  this.svgTracks_ = this.canvas.append('g')
+  this.svgBinding_ = this.canvas.append('g')
     .classed('tracks', true);
   /**
    * SVG group for the exons.
@@ -134,7 +119,7 @@ BindingRenderer.prototype.initLayout = function() {
  */
 BindingRenderer.prototype.layout = function() {
   var numTracks = this.data.tracks.length;
-  var tracks = this.svgTracks_.selectAll('g.track')
+  var tracks = this.svgBinding_.selectAll('g.track')
     .data(this.data.tracks, function(track) {
       return track.gene;
     });
@@ -151,6 +136,13 @@ BindingRenderer.prototype.layout = function() {
 
   this.svgExons_.attr('transform',
       Utils.getTransform([0, this.canvasHeight_ - this.EXON_HEIGHT]));
+
+  this.zoom_ = d3.behavior.zoom()
+  	.scaleExtent([1, 1000])
+	.on('zoom', this.zoomHandler.bind(this)),
+	.on('zoomEnd', this.zoomHandler.bind(this, true)); 
+
+  this.svgBinding_.call(this.zoom_);
 };
 
 /** @inheritDoc */
@@ -381,7 +373,19 @@ BindingRenderer.prototype.resize = function() {
   this.trackHeight_ = totalHeight / (numTracks ? numTracks : 1);
 };
 
+/**
+ * Handles mouse zoom event.
+ * @private
+ */
+BindingRenderer.prototype.zoomHandler_ = function() {
+  var translate = d3.event.translate;
+  var scale = d3.event.scale;
 
+  this.zoomTranslate_ = translate;
+  this.zoomScale_ = scale;
+  
+  this.svgBinding_.attr('transform', Utils.getTransform(translate, scale));
+};
 /*
 LayoutHistogram.prototype.reloadData = function() {
   var data = this.data;
