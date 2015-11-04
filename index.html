@@ -26,7 +26,7 @@
   <link type="text/css" rel="stylesheet" href="css/style.css" rel="stylesheet"/>
   <link type="text/css" rel="stylesheet" href="css/dialog.css" rel="stylesheet"/>
   <link type="text/css" rel="stylesheet" href="css/overwrite.css" rel="stylesheet"/>
-  <link type="text/css" rel="stylesheet" href="css/side-panel.css" rel="stylesheet"/>
+  <link type="text/css" rel="stylesheet" href="css/panel.css" rel="stylesheet"/>
 
   <!-- components -->
   <!-- base -->
@@ -61,12 +61,12 @@
   <script type="text/javascript" src="js/data.js"></script>
   <script type="text/javascript" src="js/menu.js"></script>
   <script type="text/javascript" src="js/view-manager.js"></script>
+  <script type="text/javascript" src="js/panel-manager.js"></script>
   <script type="text/javascript" src="js/welcome.js"></script>
   <script type="text/javascript" src="js/dialog.js"></script>
   <script type="text/javascript" src="js/options.js"></script>
   <script type="text/javascript" src="js/core.js"></script>
   <script type="text/javascript" src="js/test.js"></script>
-  <script type="text/javascript" src="js/side-panel.js"></script>
 
   <!-- program entry -->
   <script>
@@ -131,7 +131,26 @@
       </div>
     </div>
   </div>
-  <div class="side-panel">
+  <div id="side-panel" class="active" style="display: none;">
+    <div id="btnToggle">
+      <button class="btn btn-default">
+        <span id="icon-button" class="glyphicon glyphicon-chevron-right"></span>
+      </button>
+    </div>
+    <div id="slider">
+      <div id="tab-slider" class="col-xs-3"> <!-- required for floating -->
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs tabs-left sideways">
+          <li id="panel-tab-init"><a href="#view-init" data-toggle="tab"></a></li>
+        </ul>
+      </div>
+      <div id="tab-content-slider" class="col-xs-9">
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div id="panel-view-init" class="tab-pane active"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>
