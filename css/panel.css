@@ -1,7 +1,7 @@
 #side-panel {
   right: -218px;
   height: auto;
-  top: 65px;
+  top: 35px;
   bottom: 30px;
   position: fixed;
   z-index: 1;
