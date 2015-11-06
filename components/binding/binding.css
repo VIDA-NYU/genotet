@@ -4,10 +4,10 @@
 
 .binding .details rect {
   fill: #222;
-  stroke: none;
 }
 
-.binding .exons rect {
+.binding .exons rect,
+.binding .exons path {
   fill: #031c51;
   stroke: none;
 }
@@ -18,7 +18,7 @@
 }
 
 .binding .exons text {
-  font-size: 10px;
+  font-size: 11px;
   text-anchor: middle;
 }
 
@@ -28,30 +28,20 @@
   width: 100%;
 }
 
-.txbox {
-  fill: #61576d;
-  stroke: none;
+.binding line.baseline {
+  stroke: #aaa;
+  stroke-width: 1px;
+  opacity: 0.5;
 }
 
-.exonstrand {
-  fill: #4f455c;
-  stroke: none;
-}
-
-.label {
-  font-family: arial, sans-serif;
+.binding .label {
   text-anchor: middle;
   pointer-events: none;
-  /*
-   font-size: 10px;
-   fill: black;
-   */
 }
 
-.binding.background {
-  opacity: .0;
-  x: 0;
-  y: 0;
+.binding .overviews rect.range {
+  fill: #031c51;
+  opacity: 0.25;
 }
 
 .frame {

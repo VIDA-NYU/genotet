@@ -1,6 +1,6 @@
 /**
- * @fileoverview Contains some utility functions shared within the Genotet
- * codebase.
+ * @fileoverview Utility functions shared within the Genotet. This file also
+ * extends a few common/library prototypes.
  */
 
 'use strict';
@@ -260,4 +260,17 @@ var Utils = {
     return exp;
   }
   */
+};
+
+/**
+ * Swaps the elements at index i and j in an array.
+ * @param {number} i Element index.
+ * @param {number} j Element index.
+ * @returns {!Array<number>}
+ */
+Array.prototype.swap = function(i, j) {
+  var tmp = this[i];
+  this[i] = this[j];
+  this[j] = tmp;
+  return this;
 };

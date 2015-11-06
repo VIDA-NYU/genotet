@@ -21,10 +21,15 @@ function BindingRenderer(container, data) {
    */
   this.detailHeight_ = 0;
 
+  // Overview range.
+  /** @private {number} */
+  this.overviewXMin_ = Infinity;
+  /** @private {number} */
+  this.overviewXMax_ = -Infinity;
   // LOD range.
   /** @private {number} */
   this.detailXMin_ = Infinity;
-  /** @private {numebr} */
+  /** @private {number} */
   this.detailXMax_ = -Infinity;
 
   // Navigation state.
@@ -38,6 +43,11 @@ function BindingRenderer(container, data) {
    */
   this.zoom_ = d3.behavior.zoom();
 
+  /**
+   * X scale that maps bars to corresponding positions.
+   * @private {!d3.zoom}
+   */
+  this.xScaleDetail_ = d3.scale.linear();
   /**
    * X scale for the detail zooming.
    * @private {!d3.zoom}
@@ -82,7 +92,7 @@ BindingRenderer.prototype.OVERVIEW_HEIGHT = 25;
  * abstract rectangles.
  * @type {number}
  */
-BindingRenderer.prototype.EXON_ABSTRACT_LIMIT = 100;
+BindingRenderer.prototype.EXON_ABSTRACT_LIMIT = 200;
 
 /** @const {number} */
 BindingRenderer.prototype.STRAND_HORIZONTAL_SIZE = 5;
@@ -92,7 +102,7 @@ BindingRenderer.prototype.STRAND_VERTICAL_SIZE = 3;
 BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
 
 /** @const {!Array<number>} */
-BindingRenderer.prototype.ZOOM_EXTENT = [0.001, 1000];
+BindingRenderer.prototype.ZOOM_EXTENT = [1, 65536];
 /** @const {number} */
 BindingRenderer.prototype.ZOOM_INTERVAL = 500;
 
@@ -102,37 +112,80 @@ BindingRenderer.prototype.ZOOM_INTERVAL = 500;
 BindingRenderer.prototype.init = function() {
   BindingRenderer.base.init.call(this);
 
+  // Set up the detailed histogram zoom.
   this.zoom_ = d3.behavior.zoom()
     .scaleExtent(this.ZOOM_EXTENT)
     .on('zoom', this.zoomHandler_.bind(this))
     .on('zoomend', this.zoomEndHandler_.bind(this));
   this.detailHandle_.call(this.zoom_);
+  this.exonsHandle_.call(this.zoom_);
+
+  // Set up the overview drag range selection.
+  var dragRange = [];
+  this.drag_ = d3.behavior.drag()
+    .on('drag', function() {
+      var x = d3.event.x;
+      if (dragRange[0] == null) {
+        dragRange[0] = x;
+      } else {
+        dragRange[1] = x;
+        this.drawOverviewRange_([
+          this.xScaleDetail_.invert(Math.min(dragRange[0], dragRange[1])),
+          this.xScaleDetail_.invert(Math.max(dragRange[0], dragRange[1]))
+        ]);
+      }
+    }.bind(this))
+    .on('dragend', function() {
+      if (dragRange[0] == null || dragRange[1] == null) {
+        // Mouse doesn't move. Skip the event.
+        return;
+      }
+      this.zoomDetail_([
+        this.xScaleDetail_.invert(Math.min(dragRange[0], dragRange[1])),
+        this.xScaleDetail_.invert(Math.max(dragRange[0], dragRange[1]))
+      ]);
+      // Reset dragging range.
+      dragRange = [];
+    }.bind(this));
+  this.overviewHandle_.call(this.drag_);
+};
+
+/**
+ * Updates the binding data overview and detail ranges.
+ * @private
+ */
+BindingRenderer.prototype.getBindingRanges_ = function() {
+  var prevOverviewXMin_ = this.overviewXMin_,
+      prevOverviewXMax_ = this.overviewXMax_;
+  // Computes the detail range across all tracks.
+  this.detailXMin_ = this.overviewXMin_ = Infinity;
+  this.detailXMax_ = this.overviewXMax_ = -Infinity;
+  this.data.tracks.forEach(function(track) {
+    this.detailXMin_ = Math.min(this.detailXMin_, track.detail.xMin);
+    this.detailXMax_ = Math.max(this.detailXMax_, track.detail.xMax);
+    this.overviewXMin_ = Math.min(this.overviewXMin_, track.overview.xMin);
+    this.overviewXMax_ = Math.max(this.overviewXMax_, track.overview.xMax);
+  }, this);
+
+  if (this.overviewXMin_ != prevOverviewXMin_ ||
+      this.overviewXMax_ != prevOverviewXMax_) {
+    // Overview range changes. Need to reset zoom state.
+    this.xScaleZoom_
+      .domain([this.overviewXMin_, this.overviewXMax_])
+      .range([0, this.canvasWidth_]);
+    this.zoom_.x(this.xScaleZoom_);
+
+    this.xScaleDetail_
+      .domain([this.overviewXMin_, this.overviewXMax_])
+      .range([0, this.canvasWidth_]);
+
+    this.detailContent_.attr('transform', '');
+  }
 };
 
 /** @inheritDoc */
 BindingRenderer.prototype.dataLoaded = function() {
-  // Computes the detail range across all tracks.
-  this.detailXMin_ = Infinity;
-  this.detailXMax_ = -Infinity;
-  this.data.tracks.forEach(function(track) {
-    this.detailXMin_ = Math.min(this.detailXMin_, track.detail.xMin);
-    this.detailXMax_ = Math.max(this.detailXMax_, track.detail.xMax);
-  }, this);
-
-  // Reset zoom states.
-  this.zoomTranslate_ = [0, 0];
-  this.zoomScale_ = 1;
-  this.zoom_
-    .translate(this.zoomTranslate_)
-    .scale(this.zoomScale_);
-  this.xScaleZoom_
-    .domain([this.detailXMin_, this.detailXMax_])
-    .range([0, this.canvasWidth_]);
-  this.zoom_.x(this.xScaleZoom_);
-
-  this.detailContent_.attr('transform', '');
-  this.exonsContent_.attr('transform', '');
-
+  this.getBindingRanges_();
   this.render();
 };
 
@@ -175,6 +228,13 @@ BindingRenderer.prototype.initLayout = function() {
    */
   this.exonsContent_ = this.svgExons_.append('g')
     .classed('content', true);
+
+  /**
+   * SVG rect for overview range.
+   * @private {!d3.selection}
+   */
+  this.overviewRange_ = this.overviewContent_.append('rect')
+    .classed('range', true);
 
   // Add invisible handles for zooming. Handles shall be created after
   // the contents so that the handles appear on top of the rendered
@@ -252,6 +312,9 @@ BindingRenderer.prototype.layout = function() {
 
 /** @inheritDoc */
 BindingRenderer.prototype.render = function() {
+  if (!this.dataReady_()) {
+    return;
+  }
   // Call layout to adjust the binding track positions so as to adapt to
   // multiple binding tracks.
   this.layout();
@@ -266,15 +329,14 @@ BindingRenderer.prototype.render = function() {
  * @private
  */
 BindingRenderer.prototype.drawOverviews_ = function() {
-
+  var xScale = d3.scale.linear()
+    .domain([this.overviewXMin_, this.overviewXMax_])
+    .range([0, this.canvasWidth_]);
   this.data.tracks.forEach(function(track) {
     var svg = this.overviewContent_.select('#' + track.gene);
-    // TODO(bowen): Use global overview xMin, xMax.
-    var xScale = d3.scale.linear()
-      .domain([track.overview.xMin, track.overview.xMax])
-      .range([0, this.canvasWidth_]);
     this.drawHistogram_(svg, track.overview, xScale);
   }, this);
+  this.drawOverviewRange_();
 };
 
 /**
@@ -284,7 +346,7 @@ BindingRenderer.prototype.drawOverviews_ = function() {
 BindingRenderer.prototype.drawDetails_ = function() {
   this.data.tracks.forEach(function(track) {
     var svg = this.detailContent_.select('#' + track.gene);
-    this.drawHistogram_(svg, track.detail, this.xScaleZoom_);
+    this.drawHistogram_(svg, track.detail, this.xScaleDetail_);
   }, this);
 };
 
@@ -308,15 +370,46 @@ BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
     .domain([0, track.maxValue])
     .range([0, height]);
 
-  var barWidth = this.canvasWidth_ / track.values.length;
+  var barWidth = (xScale(track.xMax) - xScale(track.xMin)) /
+      (track.values.length - 1);
   bars
     .attr('transform', function(bar) {
       return Utils.getTransform([xScale(bar.x), height - yScale(bar.value)]);
     }.bind(this))
-    .attr('width', barWidth)
+    .attr('width', function(bar, index) {
+      if (index == track.values.length - 1) {
+        return 0;
+      }
+      return xScale(track.values[index + 1].x) - xScale(bar.x);
+    })
     .attr('height', function(bar) {
       return yScale(bar.value);
     });
+
+  if (svg.select('.baseline').empty()) {
+    svg.append('line')
+      .classed('baseline', true);
+  }
+  svg.select('.baseline')
+    .attr('transform', Utils.getTransform([0, height]))
+    .attr('x1', 0)
+    .attr('x2', this.canvasWidth_);
+};
+
+/**
+ * Renders the highlighted range in the overview.
+ * If the range is explicitly given, then render the given range.
+ * @param {Array<number>=} opt_range The range to be drawn, in screen coordinate.
+ * @private
+ */
+BindingRenderer.prototype.drawOverviewRange_ = function(opt_range) {
+  var range = opt_range ? opt_range : [this.detailXMin_, this.detailXMax_];
+  var numTracks = this.data.tracks.length;
+  var xScale = this.xScaleDetail_;
+  this.overviewRange_
+    .attr('height', this.OVERVIEW_HEIGHT * numTracks)
+    .attr('x', xScale(range[0]))
+    .attr('width', xScale(range[1]) - xScale(range[0]));
 };
 
 /**
@@ -332,6 +425,17 @@ BindingRenderer.prototype.drawExons_ = function() {
   }, this);
 
   var xScale = this.xScaleZoom_;
+
+  var getLabelRange = function(exon) {
+    var mid = xScale((exon.txStart + exon.txEnd) / 2);
+    var span = exon.name2.length / 2 * this.EXON_LABEL_SIZE;
+    return [mid - span, mid + span];
+  }.bind(this);
+  exons.sort(function(exon1, exon2) {
+    var range1 = getLabelRange(exon1);
+    var range2 = getLabelRange(exon2);
+    return range1[0] - range2[0] || range1[1] - range2[1];
+  });
 
   var exonCenterY = this.EXON_CENTER_Y;
   var exonHalfY = exonCenterY - this.EXON_SIZE / 4;
@@ -355,15 +459,16 @@ BindingRenderer.prototype.drawExons_ = function() {
         return xScale(exon.txEnd) - xScale(exon.txStart);
       })
       .attr('height', this.EXON_SIZE);
-
-
   } else {
     // Render detailed exons.
 
     // First remove abstract exons.
     this.exonsContent_.selectAll('.abstract').remove();
 
-    var gs = this.exonsContent_.selectAll('g.exon').data(exons);
+    var gs = this.exonsContent_.selectAll('g.exon')
+      .data(exons, function(exon) {
+        return exon.name2;
+      });
     var gsEnter = gs.enter().append('g')
       .classed('exon', true);
     gsEnter.append('text'); // For label
@@ -384,6 +489,8 @@ BindingRenderer.prototype.drawExons_ = function() {
     // Outside cds range, half size
     var txs = gs.selectAll('.txbox').data(function(exon) {
       return exon.txRanges;
+    }, function(exon) {
+      return exon.name2;
     });
     txs.enter().append('rect')
       .classed('txbox', true)
@@ -442,26 +549,25 @@ BindingRenderer.prototype.drawExons_ = function() {
     }.bind(this));
 
     // Labels
+    // Greedily layout the labels so that they are not overlapping.
+    // Labels are sorted by their left & right endpoints. We add the label only
+    // when it does not overlap with the previous label.
     var labelY = exonY - this.EXON_LABEL_OFFSET;
+    var lastLabelRight = -Infinity;
     gs.select('text')
       .attr('y', labelY)
       .attr('x', function(exon) {
         return xScale((exon.txStart + exon.txEnd) / 2);
       })
-      .text(function(exon, index) {
-        if (index) {
-          // Prevent overlap with the label on the left.
-          var prevExon = exons[index - 1];
-          var dist = Math.abs(xScale((prevExon.txStart + prevExon.txEnd) / 2 -
-              (exon.txStart + exon.txEnd) / 2));
-          var nameWidth = (exon.name2.length + prevExon.name2.length) / 2 *
-              this.EXON_LABEL_SIZE;
-          if (nameWidth > dist) {
-            return '';
-          }
+      .text(function(exon) {
+        var range = getLabelRange(exon);
+        if (range[0] < lastLabelRight) {
+          // Overlap skip.
+          return '';
         }
+        lastLabelRight = Math.max(lastLabelRight, range[1]);
         return exon.name2;
-      });
+      }.bind(this));
   }
 };
 
@@ -510,7 +616,6 @@ BindingRenderer.prototype.zoomHandler_ = function() {
   var scale = d3.event.scale;
 
   // Prevent horizontal panning out of range.
-  // TODO(bowen): Fix zoom-out out of range.
   translate[0] = Math.max(this.canvasWidth_ * (1 - scale), translate[0]);
   translate[0] = Math.min(0, translate[0]);
   // Prevent vertical panning.
@@ -518,11 +623,17 @@ BindingRenderer.prototype.zoomHandler_ = function() {
 
   this.zoomTranslate_ = translate;
   this.zoomScale_ = scale;
+  this.zoom_.translate(translate);
 
   var transform = Utils.getTransform(translate, [scale, 1]);
   this.detailContent_.attr('transform', transform);
+
+  // Update the detail range visually immediately so that the user can get a
+  // hint of the zoom effect.
+  this.drawOverviewRange_(this.screenRangeToBindingCoordinates_());
+
   this.drawDetails_();
-  this.drawExons_();
+  this.drawExons_()
 };
 
 /**
@@ -535,216 +646,54 @@ BindingRenderer.prototype.zoomEndHandler_ = function() {
 };
 
 /**
- * Fires an event to zoom the histogram details.
+ * Maps a screen range to the data domain binding coordinates.
+ * @param {Array<number>=} opt_range Screen range. If not given, the function
+ *     uses the full view width [0, width].
+ * @return {!Array<number>} The detail range.
  * @private
  */
-BindingRenderer.prototype.zoomDetail_ = function() {
+BindingRenderer.prototype.screenRangeToBindingCoordinates_ = function(opt_range) {
+  var range = opt_range ? opt_range : [0, this.canvasWidth_];
   var xScaleInvert = this.xScaleZoom_.invert;
+  return [xScaleInvert(range[0]), xScaleInvert(range[1])];
+};
+
+/**
+ * Fires an event to zoom the histogram details.
+ * @param {Array<number>=} opt_range The detail range to zoom into.
+ * @private
+ */
+BindingRenderer.prototype.zoomDetail_ = function(opt_range) {
+  var range = opt_range ? opt_range : this.screenRangeToBindingCoordinates_();
   this.signal('zoom', {
-    xl: xScaleInvert(0),
-    xr: xScaleInvert(this.canvasWidth_)
+    xl: range[0],
+    xr: range[1]
   });
+  this.zoomTransform_(range);
 };
 
-/*
-LayoutHistogram.prototype.renderMain = function() {
-  var layout = this;
-  this.svg = d3.select('#' + this.htmlid + ' #layoutwrapper').append('svg')
-    .style('height', this.mainHeight)
-    .style('width', manager.embedSize(this.width));
-
-  var name = this.data.name,
-    chr = this.data.chr,
-    valsall = this.data.histogramData.values;
-    vals = new Array();
-
-  for (var i = 0; i < valsall.length; i++) {
-      if (valsall[i].x >= this.focusleft && valsall[i].x <= this.focusright)
-      vals.push(valsall[i]);
-  }
-  if (vals.length == 0) vals.push({'x': Math.round(this.focusleft), 'value': 0}); // focusleft = focusright
-
-  var barWidth = this.width / vals.length;
-
-  // the xmin, xmax label
-  var sidelabel = this.svg.selectAll('.label').data([this.focusleft, this.focusright]).enter().append('text')
-    .attr('class', 'xlabel')
-    .attr('text-anchor', function(d, i) { return !i ? 'start' : 'end'; })
-    .attr('x', function(d, i) { return !i ? 0 : layout.width - 5; })
-    .attr('y', layout.mainbarY + layout.mainbarHeight + this.zoombarHeight - 2)
-    .text(function(d) { return Math.floor(d).toString(); });
-  this.mainbar = this.svg.selectAll('.bar').data(vals).enter().append('rect')
-    .attr('class', 'bar')
-    .attr('x', function(d, i) { return i * barWidth; })
-    .attr('y', function(d) { return layout.mainbarY + layout.mainbarHeight - d.value * layout.barHeightFactor; })
-    .attr('width', barWidth)
-    .attr('height', function(d) { return Math.max(d.value * layout.barHeightFactor, 0.1); });
-  // calculate coordinate lines
-  var coords = new Array();
-  for (var i = 0; i <= this.numCoords; i++) {  // has actually numCoords+1 lines
-    var curval = i * this.maxval / this.numCoords; //i*(this.maxval-this.minval)/this.numCoords + this.minval;
-    curval = Math.round(curval * 10) / 10;
-      coords.push(curval);
-  }
-  var coordline = this.svg.selectAll('.coordline').data(coords).enter().append('line')
-    .attr('class', 'coordline')
-    .attr('x1', 0)
-    .attr('y1', function(d, i) { return layout.mainbarY + i * layout.mainbarHeight / layout.numCoords; })
-    .attr('x2', this.width)
-    .attr('y2', function(d, i) { return layout.mainbarY + i * layout.mainbarHeight / layout.numCoords; });
-  var coordlabel = this.svg.selectAll('.coordlabel').data(coords).enter().append('text')
-    .attr('class', 'coordlabel')
-    .attr('x', this.width - 5)
-    .attr('y', function(d, i) { return layout.mainbarTop + (layout.numCoords - i) * layout.mainbarHeight / layout.numCoords; })
-    .text(function(d) { return d.toString(); });
-  //if(this.compactLayout){
-    var genename = this.svg.selectAll('#trackhint').data([{}]).enter().append('text')
-    .attr('class', 'trackhint')
-    .attr('id', 'trackhint')
-    .attr('x', 0).attr('y', this.mainbarTop + 5)
-    .text(this.data.name + ' Chr' + this.data.chr);
-  //}
-
-  this.zoom = d3.behavior.zoom();
-  this.mainbariobj = this.svg.selectAll('#mainbariobj').data([{}]).enter().append('rect')
-    .attr('class', 'iobj')
-    .attr('id', 'mainbariobj').attr('x', 0).attr('y', layout.mainbarY)
-    .attr('width', this.width)
-    .attr('height', this.mainbarHeight)
-    .call(this.zoom
-      .on('zoomstart', function(d) { return layout.mainbarZoomstart(d); })
-      .on('zoom', function(d) { return layout.mainbarZoom(d); })
-      .on('zoomend', function(d) { return layout.mainbarZoomend(d); })
-    );
-
-  this.zbzoom = d3.behavior.zoom();
-  this.zoombar = this.svg.selectAll('#zoombar').data([{}]).enter().append('rect')
-    .attr('class', 'zoombar')
-    .attr('id', 'zoombar')
-    .attr('x', 0)
-    .attr('y', this.mainbarHeight + this.mainbarTop)
-    .attr('width', this.width)
-    .attr('height', this.zoombarHeight)
-    .call(this.zbzoom
-      .on('zoomstart', function(d) { return layout.zoombarZoomstart(d); })
-      .on('zoom', function(d) { return layout.zoombarZoom(d); })
-      .on('zoomend', function(d) { return layout.zoombarZoomend(d); })
-    );
-  var zoombarSel = this.svg.selectAll('#zoombarSel').data([{}]).enter().append('rect')
-    .attr('class', 'zoombar_sel')
-    .attr('id', 'zoombarSel')
-    .attr('x', this.zoombarLeft)
-    .attr('y', this.mainbarHeight + this.mainbarTop)
-    .attr('width', this.zoombarRight - this.zoombarLeft)
-    .attr('height', this.zoombarHeight)
-    .call(this.zbzoom
-      .on('zoomstart', function(d) { return layout.zoombarZoomstart(d); })
-      .on('zoom', function(d) { return layout.zoombarZoom(d); })
-      .on('zoomend', function(d) { return layout.zoombarZoomend(d); })
-    );
-    //.call(d3.behavior.drag()
-    //  .on("dragstart", function(d) { return layout.mainbarDragstart(d); })
-    //  .on("drag", function(d) { return layout.mainbarDrag(d); })
-    //  .on("dragend", function(d) { return layout.mainbarDragend(d); })
-    //)
+/**
+ * Sets the zoom transform to make the given binding range appear zoomed into.
+ * @param {!Array<number>} range The range to zoom into.
+ * @private
+ */
+BindingRenderer.prototype.zoomTransform_ = function(range) {
+  var overviewSpan = this.overviewXMax_ - this.overviewXMin_;
+  var scale = overviewSpan / (range[1] - range[0]);
+  var translate = [-this.xScaleDetail_(range[0]) * scale, 0];
+  this.zoomTranslate_ = translate;
+  this.zoomScale_ = scale;
+  this.xScaleZoom_.domain(range);
+  this.zoom_
+    .scale(scale)
+    .translate(translate);
+  this.detailContent_.attr('transform', Utils.getTransform(translate, [scale, 1]));
 };
 
-
-LayoutHistogram.prototype.renderOverview = function() {
-  var layout = this;
-  var valsall = this.data.overviewData.values;
-
-  $('#' + this.htmlid + ' #layoutwrapper #svgov').remove();
-
-  this.svgov = d3.select('#' + this.htmlid + ' #layoutwrapper').append('svg')
-    .attr('id', 'svgov')
-    .style('height', this.overviewHeight)
-    .style('width', this.width);
-
-  var overviewbar = this.svgov.selectAll('.obar').data(valsall).enter().append('rect')
-    .attr('id', 'obar')
-    .attr('class', 'obar')
-    .attr('x', function(d, i) { return layout.overviewX + i * layout.obarWidth; })
-    .attr('y', function(d) { return layout.overviewY + layout.overviewHeight - d.value * layout.obarHeightFactor - 5; })
-    .attr('width', layout.obarWidth)
-    .attr('height', function(d) { return Math.max(d.value * layout.obarHeightFactor, 0.1); });
-
-  // focus board
-  var focusrange = this.svgov.selectAll('#focusrange').data([{}]).enter().append('rect')
-    .attr('id', 'focusrange')
-    .attr('class', 'focusrange')
-    .attr('x', this.overviewX + (this.focusleft - this.xmin) / this.xspan * this.overviewWidth)
-    .attr('y', this.overviewY)
-    .attr('width', Math.max(1, (this.focusright - this.focusleft) / this.xspan * this.overviewWidth))
-    .attr('height', this.overviewHeight);
-
-  var overviewFrame = this.svgov.selectAll('#obarframe').data([{}]).enter().append('rect')
-    .attr('class', 'frame')
-    .attr('x', this.overviewX)
-    .attr('y', this.overviewY)
-    .attr('width', this.overviewWidth)
-    .attr('height', this.overviewHeight);
-
-  this.obariobj = this.svgov.selectAll('#obariobj').data([{}]).enter().append('rect')
-    .attr('id', 'obariobj')
-    .attr('class', 'iobj')
-    .attr('x', this.overviewX)
-    .attr('y', this.overviewY)
-    .attr('width', this.overviewWidth)
-    .attr('height', this.overviewHeight)
-    .call(d3.behavior.drag()
-      //.origin(function(d) {  d.x = layout.overviewX-layout.focusiborder; d.y = layout.overviewY-layout.focusiborder; return d; } )
-      .on('dragstart', function(d) { return layout.selectOverviewStart(d); })
-      .on('drag', function(d) { return layout.selectOverview(d); })
-      .on('dragend', function(d) { return layout.selectOverviewEnd(d); })
-    );
+/**
+ * Checks whether the data has been loaded.
+ * @private
+ */
+BindingRenderer.prototype.dataReady_ = function() {
+  return this.data.tracks.length;
 };
-
-LayoutHistogram.prototype.selectOverviewStart = function(d){
-  if(this.loading == true) return;
-  this.zooming = true;
-  var rect = this.obariobj[0][0];
-  var x = d3.mouse(rect)[0]; // get mouse x
-  this.focusx1 = x;
-  this.focusx2 = this.focusx1;
-  this.updateFocusrange();
-};
-
-LayoutHistogram.prototype.selectOverview = function(d){
-  if(this.loading == true) return;
-  var rect = this.obariobj[0][0];
-  var x = d3.mouse(rect)[0]; // get mouse x
-  x = Math.max(x, 0); x = Math.min(x, this.overviewWidth);
-  this.focusx2 = x;
-
-  var xl = Math.min(this.focusx1, this.focusx2),
-    xr = Math.max(this.focusx1, this.focusx2);
-  this.focusleft = xl/this.overviewWidth*this.xspan + this.xmin;
-  this.focusright = xr/this.overviewWidth*this.xspan + this.xmin;
-  this.focusright = Math.max(this.focusleft+0.1, this.focusright);  // avoid zero span
-  this.updateFocusrange();
-  this.updateMainbar();
-};
-
-LayoutHistogram.prototype.selectOverviewEnd = function(d){
-  if(this.loading == true) return;
-  this.zooming = false;
-  //this.updateMainbar();
-  this.loadBindingLayout();
-};
-
-LayoutHistogram.prototype.zoomTimer = function(){
-  timerLayout.loadBindingLayout();
-};
-
-LayoutHistogram.prototype.loadBindingLayout = function(acrossChr){
-  if(acrossChr==null) acrossChr = false;
-  this.loading = true;
-  var xl = Math.round(this.focusleft), xr = Math.round(this.focusright);
-  this.parentView.loader.loadBindingFromLayout(acrossChr, this.data.name, this.data.chr, xl, xr);
-  var msg = {"action":"focus", "chr":this.data.chr, "xl":xl, "xr": xr};
-  this.parentView.postGroupMessage(msg);
-};
-
-
-*/
