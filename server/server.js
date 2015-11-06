@@ -38,7 +38,8 @@ var networkAddr;
  */
 var expmatAddr;
 /**
- *
+ * Path of bigwig to Wig conversion script
+ * @type {string}
  */
 var bigwigtoWigAddr;
 
@@ -62,9 +63,10 @@ function config() {
       case 'expressionPath':
         expmatAddr = value;
         break;
+      case 'bigwigtoWigPath':
+        bigwigtoWigAddr = value;
     }
   }
-  bigwigtoWigAddr = tokens[9];
 }
 // Configures the server paths.
 config();
@@ -128,6 +130,23 @@ var tfamatFile = {
 app.post('/genotet', function(req, res) {
   var type = req.body.type;
   console.log('POST', type);
+
+  switch(type) {
+    // upload
+    case 'upload':
+      var fileType = req.query.type;
+
+      var prefix;
+      if (fileType == 'network') {
+        prefix = networkAddr;
+      } else if (fileType == 'wiggle') {
+        prefix = wiggleAddr;
+      } else if (fileType == 'expmat') {
+        prefix = expmatAddr;
+      }
+
+      uploader.uploadFile(req.query, prefix, bigwigtoWigAddr);
+  }
 });
 
 /**
@@ -223,9 +242,6 @@ app.get('/genotet', function(req, res) {
       data = expmat.getExpmatLine(fileExp, fileTfa, name);
       break;
 
-    // Upload data
-    case 'upload':
-      uploader.uploadFile(req.query, wiggleAddr, networkAddr, expmatAddr, bigwigtoWigAddr, genecodes);
 
     // Undefined type, error
     default:
