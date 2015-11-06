@@ -59,6 +59,12 @@ ViewRenderer.prototype.init = function() {
  */
 ViewRenderer.prototype.initLayout = function() {};
 
+
+/**
+ * Sets the layout for the next iteration of rendering.s
+ */
+ViewRenderer.prototype.layout = function() {};
+
 /**
  * Renders the view graphics.
  */
