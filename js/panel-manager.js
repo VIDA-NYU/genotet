@@ -62,7 +62,7 @@ var PanelManager = {
     $('#panel-view-init').clone()
       .attr('id', 'panel-view-' + viewID)
       .appendTo('.tab-content');
-    $('#' + tabID).tab('show');
+    $('#' + tabID + ' a').trigger('click');
 
     this.container_.show();
     if (!this.showPanel_) {
