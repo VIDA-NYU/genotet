@@ -38,10 +38,16 @@ var networkAddr;
  */
 var expmatAddr;
 /**
+ * Path of bigwig to Wig conversion script
+ * @type {string}
+ */
+var bigwigtoWigAddr;
+
+/**
  * Reads the configuration file and gets the file paths.
  */
 function config() {
-  var tokens = fs.readFileSync('config')
+  var tokens = fs.readFileSync('server/config')
     .toString()
     .split(RegExp(/\s+/));
   for (var i = 0; i < tokens.length; i += 3) {
@@ -57,6 +63,8 @@ function config() {
       case 'expressionPath':
         expmatAddr = value;
         break;
+      case 'bigwigtoWigPath':
+        bigwigtoWigAddr = value;
     }
   }
 }
@@ -121,6 +129,23 @@ var tfamatFile = {
 app.post('/genotet', function(req, res) {
   var type = req.body.type;
   console.log('POST', type);
+
+  switch(type) {
+    // upload
+    case 'upload':
+      var fileType = req.body.fileType;
+
+      var prefix;
+      if (fileType == 'network') {
+        prefix = networkAddr;
+      } else if (fileType == 'wiggle') {
+        prefix = wiggleAddr;
+      } else if (fileType == 'expmat') {
+        prefix = expmatAddr;
+      }
+
+      uploader.uploadFile(req.body, prefix, bigwigtoWigAddr);
+  }
 });
 
 /**
@@ -204,6 +229,7 @@ app.get('/genotet', function(req, res) {
       name = name.toLowerCase();
       data = expmat.getExpmatLine(fileExp, fileTfa, name);
       break;
+
 
     // Undefined type, error
     default:

@@ -1,1 +1,4 @@
-.idea/
+.idea
+*.DS_Store
+server/config
+server/node_modules*
