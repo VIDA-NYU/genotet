@@ -18,13 +18,10 @@ var upload = multer();
 module.exports = {
 
   /**
-   * Upload a file or a directory to server.
+   * Uploads a file or a directory to server.
    * @param req {Object} Including query parameders.
-   * @param wiggleAddr {string} Wiggle data directory to upload to.
-   * @param networkAddr {string} Network Data directory to upload to.
-   * @param expmatAddr {string} Expression Matrix data directory to upload to.
+   * @param prefix {string} The destination folder to upload the file to.
    * @param bigwigtoWigAddr {string} Directory of script of BigwigtoWig.
-   * @param genecodes {Array} Namecode conversion of gene.
    * @returns {boolean} Success or not as a JS Object.
    */
   uploadFile: function(req, prefix, bigwigtoWigAddr) {
@@ -57,11 +54,10 @@ module.exports = {
   },
 
   /**
-   * Convert bigwig file to bcwig file and construct segment trees.
-   * @param prefix {String} Folder that contains the bw file.
-   * @param bwFile {String} Name of the bigwig file.
-   * @param bigwigtoWigAddr {String} The convention script path.
-   * @param genecodes {Array} Namecode convention of gene.
+   * Converts bigwig file to bcwig file and construct segment trees.
+   * @param prefix {string} Folder that contains the bw file.
+   * @param bwFile {string} Name of the bigwig file (without prefix).
+   * @param bigwigtoWigAddr {string} The convention script path.
    */
   bigwigtoBcwig: function(prefix, bwFile, bigwigtoWigAddr) {
     // convert *.bw into *.wig
