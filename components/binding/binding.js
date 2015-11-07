@@ -42,7 +42,8 @@ BindingView.base = View.prototype;
 
 /** @override */
 BindingView.prototype.defaultWidth = function() {
-  return $(window).width();
+  return Math.max(this.MIN_WIDTH,
+      $(window).width() - PanelManager.COLLAPSED_WIDTH);
 };
 
 /** @override */

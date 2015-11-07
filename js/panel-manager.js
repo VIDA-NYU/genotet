@@ -5,6 +5,8 @@
 
 var PanelManager = {
   /** @const {number} */
+  COLLAPSED_WIDTH: 32,
+  /** @const {number} */
   TRANSITION_TIME: 300,
 
   /**

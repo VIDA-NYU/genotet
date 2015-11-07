@@ -1,6 +1,6 @@
 /**
- * @fileoverview Contains some utility functions shared within the Genotet
- * codebase.
+ * @fileoverview Utility functions shared within the Genotet. This file also
+ * extends a few common/library prototypes.
  */
 
 'use strict';
@@ -78,14 +78,21 @@ var Utils = {
 
   /**
    * Combines translate and scale into a CSS transform string.
-   * @param {Vector2} translate Zoom translate.
+   * @param {Vector2=} opt_translate Zoom translate.
    * @param {number=} opt_scale Zoom scale.
+   * @param {number=} opt_rotate Rotation degree.
    * @return {string} CSS string of the transform.
    */
-  getTransform: function(translate, opt_scale) {
-    var result = 'translate(' + translate + ')';
-    if (opt_scale != undefined) {
+  getTransform: function(opt_translate, opt_scale, opt_rotate) {
+    var result = '';
+    if (opt_translate != null) {
+      result += 'translate(' + opt_translate + ')';
+    }
+    if (opt_scale != null) {
       result += 'scale(' + opt_scale + ')';
+    }
+    if (opt_rotate != null) {
+      result += 'rotate(' + opt_rotate + ')';
     }
     return result;
   },
@@ -260,4 +267,17 @@ var Utils = {
     return exp;
   }
   */
+};
+
+/**
+ * Swaps the elements at index i and j in an array.
+ * @param {number} i Element index.
+ * @param {number} j Element index.
+ * @returns {!Array<number>}
+ */
+Array.prototype.swap = function(i, j) {
+  var tmp = this[i];
+  this[i] = this[j];
+  this[j] = tmp;
+  return this;
 };

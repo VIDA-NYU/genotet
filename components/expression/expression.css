@@ -1,55 +1,46 @@
-
-.verticaltext {
-    -moz-transform: rotate(90.0deg); /* FF3.5+ */
-    -o-transform: rotate(90.0deg); /* Opera 10.5 */
-    -webkit-transform: rotate(90.0deg); /* Saf3.1+, Chrome */
-    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1); /* IE6,IE7 */
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)"; /* IE8 */
+.expression .polyline {
+  stroke-opacity: .75;
+  stroke-width: 1.5;
 }
 
-.polyline {
-    stroke-opacity: .75;
-    stroke-width: 1.5;
-}
-.box {
-    opacity: .75;
-    stroke: none;
+.expression .cell {
+  fill: #003147;
 }
 
-.legend {
-    font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-    text-anchor: left;
-    pointer-events: none;
+.expression .legend {
+  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
+  text-anchor: left;
+  pointer-events: none;
 }
-.condline {
-    stroke: orange;
-    stroke-width: 2.0;
+.expression .condline {
+  stroke: orange;
+  stroke-width: 2.0;
 }
-.condtext {
-    font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; /*arial, sans-serif;*/
-    pointer-events: none;
-    font-size: 12px;
-    font-weight: bold;
-    fill: black;
+.expression .condtext {
+  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; /*arial, sans-serif;*/
+  pointer-events: none;
+  font-size: 12px;
+  font-weight: bold;
+  fill: black;
 }
-.conddot {
-    opacity: .0;
-    stroke: none;
-    fill: orange;
+.expression .conddot {
+  opacity: .0;
+  stroke: none;
+  fill: orange;
 }
-.conddot_hl {
-    opacity: 1.0;
-    stroke: none;
-    fill: orange;
+.expression .conddot_hl {
+  opacity: 1.0;
+  stroke: none;
+  fill: orange;
 }
 
-.heatmap {
-    border: 1px solid #5a5460;
-    -webkit-box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+.expression .heatmap {
+  border: 1px solid #5a5460;
+  -webkit-box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
-.heatmapsel {
-    background-color: rgba(255,255,255,.25);
-    border: 1px solid #5a5460;
-    pointer-events: none;
-    position: absolute;
+.expression .heatmapsel {
+  background-color: rgba(255,255,255,.25);
+  border: 1px solid #5a5460;
+  pointer-events: none;
+  position: absolute;
 }

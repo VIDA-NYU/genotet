@@ -170,6 +170,11 @@ function View(viewName) {
  */
 View.prototype.template = 'components/base/view.html';
 
+/** @const {number} */
+View.prototype.MIN_WIDTH = 10;
+/** @const {number} */
+View.prototype.MIN_HEIGHT = 10;
+
 /**
  * Initializes the view: adds the mouse event listeners, sets the header.
  */

@@ -1,9 +1,15 @@
 'use strict';
 
 var ViewManager = {
+  /**
+   * Object that stores all the views. Keys are view names.
+   */
   views: {},
 
-  init: function () {
+  /**
+   * Initializes the view manager.
+   */
+  init: function() {
   },
 
   /**

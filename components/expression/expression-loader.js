@@ -10,6 +10,11 @@
  */
 function ExpressionLoader(data) {
   ExpressionLoader.base.constructor.call(this, data);
+
+  _(this.data).extend({
+    heatmap: null,
+    profiles: []
+  });
 }
 
 ExpressionLoader.prototype = Object.create(ViewLoader.prototype);
@@ -21,11 +26,11 @@ ExpressionLoader.base = ViewLoader.prototype;
  * Loads the expression matrix data, with given gene and condition selectors.
  * @param {string} matrixName Name of the expression matrix.
  * @param {string} geneRegex Regex for gene selection.
- * @param {string} condRegex Regex for experiment condition selection.
+ * @param {string} conditionRegex Regex for experiment condition selection.
  * @override
  */
-ExpressionLoader.prototype.load = function(matrixName, networkName, geneRegex) {
-  this.loadExpressionMatrix_(matrixName, networkName, geneRegex);
+ExpressionLoader.prototype.load = function(matrixName, geneRegex, conditionRegex) {
+  this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
 };
 
 /**
@@ -33,17 +38,17 @@ ExpressionLoader.prototype.load = function(matrixName, networkName, geneRegex) {
  * contain a large number of entries, we use POST request.
  * @param {string} matrixName Name of the expression matrix.
  * @param {string} geneRegex Regex for gene selection.
- * @param {string} condRegex Regex for experiment condition selection.
+ * @param {string} conditionRegex Regex for experiment condition selection.
  * @private
  */
 ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
-    geneRegex, condRegex) {
+    geneRegex, conditionRegex) {
   this.signal('loadStart');
   var params = {
     type: 'expmat',
     mat: matrixName,
     exprows: geneRegex,
-    expcols: condRegex
+    expcols: conditionRegex
   };
 
   $.get(Data.serverURL, params, function(data) {
@@ -51,10 +56,10 @@ ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     _(data).extend({
       matrixname: matrixName,
       geneRegex: geneRegex,
-      condRegex: condRegex
+      conditionRegex: conditionRegex
     });
 
-    _(this.data).extend(data);
+    this.data.heatmap = data;
 
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
