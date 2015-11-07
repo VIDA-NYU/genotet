@@ -1,6 +1,6 @@
 #side-panel {
   height: auto;
-  right: -218px;
+  right: -250px;
   top: 35px;
   bottom: 30px;
   position: fixed;
@@ -11,19 +11,16 @@
   right: 0px;
 }
 
-#btnToggle {
+#side-panel > #btn-toggle {
+  border-radius: 4px 0px 0px 0px;
   position: absolute;
-  right: 218px;
+  right: 249px;
+  width: 32px;
+  height: 50px;
   z-index: 1;
 }
 
-#btnToggle button {
-  border-radius: 4px 0px 0px 0px;
-  height: 50px;
-  width: 32px;
-}
-
-#slider {
+#side-panel .tab-content {
   background-color: white;
   border: solid 1px #ccc;
   border-radius: 0px;
@@ -32,28 +29,29 @@
   height: 100%;
   width: 250px;
   overflow-y: auto;
+  padding: 10px;
 }
 
-#tab-slider {
+#side-panel #tabs {
   height: 100%;
   width: 30px;
   padding-left: 0px;
   padding-right: 0px;
+  float: left;
 }
 
-.sideways {
+#side-panel .sideways {
   border-right: solid 1px #ccc;
 }
 
-.sideways.tabs-left {
-  border-bottom: solid 1px white;
-  height: inherit;
+#side-panel .sideways.tabs-left {
   left: 0px;
   margin-left: -51px;
   margin-right: -1px;
 }
 
-.sideways li a {
+.sideways > li > a {
+  background-color: white;
   border: solid 1px #ccc;
   font-size: small;
   margin-top: -1px;
@@ -74,9 +72,4 @@
 .sideways li:nth-child(2) a {
   border-top-right-radius: 0px;
   margin-top: -2px;
-}
-
-#tab-content-slider {
-  margin-top: 10px;
-  padding-left: 10px;
 }

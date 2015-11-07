@@ -23,7 +23,7 @@ var PanelManager = {
 
   init: function(e) {
     this.container_ = $('#side-panel');
-    $('#btnToggle').click(function() {
+    this.container_.children('#btn-toggle').click(function() {
       this.togglePanel_();
     }.bind(this));
     $('.sideways').click(function() {
