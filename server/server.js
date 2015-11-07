@@ -134,7 +134,7 @@ app.post('/genotet', function(req, res) {
   switch(type) {
     // upload
     case 'upload':
-      var fileType = req.body.type;
+      var fileType = req.body.fileType;
 
       var prefix;
       if (fileType == 'network') {

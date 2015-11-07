@@ -26,7 +26,7 @@ module.exports = {
    */
   uploadFile: function(req, prefix, bigwigtoWigAddr) {
 
-    var fileType = req.type;
+    var fileType = req.fileType;
 
     var isFinish = true;
     upload = multer({dest: prefix});
