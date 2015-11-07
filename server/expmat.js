@@ -107,6 +107,7 @@ module.exports = {
    */
   getExpmatLine: function(fileExp, fileTfa, name) {
     var bufExp = utils.readFileToBuf(fileExp);
+    var bufTfa = null;
     if (fileTfa != null) {
       bufTfa = utils.readFileToBuf(fileTfa)
     }
