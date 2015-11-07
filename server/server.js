@@ -98,7 +98,6 @@ function readCodes() {
 // Read the name code file.
 readCodes();
 
-
 /**
  * Path of the exon info file.
  * @type {string}
@@ -196,35 +195,24 @@ app.get('/genotet', function(req, res) {
       data = binding.searchExon(exonFile, name);
       break;
     case 'binding':
-      // Binding data query [xl, xr], return 200 sample, high resolution binding data.
+      // Binding data query [xl, xr], return # samples.
       var xl = req.query.xl,
         xr = req.query.xr,
         chr = req.query.chr,
-        name = utils.decodeSpecialChar(req.query.name).toLowerCase(),
-        namecode = genecodes[name];
+        gene = utils.decodeSpecialChar(req.query.gene).toLowerCase();
+
+      var namecode = genecodes[gene];
+
+      console.log(gene, namecode);
+
 
       var file = wiggleAddr + namecode + '/' + namecode +
-        '_treat_afterfiting_chr' + chr + '.bcwig';
+          '_treat_afterfiting_chr' + chr + '.bcwig';
 
       data = binding.getBinding(file, xl, xr);
-      data.name = name;
+      data.gene = gene;
       data.chr = chr;
       break;
-    case 'bindingsmp':
-      var xl = req.query.xl,
-        xr = req.query.xr,
-        chr = req.query.chr,
-        name = utils.decodeSpecialChar(req.query.name).toLowerCase(),
-        namecode = genecodes[name];
-
-      var file = wiggleAddr + namecode + '/' + namecode +
-        '_treat_afterfiting_chr' + chr + '.bcwig';
-
-      data = binding.getBindingSampling(file);
-      data.name = name;
-      data.chr = chr;
-      break;
-
     // Expression matrix data queries
     case 'expmat':
       var file = expmatFile[req.query.mat];

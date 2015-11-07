@@ -1,13 +1,15 @@
 /**
- * @fileoverview Contains some utility functions shared within the Genotet
- * codebase.
+ * @fileoverview Utility functions shared within the Genotet. This file also
+ * extends a few common/library prototypes.
  */
 
 'use strict';
 
 var Utils = {
   /** @const {number} */
-  TOLERANCE: .1,
+  PIXEL_TOLERANCE: .1,
+  /** @const {number} */
+  RANGE_TOLERANCE: .001,
 
   /**
    * Vector type of arbitrary length.
@@ -35,6 +37,16 @@ var Utils = {
   },
 
   /**
+   * Checks whether two ranges intersect.
+   * @param {!Array<number>} range1 The first range.
+   * @param {!Array<number>} range2 The second range.
+   */
+  rangeIntersect: function(range1, range2) {
+    return range1[0] < range2[1] - this.RANGE_TOLERANCE &&
+        range1[1] > range2[0] + this.RANGE_TOLERANCE;
+  },
+
+  /**
    * Checks whether two 2D rectangles intersect.
    * @param {{x: number, y: number, w: number, h: number}} rect1
    *     Definition of the first rectangle.
@@ -47,8 +59,8 @@ var Utils = {
     var xMax = Math.min(rect1.x + rect1.w, rect2.x + rect2.w);
     var yMin = Math.max(rect1.y, rect2.y);
     var yMax = Math.min(rect1.y + rect1.h, rect2.y + rect2.h);
-    return xMin < xMax - this.TOLERANCE &&
-        yMin < yMax - this.TOLERANCE;
+    return xMin < xMax - this.PIXEL_TOLERANCE &&
+        yMin < yMax - this.PIXEL_TOLERANCE;
   },
 
   /**
@@ -58,10 +70,10 @@ var Utils = {
    * @return {boolean} Whether the rectangle is inside the screen window.
    */
   rectInsideWindow: function(rect) {
-    return rect.x >= -this.TOLERANCE &&
-        rect.x + rect.w <= $(window).width() + this.TOLERANCE &&
-        rect.y >= -this.TOLERANCE &&
-        rect.y + rect.h <= $(window).height() + this.TOLERANCE;
+    return rect.x >= -this.PIXEL_TOLERANCE &&
+        rect.x + rect.w <= $(window).width() + this.PIXEL_TOLERANCE &&
+        rect.y >= -this.PIXEL_TOLERANCE &&
+        rect.y + rect.h <= $(window).height() + this.PIXEL_TOLERANCE;
   },
 
   /**
@@ -73,7 +85,7 @@ var Utils = {
   getTransform: function(translate, opt_scale) {
     var result = 'translate(' + translate + ')';
     if (opt_scale != undefined) {
-      result += 'scale(' + opt_scal + ')';
+      result += 'scale(' + opt_scale + ')';
     }
     return result;
   },
@@ -248,4 +260,17 @@ var Utils = {
     return exp;
   }
   */
+};
+
+/**
+ * Swaps the elements at index i and j in an array.
+ * @param {number} i Element index.
+ * @param {number} j Element index.
+ * @returns {!Array<number>}
+ */
+Array.prototype.swap = function(i, j) {
+  var tmp = this[i];
+  this[i] = this[j];
+  this[j] = tmp;
+  return this;
 };

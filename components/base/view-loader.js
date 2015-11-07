@@ -15,8 +15,15 @@ function ViewLoader(data) {
     Core.error('null data passed to ViewLoader');
     return;
   }
-  /** protected {!Object} */
+  /** @protected {!Object} */
   this.data = data;
+
+  /**
+   * Count of pending loads.
+   * Loading screen is only displayed when this value is positive.
+   * @protected {number}
+   */
+  this.loadCounter = 0;
 }
 
 
@@ -42,11 +49,38 @@ ViewLoader.prototype.update = function() {
 
 
 /**
- * Triggers a jQuery event to the data object.
+ * Triggers a jQuery event to the data loader.
  * @param {string} eventType Type of event.
+ * @param {Object} data Data object to be sent via the event.
  */
-ViewLoader.prototype.signal = function(eventType) {
-  $(this).trigger('genotet.' + eventType);
+ViewLoader.prototype.signal = function(eventType, data) {
+  switch(eventType) {
+    case 'loadStart':
+      this.loadCounter++;
+      this.signal('loading');
+      break;
+    case 'loadComplete':
+    case 'loadFail':
+      this.loadCounter--;
+      if (this.loadCounter == 0) {
+        this.signal('loaded');
+        if (eventType == 'loadComplete') {
+          this.signal('loadSuccess');
+        }
+      }
+      break;
+  }
+  $(this).trigger('genotet.' + eventType, [data]);
+};
+
+/**
+ * Triggers a fail event and pushes the error.
+ * @param {string} msg Error message.
+ * @param {Object} params Query parameter object.
+ */
+ViewLoader.prototype.fail = function(msg, params) {
+  Core.error('cannot load binding data', JSON.stringify(params));
+  this.signal('loadFail');
 };
 
 /*

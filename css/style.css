@@ -1,6 +1,11 @@
+#alert {
+  position: relative;
+  z-index: 100;
+}
+
 .alert {
   padding: 5px 15px;
-  margin: 10px 0px 0px 0px;
+  margin: 30px 0px 0px 0px;
 }
 
 #error, #warning {
@@ -60,6 +65,6 @@
 }
 
 #main {
-  position: relative;
-  top: 10px;
+  position: absolute;
+  top: 30px;
 }

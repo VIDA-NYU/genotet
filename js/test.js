@@ -22,7 +22,7 @@ var Test = {
     ViewManager.createView('expression', 'My Expression Matrix', {
       matrixName: 'rna-seq',
       geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
-      condRegex: ''
+      condRegex: '.*'
     });
   }
 };

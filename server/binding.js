@@ -92,7 +92,81 @@ module.exports = {
         data.push(result[i]);
       }
     }
-    return data;
+    return this.formatExons(data);
+  },
+
+  /**
+   * Adjusts the exons data so that they adapt to rendering requirements.
+   * @param {!Array<Object>} exons Exons data.
+   */
+  formatExons: function(exons) {
+    exons.forEach(function(exon) {
+      // Adjust exon0Start to cdsStart, exonNEnd to cdsEnd
+      var txRanges = [];  // Half height
+      var exRanges = [];  // Actual exons to be drawn (full height)
+      var cdsStart = exon.cdsStart;
+      var cdsEnd = exon.cdsEnd;
+      exon.exonRanges.forEach(function(range) {
+        var start = range.start;
+        var end = range.end;
+        if (start < cdsStart) {
+          if (end > cdsStart) {
+            if (end > cdsEnd) {
+              txRanges.push({
+                start: start,
+                end: cdsStart
+              });
+              txRanges.push({
+                start: cdsEnd,
+                end: end
+              });
+              exRanges.push({
+                start: cdsStart,
+                end: cdsEnd
+              });
+            } else if (end <= cdsEnd) {
+              txRanges.push({
+                start: start,
+                end: cdsStart
+              });
+              exRanges.push({
+                start: cdsStart,
+                end: end
+              });
+            }
+          } else if (end <= cdsStart) {
+            txRanges.push({
+              start: start,
+              end: end
+            });
+          }
+        } else if (start >= cdsStart && start <= cdsEnd) {
+          if (end <= cdsEnd) {
+            exRanges.push({
+              start: start,
+              end: end
+            });
+          } else if (end > cdsEnd) {
+            exRanges.push({
+              start: start,
+              end: cdsEnd
+            });
+            txRanges.push({
+              start: cdsEnd,
+              end: end
+            });
+          }
+        } else if (start > cdsEnd) {
+          txRanges.push({
+            start: cdsEnd,
+            end: end
+          });
+        }
+      });
+      exon.txRanges = txRanges;
+      exon.exRanges = exRanges;
+    });
+    return exons;
   },
 
   /**
@@ -118,17 +192,20 @@ module.exports = {
     }
     // do sampling here, the sampling takes the range maximum for each bar
     // the sampling binary search the entry point, and then query the rmq table
-    var hist = {};
-    hist.xMin = xl;
-    hist.xMax = xr;
-    hist.values = [];
+    var hist = {
+      xMin: xl,
+      xMax: xr,
+      values: [],
+      minValue: Infinity,
+      maxValue: -Infinity
+    };
     var n = numSamples,
         span = xr - xl,
         segslen = (cache.nodes.length + 1) >> 1;
     for (var i = 0; i < n; i++) {
       var l = xl + i / n * span, r = xl + (i + 1) / n * span - 0.1; // [inclusive, exclusive) range
-      var li = utils.binarySearch(cache.segs, l),
-        ri = utils.binarySearch(cache.segs, r);
+      var li = utils.binarySearch(cache.segs, l);
+      var ri = utils.binarySearch(cache.segs, r);
       if (li == -1 && ri != -1)
         li = 0;
       else if (li != -1 && ri == -1)
@@ -138,6 +215,8 @@ module.exports = {
           'x' : l,
           'value' : 0
         });
+        hist.minValue = Math.min(hist.minValue, 0);
+        hist.maxValue = Math.max(hist.maxValue, 0);
         continue;
       }
       var val = segtree.querySegmentTree(cache.nodes, 0, li, ri, 0, segslen - 1);
@@ -145,6 +224,8 @@ module.exports = {
         x: l,
         value: val
       });
+      hist.minValue = Math.min(hist.minValue, val);
+      hist.maxValue = Math.max(hist.maxValue, val);
     }
     console.log('returning', n, 'samples of', xl, xr);
     return hist;
@@ -155,8 +236,8 @@ module.exports = {
    * @param {string} file File name of the binding data.
    * @return {!Array<{x: number, value: number}>} Binding data as histogram.
    */
-  getBindingSampling: function(file) {
-    // currently the auto sampling size based on view width is disabled
+  getBindingSamples: function(file) {
+    // Currently the auto sampling size based on view width is disabled.
     return this.getBinding(file);
   },
 

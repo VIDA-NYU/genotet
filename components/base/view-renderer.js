@@ -41,12 +41,6 @@ function ViewRenderer(container, data) {
    * @protected {!Object}
    */
   this.data = data;
-
-  /**
-   * Loading screen is only displayed when this value is positive.
-   * @private {number}
-   */
-  this.loadCounter_ = 0;
 }
 
 
@@ -94,7 +88,6 @@ ViewRenderer.prototype.resize = function() {
  * Shows loading message on the view.
  */
 ViewRenderer.prototype.showLoading = function() {
-  this.loadCounter_++;
   var popup = this.container.find('.popup');
   popup.show();
   popup.find('.loading').show();
@@ -108,10 +101,7 @@ ViewRenderer.prototype.showLoading = function() {
  * Hides loading message on the view.
  */
 ViewRenderer.prototype.hideLoading = function() {
-  this.loadCounter_--;
-  if (this.loadCounter_ == 0) {
-    this.container.find('.popup .loading').hide();
-  }
+  this.container.find('.popup .loading').hide();
 };
 
 
@@ -128,4 +118,14 @@ ViewRenderer.prototype.showFailure = function() {
  */
 ViewRenderer.prototype.hideFailure = function() {
   this.container.find('.popup .failure').hide();
+};
+
+
+/**
+ * Triggers a jQuery event on the renderer.
+ * @param {string} eventType Type of event.
+ * @param {Object} data Data object to be sent via the event.
+ */
+ViewRenderer.prototype.signal = function(eventType, data) {
+  $(this).trigger('genotet.' + eventType, [data]);
 };

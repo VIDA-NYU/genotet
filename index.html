@@ -17,15 +17,16 @@
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/theme.css" rel="stylesheet"/>
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="bower_components/bootstrap-select/dist/css/bootstrap-select.min.css" rel="stylesheet"/>
-
+  <link rel="stylesheet" href="bower_components/bootstrap-vertical-tabs/bootstrap.vertical-tabs.min.css" rel="stylesheet"/>
   <!-- CDN -->
-  <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
-  <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet"/>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+  <link href="http://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet"/>
 
   <!-- global css -->
   <link type="text/css" rel="stylesheet" href="css/style.css" rel="stylesheet"/>
   <link type="text/css" rel="stylesheet" href="css/dialog.css" rel="stylesheet"/>
   <link type="text/css" rel="stylesheet" href="css/overwrite.css" rel="stylesheet"/>
+  <link type="text/css" rel="stylesheet" href="css/panel.css" rel="stylesheet"/>
 
   <!-- components -->
   <!-- base -->
@@ -40,7 +41,7 @@
   <script type="text/javascript" src="components/network/network-renderer.js"></script>
   <script type="text/javascript" src="components/network/network.js"></script>
   <script type="text/javascript" src="components/network/network-table.js"></script>
-  <link type="text/css" rel="stylesheet" href="components/network/network.css"/>'
+  <link type="text/css" rel="stylesheet" href="components/network/network.css"/>
   <link type="text/css" rel="stylesheet" href="components/network/network-table.css"/>
   <!-- expression -->
   <script type="text/javascript" src="components/expression/expression-loader.js"></script>
@@ -60,6 +61,7 @@
   <script type="text/javascript" src="js/data.js"></script>
   <script type="text/javascript" src="js/menu.js"></script>
   <script type="text/javascript" src="js/view-manager.js"></script>
+  <script type="text/javascript" src="js/panel-manager.js"></script>
   <script type="text/javascript" src="js/welcome.js"></script>
   <script type="text/javascript" src="js/dialog.js"></script>
   <script type="text/javascript" src="js/options.js"></script>
@@ -67,7 +69,7 @@
   <script type="text/javascript" src="js/test.js"></script>
 
   <!-- program entry -->
-  <script>
+  <script type="text/javascript">
     $(document).ready(function () {
       Core.init();
     });
@@ -126,6 +128,27 @@
   <div id="modal" class="modal fade">
     <div class="modal-dialog">
       <div class="modal-content">
+      </div>
+    </div>
+  </div>
+  <div id="side-panel" class="active" style="display: none;">
+    <div id="btnToggle">
+      <button class="btn btn-default">
+        <span id="icon-button" class="glyphicon glyphicon-chevron-right"></span>
+      </button>
+    </div>
+    <div id="slider">
+      <div id="tab-slider" class="col-xs-3"> <!-- required for floating -->
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs tabs-left sideways">
+          <li id="panel-tab-init"><a href="#view-init" data-toggle="tab"></a></li>
+        </ul>
+      </div>
+      <div id="tab-content-slider" class="col-xs-9">
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div id="panel-view-init" class="tab-pane active"></div>
+        </div>
       </div>
     </div>
   </div>

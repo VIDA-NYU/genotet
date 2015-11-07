@@ -7,6 +7,18 @@
 var fs = require('fs');
 
 module.exports = {
+  /** @const {number} */
+  RANGE_TOLERANCE: .001,
+
+  /**
+   * Checks whether two ranges intersect.
+   * @param {!Array<number>} range1 The first range.
+   * @param {!Array<number>} range2 The second range.
+   */
+  rangeIntersect: function(range1, range2) {
+    return range1[0] < range2[1] - this.RANGE_TOLERANCE &&
+      range1[1] > range2[0] + this.RANGE_TOLERANCE;
+  },
 
   /**
    * Binary searches on the segs array for the position of value x.

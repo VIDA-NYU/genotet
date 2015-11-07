@@ -61,6 +61,11 @@ ExpressionRenderer.prototype.init = function() {
 };
 
 /** @inheritDoc */
+ExpressionRenderer.prototype.dataLoaded = function() {
+  this.render();
+};
+
+/** @inheritDoc */
 ExpressionRenderer.prototype.render = function() {
   this.drawExpressionMatrix_();
   this.drawGeneProfiles_();

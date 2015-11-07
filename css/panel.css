@@ -1,0 +1,66 @@
+#side-panel {
+  right: -218px;
+  height: auto;
+  top: 35px;
+  bottom: 30px;
+  position: fixed;
+  z-index: 1;
+}
+
+#side-panel.active {
+  right: 0px;
+}
+
+#btnToggle {
+  position: absolute;
+  right: 218px;
+  z-index: 1;
+}
+
+#btnToggle button {
+  border-radius: 4px 0px 0px 4px;
+  height: 50px;
+  width: 32px;
+}
+
+#slider {
+  background-color: white;
+  border: solid 1px #ccc;
+  border-radius: 0px;
+  border-bottom-left-radius: 4px;
+  border-top-left-radius: 4px;
+  width: 250px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+#tab-slider {
+  padding-left: 0px;
+  padding-right: 0px;
+  width: 50px;
+}
+
+.sideways li {
+  margin-left: -1px;
+}
+
+.sideways li a {
+  font-size: small;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 6px 6px 6px 6px;
+}
+
+.sideways li:first-child {
+  display: none;
+}
+
+.sideways li:nth-child(2) {
+  margin-top: 46.5px;
+}
+
+#tab-content-slider {
+  margin-top: 10px;
+  padding-left: 0px;
+}

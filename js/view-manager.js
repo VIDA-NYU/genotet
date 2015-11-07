@@ -1,9 +1,15 @@
 'use strict';
 
 var ViewManager = {
+  /**
+   * Object that stores all the views. Keys are view names.
+   */
   views: {},
 
-  init: function () {
+  /**
+   * Initializes the view manager.
+   */
+  init: function() {
   },
 
   /**
@@ -41,11 +47,7 @@ var ViewManager = {
         return;
     }
     this.views[viewName] = newView;
-
-    // TODO(liana): Replace this by PanelManager container return, e.g.
-    // var panelContainer = PanelManager.addPanel(newView);
-    // You shall be able to see the panel UI rendered.
-    var panelContainer = $('#dummy-panel');
+    var panelContainer = PanelManager.addPanel(viewName);
     newView.createPanel(panelContainer);
   },
 
@@ -60,6 +62,7 @@ var ViewManager = {
     }
     // Remove the view reference.
     delete this.views[view.name()];
+    PanelManager.removePanel(view.name());
   },
 
   /**
@@ -79,6 +82,7 @@ var ViewManager = {
       view.close();
     });
     this.views = {};
+    PanelManager.closeAllPanels();
   },
 
   /**
