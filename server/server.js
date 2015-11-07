@@ -134,7 +134,7 @@ app.post('/genotet', function(req, res) {
   switch(type) {
     // upload
     case 'upload':
-      var fileType = req.query.type;
+      var fileType = req.body.type;
 
       var prefix;
       if (fileType == 'network') {
@@ -145,7 +145,7 @@ app.post('/genotet', function(req, res) {
         prefix = expmatAddr;
       }
 
-      uploader.uploadFile(req.query, prefix, bigwigtoWigAddr);
+      uploader.uploadFile(req.body, prefix, bigwigtoWigAddr);
   }
 });
 

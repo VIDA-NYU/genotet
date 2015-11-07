@@ -19,9 +19,9 @@ module.exports = {
 
   /**
    * Uploads a file or a directory to server.
-   * @param req {Object} Including query parameders.
-   * @param prefix {string} The destination folder to upload the file to.
-   * @param bigwigtoWigAddr {string} Directory of script of BigwigtoWig.
+   * @param {Object} req inncluding query parameders.
+   * @param {string} prefix The destination folder to upload the file to.
+   * @param {string} bigwigtoWigAdr Directory of script of BigwigtoWig.
    * @returns {boolean} Success or not as a JS Object.
    */
   uploadFile: function(req, prefix, bigwigtoWigAddr) {
@@ -49,15 +49,19 @@ module.exports = {
       var fd = fs.openSync(prefix + 'NameInfo', 'a');
       fd.write(filename + '\t' + req.genename + '\t' + req.description + '\n');
       fd.close();
+    } else if (fileType == 'network') {
+      var fd = fs.openSync(prefix + 'NameInfo', 'a');
+      fd.write(filename + '\t' + req.genename + '\t' + req.description + '\n');
+      fd.close();
     }
     return isFinish;
   },
 
   /**
    * Converts bigwig file to bcwig file and construct segment trees.
-   * @param prefix {string} Folder that contains the bw file.
-   * @param bwFile {string} Name of the bigwig file (without prefix).
-   * @param bigwigtoWigAddr {string} The convention script path.
+   * @param {string} prefix Folder that contains the bw file.
+   * @param {string} bwFile Name of the bigwig file (without prefix).
+   * @param {string} bigwigtoWigAder The convention script path.
    */
   bigwigtoBcwig: function(prefix, bwFile, bigwigtoWigAddr) {
     // convert *.bw into *.wig
@@ -65,9 +69,9 @@ module.exports = {
     shell.exec('./' + bigwigtoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
 
     // convert *.wig into *.bcwig
-    var seg = [];  // for segment tree, 22 trees for each chromosome
+    var seg = {};  // for segment tree, 22 trees for each chromosome, it is a map
     for (var i = 1; i < 20; i++) {
-      var chName = 'chr' + i.toString();
+      var chName = 'chr' + i;
       seg[chName] = [];
     }
     seg['chrM'] = [];
@@ -101,7 +105,14 @@ module.exports = {
 
     // write to *.bcwig file
     var namecode = bwFile.substr(0, bwFile.length - 3);
+
+    // if the folder already exists, then delete it
+    if (fs.exists(prefix + namecode)) {
+      fs.rmdirSync(prefix + namecode);
+      console.log('Wiggle file ' + namecode + ' is replaced.');
+    }
     fs.mkdir(prefix + namecode);
+
     for (var chr in seg) {
       var bcwigFile = prefix + namecode + '/' + namecode + '_' + chr + '.bcwig';
       for (var i = 0; i < seg[chr].length; i++) {
@@ -111,8 +122,10 @@ module.exports = {
         bcwigBuf.writeFloatLE(seg[chr][i].val, i * 4 + 4);
         var fd = fs.openSync(bcwigFile, 'w');
         fs.writeSync(fd, buf, 0, 4 * seg[chr].length, 0);
+        fd.close();
       }
     }
+
 
     // build segment tree and save
     for (var chr in seg) {
@@ -126,6 +139,7 @@ module.exports = {
       }
       var fd = fs.openSync(segFile, 'w');
       fs.writeSync(fd, segBuf, 0, offset, 0);
+      fd.close();
     }
   }
 
