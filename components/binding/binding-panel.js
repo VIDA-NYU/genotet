@@ -35,6 +35,33 @@ BindingPanel.prototype.panel = function(container) {
 
 /** @inheritDoc */
 BindingPanel.prototype.initPanel = function() {
+  var chrs = Data.bindingChrs.map(function (chr, index) {
+    return {
+      id: chr,
+      text: chr
+    };
+  });
+  this.container_.find('#chr select').select2({
+    data: chrs
+  });
+  var genes = Data.bindingGenes.map(function (gene, index) {
+    return {
+      id: gene,
+      text: gene
+    };
+  });
+  this.container_.find('#gene select').select2({
+    data: genes
+  });
+  this.container_.find('.select2-container').css({
+    width: '100%'
+  });
+
+  this.container_.find('.switches input').bootstrapSwitch({
+    size: 'mini'
+  });
+};
+
   /*
   $('#' + this.htmlid + ' #gene').val(data.name)
     .keydown(function(e) { if (e.which == 13) return layout.uiUpdate('gene');})
@@ -64,7 +91,6 @@ BindingPanel.prototype.initPanel = function() {
   $('#' + this.htmlid + ' #exons').attr('checked', this.showExons)
     .change(function() { return layout.toggleExons(); });
     */
-};
 
 /*
 LayoutHistogram.prototype.uiUpdate = function(type) {

@@ -44,3 +44,7 @@
   pointer-events: none;
   position: absolute;
 }
+
+.expression-panel #profile .select2-container {
+  width: 100%;
+}

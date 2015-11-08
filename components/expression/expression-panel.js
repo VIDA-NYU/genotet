@@ -36,6 +36,25 @@ ExpressionPanel.prototype.panel = function(container) {
 
 /** @inheritDoc */
 ExpressionPanel.prototype.initPanel = function() {
+  var genes = Data.bindingGenes.map(function(gene, index) {
+    return {
+      id: gene,
+      text: gene
+    };
+  });
+  this.container_.find('#profile select').select2({
+    data: genes,
+    multiple: true
+  });
+  this.container_.find('#profile .select2-container').css({
+    width: '100%'
+  });
+
+  this.container_.find('.switches input').bootstrapSwitch({
+    size: 'mini'
+  });
+};
+
 /*
 $('#'+ this.htmlid + ' #labelrow').attr('checked', this.labelrows).change(function() { return layout.toggleLabelrows(); });
 $('#'+ this.htmlid + ' #labelcol').attr('checked', this.labelcols).change(function() { return layout.toggleLablecols(); });
@@ -49,7 +68,6 @@ $('#'+ this.htmlid + ' #expcol').keydown(function(e) { if (e.which == 13) layout
 $('#'+ this.htmlid + " #data option[value='" + this.parentView.loader.lastIdentifier.mat + "']").attr('selected', true);
 $('#'+ this.htmlid + ' #data').change(function(e) { return layout.uiUpdate('data');});
 */
-}
 
 /*
  LayoutHeatmap.prototype.uiUpdate = function(type) {

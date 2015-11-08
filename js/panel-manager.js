@@ -23,7 +23,7 @@ var PanelManager = {
 
   init: function(e) {
     this.container_ = $('#side-panel');
-    $('#btnToggle').click(function() {
+    this.container_.children('#btn-toggle').click(function() {
       this.togglePanel_();
     }.bind(this));
     $('.sideways').click(function() {
@@ -64,7 +64,7 @@ var PanelManager = {
     $('#panel-view-init').clone()
       .attr('id', 'panel-view-' + viewID)
       .appendTo('.tab-content');
-    $('#' + tabID).tab('show');
+    $('#' + tabID + ' a').trigger('click');
 
     this.container_.show();
     if (!this.showPanel_) {
