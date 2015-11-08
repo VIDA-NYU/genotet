@@ -11,6 +11,28 @@
   right: 0px;
 }
 
+#side-panel > div {
+  margin: 5px 0px;
+}
+
+#side-panel .input-with-update {
+  border-radius: 4px 0px 0px 4px;
+  width: 80%;
+}
+
+/*
+#side-panel .btn-update {
+  border-radius: 0px 4px 4px 0px;
+  left: calc(80% - 1px);
+  float: left;
+  top: -34px;
+}
+*/
+
+#side-panel .item-title {
+  display: inline-block;
+}
+
 #btnToggle {
   position: absolute;
   right: 218px;

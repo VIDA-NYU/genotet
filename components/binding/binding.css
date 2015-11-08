@@ -44,6 +44,8 @@
   opacity: 0.25;
 }
 
+
+/*
 .frame {
   fill: none;
   stroke: grey;
@@ -54,7 +56,6 @@
   text-anchor: start;
 }
 .coordlabel {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; /*arial, sans-serif;*/
   text-anchor: end;
   pointer-events: none;
   font-size: 8px;
@@ -88,13 +89,4 @@
   font-size: 8px;
   font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
 }
-
-.zoombar {
-  fill: #4297d7;
-  opacity: .15;
-}
-
-.zoombar_sel {
-  fill: #4297d7;
-  opacity: .5;
-}
+*/

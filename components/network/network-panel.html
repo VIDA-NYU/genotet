@@ -1,12 +1,37 @@
-<div>
-  <span>Genes</span>
-  <input type="text" id="gene" size="10" title="Add/remove/select genes in the network. Usage: [add/rm/sel] regexp |regexp. If no action is specified, default behavior is sel.">
-  <span>Combined Regulation</span>
-  <input type="text" id="comb" size="10" title="Add nodes into the graph that are regulated by selected genes. Usage: regexp">
-
-  <input type="checkbox" id="labels" title="Show/hide node labels"> Label
-  <input type="checkbox" id="tf-tf" title="Show/hide edges between 2 TFs"> TF-TF
-  <input type="checkbox" id="tf-nontf" title="Show/hide edges bettwen a TF and a non-TF"> TF-nonTF
-  <input type="checkbox" id="force" title="Turn on/off force of the graph layout"> Force
-  <input type="checkbox" id="edge-list" title="Auto pop incident edge list when a node is clicked"> EdgeList
+<div class="network-panel">
+  <div>
+    <span class="item-title">Genes</span>
+    <input id="gene-regex" class="form-control input-with-update">
+    <button id="btn-gene-regex" class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+  </div>
+  <div>
+    <span class="item-title">Combined Regulations</span>
+    <input id="combined-regulation" class="form-control input-with-update">
+    <button id="btn-combined-regulation" class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+  </div>
+  <!--
+  title="Add/remove/select genes in the network. Usage: [add/rm/sel] regexp |regexp. If no action is specified, default behavior is sel."
+  title="Add nodes into the graph that are regulated by selected genes. Usage: regexp"
+  -->
+  <div class="switches">
+    <table>
+      <thead></thead>
+      <tbody>
+      <tr>
+        <td>Node Labels</td>
+        <td><input type="checkbox" id="labels" title="Show/hide node labels"></td>
+      </tr>
+      <tr>
+        <td>TF-TF Edges</td>
+        <input type="checkbox" id="tf-tf" title="Show/hide edges between 2 TFs"></td>
+      </tr>
+      </tbody>
+    </table>
+    <div>
+      <span></span>
+    </div>
+    <input type="checkbox" id="tf-nontf" title="Show/hide edges bettwen a TF and a non-TF"> TF-nonTF
+    <input type="checkbox" id="force" title="Turn on/off force of the graph layout"> Force
+    <input type="checkbox" id="edge-list" title="Auto pop incident edge list when a node is clicked"> EdgeList
+  </div>
 </div>
