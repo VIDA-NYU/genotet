@@ -52,15 +52,15 @@ var PanelManager = {
    * Creates a panel with the given name.
    * @param {string} viewName Name of the view.
    */
-  addPanel: function(viewName) {
-    var viewID = viewName.replace(/\s/g, '');
+  addPanel: function(view) {
+    var viewID = view.name().replace(/\s/g, '');
     var tabID = 'panel-tab-' + viewID;
     $('#panel-tab-init').clone()
       .attr('id', tabID)
       .appendTo('.sideways')
       .find('a')
       .attr('href', '#panel-view-' + viewID)
-      .append(viewName);
+      .append(view.name());
     $('#panel-view-init').clone()
       .attr('id', 'panel-view-' + viewID)
       .appendTo('.tab-content');
@@ -70,6 +70,9 @@ var PanelManager = {
     if (!this.showPanel_) {
       this.togglePanel_();
     }
+    $(view).on('genotet.focus', function() {
+      $('#' + tabID + ' a').trigger('click');
+    });
 
     var container = $('#panel-view-' + viewID);
     return container;
