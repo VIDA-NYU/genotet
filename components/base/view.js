@@ -266,6 +266,7 @@ View.prototype.headerText = function(headerText) {
  */
 View.prototype.focus = function() {
   this.container.addClass('focused');
+  this.signal('focus', this);
   // Re-append to appear on top of other views.
   this.container.appendTo('#main');
 };
@@ -321,3 +322,11 @@ View.prototype.createPanel = function(container) {
   this.panel.create(container);
 };
 
+/**
+ * Triggers a jQuery event on the view.
+ * @param {string} eventType Type of event.
+ * @param {Object} data Data object to be sent via the event.
+ */
+View.prototype.signal = function(eventType, data) {
+  $(this).trigger('genotet.' + eventType, [data]);
+};

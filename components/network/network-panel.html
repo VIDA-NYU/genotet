@@ -1,12 +1,53 @@
-<div>
-  <span>Genes</span>
-  <input type="text" id="gene" size="10" title="Add/remove/select genes in the network. Usage: [add/rm/sel] regexp |regexp. If no action is specified, default behavior is sel.">
-  <span>Combined Regulation</span>
-  <input type="text" id="comb" size="10" title="Add nodes into the graph that are regulated by selected genes. Usage: regexp">
-
-  <input type="checkbox" id="labels" title="Show/hide node labels"> Label
-  <input type="checkbox" id="tf-tf" title="Show/hide edges between 2 TFs"> TF-TF
-  <input type="checkbox" id="tf-nontf" title="Show/hide edges bettwen a TF and a non-TF"> TF-nonTF
-  <input type="checkbox" id="force" title="Turn on/off force of the graph layout"> Force
-  <input type="checkbox" id="edge-list" title="Auto pop incident edge list when a node is clicked"> EdgeList
+<div class="network-panel">
+  <div id="network" class="panel-section">
+    <div class="item-title">Network</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="genes" class="panel-section">
+    <div class="item-title">Genes</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="combined-regulation" class="panel-section">
+    <div class="item-title">Combined Regulations</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <!--
+  title="Add/remove/select genes in the network. Usage: [add/rm/sel] regexp |regexp. If no action is specified, default behavior is sel."
+  title="Add nodes into the graph that are regulated by selected genes. Usage: regexp"
+  -->
+  <div class="panel-section switches">
+    <table>
+      <colgroup>
+        <col width="50%">
+        <col width="50%">
+      </colgroup>
+      <tbody>
+      <tr>
+        <td>Node Labels</td>
+        <td><input type="checkbox" id="labels" title="Show/hide node labels"></td>
+      </tr>
+      <tr>
+        <td>TF-TF Edges</td>
+        <td><input type="checkbox" id="tf-tf" title="Show/hide edges between 2 TFs"></td>
+      </tr>
+      <tr>
+        <td>TF-nonTF</td>
+        <td><input type="checkbox" id="tf-nontf" title="Show/hide edges bettwen a TF and a non-TF"></td>
+      </tr>
+      <tr>
+        <td>Force</td>
+        <td><input type="checkbox" id="force" title="Turn on/off force of the graph layout"></td>
+      </tr>
+      <tr>
+        <td>EdgeList</td>
+        <td><input type="checkbox" id="edge-list" title="Auto pop incident edge list when a node is clicked"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="edge-list" class="panel-section">
+  </div>
 </div>

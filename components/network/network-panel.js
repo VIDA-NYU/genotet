@@ -103,3 +103,10 @@ NetworkPanel.prototype.panel = function(container) {
   }
   */
 };
+
+/** @inheritDoc */
+NetworkPanel.prototype.initPanel = function() {
+  this.container_.find('.switches input').bootstrapSwitch({
+    size: 'mini'
+  });
+};

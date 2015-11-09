@@ -11,6 +11,30 @@
   right: 0px;
 }
 
+#side-panel .panel-section {
+  margin: 15px 0px;
+}
+
+#side-panel .input-with-update {
+  border-radius: 4px 0px 0px 4px;
+  width: calc(100% - 40px);
+}
+
+#side-panel .btn-update {
+  border-radius: 0px 4px 4px 0px;
+  float: right;
+  top: -0.5px;
+  left: -1px;
+}
+
+#side-panel .switches > table {
+  width: 100%;
+}
+
+#side-panel .switches td {
+  padding: 2px;
+}
+
 #side-panel > #btn-toggle {
   border-radius: 4px 0px 0px 0px;
   position: absolute;

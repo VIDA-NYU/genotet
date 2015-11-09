@@ -6,6 +6,11 @@
 .view.network .edges path.arrow {
   stroke-width: 1px;
 }
+
+.network-panel .btn-update {
+
+}
+
 /*
 .node {
   fill: red;

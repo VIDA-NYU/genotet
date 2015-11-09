@@ -1,21 +1,59 @@
-<div>
-  <span>Binding Data</span>
-  <input id="gene" type="text" size="6" title="change gene data">
-  <span>Chromosome</span>
-  <select name="chr" title="switch chromosome">
-  </select>
-
-  <span>Start Coordinate</span>
-  <input type="text" id="xl" size="8" title="edit start coordinate">
-  <span>End Coordinate</span>
-  <input type="text" id="xr" size="8" title="edit end coordinate">
-
-  <span>Locate Gene</span>
-  <input type="input" id="search" size="8" title="search for a gene across all chromosomes. usage: regex">
-  <input type="checkbox" id="autoscale" title="auto adjust the maximum height to the maximum data value in range">
-  <span>Auto-Scale</span>
-  <input type="checkbox" id="overview" title="show/hide binding data overview">
-  <span>Overview</span>
-  <input type="checkbox" id="exons" title="show/hide exons">
-  <span>Exons</span>
+<div class="binding-panel">
+  <div id="gene" class="panel-section">
+    <div class="item-title">Binding Gene</div>
+    <select></select>
+  </div>
+  <div id="chr" class="panel-section">
+    <div class="item-title">Chromosome</div>
+    <select></select>
+  </div>
+  <div id="start-coordinate" class="panel-section">
+    <div class="item-title">Start Coordinate</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="end-coordinate" class="panel-section">
+    <div class="item-title">End Coordinate</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="locus" class="panel-section">
+    <div class="item-title">Find Gene Locus</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div class="panel-section switches">
+    <table>
+      <colgroup>
+        <col width="50%">
+        <col width="50%">
+      </colgroup>
+      <tbody>
+      <tr>
+        <td>Overviews</td>
+        <td><input type="checkbox" id="overview" title="show/hide binding data overview"></td>
+      </tr>
+      <tr>
+        <td>Bed</td>
+        <td><input type="checkbox" id="overview" title="show/hide bed track"></td>
+      </tr>
+      <tr>
+        <td>Exons</td>
+        <td><input type="checkbox" id="exons" title="show/hide exons track"></td>
+      </tr>
+      <tr>
+        <td>Auto-Scale</td>
+        <td><input type="checkbox" id="autoscale" title="auto adjust the maximum height to the maximum data value in range"></td>
+      </tr>
+      <tr>
+        <td>TFA Profiles</td>
+        <td><input type="checkbox" id="show-gradient" title="show/hide gradient"></td>
+      </tr>
+      <tr>
+        <td>Auto-Scale Gradient</td>
+        <td><input type="checkbox" id="auto-scale" title="turn on/off auto gradient heatmap scale"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
