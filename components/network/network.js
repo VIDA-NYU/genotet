@@ -30,6 +30,17 @@ function NetworkView(viewName, params) {
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.networkName, params.geneRegex);
   }.bind(this));
+
+  // Set up rendering update.
+  $(this.panel).on('genotet.update', function(event, data) {
+    switch(data.type) {
+      case 'label':
+        this.renderer.update();
+        break;
+      default:
+        Core.error('unknown update type', data.type);
+    }
+  }.bind(this));
 }
 
 NetworkView.prototype = Object.create(View.prototype);

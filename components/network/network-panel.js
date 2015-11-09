@@ -106,7 +106,18 @@ NetworkPanel.prototype.panel = function(container) {
 
 /** @inheritDoc */
 NetworkPanel.prototype.initPanel = function() {
-  this.container_.find('.switches input').bootstrapSwitch({
-    size: 'mini'
+  this.container_.find('.switches input').each(function() {
+    $(this).bootstrapSwitch({
+      size: 'mini',
+      state: $(this).prop('checked')
+    });
   });
+
+  this.container_.find('#gene-labels').on('switchChange.bootstrapSwitch',
+    function(event, state) {
+      this.data.options.showLabels = state;
+      this.signal('update', {
+        type: 'label'
+      });
+    }.bind(this));
 };

@@ -163,6 +163,13 @@ NetworkRenderer.prototype.render = function() {
 };
 
 /**
+ * Updates the network without starting force.
+ */
+NetworkRenderer.prototype.update = function() {
+  this.drawNetwork_();
+};
+
+/**
  * Prepares the network data and renders the network.
  * @override
  */
@@ -307,9 +314,7 @@ NetworkRenderer.prototype.drawNodes_ = function() {
       return node.y - this.NODE_SIZE;
     }.bind(this));
 
-  if (this.data.options.showLabels) {
-    this.drawNodeLabels_();
-  }
+  this.drawNodeLabels_();
 };
 
 /**
@@ -318,6 +323,10 @@ NetworkRenderer.prototype.drawNodes_ = function() {
  * @private
  */
 NetworkRenderer.prototype.drawNodeLabels_ = function() {
+  if (!this.data.options.showLabels) {
+    this.svgNodeLabels_.selectAll('*').remove();
+    return;
+  }
   var labels = this.svgNodeLabels_.selectAll('text')
     .data(_.toArray(this.nodes_), function(node) {
       return node.id;
@@ -338,6 +347,7 @@ NetworkRenderer.prototype.drawNodeLabels_ = function() {
       return node.y + yOffset;
     }.bind(this));
 };
+
 
 /**
  * Renders the network edges.
