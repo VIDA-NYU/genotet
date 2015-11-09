@@ -170,6 +170,27 @@ NetworkRenderer.prototype.update = function() {
 };
 
 /**
+ * Updates the visibility of edges based on the properties of their connecting
+ * nodes.
+ * This must be called after the data is prepared (nodes in edge objects are
+ * replaced by node references.
+ */
+NetworkRenderer.prototype.updateVisibility = function() {
+  for (var id in this.edges_) {
+    var edge = this.edges_[id];
+    edge.visible = true;
+    if (!this.data.options.showTFToTF &&
+      edge.source.isTF && edge.target.isTF) {
+      edge.visible = false;
+    }
+    if (!this.data.options.showTFToNonTF &&
+      edge.source.isTF && !edge.target.isTF) {
+      edge.visible = false;
+    }
+  }
+};
+
+/**
  * Prepares the network data and renders the network.
  * @override
  */
@@ -236,7 +257,8 @@ NetworkRenderer.prototype.prepareData_ = function() {
         id: edge.id,
         source: this.nodes_[edge.source],
         target: this.nodes_[edge.target],
-        weight: edge.weight
+        weight: edge.weight,
+        visible: true
       };
     }
   }, this);
@@ -383,6 +405,11 @@ NetworkRenderer.prototype.drawEdges_ = function() {
   gsEnter.append('path')
     .classed('arrow', true);
   gs.exit().remove();
+
+  // Update visibility
+  gs.style('display', function(edge) {
+    return edge.visible ? '' : 'none';
+  });
 
   var curve = d3.svg.line().interpolate('basis');
   this.svgEdges_.selectAll('path.edge')

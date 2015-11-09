@@ -266,7 +266,7 @@ View.prototype.headerText = function(headerText) {
  */
 View.prototype.focus = function() {
   this.container.addClass('focused');
-  this.signal('focus', this);
+  this.signal('focus');
   // Re-append to appear on top of other views.
   this.container.appendTo('#main');
 };

@@ -37,6 +37,10 @@ function NetworkView(viewName, params) {
       case 'label':
         this.renderer.update();
         break;
+      case 'visibility':
+        this.renderer.updateVisibility();
+        this.renderer.update();
+        break;
       default:
         Core.error('unknown update type', data.type);
     }

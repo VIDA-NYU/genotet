@@ -14,7 +14,9 @@ function NetworkPanel(data) {
 
   // Set the view options.
   _(this.data.options).extend({
-    showLabels: true
+    showLabels: true,
+    showTFtoTF: true,
+    showTFtoNonTF: true
   });
 }
 
@@ -120,4 +122,18 @@ NetworkPanel.prototype.initPanel = function() {
         type: 'label'
       });
     }.bind(this));
+  this.container_.find('#tf-tf').on('switchChange.bootstrapSwitch',
+    function(event, state) {
+      this.data.options.showTFToTF = state;
+      this.signal('update', {
+        type: 'visibility'
+      });
+    }.bind(this));
+  this.container_.find('#tf-nontf').on('switchChange.bootstrapSwitch',
+    function(event, state) {
+      this.data.options.showTFToNonTF = state;
+      this.signal('update', {
+        type: 'visibility'
+      });
+    }.bind(this))
 };
