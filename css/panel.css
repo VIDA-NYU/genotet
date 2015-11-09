@@ -12,12 +12,16 @@
 }
 
 #side-panel .panel-section {
-  margin: 15px 0px;
+  margin: 20px 0px;
 }
 
 #side-panel .input-with-update {
   border-radius: 4px 0px 0px 4px;
   width: calc(100% - 40px);
+}
+
+#side-panel .sub-buttons {
+  float: right;
 }
 
 #side-panel .btn-update {

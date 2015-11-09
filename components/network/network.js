@@ -41,9 +41,17 @@ function NetworkView(viewName, params) {
         this.renderer.updateVisibility();
         this.renderer.update();
         break;
+      case 'gene':
+        this.loader.updateGenes(data.method, data.regex);
+        break;
       default:
         Core.error('unknown update type', data.type);
     }
+  }.bind(this));
+
+  // Gene removal update
+  $(this.loader).on('genotet.gene-remove', function() {
+    this.renderer.dataLoaded();
   }.bind(this));
 }
 

@@ -84,7 +84,7 @@ module.exports = {
     var edges = [];
     try {
       exp = RegExp(exp, 'i');
-    }catch (e) {
+    } catch (e) {
       exp = 'a^'; // return empty network
     }
     for (var i = 0; i < result.numNode; i++) {

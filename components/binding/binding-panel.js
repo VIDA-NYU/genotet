@@ -15,9 +15,9 @@ function BindingPanel(data) {
   // Set the view options.
   _(this.data.options).extend({
     autoScale: true,
-    showExons: true,
-    // TODO(bowen): showOverview shall be set for each track
-    showOverview: []
+    showOverview: true,
+    showBed: true,
+    showExons: true
   });
 }
 
@@ -57,9 +57,25 @@ BindingPanel.prototype.initPanel = function() {
     width: '100%'
   });
 
+  // Initialize switches.
   this.container_.find('.switches input').bootstrapSwitch({
     size: 'mini'
   });
+
+  // Switch actions
+  [
+    {selector: '#overview', type: 'overview', attribute: 'showOverview'},
+    {selector: '#bed', type: 'bed', attribute: 'showBed'},
+    {selector: '#exons', type: 'exons', attribute: 'showExons'}
+  ].forEach(function(bSwitch) {
+      this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
+        function(event, state) {
+          this.data.options[bSwitch.attribute] = state;
+          this.signal('update', {
+            type: bSwitch.type
+          });
+        }.bind(this));
+    }, this);
 };
 
   /*

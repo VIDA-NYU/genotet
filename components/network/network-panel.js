@@ -72,12 +72,6 @@ NetworkPanel.prototype.panel = function(container) {
     .change(function() {
       return layout.toggleForce();
     });
-  $('#'+ this.htmlid + ' #edgelist')
-    .attr('checked', this.edgeListing)
-    .change(function() {
-      return layout.toggleEdgeListing();
-    });
-  this.uiHeight = $('#'+ this.htmlid + " div[name='ui']").height();
 
   // UI Update
   var loader = this.parentView.loader;
@@ -108,32 +102,46 @@ NetworkPanel.prototype.panel = function(container) {
 
 /** @inheritDoc */
 NetworkPanel.prototype.initPanel = function() {
-  this.container_.find('.switches input').each(function() {
-    $(this).bootstrapSwitch({
-      size: 'mini',
-      state: $(this).prop('checked')
-    });
+  // Initialize switches
+  this.container_.find('.switches input').bootstrapSwitch({
+    size: 'mini'
   });
 
-  this.container_.find('#gene-labels').on('switchChange.bootstrapSwitch',
-    function(event, state) {
-      this.data.options.showLabels = state;
+  // Switch actions
+  [
+    {selector: '#gene-labels', type: 'label', attribute: 'showLabels'},
+    {selector: '#tf-tf', type: 'visibility', attribute: 'showTFToTF'},
+    {selector: '#tf-nontf', type: 'visibility', attribute: 'showTFToNonTF'}
+  ].forEach(function(bSwitch) {
+      this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
+        function(event, state) {
+          this.data.options[bSwitch.attribute] = state;
+          this.signal('update', {
+            type: bSwitch.type
+          });
+        }.bind(this));
+  }, this);
+
+  // Gene update
+  ['set', 'add', 'remove'].forEach(function(method) {
+    this.container_.find('#genes #' + method).click(function() {
+      var input = this.container_.find('#genes input');
+      var geneRegex = input.val();
+      if (geneRegex == '') {
+        Core.warning('missing input gene selection')
+        return;
+      }
+      input.val('');
       this.signal('update', {
-        type: 'label'
+        type: 'gene',
+        regex: geneRegex,
+        method: method
       });
     }.bind(this));
-  this.container_.find('#tf-tf').on('switchChange.bootstrapSwitch',
-    function(event, state) {
-      this.data.options.showTFToTF = state;
-      this.signal('update', {
-        type: 'visibility'
-      });
-    }.bind(this));
-  this.container_.find('#tf-nontf').on('switchChange.bootstrapSwitch',
-    function(event, state) {
-      this.data.options.showTFToNonTF = state;
-      this.signal('update', {
-        type: 'visibility'
-      });
-    }.bind(this))
+  }, this);
+};
+
+/** @inheritDoc */
+NetworkPanel.prototype.dataLoaded = function() {
+  this.container_.find('#network input').val(this.data.networkName);
 };
