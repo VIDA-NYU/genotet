@@ -76,6 +76,20 @@ BindingPanel.prototype.initPanel = function() {
           });
         }.bind(this));
     }, this);
+
+  // Coordinates setting
+  this.container_.find('#start-coordinate button').click(function() {
+  });
+};
+
+/**
+ * Updates the binding coordinates upon zoom.
+ * @param {number} start Start coordinate.
+ * @param {number} end End coordinate.
+ */
+BindingPanel.prototype.updateCoordinates = function(start, end) {
+  this.container_.find('#start-coordinate input').val(parseInt(start));
+  this.container_.find('#end-coordinate input').val(parseInt(end));
 };
 
   /*

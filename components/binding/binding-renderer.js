@@ -187,6 +187,13 @@ BindingRenderer.prototype.getBindingRanges_ = function() {
 BindingRenderer.prototype.dataLoaded = function() {
   this.getBindingRanges_();
   this.render();
+
+  // Initialize coordinates in the panel.
+  // Send the coordinates to the panel.
+  this.signal('coordinates', {
+    start: this.detailXMin_,
+    end: this.detailXMax_
+  });
 };
 
 /** @inheritDoc */
@@ -630,7 +637,14 @@ BindingRenderer.prototype.zoomHandler_ = function() {
 
   // Update the detail range visually immediately so that the user can get a
   // hint of the zoom effect.
-  this.drawOverviewRange_(this.screenRangeToBindingCoordinates_());
+  var coordinates = this.screenRangeToBindingCoordinates_();
+  this.drawOverviewRange_(coordinates);
+
+  // Send the coordinates to the panel.
+  this.signal('coordinates', {
+    start: coordinates[0],
+    end: coordinates[1]
+  });
 
   this.drawDetails_();
   this.drawExons_()
