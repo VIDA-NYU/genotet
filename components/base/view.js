@@ -229,10 +229,10 @@ View.prototype.init = function() {
       this.renderer.hideLoading();
     }.bind(this))
     .on('genotet.loadSuccess', function() {
+      this.panel.dataLoaded();
       this.renderer.dataLoaded();
     }.bind(this))
     .on('genotet.loadFail', function() {
-      console.log('fail');
       this.renderer.showFailure();
     }.bind(this));
 };
@@ -266,7 +266,7 @@ View.prototype.headerText = function(headerText) {
  */
 View.prototype.focus = function() {
   this.container.addClass('focused');
-  this.signal('focus', this);
+  this.signal('focus');
   // Re-append to appear on top of other views.
   this.container.appendTo('#main');
 };

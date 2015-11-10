@@ -66,7 +66,6 @@ module.exports = {
         txEnd: txEnd,
         cdsStart: cdsStart,
         cdsEnd: cdsEnd,
-        exonCount: exonCount,
         exonRanges: exonRanges
       };
       result.push(exon);

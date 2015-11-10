@@ -30,6 +30,29 @@ function NetworkView(viewName, params) {
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.networkName, params.geneRegex);
   }.bind(this));
+
+  // Set up rendering update.
+  $(this.panel).on('genotet.update', function(event, data) {
+    switch(data.type) {
+      case 'label':
+        this.renderer.update();
+        break;
+      case 'visibility':
+        this.renderer.updateVisibility();
+        this.renderer.update();
+        break;
+      case 'gene':
+        this.loader.updateGenes(data.method, data.regex);
+        break;
+      default:
+        Core.error('unknown update type', data.type);
+    }
+  }.bind(this));
+
+  // Gene removal update
+  $(this.loader).on('genotet.gene-remove', function() {
+    this.renderer.dataLoaded();
+  }.bind(this));
 }
 
 NetworkView.prototype = Object.create(View.prototype);

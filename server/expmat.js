@@ -139,7 +139,10 @@ module.exports = {
       if (tfai != -1) {
         for (var j = 0; j < resultTfa.numcols; j++) {
           var idx = resultExp.colnames.indexOf(resultTfa.colnames[j]);
-          tfaValues.push({'value': resultTfa.values[tfai * resultTfa.numcols + j], 'index': idx});
+          tfaValues.push({
+            value: resultTfa.values[tfai * resultTfa.numcols + j],
+            index: idx
+          });
         }
         tfaValues.sort(function(a, b) { return a.index - b.index; });
       }
