@@ -79,7 +79,7 @@ ViewLoader.prototype.signal = function(eventType, data) {
  * @param {Object} params Query parameter object.
  */
 ViewLoader.prototype.fail = function(msg, params) {
-  Core.error('cannot load binding data', JSON.stringify(params));
+  Core.error(msg, params == null ? '' : JSON.stringify(params));
   this.signal('loadFail');
 };
 

@@ -190,9 +190,9 @@ app.get('/genotet', function(req, res) {
       var chr = req.query.chr;
       data = binding.getExons(exonFile, chr);
       break;
-    case 'srchexon':
-      var name = req.query.name.toLowerCase();
-      data = binding.searchExon(exonFile, name);
+    case 'locus':
+      var gene = req.query.gene.toLowerCase();
+      data = binding.searchExon(exonFile, gene);
       break;
     case 'binding':
       // Binding data query [xl, xr], return # samples.

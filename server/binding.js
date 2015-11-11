@@ -249,8 +249,9 @@ module.exports = {
   searchExon: function(file, name) {
     var buf = utils.readFileToBuf(file);
 
-    if (buf == null)
+    if (buf == null) {
       return console.error('cannot read file', file), [];
+    }
 
     var result = this.readExons(buf);
 

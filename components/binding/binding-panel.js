@@ -19,6 +19,17 @@ function BindingPanel(data) {
     showBed: true,
     showExons: true
   });
+
+  /**
+   * Select2 for gene.
+   * @private {select2}
+   */
+  this.selectGene_;
+
+  /**
+   * Select2 for chromosome.
+   */
+  this.selectChr_;
 }
 
 BindingPanel.prototype = Object.create(ViewPanel.prototype);
@@ -41,7 +52,7 @@ BindingPanel.prototype.initPanel = function() {
       text: chr
     };
   });
-  this.container_.find('#chr select').select2({
+  this.selectChr_ = this.container_.find('#chr select').select2({
     data: chrs
   });
   var genes = Data.bindingGenes.map(function (gene, index) {
@@ -50,7 +61,7 @@ BindingPanel.prototype.initPanel = function() {
       text: gene
     };
   });
-  this.container_.find('#gene select').select2({
+  this.selectGene_ = this.container_.find('#gene select').select2({
     data: genes
   });
   this.container_.find('.select2-container').css({
@@ -78,8 +89,30 @@ BindingPanel.prototype.initPanel = function() {
     }, this);
 
   // Coordinates setting
-  this.container_.find('#start-coordinate button').click(function() {
-  });
+  [
+    {selector: '#start-coordinate', type: 'start'},
+    {selector: '#end-coordinate', type: 'end'}
+  ].forEach(function(ui) {
+      this.container_.find(ui.selector + ' button').click(function() {
+        var coordinate = +this.container_.find(ui.selector + ' input').val();
+        this.signal('coordinate', {
+          type: ui.type,
+          coordinate: coordinate
+        });
+      }.bind(this));
+    }, this);
+
+  // Set chromosome
+  this.selectChr_.on('select2:select', function(event) {
+    var chr = event.params.data.id;
+    this.signal('chr', chr);
+  }.bind(this));
+
+  // Locus search
+  this.container_.find('#locus button').click(function() {
+    var gene = this.container_.find('#locus input').val();
+    this.signal('locus', gene);
+  }.bind(this));
 };
 
 /**
@@ -92,6 +125,15 @@ BindingPanel.prototype.updateCoordinates = function(start, end) {
   this.container_.find('#end-coordinate input').val(parseInt(end));
 };
 
+/**
+ * Updates the chromosome.
+ * @param {string} chr Chromosome.
+ */
+BindingPanel.prototype.updateChr = function(chr) {
+  this.selectChr_.val(chr).trigger('change', [{
+    passive: true
+  }]);
+};
   /*
   $('#' + this.htmlid + ' #gene').val(data.name)
     .keydown(function(e) { if (e.which == 13) return layout.uiUpdate('gene');})

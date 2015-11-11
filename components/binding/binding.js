@@ -31,13 +31,37 @@ function BindingView(viewName, params) {
     this.loader.load(params.gene, params.chr);
   }.bind(this));
 
-  $(this.renderer).on('genotet.zoom', function(event, data) {
-    this.loader.loadTrackDetail(data.xl, data.xr);
-  }.bind(this));
+  $(this.renderer)
+    .on('genotet.zoom', function(event, data) {
+      this.loader.loadTrackDetail(data.xl, data.xr);
+    }.bind(this))
+    .on('genotet.coordinates', function(event, data) {
+      this.panel.updateCoordinates(data.start, data.end);
+    }.bind(this));
 
-  $(this.renderer).on('genotet.coordinates', function(event, data) {
-    this.panel.updateCoordinates(data.start, data.end);
-  }.bind(this));
+  $(this.panel)
+    .on('genotet.coordinate', function(event, data) {
+      var range = data.type == 'start' ?
+        [data.coordinate, this.data.detailXMax] :
+        [this.data.detailXMin, data.coordinate];
+      if (range[0] > range[1]) {
+        Core.warning('start coordinate must be <= end coordinate:', range);
+        return;
+      }
+      this.loader.loadTrackDetail(range[0], range[1]);
+      this.renderer.zoomTransform(range);
+    }.bind(this))
+    .on('genotet.locus', function(event, gene) {
+      this.loader.findLocus(gene);
+    }.bind(this))
+    .on('genotet.chr', function(event, chr) {
+      this.loader.switchChr(chr);
+    }.bind(this));
+
+  $(this.loader)
+    .on('genotet.chr', function(event, chr) {
+      this.panel.updateChr(chr);
+    }.bind(this));
 }
 
 BindingView.prototype = Object.create(View.prototype);

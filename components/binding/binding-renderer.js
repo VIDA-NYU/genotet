@@ -21,17 +21,6 @@ function BindingRenderer(container, data) {
    */
   this.detailHeight_ = 0;
 
-  // Overview range.
-  /** @private {number} */
-  this.overviewXMin_ = Infinity;
-  /** @private {number} */
-  this.overviewXMax_ = -Infinity;
-  // LOD range.
-  /** @private {number} */
-  this.detailXMin_ = Infinity;
-  /** @private {number} */
-  this.detailXMax_ = -Infinity;
-
   // Navigation state.
   /** @private {!Array<number>} */
   this.zoomTranslate_ = [0, 0];
@@ -44,10 +33,10 @@ function BindingRenderer(container, data) {
   this.zoom_ = d3.behavior.zoom();
 
   /**
-   * X scale that maps bars to corresponding positions.
+   * X scale that maps bars to full width of the view.
    * @private {!d3.zoom}
    */
-  this.xScaleDetail_ = d3.scale.linear();
+  this.xScaleOverview_ = d3.scale.linear();
   /**
    * X scale for the detail zooming.
    * @private {!d3.zoom}
@@ -130,8 +119,8 @@ BindingRenderer.prototype.init = function() {
       } else {
         dragRange[1] = x;
         this.drawOverviewRange_([
-          this.xScaleDetail_.invert(Math.min(dragRange[0], dragRange[1])),
-          this.xScaleDetail_.invert(Math.max(dragRange[0], dragRange[1]))
+          this.xScaleOverview_.invert(Math.min(dragRange[0], dragRange[1])),
+          this.xScaleOverview_.invert(Math.max(dragRange[0], dragRange[1]))
         ]);
       }
     }.bind(this))
@@ -141,8 +130,8 @@ BindingRenderer.prototype.init = function() {
         return;
       }
       this.zoomDetail_([
-        this.xScaleDetail_.invert(Math.min(dragRange[0], dragRange[1])),
-        this.xScaleDetail_.invert(Math.max(dragRange[0], dragRange[1]))
+        this.xScaleOverview_.invert(Math.min(dragRange[0], dragRange[1])),
+        this.xScaleOverview_.invert(Math.max(dragRange[0], dragRange[1]))
       ]);
       // Reset dragging range.
       dragRange = [];
@@ -155,28 +144,16 @@ BindingRenderer.prototype.init = function() {
  * @private
  */
 BindingRenderer.prototype.getBindingRanges_ = function() {
-  var prevOverviewXMin_ = this.overviewXMin_,
-      prevOverviewXMax_ = this.overviewXMax_;
-  // Computes the detail range across all tracks.
-  this.detailXMin_ = this.overviewXMin_ = Infinity;
-  this.detailXMax_ = this.overviewXMax_ = -Infinity;
-  this.data.tracks.forEach(function(track) {
-    this.detailXMin_ = Math.min(this.detailXMin_, track.detail.xMin);
-    this.detailXMax_ = Math.max(this.detailXMax_, track.detail.xMax);
-    this.overviewXMin_ = Math.min(this.overviewXMin_, track.overview.xMin);
-    this.overviewXMax_ = Math.max(this.overviewXMax_, track.overview.xMax);
-  }, this);
-
-  if (this.overviewXMin_ != prevOverviewXMin_ ||
-      this.overviewXMax_ != prevOverviewXMax_) {
-    // Overview range changes. Need to reset zoom state.
+  if (this.data.overviewRangeChanged) {
     this.xScaleZoom_
-      .domain([this.overviewXMin_, this.overviewXMax_])
+      .domain([this.data.overviewXMin, this.data.overviewXMax])
       .range([0, this.canvasWidth_]);
     this.zoom_.x(this.xScaleZoom_);
+    this.zoomTranslate_ = [0, 0];
+    this.zoomScale_ = 1;
 
-    this.xScaleDetail_
-      .domain([this.overviewXMin_, this.overviewXMax_])
+    this.xScaleOverview_
+      .domain([this.data.overviewXMin, this.data.overviewXMax])
       .range([0, this.canvasWidth_]);
 
     this.detailContent_.attr('transform', '');
@@ -191,8 +168,8 @@ BindingRenderer.prototype.dataLoaded = function() {
   // Initialize coordinates in the panel.
   // Send the coordinates to the panel.
   this.signal('coordinates', {
-    start: this.detailXMin_,
-    end: this.detailXMax_
+    start: this.data.detailXMin,
+    end: this.data.detailXMax
   });
 };
 
@@ -326,6 +303,8 @@ BindingRenderer.prototype.render = function() {
   // multiple binding tracks.
   this.layout();
 
+  this.zoomTransform([this.data.detailXMin, this.data.detailXMax]);
+
   this.drawOverviews_();
   this.drawDetails_();
   this.drawExons_();
@@ -337,7 +316,7 @@ BindingRenderer.prototype.render = function() {
  */
 BindingRenderer.prototype.drawOverviews_ = function() {
   var xScale = d3.scale.linear()
-    .domain([this.overviewXMin_, this.overviewXMax_])
+    .domain([this.data.overviewXMin, this.data.overviewXMax])
     .range([0, this.canvasWidth_]);
   this.data.tracks.forEach(function(track) {
     var svg = this.overviewContent_.select('#' + track.gene);
@@ -353,7 +332,9 @@ BindingRenderer.prototype.drawOverviews_ = function() {
 BindingRenderer.prototype.drawDetails_ = function() {
   this.data.tracks.forEach(function(track) {
     var svg = this.detailContent_.select('#' + track.gene);
-    this.drawHistogram_(svg, track.detail, this.xScaleDetail_);
+    // We use overviewScale because histogram zooming is handled by applying
+    // the translate and scale of xScaleZoom_ to the SVG group.
+    this.drawHistogram_(svg, track.detail, this.xScaleOverview_);
   }, this);
 };
 
@@ -410,9 +391,10 @@ BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
  * @private
  */
 BindingRenderer.prototype.drawOverviewRange_ = function(opt_range) {
-  var range = opt_range ? opt_range : [this.detailXMin_, this.detailXMax_];
+  var range = opt_range ? opt_range :
+      [this.data.detailXMin, this.data.detailXMax];
   var numTracks = this.data.tracks.length;
-  var xScale = this.xScaleDetail_;
+  var xScale = this.xScaleOverview_;
   this.overviewRange_
     .attr('height', this.OVERVIEW_HEIGHT * numTracks)
     .attr('x', xScale(range[0]))
@@ -424,7 +406,7 @@ BindingRenderer.prototype.drawOverviewRange_ = function(opt_range) {
  */
 BindingRenderer.prototype.drawExons_ = function() {
   var exons = [];
-  var detailRange = [this.detailXMin_, this.detailXMax_];
+  var detailRange = [this.data.detailXMin, this.data.detailXMax];
   this.data.exons.forEach(function(exon) {
     if (Utils.rangeIntersect([exon.txStart, exon.txEnd], detailRange)) {
       exons.push(exon);
@@ -594,6 +576,18 @@ BindingRenderer.prototype.updateDetailHeight_ = function() {
 BindingRenderer.prototype.resize = function() {
   BindingRenderer.base.resize.call(this);
   this.updateZoomHandles_();
+  if (!this.dataReady_()) {
+    return;
+  }
+
+  // Update scales to the new view size.
+  this.xScaleOverview_
+    .range([0, this.canvasWidth_]);
+  this.xScaleZoom_
+    .domain([this.data.overviewXMin, this.data.overviewXMax])
+    .range([0, this.canvasWidth_]);
+  this.zoom_.x(this.xScaleZoom_);
+
   this.render();
 };
 
@@ -668,8 +662,8 @@ BindingRenderer.prototype.zoomEndHandler_ = function() {
  */
 BindingRenderer.prototype.screenRangeToBindingCoordinates_ = function(opt_range) {
   var range = opt_range ? opt_range : [0, this.canvasWidth_];
-  var xScaleInvert = this.xScaleZoom_.invert;
-  return [xScaleInvert(range[0]), xScaleInvert(range[1])];
+  var invert = this.xScaleZoom_.invert;
+  return [invert(range[0]), invert(range[1])];
 };
 
 /**
@@ -683,18 +677,16 @@ BindingRenderer.prototype.zoomDetail_ = function(opt_range) {
     xl: range[0],
     xr: range[1]
   });
-  this.zoomTransform_(range);
 };
 
 /**
  * Sets the zoom transform to make the given binding range appear zoomed into.
- * @param {!Array<number>} range The range to zoom into.
- * @private
+ * @param {!Array<number>} range The range to zoom into, in binding coordinates.
  */
-BindingRenderer.prototype.zoomTransform_ = function(range) {
-  var overviewSpan = this.overviewXMax_ - this.overviewXMin_;
+BindingRenderer.prototype.zoomTransform = function(range) {
+  var overviewSpan = this.data.overviewXMax - this.data.overviewXMin;
   var scale = overviewSpan / (range[1] - range[0]);
-  var translate = [-this.xScaleDetail_(range[0]) * scale, 0];
+  var translate = [-this.xScaleOverview_(range[0]) * scale, 0];
   this.zoomTranslate_ = translate;
   this.zoomScale_ = scale;
   this.xScaleZoom_.domain(range);

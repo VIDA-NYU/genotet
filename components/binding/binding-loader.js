@@ -21,6 +21,9 @@ BindingLoader.prototype = Object.create(ViewLoader.prototype);
 BindingLoader.prototype.constructor = BindingLoader;
 BindingLoader.base = ViewLoader.prototype;
 
+/** @const {number} */
+BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
+
 /**
  * Loads the binding data for a given gene and chromosome.
  * @param {string} gene Name of the gene.
@@ -29,9 +32,43 @@ BindingLoader.base = ViewLoader.prototype;
  * @override
  */
 BindingLoader.prototype.load = function(gene, chr, opt_track) {
-  var trackIndex = opt_track ? opt_track : 0;
+  var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   this.loadFullTrack_(trackIndex, gene, chr);
   this.loadExons_(chr);
+};
+
+/**
+ * loads the full binding data for all tracks. This usually happens
+ * when chromosome is changed.
+ */
+BindingLoader.prototype.loadFullTracks = function() {
+  this.data.tracks.forEach(function(track) {
+    var params = {
+      type: 'binding',
+      gene: track.gene,
+      chr: this.data.chr
+    };
+    // First send query for the overview (without detail range).
+    this.signal('loadStart');
+    $.get(Data.serverURL, params, function(data) {
+      track.overview = data;
+      this.updateRanges_();
+      this.signal('loadComplete');
+    }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot load binding overview', params));
+
+    // Send send query for the details.
+    _(params).extend({
+      xl: this.data.detailXMin,
+      xr: this.data.detailXMax
+    });
+    this.signal('loadStart');
+    $.get(Data.serverURL, params, function(data) {
+      track.detail = data;
+      this.signal('loadComplete');
+    }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot load binding detail', params));
+  }, this);
 };
 
 /**
@@ -48,14 +85,22 @@ BindingLoader.prototype.loadFullTrack_ = function(trackIndex, gene, chr) {
     gene: gene,
     chr: chr
   };
+  if (this.data.detailXMin) {
+    // If we have a previously defined detail range, then keep the range.
+    _(params).extend({
+      xl: this.data.detailXMin,
+      xr: this.data.detailXMax
+    });
+  }
   $.get(Data.serverURL, params, function(data) {
     var track = {
       gene: gene,
-      chr: chr,
       overview: data,
       detail: data
     };
+    this.data.chr = chr;
     this.data.tracks[trackIndex] = track;
+    this.updateRanges_();
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load full binding track', params));
@@ -67,17 +112,20 @@ BindingLoader.prototype.loadFullTrack_ = function(trackIndex, gene, chr) {
  * @param {number} xr Range's right coordinate.
  */
 BindingLoader.prototype.loadTrackDetail = function(xl ,xr) {
+  this.data.detailXMin = xl;
+  this.data.detailXMax = xr;
   this.data.tracks.forEach(function(track) {
     this.signal('loadStart');
     var params = {
       type: 'binding',
       gene: track.gene,
-      chr: track.chr,
+      chr: this.data.chr,
       xl: xl,
       xr: xr
     };
     $.get(Data.serverURL, params, function(data) {
       track.detail = data;
+      this.updateRanges_();
       this.signal('loadComplete');
     }.bind(this), 'jsonp')
       .fail(this.fail.bind(this, 'cannot load binding detail', params));
@@ -99,11 +147,79 @@ BindingLoader.prototype.loadExons_ = function(chr) {
     this.data.exons = data;
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
-    .fail(function() {
-      Core.error('cannot load binding data', JSON.stringify(params));
-      this.signal('loadFail');
-    }.bind(this));
+    .fail(this.fail.bind(this, 'cannot load binding data', params));
 };
+
+
+/**
+ * Queries the locus of a given gene.
+ * @param {string} gene Gene name to be searched for.
+ */
+BindingLoader.prototype.findLocus = function(gene) {
+  this.signal('loadStart');
+  var params = {
+    type: 'locus',
+    gene: gene
+  };
+  $.get(Data.serverURL, params, function(res) {
+    if (!res.success) {
+      Core.warning('gene locus not found');
+    } else {
+      var span = res.txEnd - res.txStart;
+      this.data.detailXMin = res.txStart - span * this.LOCUS_MARGIN_RATIO;
+      this.data.detailXMax = res.txEnd + span * this.LOCUS_MARGIN_RATIO;
+      if (res.chr != this.data.chr) {
+        this.data.chr = res.chr;
+        this.signal('chr', res.chr);
+        this.switchChr(res.chr);
+      } else {
+        this.loadTrackDetail(this.data.detailXMin, this.data.detailXMax);
+      }
+    }
+    this.signal('loadComplete');
+  }.bind(this), 'jsonp')
+    .fail(this.fail.bind(this, 'cannot search for gene locus', params));
+};
+
+/**
+ * Changes the chromosome of the genome browser.
+ * @param {string} chr Chromosome.
+ */
+BindingLoader.prototype.switchChr = function(chr) {
+  this.data.chr = chr;
+  this.loadExons_(chr);
+  this.loadFullTracks();
+};
+
+/**
+ * Updates the detail and overall ranges for the data.
+ * @private
+ */
+BindingLoader.prototype.updateRanges_ = function() {
+  // Computes the overview range across all tracks.
+  var overviewXMin = Infinity, overviewXMax = -Infinity;
+  this.data.tracks.forEach(function(track) {
+    overviewXMin = Math.min(overviewXMin, track.overview.xMin);
+    overviewXMax = Math.max(overviewXMax, track.overview.xMax);
+  }, this);
+
+  // Overview range may change, then need to reset zoom state.
+  this.data.overviewRangeChanged = overviewXMin != this.data.overviewXMin ||
+    overviewXMax != this.data.overviewXMax;
+
+  _(this.data).extend({
+    overviewXMin: overviewXMin,
+    overviewXMax: overviewXMax
+  });
+  if (!this.data.detailXMin) {
+    // If we do not have a detail range yet, then use the overview range.
+    _(this.data).extend({
+      detailXMin: overviewXMin,
+      detailXMax: overviewXMax
+    });
+  }
+};
+
 /*
 LoaderHistogram.prototype.loadData = function(identifier) {
   var name = identifier.name,
@@ -168,20 +284,6 @@ LoaderHistogram.prototype.loadBindingsmp = function(name, chr) {
   });
 };
 
-LoaderHistogram.prototype.loadBindingFromLayout = function(acrossChr, name, chr, xl, xr) {
-  this.trackChanged = acrossChr;
-  this.loadBinding(name, chr, xl, xr);
-};
-
-LoaderHistogram.prototype.updateFocus = function(chr, xl, xr) {
-  this.parentView.layout.showMsg('Loading...');
-  this.loadBinding(this.lastIdentifier.name, chr, xl, xr);
-  if (this.lastIdentifier.chr != chr) {
-    this.lastIdentifier.chr = chr;
-    //console.log(this.parentView.viewname, this.lastIdentifier.name, chr);
-    this.loadExons(this.lastIdentifier.name, chr);
-  }
-};
 LoaderHistogram.prototype.updateChr = function(chr) {
   this.parentView.layout.showMsg('Loading...');
   this.loadBinding(this.lastIdentifier.name, chr);
@@ -215,57 +317,6 @@ LoaderHistogram.prototype.loadBinding = function(name, chr, xl, xr) {
   });
 };
 
-LoaderHistogram.prototype.loadExons = function(name, chr) {
-  var loader = this;
-  this.parentView.viewdata.exonsData = null;
-  $.ajax({
-    type: 'GET', url: addr, dataType: 'jsonp',
-    data: {
-      args: 'type=exons&name=' + name + '&chr=' + chr
-    },
-    error: function(xhr, status, err) { loader.error('cannot load exons\n' + status + '\n' + err); },
-    success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
-      if (data == null || data.length == 0) {
-        loader.error('cannot load exons\ncheck name and chr (or data not exists)');
-        return;
-      }
-      data.sort(function(a, b) { return a.txStart == b.txStart ? (a.txEnd - b.txEnd) : (a.txStart - b.txStart); }); // sort as intervals
 
-      loader.parentView.viewdata.exonsData = data;
-      loader.loadComplete();
-    }
-  });
-};
 
-LoaderHistogram.prototype.locateGene = function(name) {
-  var loader = this, layout = this.parentView.layout;
-  $.ajax({
-    type: 'GET', url: addr, dataType: 'jsonp',
-    data: {
-      args: 'type=srchexon&name=' + name
-    },
-    success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
-      if (data.success == false) {
-        loader.error('gene not found');
-        return;
-      }
-      var exonspan = data.txEnd - data.txStart;
-      var xl = Math.round(data.txStart - exonspan * 0.1),
-        xr = Math.round(data.txEnd + exonspan * 0.1);
-      var identifier = {'name': loader.lastIdentifier.name, 'chr': data.chr, 'range': {'xl': xl, 'xr': xr}, 'change': data.chr != loader.lastIdentifier.chr};
-      loader.loadData(identifier);
-      loader.parentView.postGroupMessage({'action': 'focus', 'chr': data.chr, 'xl': xl, 'xr': xr});
-    }
-  });
-};
-
-LoaderHistogram.prototype.error = function(msg) {
-  this.parentView.viewdata = null;
-  msg = this.parentView.viewname + ': ' + msg;
-  this.parentView.layout.showError();
-  options.alert(msg);
-  console.error(msg);
-};
 */
