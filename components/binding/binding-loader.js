@@ -35,7 +35,8 @@ BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
  */
 BindingLoader.prototype.load = function(gene, chr, opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
-  this.loadFullTrack_(trackIndex, gene, chr);
+  this.data.chr = chr;
+  this.loadFullTrack(trackIndex, gene, chr);
   this.loadExons_(chr);
 };
 
@@ -78,34 +79,50 @@ BindingLoader.prototype.loadFullTracks = function() {
  * @param {number} trackIndex Track index.
  * @param {string} gene Gene name.
  * @param {string} chr Chromosome.
- * @private
  */
-BindingLoader.prototype.loadFullTrack_ = function(trackIndex, gene, chr) {
-  this.signal('loadStart');
+BindingLoader.prototype.loadFullTrack = function(trackIndex, gene, chr) {
   var params = {
     type: 'binding',
     gene: gene,
     chr: chr
   };
-  if (this.data.detailXMin) {
-    // If we have a previously defined detail range, then keep the range.
-    _(params).extend({
-      xl: this.data.detailXMin,
-      xr: this.data.detailXMax
-    });
-  }
+  this.signal('loadStart');
   $.get(Data.serverURL, params, function(data) {
     var track = {
       gene: gene,
       overview: data,
       detail: data
     };
-    this.data.chr = chr;
+    var addTrack = trackIndex == this.data.tracks.length;
     this.data.tracks[trackIndex] = track;
     this.updateRanges_();
     this.signal('loadComplete');
+    if (addTrack) {
+      // Add one more track.
+      this.signal('track');
+    }
   }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot load full binding track', params));
+    .fail(this.fail.bind(this, 'cannot load binding overview', params));
+
+  if (this.data.detailXMin) {
+    // If we have a previously defined detail range, then keep the range.
+    _(params).extend({
+      xl: this.data.detailXMin,
+      xr: this.data.detailXMax
+    });
+    this.signal('loadStart');
+    $.get(Data.serverURL, params, function(data) {
+      // If a new track is created. This may be received before the track object
+      // is created. Therefore create an empty object in that case.
+      if (!this.data.tracks[trackIndex]) {
+        this.data.tracks[trackIndex] = {};
+      }
+
+      this.data.tracks[trackIndex].detail = data;
+      this.signal('loadComplete');
+    }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot load binding detail', params));
+  }
 };
 
 /**
@@ -127,7 +144,6 @@ BindingLoader.prototype.loadTrackDetail = function(xl ,xr) {
     };
     $.get(Data.serverURL, params, function(data) {
       track.detail = data;
-      this.updateRanges_();
       this.signal('loadComplete');
     }.bind(this), 'jsonp')
       .fail(this.fail.bind(this, 'cannot load binding detail', params));

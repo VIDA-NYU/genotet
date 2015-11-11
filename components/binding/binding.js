@@ -48,6 +48,12 @@ function BindingView(viewName, params) {
         Core.warning('start coordinate must be <= end coordinate:', range);
         return;
       }
+      if (range[0] < this.data.overviewXMin ||
+        range[1] > this.data.overviewXMax) {
+        Core.warning('coordinate out of range',
+            [this.data.overviewXMin, this.data.overviewXMax]);
+        return;
+      }
       this.loader.loadTrackDetail(range[0], range[1]);
       this.renderer.zoomTransform(range);
     }.bind(this))
@@ -60,14 +66,29 @@ function BindingView(viewName, params) {
     .on('genotet.update', function(event, data) {
       // Switch updates
       this.renderer.render();
+    }.bind(this))
+    .on('genotet.add-track', function() {
+      var track = this.data.tracks.slice(-1).pop();
+      this.loader.loadFullTrack(this.data.tracks.length, track.gene,
+          this.data.chr);
+    }.bind(this))
+    .on('genotet.remove-track', function(event, trackIndex) {
+      this.data.tracks.splice(trackIndex, 1);
+      this.renderer.render();
+      this.panel.updateTracks();
+    }.bind(this))
+    .on('genotet.gene', function(event, data) {
+      this.data.tracks[data.trackIndex].gene = data.gene;
+      this.loader.loadFullTrack(data.trackIndex, data.gene, this.data.chr);
     }.bind(this));
 
   $(this.loader)
     .on('genotet.chr', function(event, chr) {
       this.panel.updateChr(chr);
+    }.bind(this))
+    .on('genotet.track', function(event) {
+      this.panel.updateTracks();
     }.bind(this));
-
-
 }
 
 BindingView.prototype = Object.create(View.prototype);

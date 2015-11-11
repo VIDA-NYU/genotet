@@ -17,28 +17,13 @@ var Test = {
       geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
       condRegex: '.*'
     });
-    ViewManager.createView('binding', 'My Genome Browser', {
-      gene: 'BATF',
-      chr: '1'
-    });
     ViewManager.createView('network', 'My Network', {
       networkName: 'th17',
       geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
     });
+    ViewManager.createView('binding', 'My Genome Browser', {
+      gene: 'BATF',
+      chr: '1'
+    });
   }
 };
-
-/*
-  // obsolete examples
-  createView('Network', 'graph')
-    .loadData('th17', '^BATF$|^RORC$|^STAT3$|^FOSL2$|^MAF$|^IRF4$');
-  createView('Heatmap', 'heatmap')
-    .loadData('sigA');
-  createView('Binding', 'histogram')
-    .loadData('BATF');
-  createView('Binding2', 'histogram')
-    .loadData('IRF4');
-  linkView('Network', 'Heatmap');
-  linkView('Network', 'Binding');
-  groupView('Binding', 'Binding2');
-*/

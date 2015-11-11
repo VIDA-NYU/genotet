@@ -43,3 +43,16 @@
   fill: #031c51;
   opacity: 0.25;
 }
+
+.binding-panel #genes #add {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.binding-panel .track-gene {
+  margin-top: 3px;
+}
+
+.binding-panel .track-gene button {
+  border: none;
+}

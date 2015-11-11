@@ -21,10 +21,10 @@ function BindingPanel(data) {
   });
 
   /**
-   * Select2 for gene.
-   * @private {select2}
+   * Select2 for genes.
+   * @private {!Array<select2>}
    */
-  this.selectGene_;
+  this.selectGenes_ = [];
 
   /**
    * Select2 for chromosome.
@@ -46,27 +46,7 @@ BindingPanel.prototype.panel = function(container) {
 
 /** @inheritDoc */
 BindingPanel.prototype.initPanel = function() {
-  var chrs = Data.bindingChrs.map(function (chr, index) {
-    return {
-      id: chr,
-      text: chr
-    };
-  });
-  this.selectChr_ = this.container_.find('#chr select').select2({
-    data: chrs
-  });
-  var genes = Data.bindingGenes.map(function (gene, index) {
-    return {
-      id: gene,
-      text: gene
-    };
-  });
-  this.selectGene_ = this.container_.find('#gene select').select2({
-    data: genes
-  });
-  this.container_.find('.select2-container').css({
-    width: '100%'
-  });
+  this.initChrs_();
 
   // Initialize switches.
   this.container_.find('.switches input').bootstrapSwitch({
@@ -111,12 +91,6 @@ BindingPanel.prototype.initPanel = function() {
         });
     }, this);
 
-  // Set gene
-  this.selectGene_.on('select2:select', function(event) {
-    var gene = event.params.data.id;
-    this.signal('gene', gene);
-  }.bind(this));
-
   // Set chromosome
   this.selectChr_.on('select2:select', function(event) {
     var chr = event.params.data.id;
@@ -127,6 +101,11 @@ BindingPanel.prototype.initPanel = function() {
   this.container_.find('#locus button').click(function() {
     var gene = this.container_.find('#locus input').val();
     this.signal('locus', gene);
+  }.bind(this));
+
+  // Add track
+  this.container_.find('#genes #add').click(function() {
+    this.signal('add-track');
   }.bind(this));
 };
 
@@ -148,4 +127,92 @@ BindingPanel.prototype.updateChr = function(chr) {
   this.selectChr_.val(chr).trigger('change', [{
     passive: true
   }]);
+};
+
+/**
+ * Sets the chromosomes for selection.
+ * @private
+ */
+BindingPanel.prototype.initChrs_ = function() {
+  var chrs = Data.bindingChrs.map(function (chr, index) {
+    return {
+      id: chr,
+      text: chr
+    };
+  });
+  var section = this.container_.find('#chr');
+  this.selectChr_ = section.children('select').select2({
+    data: chrs
+  });
+  section.find('.select2-container').css({
+    width: '100%'
+  });
+};
+
+/**
+ * Adds a select2 for a new track.
+ * @private
+ */
+BindingPanel.prototype.addTrack_ = function() {
+  var trackIndex = this.data.tracks.length - 1;
+  var ui = this.container_.find('#genes #tracks');
+  var uiTrack = ui.find('#track-template').clone()
+    .appendTo(ui)
+    .attr('id', 'track-' + trackIndex)
+    .show();
+
+  var genes = Data.bindingGenes.map(function (gene, index) {
+    return {
+      id: gene,
+      text: gene
+    };
+  });
+  var gene = this.data.tracks[trackIndex].gene;
+  var select = uiTrack.children('select').select2({
+    data: genes
+  });
+  select.val(gene).trigger('change');
+  this.selectGenes_[trackIndex] = select;
+
+  uiTrack.find('.select2-container').css({
+    width: 'calc(100% - 30px)'
+  });
+
+  // Removal button
+  uiTrack.find('#remove').click(
+      this.signal.bind(this, 'remove-track', trackIndex));
+
+  // Set gene
+  select.on('select2:select', function(event) {
+    var gene = event.params.data.id;
+    this.signal('gene', {
+      trackIndex: trackIndex,
+      gene: gene
+    });
+  }.bind(this));
+};
+
+/**
+ * Updates the gene selected for each track.
+ */
+BindingPanel.prototype.updateTracks = function() {
+  var numTracks = this.data.tracks.length;
+  var uiTracks = this.container_.find('#genes .track-gene');
+  if (uiTracks.length > numTracks) {
+    // Track has been removed.
+    for (var index = uiTracks.length - 1; index >= numTracks; index--) {
+      this.container_.find('#genes #track-' + index).remove();
+    }
+  }
+
+  this.data.tracks.forEach(function(track, index) {
+    var ui = this.container_.find('#genes #track-' + index);
+    if (!ui.length) {
+      this.addTrack_();
+      ui = $('#gene #track-' + index);
+    }
+    this.selectGenes_[index].val(track.gene).trigger('change');
+  }, this);
+  this.container_.find('#genes .glyphicon-remove')
+    .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };

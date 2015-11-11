@@ -1,7 +1,13 @@
 <div class="binding-panel">
-  <div id="gene" class="panel-section">
-    <div class="item-title">Binding Gene</div>
-    <select></select>
+  <div id="genes" class="panel-section">
+    <div class="item-title">Binding Tracks</div>
+    <div id="tracks">
+      <div id="track-template" class="track-gene" style="display: none;">
+        <select></select>
+        <button id="remove" class="btn btn-default btn-xs glyphicon glyphicon-remove"></button>
+      </div>
+    </div>
+    <button id="add" class="btn btn-default btn-xs glyphicon glyphicon-plus"></button>
   </div>
   <div id="chr" class="panel-section">
     <div class="item-title">Chromosome</div>

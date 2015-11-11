@@ -266,15 +266,15 @@ BindingRenderer.prototype.layout = function() {
   this.svgExons_.attr('transform',
     Utils.getTransform([0, this.exonsTranslateY_]));
 
-  var getGene = function(track) {
-    return track.gene;
+  var trackID = function(track, index) {
+    return 'track-' + index;
   };
 
   // Set up overview tracks.
   var overviews = this.overviewContent_.selectAll('g')
-    .data(this.data.tracks, getGene);
+    .data(this.data.tracks);
   overviews.enter().append('g')
-    .attr('id', getGene);
+    .attr('id', trackID);
   overviews.exit().remove();
   overviews
     .attr('height', this.OVERVIEW_HEIGHT)
@@ -284,9 +284,9 @@ BindingRenderer.prototype.layout = function() {
 
   // Set up detail tracks.
   var details = this.detailContent_.selectAll('g')
-    .data(this.data.tracks, getGene);
+    .data(this.data.tracks);
   details.enter().append('g')
-    .attr('id', getGene);
+    .attr('id', trackID);
   details.exit().remove();
   details
     .attr('height', this.detailHeight_)
@@ -326,23 +326,11 @@ BindingRenderer.prototype.drawOverviews_ = function() {
   var xScale = d3.scale.linear()
     .domain([this.data.overviewXMin, this.data.overviewXMax])
     .range([0, this.canvasWidth_]);
-  this.data.tracks.forEach(function(track) {
-    var svg = this.overviewContent_.select('#' + track.gene);
+  this.data.tracks.forEach(function(track, index) {
+    var svg = this.overviewContent_.select('#track-' + index);
     this.drawHistogram_(svg, track.overview, xScale);
   }, this);
   this.drawOverviewRange_();
-};
-
-/**
- * Renders the bed tracks.
- * @private
- */
-BindingRenderer.prototype.drawBed_ = function() {
-  if (!this.data.options.showBed) {
-    // this.bedContent_.style('display', 'none');
-  }
-  // this.bedContent_.style('display', '');
-  // TODO(bowen): Check bed visual encoding and implement this.
 };
 
 /**
@@ -350,8 +338,8 @@ BindingRenderer.prototype.drawBed_ = function() {
  * @private
  */
 BindingRenderer.prototype.drawDetails_ = function() {
-  this.data.tracks.forEach(function(track) {
-    var svg = this.detailContent_.select('#' + track.gene);
+  this.data.tracks.forEach(function(track, index) {
+    var svg = this.detailContent_.select('#track-' + index);
     // We use overviewScale because histogram zooming is handled by applying
     // the translate and scale of xScaleZoom_ to the SVG group.
     this.drawHistogram_(svg, track.detail, this.xScaleOverview_);
@@ -585,6 +573,18 @@ BindingRenderer.prototype.drawExons_ = function() {
         return exon.name2;
       }.bind(this));
   }
+};
+
+/**
+ * Renders the bed tracks.
+ * @private
+ */
+BindingRenderer.prototype.drawBed_ = function() {
+  if (!this.data.options.showBed) {
+    // this.bedContent_.style('display', 'none');
+  }
+  // this.bedContent_.style('display', '');
+  // TODO(bowen): Check bed visual encoding and implement this.
 };
 
 /**
