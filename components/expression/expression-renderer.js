@@ -143,7 +143,7 @@ ExpressionRenderer.prototype.dataLoaded = function() {
 
 /** @inheritDoc */
 ExpressionRenderer.prototype.dataReady_ = function() {
-  return this.data.heatmap;
+  return this.data.matrix;
 };
 
 /** @inheritDoc */

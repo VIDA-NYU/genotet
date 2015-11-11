@@ -20,6 +20,12 @@ function ExpressionPanel(data) {
     showGeneLabels: true,
     showConditionLabels: true
   });
+
+  /**
+   * Select2 for selecting genes to profile.
+   * @private {select2}
+   */
+  this.selectProfiles_;
 }
 
 ExpressionPanel.prototype = Object.create(ViewPanel.prototype);
@@ -35,23 +41,56 @@ ExpressionPanel.prototype.panel = function(container) {
 };
 
 /** @inheritDoc */
+ExpressionPanel.prototype.dataLoaded = function() {
+  this.updateGenes(this.data.matrix.geneNames);
+};
+
+/** @inheritDoc */
 ExpressionPanel.prototype.initPanel = function() {
-  var genes = Data.bindingGenes.map(function(gene, index) {
+  // Data may have not been loaded. Use empty list.
+  this.updateGenes([]);
+
+ // Initialize switches.
+  this.container_.find('.switches input').bootstrapSwitch({
+    size: 'mini'
+  });
+
+  // Switch actions
+  [
+    {selector: '#overview', type: 'overview', attribute: 'showOverview'},
+    {selector: '#bed', type: 'bed', attribute: 'showBed'},
+    {selector: '#exons', type: 'exons', attribute: 'showExons'},
+    {selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScale'}
+  ].forEach(function(bSwitch) {
+    this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
+      function(event, state) {
+        this.data.options[bSwitch.attribute] = state;
+        this.signal('update', {
+          type: bSwitch.type
+        });
+      }.bind(this));
+   }, this);
+};
+
+/**
+ * Updates the genes in the profile list.
+ * Select2 will regenerate the selection list each time updated.
+ * @param {!Array<string>} genes List of genes.
+ */
+ExpressionPanel.prototype.updateGenes = function(genes) {
+  var genes = genes.map(function(gene, index) {
     return {
       id: gene,
       text: gene
     };
   });
-  this.container_.find('#profile select').select2({
-    data: genes,
-    multiple: true
-  });
+  this.selectProfiles_ = this.container_.find('#profile select')
+    .select2({
+      data: genes,
+      multiple: true
+    });
   this.container_.find('#profile .select2-container').css({
     width: '100%'
-  });
-
-  this.container_.find('.switches input').bootstrapSwitch({
-    size: 'mini'
   });
 };
 

@@ -2,6 +2,8 @@
  * @fileoverview Binding data loader.
  */
 
+'use strict';
+
 /**
  * BindingLoader loads the binding data for the BindingView.
  * @param {!Object} data Data object to be written.

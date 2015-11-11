@@ -636,46 +636,6 @@ NetworkRenderer.prototype.selectLink = function(d) {
   this.visualizeElement({'content': d, 'type': 'link'}, 'select');
 };
 
-NetworkRenderer.prototype.toggleLabel = function() {
-    this.showLabel = !this.showLabel;
-  var label = this.svg.selectAll('.label').data(this.nodes)
-    .attr('visibility', this.showLabel ? 'visible': 'hidden');
-};
-
-NetworkRenderer.prototype.toggleTF2TFEdge = function() {
-  var layout = this;
-    this.showTF2TFEdge = !this.showTF2TFEdge;
-  this.toggleEdge();
-};
-
-NetworkRenderer.prototype.toggleTF2nTFEdge = function() {
-    var layout = this;
-    this.showTF2nTFEdge = !this.showTF2nTFEdge;
-  this.toggleEdge();
-};
-
-NetworkRenderer.prototype.toggleEdge = function() {
-  var layout = this;
-  d3.selectAll('.link').data(this.data.links)
-    .attr('visibility', function(d) { return layout.checkVisible(d); });
-  d3.selectAll('.linkiobj').data(this.data.links)
-    .attr('visibility', function(d) { return layout.checkVisible(d); });
-  d3.selectAll('.linkdir').data(this.data.links)
-    .attr('visibility', function(d) { return layout.checkVisible(d); });
-};
-
-NetworkRenderer.prototype.checkVisible = function(d) {
-  var layout = this;
-  if (d.source.isTF && d.target.isTF) return layout.showTF2TFEdge ? 'visible': 'hidden';
-  else if (utils.xor(d.source.isTF, d.target.isTF)) return layout.showTF2nTFEdge ? 'visible': 'hidden';
-  else return 'visible';
-};
-
-NetworkRenderer.prototype.toggleEdgeListing = function() {
-  this.edgeListing = !this.edgeListing;
-  $('#'+ this.htmlid + ' #edgelist').attr('checked', this.edgeListing);
-};
-
 NetworkRenderer.prototype.toggleForce = function() {
   if (this.forcing) this.force.stop();
   else this.force.resume();

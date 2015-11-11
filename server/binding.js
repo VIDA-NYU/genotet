@@ -200,7 +200,7 @@ module.exports = {
       xMax: xr,
       values: [],
       valueMax: -Infinity,
-      valueMaxAll: segtree.querySegmentTree(cache.nodes, 0, 0, segslen - 1,
+      allValueMax: segtree.querySegmentTree(cache.nodes, 0, 0, segslen - 1,
         0, segslen - 1)
     };
     // Do sampling here, the sampling takes the range maximum for each bar.

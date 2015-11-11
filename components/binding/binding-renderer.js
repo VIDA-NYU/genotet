@@ -376,7 +376,7 @@ BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
   var height = svg.attr('height');
   var yScale = d3.scale.linear()
     .domain([0, this.data.options.autoScale ?
-        track.valueMax : track.valueMaxAll])
+        track.valueMax : track.allValueMax])
     .range([0, height]);
 
   var barWidth = (xScale(track.xMax) - xScale(track.xMin)) /

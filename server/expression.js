@@ -45,7 +45,7 @@ module.exports = {
    * @param {string} buf Buffer of the TFA matrix data file.
    * @return {!Object} The TFA matrix data as a JS object.
    */
-  readTfamat: function(buf) {
+  readTFAmat: function(buf) {
     var result = {};
     var offset = 0;
     var n = buf.readInt32LE(0),
@@ -77,12 +77,12 @@ module.exports = {
    * @return {{name: string, values: !Array<number>}}
    *     TFA profile of the given gene.
    */
-  getTfamatLine: function(file, name) {
+  getTFAmatLine: function(file, name) {
     //var file = tfamatFile[mat];
     var buf = utils.readFileToBuf(file);
     if (buf == null)
       return console.error('cannot read file', file), [];
-    var result = readTfamat(buf);
+    var result = readTFAmat(buf);
     name = name.toLowerCase();
     for (var i = 0; i < result.rownames.length; i++) {
       if (result.rownames[i].toLowerCase() == name) { name = result.rownames[i]; break; }
@@ -97,7 +97,7 @@ module.exports = {
   /**
    * Gets the expression matrix profile of a given gene.
    * @param {string} fileExp File name of the expression matrix.
-   * @param {string} fileTfa File name of the TFA matrix.
+   * @param {string} fileTFA File name of the TFA matrix.
    * @param {string} name Name of the gene to be profiled.
    * @returns {{
    *     name: string,
@@ -105,24 +105,24 @@ module.exports = {
    *     tfaValues: !Array<number>
    *   }} Gene expression profile as a JS object.
    */
-  getExpmatLine: function(fileExp, fileTfa, name) {
+  getExpmatLine: function(fileExp, fileTFA, name) {
     var bufExp = utils.readFileToBuf(fileExp);
-    var bufTfa = null;
-    if (fileTfa != null) {
-      bufTfa = utils.readFileToBuf(fileTfa)
+    var bufTFA = null;
+    if (fileTFA != null) {
+      bufTFA = utils.readFileToBuf(fileTFA)
     }
 
     if (bufExp == null) {
       return console.error('cannot read file', fileExp), [];
     }
-    if (fileTfa != null && bufTfa == null) {
-      return console.error('cannot read file', fileTfa), [];
+    if (fileTFA != null && bufTFA == null) {
+      return console.error('cannot read file', fileTFA), [];
     }
 
     var resultExp = this.readExpmat(bufExp);
-    var resultTfa;
-    if (fileTfa != null) {
-      resultTfa = readTfamat(bufTfa);
+    var resultTFA;
+    if (fileTFA != null) {
+      resultTFA = readTFAmat(bufTFA);
     }
 
     for (var i = 0; i < resultExp.rownames.length; i++) {
@@ -134,17 +134,19 @@ module.exports = {
     if (i == resultExp.rownames.length)
       return [];// cannot find gene
     var tfaValues = [];
-    if (fileTfa != null) {
-      var tfai = resultTfa.rownames.indexOf(name);
+    if (fileTFA != null) {
+      var tfai = resultTFA.rownames.indexOf(name);
       if (tfai != -1) {
-        for (var j = 0; j < resultTfa.numcols; j++) {
-          var idx = resultExp.colnames.indexOf(resultTfa.colnames[j]);
+        for (var j = 0; j < resultTFA.numcols; j++) {
+          var idx = resultExp.colnames.indexOf(resultTFA.colnames[j]);
           tfaValues.push({
-            value: resultTfa.values[tfai * resultTfa.numcols + j],
+            value: resultTFA.values[tfai * resultTFA.numcols + j],
             index: idx
           });
         }
-        tfaValues.sort(function(a, b) { return a.index - b.index; });
+        tfaValues.sort(function(a, b) {
+          return a.index - b.index;
+        });
       }
     }
     var values = [];
@@ -165,15 +167,13 @@ module.exports = {
    * @param {string} exprows Regex selecting the genes.
    * @param {string} expcols Regex selecting the experiment conditions.
    * @returns {{
-   *     data: !Array<!Array<number>>,
-   *     min: number,
-   *     max: number,
-   *     minAll: number,
-   *     maxAll: number,
-   *     numGenes: number,
-   *     numConds: number,
+   *     values: !Array<!Array<number>>,
+   *     valueMin: number,
+   *     valueMax: number,
+   *     allValueMin: number,
+   *     allValueMax: number,
    *     geneNames: !Array<string>,
-   *     condNames: !Array<string>
+   *     conditionNames: !Array<string>
    *   }}
    */
   getExpmat: function(file, exprows, expcols) {
@@ -189,7 +189,7 @@ module.exports = {
       expc = RegExp(expcols, 'i');
     }catch (e) {
       console.log('incorrect regular expression');
-      expr = expc = '.*';
+      expr = expc = 'a^';
     }
     console.log(expr, expc);
 
@@ -223,68 +223,17 @@ module.exports = {
       }
       values.push(row);
     }
-    /*
-    // TODO(bowen): Temporarily keeping the old matrix sampling code. Just in case...
-      resol = Math.max(1, resol);
-    var nresol = Math.ceil(height / resol), mresol = Math.ceil(width / resol);
-    var n = numSelrows, m = numSelcols; // note that x,y are reversed between svg and matrix data
-    var nsmp = true, msmp = true;
-    if (n < nresol) nsmp = false;
-    else n = nresol;
-    if (m < mresol) msmp = false;
-    else m = mresol;
 
-    var xl = 0, yl = 0, xr = numSelcols - 1E-3, yr = numSelrows - 1E-3;
-    //if(xr==0) xr=0.9; if(yr==0) yr=0.9; // prevent overflow
-    var data = {};
-    var max = 0, min = 1E10;
-    var ys = [], xs = [];
-    for (var i = 0; i <= n; i++) {
-      if (nsmp == false) {
-        ys.push(i == n ? n - 1 : i);
-      }else {
-        var y = yl + i / n * (yr - yl);
-        ys.push(y);
-      }
-    }
-    for (var j = 0; j <= m; j++) {
-      if (msmp == false) {
-        xs.push(j == m ? m - 1 : j);
-      }else {
-        var x = xl + j / m * (xr - xl);
-        xs.push(x);
-      }
-    }
-    //console.log(nsmp, msmp, xs, ys);
-    data.data = [];
-    for (var i = 0; i < n; i++) {
-      var il = ys[i], ir = ys[i + 1];
-          il = Math.floor(il); ir = Math.max(il + 1, Math.floor(ir));
-      for (var j = 0; j < m; j++) {
-        var jl = xs[j], jr = xs[j + 1];
-              jl = Math.floor(jl); jr = Math.max(jl + 1, Math.floor(jr));
-        var cnt = 0;
-        for (var p = il; p < ir; p++) for (var q = jl; q < jr; q++) {
-          cnt = Math.max(cnt, values[p * numSelcols + q]);
-        }
-        max = Math.max(cnt, max);
-              min = Math.min(cnt, min);
-        data.data.push({'x': j / m * width, 'y': i / n * height, 'count': cnt});
-      }
-    }
-    */
     console.log('return', numSelrows, 'rows', numSelcols,
         'columns with value range [' + min + ', ' + max + ']');
     return {
-      data: values,
-      min: min,
-      max: max,
-      minAll: result.min,
-      maxAll: result.max,
-      numGenes: numSelrows,
-      numConds: numSelcols,
+      values: values,
+      valueMin: min,
+      valueMax: max,
+      allValueMin: result.min,
+      allValueMax: result.max,
       geneNames: selrownames,
-      condNames: selcolnames
-    }
+      conditionNames: selcolnames
+    };
   }
 };

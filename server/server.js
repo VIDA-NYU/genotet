@@ -16,7 +16,7 @@ var segtree = require('./segtree.js');
 var utils = require('./utils.js');
 var network = require('./network.js');
 var binding = require('./binding.js');
-var expmat = require('./expmat.js');
+var expression = require('./expression.js');
 
 // Application
 var app = express();
@@ -36,7 +36,7 @@ var networkAddr;
  * Path of expression matrix files.
  * @type {string}
  */
-var expmatAddr;
+var expressionAddr;
 /**
  * Path of bigwig to Wig conversion script
  * @type {string}
@@ -61,7 +61,7 @@ function config() {
         networkAddr = value;
         break;
       case 'expressionPath':
-        expmatAddr = value;
+        expressionAddr = value;
         break;
       case 'bigwigtoWigPath':
         bigwigtoWigAddr = value;
@@ -108,9 +108,9 @@ var exonFile = wiggleAddr + 'exons.bin';
  * Mapping from expression matrix names to their file locations.
  * @type {!Object<string>}
  */
-var expmatFile = {
-  'b-subtilis': expmatAddr + 'expressionMatrix.bin',
-  'rna-seq': expmatAddr + 'rnaseq.bin'
+var expressionFile = {
+  'b-subtilis': expressionAddr + 'expressionMatrix.bin',
+  'rna-seq': expressionAddr + 'rnaseq.bin'
 };
 
 /**
@@ -118,7 +118,7 @@ var expmatFile = {
  * @type {!Object<string>}
  */
 var tfamatFile = {
-  'b-subtilis': expmatAddr + 'tfa.matrix2.bin',
+  'b-subtilis': expressionAddr + 'tfa.matrix2.bin',
   'rna-seq': null
 };
 
@@ -140,8 +140,8 @@ app.post('/genotet', function(req, res) {
         prefix = networkAddr;
       } else if (fileType == 'wiggle') {
         prefix = wiggleAddr;
-      } else if (fileType == 'expmat') {
-        prefix = expmatAddr;
+      } else if (fileType == 'expression') {
+        prefix = expressionAddr;
       }
 
       uploader.uploadFile(req.body, prefix, bigwigtoWigAddr);
@@ -214,20 +214,20 @@ app.get('/genotet', function(req, res) {
       data.chr = chr;
       break;
     // Expression matrix data queries
-    case 'expmat':
-      var file = expmatFile[req.query.mat];
+    case 'expression':
+      var file = expressionFile[req.query.mat];
       var exprows = req.query.exprows;
       var expcols = req.query.expcols;
       exprows = exprows == '' ? 'a^' : exprows;
       expcols = expcols == '' ? 'a^' : expcols;
-      data = expmat.getExpmat(file, exprows, expcols);
+      data = expression.getExpmat(file, exprows, expcols);
       break;
-    case 'expmatline':
+    case 'expression-profile':
       var mat = req.query.mat;
       var name = req.query.name;
-      var fileExp = expmatFile[mat], fileTfa = tfamatFile[mat];
+      var fileExp = expressionFile[mat], fileTfa = tfamatFile[mat];
       name = name.toLowerCase();
-      data = expmat.getExpmatLine(fileExp, fileTfa, name);
+      data = expression.getExpmatLine(fileExp, fileTfa, name);
       break;
 
 
