@@ -13,10 +13,10 @@ var Core = {
   init: function() {
     //Welcome.init();
     Data.init();
+    PanelManager.init();
     ViewManager.init();
     Menu.init();
     Options.init();
-    PanelManager.init();
 
     // Allow turning off an alert.
     $('.alert button').click(function() {

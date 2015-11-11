@@ -3,6 +3,14 @@
   z-index: 100;
 }
 
+body {
+  overflow: hidden;
+}
+
+#main {
+  padding: 0;
+}
+
 .alert {
   padding: 5px 15px;
   margin: 30px 0px 0px 0px;

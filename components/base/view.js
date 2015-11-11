@@ -61,6 +61,7 @@ View.prototype.init = function() {
     .draggable({
       handle: '.view-header',
       snap: true,
+      containment: '#main',
       start: function(event) {
         ViewManager.blurAllViews();
         this.focus();
