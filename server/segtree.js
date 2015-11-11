@@ -7,7 +7,7 @@
 module.exports = {
   /**
    * Constructs the segment tree.
-   * @param {!Array<number>} nodes Maximum values stored in the segment tree nodes.
+   * @param {!Array<number>} nodes Maximum values in the segment tree nodes.
    * @param {!Array<{x: number, value: number>} vals Values of the data array.
    * @returns {*}
    */
@@ -18,7 +18,7 @@ module.exports = {
 
   /**
    * Builds the segment tree recursively.
-   * @param {!Array<number>} nodes Maximum values stored in the segment tree nodes.
+   * @param {!Array<number>} nodes Maximum values in the segment tree nodes.
    * @param {number} xl Left endpoint of the range.
    * @param {number} xr Right endpoint of the range.
    * @param {!Array<{x: number, value: number>} vals Values of the data array.
@@ -38,7 +38,7 @@ module.exports = {
 
   /**
    * Queries the segment tree for the maximum value between [xl, xr].
-   * @param {!Array<number>} nodes Maximum values stored in the segment tree nodes.
+   * @param {!Array<number>} nodes Maximum values in the segment tree nodes.
    * @param {number} index Current index of the tree node.
    * @param {number} xl Left endpoint of the range.
    * @param {number} xr Right endpoint of the range.
@@ -50,8 +50,10 @@ module.exports = {
     if (xr < xl) return 0;
     if (xl <= nodexl && xr >= nodexr) return nodes[index];
     var xm = (nodexl + nodexr) >> 1;
-    var resl = this.querySegmentTree(nodes, index + 1, xl, Math.min(xr, xm), nodexl, xm),
-        resr = this.querySegmentTree(nodes, index + (xm - nodexl + 1) * 2, Math.max(xm + 1, xl), xr, xm + 1, nodexr);
+    var resl = this.querySegmentTree(nodes, index + 1, xl, Math.min(xr, xm),
+        nodexl, xm);
+    var resr = this.querySegmentTree(nodes, index + (xm - nodexl + 1) * 2,
+        Math.max(xm + 1, xl), xr, xm + 1, nodexr);
     return Math.max(resl, resr);
   }
 };

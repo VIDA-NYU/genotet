@@ -56,12 +56,18 @@ function BindingView(viewName, params) {
     }.bind(this))
     .on('genotet.chr', function(event, chr) {
       this.loader.switchChr(chr);
+    }.bind(this))
+    .on('genotet.update', function(event, data) {
+      // Switch updates
+      this.renderer.render();
     }.bind(this));
 
   $(this.loader)
     .on('genotet.chr', function(event, chr) {
       this.panel.updateChr(chr);
     }.bind(this));
+
+
 }
 
 BindingView.prototype = Object.create(View.prototype);

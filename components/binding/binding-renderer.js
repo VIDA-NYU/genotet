@@ -256,7 +256,8 @@ BindingRenderer.prototype.layout = function() {
   var numTracks = this.data.tracks.length;
 
   // Compute translate values.
-  this.detailTranslateY_ = numTracks * this.OVERVIEW_HEIGHT;
+  this.detailTranslateY_ = this.data.options.showOverview ?
+    numTracks * this.OVERVIEW_HEIGHT : 0;
   this.exonsTranslateY_ = this.canvasHeight_ - this.EXON_HEIGHT;
 
   // Translate SVG groups to place.
@@ -307,6 +308,7 @@ BindingRenderer.prototype.render = function() {
 
   this.drawOverviews_();
   this.drawDetails_();
+  this.drawBed_();
   this.drawExons_();
 };
 
@@ -315,6 +317,12 @@ BindingRenderer.prototype.render = function() {
  * @private
  */
 BindingRenderer.prototype.drawOverviews_ = function() {
+  if (!this.data.options.showOverview) {
+    this.overviewContent_.style('display', 'none');
+    return;
+  }
+  this.overviewContent_.style('display', '');
+
   var xScale = d3.scale.linear()
     .domain([this.data.overviewXMin, this.data.overviewXMax])
     .range([0, this.canvasWidth_]);
@@ -323,6 +331,18 @@ BindingRenderer.prototype.drawOverviews_ = function() {
     this.drawHistogram_(svg, track.overview, xScale);
   }, this);
   this.drawOverviewRange_();
+};
+
+/**
+ * Renders the bed tracks.
+ * @private
+ */
+BindingRenderer.prototype.drawBed_ = function() {
+  if (!this.data.options.showBed) {
+    // this.bedContent_.style('display', 'none');
+  }
+  // this.bedContent_.style('display', '');
+  // TODO(bowen): Check bed visual encoding and implement this.
 };
 
 /**
@@ -355,7 +375,8 @@ BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
   }
   var height = svg.attr('height');
   var yScale = d3.scale.linear()
-    .domain([0, track.maxValue])
+    .domain([0, this.data.options.autoScale ?
+        track.valueMax : track.valueMaxAll])
     .range([0, height]);
 
   var barWidth = (xScale(track.xMax) - xScale(track.xMin)) /
@@ -387,7 +408,7 @@ BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
 /**
  * Renders the highlighted range in the overview.
  * If the range is explicitly given, then render the given range.
- * @param {Array<number>=} opt_range The range to be drawn, in screen coordinate.
+ * @param {Array<number>=} opt_range Range to be drawn, in screen coordinate.
  * @private
  */
 BindingRenderer.prototype.drawOverviewRange_ = function(opt_range) {
@@ -405,6 +426,12 @@ BindingRenderer.prototype.drawOverviewRange_ = function(opt_range) {
  * Renders the exons below the binding tracks.
  */
 BindingRenderer.prototype.drawExons_ = function() {
+  if (!this.data.options.showExons) {
+    this.exonsContent_.style('display', 'none');
+    return;
+  }
+  this.exonsContent_.style('display', '');
+
   var exons = [];
   var detailRange = [this.data.detailXMin, this.data.detailXMax];
   this.data.exons.forEach(function(exon) {
@@ -565,8 +592,11 @@ BindingRenderer.prototype.drawExons_ = function() {
  */
 BindingRenderer.prototype.updateDetailHeight_ = function() {
   var numTracks = this.data.tracks.length;
-  var totalDetailHeight = this.canvasHeight_ - this.EXON_HEIGHT -
-    this.OVERVIEW_HEIGHT * numTracks;
+  var overviewHeight = this.data.options.showOverview ?
+    this.OVERVIEW_HEIGHT * numTracks : 0;
+  var exonsHeight = this.data.options.showExons ?
+    this.EXON_HEIGHT : 0;
+  var totalDetailHeight = this.canvasHeight_ - exonsHeight - overviewHeight;
   this.detailHeight_ = totalDetailHeight / (numTracks ? numTracks : 1);
 };
 

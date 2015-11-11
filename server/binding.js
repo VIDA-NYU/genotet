@@ -47,8 +47,10 @@ module.exports = {
       var str = buf.toString('utf8', offset, offset + lstr).split(' ');
       var name = str[0], name2 = str[1], chr = str[2], strand = str[3];
       offset += lstr;
-      var txStart = buf.readInt32LE(offset), txEnd = buf.readInt32LE(offset + 4),
-        cdsStart = buf.readInt32LE(offset + 8), cdsEnd = buf.readInt32LE(offset + 12),
+      var txStart = buf.readInt32LE(offset),
+        txEnd = buf.readInt32LE(offset + 4),
+        cdsStart = buf.readInt32LE(offset + 8),
+        cdsEnd = buf.readInt32LE(offset + 12),
         exonCount = buf.readInt32LE(offset + 16);
       offset += 20;
       var exonRanges = [];
@@ -189,20 +191,24 @@ module.exports = {
       xl = cache.xmin;
       xr = cache.xmax;
     }
-    // do sampling here, the sampling takes the range maximum for each bar
-    // the sampling binary search the entry point, and then query the rmq table
+
+    var n = numSamples,
+      span = xr - xl,
+      segslen = (cache.nodes.length + 1) >> 1;
     var hist = {
       xMin: xl,
       xMax: xr,
       values: [],
-      minValue: Infinity,
-      maxValue: -Infinity
+      valueMax: -Infinity,
+      valueMaxAll: segtree.querySegmentTree(cache.nodes, 0, 0, segslen - 1,
+        0, segslen - 1)
     };
-    var n = numSamples,
-        span = xr - xl,
-        segslen = (cache.nodes.length + 1) >> 1;
+    // Do sampling here, the sampling takes the range maximum for each bar.
+    // The sampling binary searches the entry point, and then queries the
+    // segment tree for RMQ.
     for (var i = 0; i < n; i++) {
-      var l = xl + i / n * span, r = xl + (i + 1) / n * span - 0.1; // [inclusive, exclusive) range
+      // [inclusive, exclusive) range
+      var l = xl + i / n * span, r = xl + (i + 1) / n * span - 0.1;
       var li = utils.binarySearch(cache.segs, l);
       var ri = utils.binarySearch(cache.segs, r);
       if (li == -1 && ri != -1)
@@ -214,17 +220,16 @@ module.exports = {
           'x' : l,
           'value' : 0
         });
-        hist.minValue = Math.min(hist.minValue, 0);
-        hist.maxValue = Math.max(hist.maxValue, 0);
+        hist.valueMax = Math.max(hist.valueMax, 0);
         continue;
       }
-      var val = segtree.querySegmentTree(cache.nodes, 0, li, ri, 0, segslen - 1);
+      var val = segtree.querySegmentTree(cache.nodes, 0, li, ri, 0,
+          segslen - 1);
       hist.values.push({
         x: l,
         value: val
       });
-      hist.minValue = Math.min(hist.minValue, val);
-      hist.maxValue = Math.max(hist.maxValue, val);
+      hist.valueMax = Math.max(hist.valueMax, val);
     }
     console.log('returning', n, 'samples of', xl, xr);
     return hist;

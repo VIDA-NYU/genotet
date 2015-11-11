@@ -77,7 +77,8 @@ BindingPanel.prototype.initPanel = function() {
   [
     {selector: '#overview', type: 'overview', attribute: 'showOverview'},
     {selector: '#bed', type: 'bed', attribute: 'showBed'},
-    {selector: '#exons', type: 'exons', attribute: 'showExons'}
+    {selector: '#exons', type: 'exons', attribute: 'showExons'},
+    {selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScale'}
   ].forEach(function(bSwitch) {
       this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
         function(event, state) {
@@ -93,14 +94,28 @@ BindingPanel.prototype.initPanel = function() {
     {selector: '#start-coordinate', type: 'start'},
     {selector: '#end-coordinate', type: 'end'}
   ].forEach(function(ui) {
-      this.container_.find(ui.selector + ' button').click(function() {
+      var update = function() {
         var coordinate = +this.container_.find(ui.selector + ' input').val();
         this.signal('coordinate', {
           type: ui.type,
           coordinate: coordinate
         });
-      }.bind(this));
+      }.bind(this);
+      this.container_.find(ui.selector + ' button')
+        .click(update);
+      this.container_.find(ui.selector + ' input')
+        .on('keypress', function(event) {
+          if (event.which == Utils.keyCodes.ENTER) {
+            update();
+          }
+        });
     }, this);
+
+  // Set gene
+  this.selectGene_.on('select2:select', function(event) {
+    var gene = event.params.data.id;
+    this.signal('gene', gene);
+  }.bind(this));
 
   // Set chromosome
   this.selectChr_.on('select2:select', function(event) {
@@ -134,87 +149,3 @@ BindingPanel.prototype.updateChr = function(chr) {
     passive: true
   }]);
 };
-  /*
-  $('#' + this.htmlid + ' #gene').val(data.name)
-    .keydown(function(e) { if (e.which == 13) return layout.uiUpdate('gene');})
-    .autocomplete({ source: manager.bindingNames, appendTo: 'body'});
-
-  var chrs = manager.bindingChrs;
-  for (var i = 0; i < chrs.length; i++) {
-    $('#' + this.htmlid + ' div select').append('<option value=' + chrs[i] + '>' + chrs[i] + '</option>');
-    if (chrs[i] == data.chr) $('#' + this.htmlid + " div select option[value='" + chrs[i] + "']").attr('selected', 'selected');
-  }
-  var htmlid = this.htmlid;
-  $('#' + this.htmlid + ' div select').change(function() {
-//console.log(data.name, $("#"+htmlid+" div select option:selected").text(), this.loading);
-    if (layout.loading == false) {
-      var chr = $('#' + htmlid + ' div select option:selected').text();
-      layout.parentView.loadData(data.name, chr);
-      layout.parentView.postGroupMessage({'action': 'chr', 'chr': chr});
-    }
-  });
-  $('#' + this.htmlid + ' #xl').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('range'); });
-  $('#' + this.htmlid + ' #xr').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('range'); });
-  $('#' + this.htmlid + ' #search').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('search'); });
-  $('#' + this.htmlid + ' #autoscale').attr('checked', this.autoScale)
-    .change(function() { return layout.toggleAutoScale(); });
-  $('#' + this.htmlid + ' #overview').attr('checked', this.showOverview)
-    .change(function() { return layout.toggleOverview(); });
-  $('#' + this.htmlid + ' #exons').attr('checked', this.showExons)
-    .change(function() { return layout.toggleExons(); });
-    */
-
-/*
-LayoutHistogram.prototype.uiUpdate = function(type) {
-  var layout = this;
-  if (layout.loading == true) return;
-  if (type == 'range') {
-    var xl = parseInt($('#' + layout.htmlid + ' #xl').val()),
-      xr = parseInt($('#' + layout.htmlid + ' #xr').val());
-    if (isNaN(xl)) xl = this.focusleft;
-    if (isNaN(xr)) xr = this.focusright;
-    if (xr < xl) {
-      options.alert('xl, xr value incorrect');
-      return;
-    }
-    layout.focusleft = xl;
-    layout.focusright = xr;
-    layout.loadBindingLayout();
-  }else if (type == 'search') {
-    srch = $('#' + layout.htmlid + ' #search').val();
-    if (srch != '') {
-      this.removeLayout();
-      this.parentView.loader.locateGene(srch);
-    }
-  }else if (type == 'gene') {
-    var name = $('#' + this.htmlid + ' #gene').val();
-    if (manager.supportBinding(name) == false) {
-      options.alert('Please type in a supported binding track');
-      return;
-    }
-    this.removeLayout();
-    this.parentView.loader.loadData({'name': name});
-  }
-};
-
-LayoutHistogram.prototype.toggleAutoScale = function(){
-  this.autoScale = !this.autoScale;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-
-LayoutHistogram.prototype.toggleOverview = function(){
-  this.showOverview = !this.showOverview;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-
-LayoutHistogram.prototype.toggleExons = function(){
-  this.sho  wExons = !this.showExons;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-*/

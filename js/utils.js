@@ -6,6 +6,11 @@
 'use strict';
 
 var Utils = {
+  /** @enum {number} */
+  keyCodes: {
+    ENTER: 13
+  },
+
   /** @const {number} */
   PIXEL_TOLERANCE: .1,
   /** @const {number} */
