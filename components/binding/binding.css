@@ -1,8 +1,8 @@
-.binding .overviews rect {
+.binding .overviews path {
   fill: #666;
 }
 
-.binding .details rect {
+.binding .details path {
   fill: #222;
 }
 

@@ -354,11 +354,9 @@ BindingRenderer.prototype.drawDetails_ = function() {
  * @private
  */
 BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
-  var bars = svg.selectAll('rect').data(track.values);
-  bars.enter().append('rect');
-  bars.exit().remove();
   if (!track.values.length) {
     // Avoid rendering empty data.
+    svg.select('.histogram').remove();
     return;
   }
   var height = svg.attr('height');
@@ -369,19 +367,22 @@ BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
 
   var barWidth = (xScale(track.xMax) - xScale(track.xMin)) /
       (track.values.length - 1);
-  bars
-    .attr('transform', function(bar) {
-      return Utils.getTransform([xScale(bar.x), height - yScale(bar.value)]);
-    }.bind(this))
-    .attr('width', function(bar, index) {
-      if (index == track.values.length - 1) {
-        return 0;
-      }
-      return xScale(track.values[index + 1].x) - xScale(bar.x);
-    })
-    .attr('height', function(bar) {
-      return yScale(bar.value);
-    });
+
+  var histogram = svg.select('.histogram');
+  if (histogram.empty()) {
+    histogram = svg.append('path')
+      .classed('histogram', true);
+  }
+  var line = d3.svg.line().interpolate('linear-closed');
+  var lastX = 0;
+  var points = track.values.map(function(bar) {
+    lastX = xScale(bar.x);
+    return [lastX, height - yScale(bar.value)];
+  });
+  points.push([lastX, height]);
+  points.push([xScale(track.values[0].x), height]);
+
+  histogram.attr('d', line(points));
 
   if (svg.select('.baseline').empty()) {
     svg.append('line')
