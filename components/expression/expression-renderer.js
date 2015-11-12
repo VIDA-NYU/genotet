@@ -185,7 +185,7 @@ ExpressionRenderer.prototype.drawMatrixCells_ = function () {
   console.log(heatmapData);
   var colorScale = d3.scale.linear()
     .domain([heatmapData.valueMin, heatmapData.valueMax])
-    .range(Data.redBlueScale);
+    .range(Data.redYellowScale);
   var heatmapRows = cells.data(heatmapData.values)
     .enter().append('g')
     .attr("transform", Utils.getTransform(this.geneLabelWidth_));
