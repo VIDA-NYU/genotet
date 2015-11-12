@@ -10,6 +10,7 @@ var fs = require('fs');
 var util = require('util');
 var Buffer = require('buffer').Buffer;
 var constants = require('constants');
+var multer = require('multer');
 
 // Include server resources.
 var segtree = require('./segtree.js');
@@ -17,10 +18,14 @@ var utils = require('./utils.js');
 var network = require('./network.js');
 var binding = require('./binding.js');
 var expression = require('./expression.js');
+var uploader = require('./uploader.js');
 
 // Application
 var app = express();
 
+var upload = multer({
+  dest: '/genotet/'
+});
 
 /**
  * Path of wiggle files.
@@ -41,7 +46,7 @@ var expressionAddr;
  * Path of bigwig to Wig conversion script
  * @type {string}
  */
-var bigwigtoWigAddr;
+var bigWigToWigAddr;
 
 /**
  * Reads the configuration file and gets the file paths.
@@ -63,8 +68,8 @@ function config() {
       case 'expressionPath':
         expressionAddr = value;
         break;
-      case 'bigwigtoWigPath':
-        bigwigtoWigAddr = value;
+      case 'bigWigToWigPath':
+        bigWigToWigAddr = value;
     }
   }
 }
@@ -122,30 +127,27 @@ var tfamatFile = {
   'rna-seq': null
 };
 
-
 /**
  * POST request is not used as it conflicts with jsonp.
  */
-app.post('/genotet', function(req, res) {
-  var type = req.body.type;
-  console.log('POST', type);
+app.post('/genotet/upload', upload.single('file'), function(req, res) {
+  console.log('POST upload');
 
-  switch(type) {
-    // upload
-    case 'upload':
-      var fileType = req.body.fileType;
-
-      var prefix;
-      if (fileType == 'network') {
-        prefix = networkAddr;
-      } else if (fileType == 'wiggle') {
-        prefix = wiggleAddr;
-      } else if (fileType == 'expression') {
-        prefix = expressionAddr;
-      }
-
-      uploader.uploadFile(req.body, prefix, bigwigtoWigAddr);
+  var prefix;
+  switch(req.body.type) {
+    case 'network':
+      prefix = networkAddr;
+      break;
+    case 'binding':
+      prefix = wiggleAddr;
+      break;
+    case 'expression':
+      prefix = expressionAddr;
+      break;
   }
+  uploader.uploadFile(req.body, req.file, prefix, bigWigToWigAddr);
+  res.header('Access-Control-Allow-Origin', '*');
+  res.end();
 });
 
 /**

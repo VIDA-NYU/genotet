@@ -28,10 +28,15 @@
       <td><textarea id="description" class="form-control"></textarea></td>
     </tr>
   </table>
-  <!-- TODO(bowen): Make this ugly file input look like bootstrap... -->
-  <input id="file" type="file" class="form-control"/>
+  <div class="file-section">
+    <button id="btn-file" class="btn btn-default">Choose File</button>
+    <span id="file-display" class="form-control"></span>
+    <form id="file-form" method="post">
+      <input id="file" type="file" name="file" class="form-control"/>
+    </form>
+  </div>
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-  <button id="btnDone" type="button" class="btn btn-primary" data-dismiss="modal">Upload</button>
+  <button id="btn-upload" type="button" class="btn btn-primary" data-dismiss="modal">Upload</button>
 </div>

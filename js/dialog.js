@@ -184,111 +184,62 @@ var Dialog = {
     modal.find('.modal-content').load('templates/upload.html', function() {
       modal.modal();
       modal.find('.selectpicker').selectpicker();
-      modal.find('#btn-upload').click(function() {
+
+      var file = modal.find('#file');
+      var fileName = modal.find('#data-name');
+
+      var btnUpload = modal.find('#btn-upload').prop('disabled', true);
+      var btnFile = modal.find('#btn-file');
+      var fileDisplay = modal.find('#file-display');
+      btnFile.click(function() {
+        file.trigger('click');
+      });
+      fileDisplay.click(function() {
+        file.trigger('click');
+      });
+
+      // Checks if all required fields are filled.
+      var uploadReady = function() {
+        return fileName.val() && file.val();
+      };
+
+      file.change(function(event) {
+        var fileName = event.target.files[0].name;
+        fileDisplay.text(fileName);
+        btnUpload.prop('disabled', !uploadReady());
+      });
+      fileName.keyup(function() {
+        btnUpload.prop('disabled', !uploadReady());
+      });
+
+      btnUpload.click(function() {
+        var formData = new FormData();
+        formData.append('type', modal.find('#type').val());
+        formData.append('name', fileName.val());
+        formData.append('description', modal.find('#description').val());
+        formData.append('file', file[0].files[0]);
+
+
+        $.ajax({
+          url: Data.uploadURL,
+          type: 'POST',
+          data: formData,
+          enctype: 'multipart/form-data',
+          processData: false,
+          contentType: false,
+          success: function(data) {
+            console.log(data);
+          }
+        });
+        /*
+         .done(function(data) {
+         console.log('ok', data);
+         })
+         .fail(function(data) {
+         console.log('fail', data);
+         });
+         */
       });
     });
   }
 };
-
-/*
-// TODO(bowen): View linking and grouping are obsolete.
-dialogLink = function(src) {
-  var layout = this;
-  $('#dialog').remove();
-  $('body').append('<div id='dialog' title='Link Views'>' +
-  '<div>Source view <select id='source' title='View to be listened to'></select></div>' +
-  '</div>');
-  var names = manager.getViewNames();
-  for(var i=0; i<names.length; i++){
-    $('#dialog #source').append('<option value=''+names[i]+''>'+names[i]+'</option>');
-  }
-  if(src!=null) $('#dialog #source option[value=''+src+'']').attr('selected', true);
-
-  this.dialogLayout('link_change');
-  $('#dialog #source').change(function(){
-    $('#dialog #targetdiv').remove();
-    return layout.dialogLayout('link_change');
-  });
-  $('#dialog').dialog({
-    buttons: {
-      'OK': function(){
-        var source = $('#dialog #source').val(),
-          target = $('#dialog #target').val();
-        if(target==null || target==''){
-          console.error('Cannot link an empty view');
-          options.alert('Cannot link an empty view');
-          return;
-        }
-        var success =linkView(source, target);
-        if(success) $('#dialog').remove();
-      },
-      'Cancel': function(){ $('#dialog').remove(); }
-    }});
-},
-
-  dialogUnlink = function(src) {
-    var layout = this;
-    $('#dialog').remove();
-    $('body').append('<div id='dialog' title='Unlink Views'>' +
-    '<div>Source view <select id='source' title='View to be listened to'></select></div>' +
-    '</div>');
-    var names = manager.getViewNames();
-    for(var i=0; i<names.length; i++){
-      $('#dialog #source').append('<option value=''+names[i]+''>'+names[i]+'</option>');
-    }
-    if(src!=null) $('#dialog #source option[value=''+src+'']').attr('selected', true);
-    this.dialogLayout('unlink_change');
-    $('#dialog #source').change(function(){
-      $('#dialog #targetdiv').remove();
-      return layout.dialogLayout('unlink_change');
-    });
-    $('#dialog').dialog({
-      buttons: {
-        'OK': function(){
-          var source = $('#dialog #source').val(),
-            target = $('#dialog #target').val();
-          if(target==null || target==''){
-            console.error('Cannot unlink an empty view');
-            options.alert('Cannot unlink an empty view');
-            return;
-          }
-          var success = unlinkView(source, target);
-          if(success) $('#dialog').remove();
-        },
-        'Cancel': function(){ $('#dialog').remove(); }
-      }});
-  },
-
-  dialogGroup: function() {
-  var layout = this;
-  $('#dialog').remove();
-  $('body').append('<div id='dialog' title='Group Views'>' +
-  '<div>Source view <select id='source' title='View to join the group'></select></div>' +
-  '</div>');
-  var names = manager.getViewNames();
-  for(var i=0; i<names.length; i++){
-    $('#dialog #source').append('<option value=''+names[i]+''>'+names[i]+'</option>');
-  }
-  if(src!=null) $('#dialog #source option[value=''+src+'']').attr('selected', true);
-  this.dialogLayout('group');
-  $('#dialog #source').change(function(){
-    $('#dialog #targetdiv').remove();
-    return layout.dialogLayout('group');
-  });
-  $('#dialog').dialog({
-    buttons: {
-      'OK': function(){
-        var source = $('#dialog #source').val(),
-          target = $('#dialog #target').val();
-        if(target==null || target==''){
-          console.error('Cannot group an empty view');
-          options.alert('Cannot group an empty view');
-          return;
-        }
-        var success = groupView(source, target);
-        if(success) $('#dialog').remove();
-      },
-      'Cancel': function(){ $('#dialog').remove(); }
-    }});
-}
-*/
