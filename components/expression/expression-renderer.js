@@ -179,16 +179,31 @@ ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     width: this.heatmapWidth_,
     height: this.heatmapHeight_
   }]);
-  cells.enter().append('rect')
-    .classed('cell', true);
+  var heatmapData = this.dataReady_();
+  console.log(heatmapData);
+  var colorScale = d3.scale.linear()
+      .domain([heatmapData.valueMin, heatmapData.valueMax])
+      .range(['white', 'red']);
+  var heatmapRow = cells.data(heatmapData.values)
+      .enter().append('g')
+      .attr("transform", "translate(" + 30 + "," + 10 + ")");
+  var heatmapRects = heatmapRow.selectAll('.rect')
+      .data(function(d) { return d; })
+      .enter().append('rect')
+      .attr('width', 5)
+      .attr('height', 15)
+      .attr('x', function(d, i, j) { return i * 5 })
+      .attr('y', function(d, i, j) { return j * 15 })
+      .style('fill', function(d) { return colorScale(d) })
+      .classed('cell', true);
   cells.exit().remove();
   cells
-    .attr('width', function(cell) {
-      return cell.width;
-    })
-    .attr('height', function(cell) {
-      return cell.height;
-    });
+      .attr('width', function(cell) {
+        return cell.width;
+      })
+      .attr('height', function(cell) {
+        return cell.height;
+      });
 };
 
 /**
@@ -201,17 +216,24 @@ ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
     return;
   }
   // TODO(liana): Implement the below...
-  var labels = this.svgGeneLabels_.selectAll('text').data([{
-    label: 'a horizontal label'
-  }]);
+  //var labels = this.svgGeneLabels_.selectAll('text').data([{
+  //  label: 'a horizontal label'
+  //}]);
+  var geneLabelsData = this.dataReady_().geneNames;
+  var labels = this.svgGeneLabels_.selectAll('text').data(geneLabelsData);
   labels.enter().append('text')
-    .classed('gene-label', true);
+      .text(function(d) { return d; })
+      .attr('x', 0)
+      .attr('y', function(d, i) { return i * 15 })
+      .style('text-anchor','middle')
+      .attr("transform", "translate(" + 30 + "," + 20 + ")")
+      .classed('gene-label', true);
   labels.exit().remove();
-  labels
-    .attr('y', 20)
-    .text(function(gene) {
-      return gene.label;
-    });
+  //labels
+  //    .attr('y', 20)
+  //    .text(function(gene) {
+  //      return gene.label;
+  //    });
 };
 
 /**
