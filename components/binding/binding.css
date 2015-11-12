@@ -1,8 +1,8 @@
-.binding .overviews rect {
+.binding .overviews path {
   fill: #666;
 }
 
-.binding .details rect {
+.binding .details path {
   fill: #222;
 }
 
@@ -44,57 +44,15 @@
   opacity: 0.25;
 }
 
-.frame {
-  fill: none;
-  stroke: grey;
-  stroke-width: 0.5;
-}
-.trackhint {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-  text-anchor: start;
-}
-.coordlabel {
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; /*arial, sans-serif;*/
-  text-anchor: end;
-  pointer-events: none;
-  font-size: 8px;
-  fill: black;
+.binding-panel #genes #add {
+  width: 100%;
+  margin-top: 5px;
 }
 
-.coordline {
-  stroke: black;
-  stroke-opacity: .5;
-  stroke-width: .25;
-}
-.cursorline {
-  stroke: #4297d7;
-  stroke-opacity: .75;
-  stroke-width: 1;
+.binding-panel .track-gene {
+  margin-top: 3px;
 }
 
-.focusrange {
-  fill: #4297d7;
-  stroke: #5a5460;
-  stroke-width: 1;
-  opacity: .5;
-}
-
-.targetrange {
-  fill: red;
-  opacity: .5;
-}
-
-.xlabel {
-  font-size: 8px;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-}
-
-.zoombar {
-  fill: #4297d7;
-  opacity: .15;
-}
-
-.zoombar_sel {
-  fill: #4297d7;
-  opacity: .5;
+.binding-panel .track-gene button {
+  border: none;
 }

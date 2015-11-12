@@ -46,5 +46,18 @@ ViewPanel.prototype.create = function(container) {
 /**
  * Initializes the panel, e.g. add event listeners.
  */
-ViewPanel.prototype.initPanel = function() {
+ViewPanel.prototype.initPanel = function() {};
+
+/**
+ * Sets panel elements when data is loaded.
+ */
+ViewPanel.prototype.dataLoaded = function() {};
+
+/**
+ * Triggers a jQuery event on the panel.
+ * @param {string} eventType Type of event.
+ * @param {Object} data Data object to be sent via the event.
+ */
+ViewPanel.prototype.signal = function(eventType, data) {
+  $(this).trigger('genotet.' + eventType, [data]);
 };

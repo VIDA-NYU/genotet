@@ -84,7 +84,7 @@ module.exports = {
     var edges = [];
     try {
       exp = RegExp(exp, 'i');
-    }catch (e) {
+    } catch (e) {
       exp = 'a^'; // return empty network
     }
     for (var i = 0; i < result.numNode; i++) {
@@ -177,7 +177,7 @@ module.exports = {
   },
 
   /**
-   * Finds the combined regulators that regulate the selected genes.
+   * Finds the genes regulated by all the given TFs.
    * @param {string} file Network file name.
    * @param {string} exp Regex selecting the regulated targets.
    * @returns {!Array} The combined regulators.

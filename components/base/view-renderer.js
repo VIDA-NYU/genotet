@@ -53,17 +53,20 @@ ViewRenderer.prototype.init = function() {
   this.resize();
 };
 
-
 /**
  * Creates rendering layout (e.g. SVG groups).
  */
 ViewRenderer.prototype.initLayout = function() {};
 
 /**
+ * Sets the layout for the next iteration of rendering.s
+ */
+ViewRenderer.prototype.layout = function() {};
+
+/**
  * Renders the view graphics.
  */
 ViewRenderer.prototype.render = function() {};
-
 
 /**
  * Handles data loadComplete event, e.g. processing the data.
@@ -83,7 +86,6 @@ ViewRenderer.prototype.resize = function() {
     .attr('height', this.canvasHeight_);
 };
 
-
 /**
  * Shows loading message on the view.
  */
@@ -96,14 +98,12 @@ ViewRenderer.prototype.showLoading = function() {
   popup.css('height', height);
 };
 
-
 /**
  * Hides loading message on the view.
  */
 ViewRenderer.prototype.hideLoading = function() {
   this.container.find('.popup .loading').hide();
 };
-
 
 /**
  * Shows data load failure message.
@@ -112,14 +112,12 @@ ViewRenderer.prototype.showFailure = function() {
   this.container.find('.popup .failure').show();
 };
 
-
 /**
  * Hides data load failure message.
  */
 ViewRenderer.prototype.hideFailure = function() {
   this.container.find('.popup .failure').hide();
 };
-
 
 /**
  * Triggers a jQuery event on the renderer.

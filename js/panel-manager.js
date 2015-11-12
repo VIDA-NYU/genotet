@@ -23,7 +23,7 @@ var PanelManager = {
 
   init: function(e) {
     this.container_ = $('#side-panel');
-    $('#btnToggle').click(function() {
+    this.container_.children('#btn-toggle').click(function() {
       this.togglePanel_();
     }.bind(this));
     $('.sideways').click(function() {
@@ -52,24 +52,27 @@ var PanelManager = {
    * Creates a panel with the given name.
    * @param {string} viewName Name of the view.
    */
-  addPanel: function(viewName) {
-    var viewID = viewName.replace(/\s/g, '');
+  addPanel: function(view) {
+    var viewID = view.name().replace(/\s/g, '');
     var tabID = 'panel-tab-' + viewID;
     $('#panel-tab-init').clone()
       .attr('id', tabID)
       .appendTo('.sideways')
       .find('a')
       .attr('href', '#panel-view-' + viewID)
-      .append(viewName);
+      .append(view.name());
     $('#panel-view-init').clone()
       .attr('id', 'panel-view-' + viewID)
       .appendTo('.tab-content');
-    $('#' + tabID).tab('show');
+    $('#' + tabID + ' a').trigger('click');
 
     this.container_.show();
     if (!this.showPanel_) {
       this.togglePanel_();
     }
+    $(view).on('genotet.focus', function() {
+      $('#' + tabID + ' a').trigger('click');
+    });
 
     var container = $('#panel-view-' + viewID);
     return container;

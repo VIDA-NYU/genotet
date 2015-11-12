@@ -15,10 +15,21 @@ function BindingPanel(data) {
   // Set the view options.
   _(this.data.options).extend({
     autoScale: true,
-    showExons: true,
-    // TODO(bowen): showOverview shall be set for each track
-    showOverview: []
+    showOverview: true,
+    showBed: true,
+    showExons: true
   });
+
+  /**
+   * Select2 for genes.
+   * @private {!Array<select2>}
+   */
+  this.selectGenes_ = [];
+
+  /**
+   * Select2 for chromosome.
+   */
+  this.selectChr_;
 }
 
 BindingPanel.prototype = Object.create(ViewPanel.prototype);
@@ -35,88 +46,173 @@ BindingPanel.prototype.panel = function(container) {
 
 /** @inheritDoc */
 BindingPanel.prototype.initPanel = function() {
-  /*
-  $('#' + this.htmlid + ' #gene').val(data.name)
-    .keydown(function(e) { if (e.which == 13) return layout.uiUpdate('gene');})
-    .autocomplete({ source: manager.bindingNames, appendTo: 'body'});
+  this.initChrs_();
 
-  var chrs = manager.bindingChrs;
-  for (var i = 0; i < chrs.length; i++) {
-    $('#' + this.htmlid + ' div select').append('<option value=' + chrs[i] + '>' + chrs[i] + '</option>');
-    if (chrs[i] == data.chr) $('#' + this.htmlid + " div select option[value='" + chrs[i] + "']").attr('selected', 'selected');
-  }
-  var htmlid = this.htmlid;
-  $('#' + this.htmlid + ' div select').change(function() {
-//console.log(data.name, $("#"+htmlid+" div select option:selected").text(), this.loading);
-    if (layout.loading == false) {
-      var chr = $('#' + htmlid + ' div select option:selected').text();
-      layout.parentView.loadData(data.name, chr);
-      layout.parentView.postGroupMessage({'action': 'chr', 'chr': chr});
-    }
+  // Initialize switches.
+  this.container_.find('.switches input').bootstrapSwitch({
+    size: 'mini'
   });
-  $('#' + this.htmlid + ' #xl').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('range'); });
-  $('#' + this.htmlid + ' #xr').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('range'); });
-  $('#' + this.htmlid + ' #search').keydown(function(e) { if (e.which == 13) return layout.uiUpdate('search'); });
-  $('#' + this.htmlid + ' #autoscale').attr('checked', this.autoScale)
-    .change(function() { return layout.toggleAutoScale(); });
-  $('#' + this.htmlid + ' #overview').attr('checked', this.showOverview)
-    .change(function() { return layout.toggleOverview(); });
-  $('#' + this.htmlid + ' #exons').attr('checked', this.showExons)
-    .change(function() { return layout.toggleExons(); });
-    */
+
+  // Switch actions
+  [
+    {selector: '#overview', type: 'overview', attribute: 'showOverview'},
+    {selector: '#bed', type: 'bed', attribute: 'showBed'},
+    {selector: '#exons', type: 'exons', attribute: 'showExons'},
+    {selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScale'}
+  ].forEach(function(bSwitch) {
+      this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
+        function(event, state) {
+          this.data.options[bSwitch.attribute] = state;
+          this.signal('update', {
+            type: bSwitch.type
+          });
+        }.bind(this));
+    }, this);
+
+  // Coordinates setting
+  [
+    {selector: '#start-coordinate', type: 'start'},
+    {selector: '#end-coordinate', type: 'end'}
+  ].forEach(function(ui) {
+      var update = function() {
+        var coordinate = +this.container_.find(ui.selector + ' input').val();
+        this.signal('coordinate', {
+          type: ui.type,
+          coordinate: coordinate
+        });
+      }.bind(this);
+      this.container_.find(ui.selector + ' button')
+        .click(update);
+      this.container_.find(ui.selector + ' input')
+        .on('keypress', function(event) {
+          if (event.which == Utils.keyCodes.ENTER) {
+            update();
+          }
+        });
+    }, this);
+
+  // Set chromosome
+  this.selectChr_.on('select2:select', function(event) {
+    var chr = event.params.data.id;
+    this.signal('chr', chr);
+  }.bind(this));
+
+  // Locus search
+  this.container_.find('#locus button').click(function() {
+    var gene = this.container_.find('#locus input').val();
+    this.signal('locus', gene);
+  }.bind(this));
+
+  // Add track
+  this.container_.find('#genes #add').click(function() {
+    this.signal('add-track');
+  }.bind(this));
 };
 
-/*
-LayoutHistogram.prototype.uiUpdate = function(type) {
-  var layout = this;
-  if (layout.loading == true) return;
-  if (type == 'range') {
-    var xl = parseInt($('#' + layout.htmlid + ' #xl').val()),
-      xr = parseInt($('#' + layout.htmlid + ' #xr').val());
-    if (isNaN(xl)) xl = this.focusleft;
-    if (isNaN(xr)) xr = this.focusright;
-    if (xr < xl) {
-      options.alert('xl, xr value incorrect');
-      return;
+/**
+ * Updates the binding coordinates upon zoom.
+ * @param {number} start Start coordinate.
+ * @param {number} end End coordinate.
+ */
+BindingPanel.prototype.updateCoordinates = function(start, end) {
+  this.container_.find('#start-coordinate input').val(parseInt(start));
+  this.container_.find('#end-coordinate input').val(parseInt(end));
+};
+
+/**
+ * Updates the chromosome.
+ * @param {string} chr Chromosome.
+ */
+BindingPanel.prototype.updateChr = function(chr) {
+  this.selectChr_.val(chr).trigger('change', [{
+    passive: true
+  }]);
+};
+
+/**
+ * Sets the chromosomes for selection.
+ * @private
+ */
+BindingPanel.prototype.initChrs_ = function() {
+  var chrs = Data.bindingChrs.map(function (chr, index) {
+    return {
+      id: chr,
+      text: chr
+    };
+  });
+  var section = this.container_.find('#chr');
+  this.selectChr_ = section.children('select').select2({
+    data: chrs
+  });
+  section.find('.select2-container').css({
+    width: '100%'
+  });
+};
+
+/**
+ * Adds a select2 for a new track.
+ * @private
+ */
+BindingPanel.prototype.addTrack_ = function() {
+  var trackIndex = this.data.tracks.length - 1;
+  var ui = this.container_.find('#genes #tracks');
+  var uiTrack = ui.find('#track-template').clone()
+    .appendTo(ui)
+    .attr('id', 'track-' + trackIndex)
+    .show();
+
+  var genes = Data.bindingGenes.map(function (gene, index) {
+    return {
+      id: gene,
+      text: gene
+    };
+  });
+  var gene = this.data.tracks[trackIndex].gene;
+  var select = uiTrack.children('select').select2({
+    data: genes
+  });
+  select.val(gene).trigger('change');
+  this.selectGenes_[trackIndex] = select;
+
+  uiTrack.find('.select2-container').css({
+    width: 'calc(100% - 30px)'
+  });
+
+  // Removal button
+  uiTrack.find('#remove').click(
+      this.signal.bind(this, 'remove-track', trackIndex));
+
+  // Set gene
+  select.on('select2:select', function(event) {
+    var gene = event.params.data.id;
+    this.signal('gene', {
+      trackIndex: trackIndex,
+      gene: gene
+    });
+  }.bind(this));
+};
+
+/**
+ * Updates the gene selected for each track.
+ */
+BindingPanel.prototype.updateTracks = function() {
+  var numTracks = this.data.tracks.length;
+  var uiTracks = this.container_.find('#genes .track-gene');
+  if (uiTracks.length > numTracks) {
+    // Track has been removed.
+    for (var index = uiTracks.length - 1; index >= numTracks; index--) {
+      this.container_.find('#genes #track-' + index).remove();
     }
-    layout.focusleft = xl;
-    layout.focusright = xr;
-    layout.loadBindingLayout();
-  }else if (type == 'search') {
-    srch = $('#' + layout.htmlid + ' #search').val();
-    if (srch != '') {
-      this.removeLayout();
-      this.parentView.loader.locateGene(srch);
-    }
-  }else if (type == 'gene') {
-    var name = $('#' + this.htmlid + ' #gene').val();
-    if (manager.supportBinding(name) == false) {
-      options.alert('Please type in a supported binding track');
-      return;
-    }
-    this.removeLayout();
-    this.parentView.loader.loadData({'name': name});
   }
-};
 
-LayoutHistogram.prototype.toggleAutoScale = function(){
-  this.autoScale = !this.autoScale;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
+  this.data.tracks.forEach(function(track, index) {
+    var ui = this.container_.find('#genes #track-' + index);
+    if (!ui.length) {
+      this.addTrack_();
+      ui = $('#gene #track-' + index);
+    }
+    this.selectGenes_[index].val(track.gene).trigger('change');
+  }, this);
+  this.container_.find('#genes .glyphicon-remove')
+    .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };
-
-LayoutHistogram.prototype.toggleOverview = function(){
-  this.showOverview = !this.showOverview;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-
-LayoutHistogram.prototype.toggleExons = function(){
-  this.sho  wExons = !this.showExons;
-  this.removeLayout();
-  this.initLayout();
-  this.renderLayout();
-};
-*/

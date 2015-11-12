@@ -28,85 +28,6 @@ NetworkLoader.prototype.load = function(networkName, geneRegex) {
   this.loadNetwork_(networkName, geneRegex);
 };
 
-
-/**
- * Adds selected nodes to the network.
- * @param {string} nodes Regular expression selecting the nodes to be added.
- */
-NetworkLoader.prototype.addNodes = function(nodes) {  // nodes are regexp
-  var exp = 'a^';
-  for (var i = 0; i < this.data.nodes.length; i++) {
-    exp += '|^' + this.data.nodes[i].name + '$';
-  }
-  exp += '|' + nodes;
-  this.loadNetwork_(this.data.networkName, exp);
-};
-
-
-/**
- * Removes selected nodes from the network.
- * @param {string} exp Regular expression selecting the nodes to be removed.
- */
-NetworkLoader.prototype.removeNodes = function(exp) {
-  var reg = RegExp(exp, 'i');
-  for (var i = 0; i < data.nodes.length; i++) {
-    if (data.nodes[i].name.match(reg)) {
-      delete data.visibleNodes[data.nodes[i].id];
-    }
-  }
-  for (var i = 0; i < data.links.length; i++) {
-    if (data.visibleNodes[data.links[i].source.id] == null || data.visibleNodes[data.links[i].target.id] == null) {  // hide incident edges
-      delete data.visibleLinks[data.links[i].id];
-    }
-  }
-  this.reparseData(true);
-};
-
-
-/**
- * Adds the given edges to the network.
- * @param {!Array<!Object>} edges Array of the edges to be added.
- */
-NetworkLoader.prototype.addEdges = function(edges) {
-  var data = this.parentView.viewdata;
-  var nodes = data.nodes, nodeids = {};
-  var exp = '';
-  for (var i = 0; i < nodes.length; i++) {
-    nodeids[nodes[i].id] = true;
-    exp += '^' + nodes[i].name + '$|';
-  }
-  for (var i = 0; i < edges.length; i++) {
-    data.visibleLinks[edges[i].id] = true;
-    if (nodeids[edges[i].sourceId] == null) {
-      nodeids[edges[i].sourceId] = true;
-      data.visibleNodes[edges[i].sourceId] = true;
-      exp += '^' + edges[i].source + '$|';
-    }
-    if (nodeids[edges[i].targetId] == null) {
-      nodeids[edges[i].targetId] = true;
-      data.visibleNodes[edges[i].targetId] = true;
-      exp += '^' + edges[i].target + '$|';
-    }
-  }
-  exp += '[]';
-  this.updateNetwork(exp);
-};
-
-
-/**
- * Removes the given edges from the network.
- * @param {!Array<!Object>} edges Array of edges to be removed.
- */
-NetworkLoader.prototype.removeEdges = function(edges) {
-  var data = this.parentView.viewdata;
-  var links = data.links;
-  for (var i = 0; i < edges.length; i++) {
-    if (data.visibleLinks[edges[i].id] == true) delete data.visibleLinks[edges[i].id];
-  }
-  this.reparseData(true); // removal of edges
-};
-
-
 /**
  * Implements the network loading ajax call.
  * @param {string} networkName Name of the network.
@@ -132,15 +53,84 @@ NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
     .fail(this.fail.bind(this, 'cannot load network', params));
 };
 
-/*
-LoaderGraph.prototype.updateData = function(identifier) {
-  if (identifier.action == 'show') {
-    this.addEdges(identifier.data);
-  }else if (identifier.action == 'hide') {
-    this.removeEdges(identifier.data);
+/**
+ * Updates the genes in the current network.
+ * @param {string} method Update method, either 'set' or 'add'.
+ * @param {string} geneRegex Regex that selects the genes to be updated.
+ */
+NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
+  var regex = this.data.geneRegex;
+  switch(method) {
+    case 'set':
+      // Totally replace the regex.
+      regex = geneRegex;
+      break;
+    case 'add':
+      // Concat the two regex's. We need to include the previously existing
+      // genes too so as to find the edges between the new genes and old
+      // ones.
+      regex += '|' + geneRegex;
+      break;
+    case 'remove':
+      // Remove genes do not need communication with the server.
+      this.removeGenes_(geneRegex);
+      // Return immediately. No ajax.
+      return;
   }
+  this.signal('loadStart');
+  var params = {
+    type: 'net',
+    net: this.data.networkName, // Use the previous network name
+    exp: regex
+  };
+  $.get(Data.serverURL, params, function(data) {
+    data.geneRegex = regex;
+    _(this.data).extend(data);
+    this.signal('loadComplete');
+  }.bind(this), 'jsonp')
+    .fail(this.fail.bind(this, 'cannot update genes in the network', params));
 };
 
+
+/**
+ * Removes the selected genes from the current network data.
+ * @param {string} geneRegex Regex selecting the genes to be removed.
+ * @private
+ */
+NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
+  var regex;
+  try {
+    regex = RegExp(geneRegex, 'i');
+  } catch (e) {
+    Core.error('invalid gene regex', geneRegex);
+    return;
+  };
+  this.data.nodes = _(this.data.nodes).filter(function(node) {
+    return !node.id.match(regex);
+  });
+  this.data.edges = _(this.data.edges).filter(function(edge) {
+    return !edge.source.match(regex) && !edge.target.match(regex);
+  });
+
+  this.updateGeneRegex_();
+  this.signal('gene-remove');
+};
+
+/**
+ * Updates the regex that selects the current gene set. Because of gene
+ * removal, unlike gene addition, it is hard to incrementally modify the regex.
+ * This function sets the gene regex to a verbose concatenation of the gene
+ * ids. This is only called in removeGenes_().
+ */
+NetworkLoader.prototype.updateGeneRegex_ = function() {
+  var regex = '';
+  this.data.nodes.forEach(function(node, index) {
+    regex += node.id + (index == this.data.nodes.length - 1 ? '' : '|');
+  }, this);
+  this.data.geneRegex = regex;
+};
+
+/*
 LoaderGraph.prototype.loadComb = function(net, exp) {
     var loader = this;
   var oexp = exp;

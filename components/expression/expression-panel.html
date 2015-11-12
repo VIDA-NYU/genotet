@@ -1,26 +1,51 @@
-<div>
-  <span>Data</span>
-  <select id="data">
-    <option value="b-subtilis">B. Subtilis</option>
-    <option value="rna-seq">RNA-Seq</option>
-  </select>
-  <span>Profile</span>
-  <input type="text" id="addline" size="5" title="Add gene to the polyline plot. Usage: regex.">
-  <span>Genes</span>
-  <input type="text" id="exprow" size="7" title="Add/remove/select genes in the heatmap. Usage: [add/rm/sel] regex | regex. If no action is specified, default behavior is sel.">
-  <span>Conditions</span>
-  <input type="text" id="expcol" size="7" title="Add/remove/select conditions in the heatmap. Usage: [add/rm/sel] regex | regex. If no action is specified, default behavior is sel.">
-
-  <input type="checkbox" id="labelrow" title="show/hide gene labels">
-  <span>Gene Labels</span>
-  <input type="checkbox" id="labelcol" title="show/hide condition labels">
-  <span>Condition Labels</span>
-  <input type="checkbox" id="showprofile" title="show/hide gene profiles">
-  <span>Gene Profiles</span>
-  <input type="checkbox" id="showtfa" title="show/hide TFA profiles">
-  <span>TFA Profiles</span>
-  <input type="checkbox" id="showgradient" title="show/hide gradient">
-  <span>Gradient</span>
-  <input type="checkbox" id="autoscale" title="turn on/off auto gradient heatmap scale">
-  <span>Auto-Scale Gradient</span>
+<div class="expression-panel">
+  <div id="matrix" class="panel-section">
+    <div class="item-title">Matrix</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="profile" class="panel-section">
+    <div class="item-title">Add Gene Profiles</div>
+    <select></select>
+  </div>
+  <div id="genes" class="panel-section">
+    <div class="item-title">Genes</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="conditions" class="panel-section">
+    <div class="item-title">Experiment Conditions</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div class="panel-section switches">
+    <table>
+      <colgroup>
+        <col width="50%">
+        <col width="50%">
+      </colgroup>
+      <tbody>
+      <tr>
+        <td>Gene Labels</td>
+        <td><input type="checkbox" id="label-genes" title="show gene (row) labels" checked></td>
+      </tr>
+      <tr>
+        <td>Condition Labels</td>
+        <td><input type="checkbox" id="label-conditions" title="show experiment condition (condition) labels" checked></td>
+      </tr>
+      <tr>
+        <td>Gene Profiles</td>
+        <td><input type="checkbox" id="show-profiles" title="show gene profiles (line charts)" checked></td>
+      </tr>
+      <tr>
+        <td>TFA Profiles</td>
+        <td><input type="checkbox" id="show-gradient" title="show TFA profiles (line charts)" checked></td>
+      </tr>
+      <tr>
+        <td>Auto-Scale Gradient</td>
+        <td><input type="checkbox" id="auto-scale" title="auto adjust gradient scale of heatmap" checked></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

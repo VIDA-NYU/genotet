@@ -10,6 +10,16 @@ var ViewManager = {
    * Initializes the view manager.
    */
   init: function() {
+    var resizeMain = function() {
+      $('#main').css({
+        width: $(window).width() - PanelManager.COLLAPSED_WIDTH,
+        height: $(window).height() - $('.navbar-fixed-top').outerHeight()
+      });
+    };
+    $(window).resize(resizeMain);
+
+    // Need to call once on init. Otherwise main size is not set.
+    resizeMain();
   },
 
   /**
@@ -47,7 +57,7 @@ var ViewManager = {
         return;
     }
     this.views[viewName] = newView;
-    var panelContainer = PanelManager.addPanel(viewName);
+    var panelContainer = PanelManager.addPanel(newView);
     newView.createPanel(panelContainer);
   },
 

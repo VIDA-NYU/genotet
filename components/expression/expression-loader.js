@@ -2,14 +2,21 @@
  * @fileoverview Expression matrix data loader.
  */
 
+'use strict';
+
 /**
  * ExpressionLoader loads the expression matrix data for the ExpressionView.
  * @param {!Object} data Data object to be written.
- * @extends {ExpressionLoader}
+ * @extends {ViewLoader}
  * @constructor
  */
 function ExpressionLoader(data) {
   ExpressionLoader.base.constructor.call(this, data);
+
+  _(this.data).extend({
+    matrix: null,
+    profiles: []
+  });
 }
 
 ExpressionLoader.prototype = Object.create(ViewLoader.prototype);
@@ -21,11 +28,12 @@ ExpressionLoader.base = ViewLoader.prototype;
  * Loads the expression matrix data, with given gene and condition selectors.
  * @param {string} matrixName Name of the expression matrix.
  * @param {string} geneRegex Regex for gene selection.
- * @param {string} condRegex Regex for experiment condition selection.
+ * @param {string} conditionRegex Regex for experiment condition selection.
  * @override
  */
-ExpressionLoader.prototype.load = function(matrixName, networkName, geneRegex) {
-  this.loadExpressionMatrix_(matrixName, networkName, geneRegex);
+ExpressionLoader.prototype.load = function(matrixName, geneRegex,
+    conditionRegex) {
+  this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
 };
 
 /**
@@ -33,17 +41,17 @@ ExpressionLoader.prototype.load = function(matrixName, networkName, geneRegex) {
  * contain a large number of entries, we use POST request.
  * @param {string} matrixName Name of the expression matrix.
  * @param {string} geneRegex Regex for gene selection.
- * @param {string} condRegex Regex for experiment condition selection.
+ * @param {string} conditionRegex Regex for experiment condition selection.
  * @private
  */
 ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
-    geneRegex, condRegex) {
+    geneRegex, conditionRegex) {
   this.signal('loadStart');
   var params = {
-    type: 'expmat',
+    type: 'expression',
     mat: matrixName,
     exprows: geneRegex,
-    expcols: condRegex
+    expcols: conditionRegex
   };
 
   $.get(Data.serverURL, params, function(data) {
@@ -51,10 +59,10 @@ ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     _(data).extend({
       matrixname: matrixName,
       geneRegex: geneRegex,
-      condRegex: condRegex
+      conditionRegex: conditionRegex
     });
 
-    _(this.data).extend(data);
+    this.data.matrix = data;
 
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
@@ -63,13 +71,6 @@ ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 
 
 /*
-function LoaderHeatmap() {
-  this.lastExprows = '.*';
-  this.lastExpcols = '.*';
-    this.lastResol = 5;
-  this.flagHeatmap = false;
-}
-
 LoaderHeatmap.prototype.updateData = function(identifier) {
   if (identifier.action == 'node') {
     this.loadLine(this.lastIdentifier.mat, identifier.name);
@@ -115,37 +116,6 @@ LoaderHeatmap.prototype.loadCompleteLine = function() {
     this.flagHeatmap = true;
   }
   this.parentView.layout.updateLine();
-};
-
-LoaderHeatmap.prototype.loadHeatmap = function(mat, exprows, expcols, resol) {
-  var loader = this, layout = loader.parentView.layout;
-  var args = {'type': 'expmat', 'width': layout.heatmapWidth, 'height': layout.heatmapHeight};
-  if (mat == null) mat = this.lastIdentifier.mat;
-  if (exprows == null) exprows = this.lastExprows;
-  if (expcols == null) expcols = this.lastExpcols;
-    if (resol == null) resol = this.lastResol;
-  args['mat'] = mat;
-  args['exprows'] = exprows;
-  args['expcols'] = expcols;
-    args['resol'] = resol;
-  this.lastExprows = exprows;
-  this.lastExpcols = expcols;
-    this.lastResol = resol;
-  this.lastIdentifier.mat = mat;
-
-  this.parentView.layout.showMsg('Loading...');
-  $.ajax({
-      type: 'POST', url: addr, dataType: 'jsonp',
-      data: { 'args': args },
-    error: function(xhr, status, err) { loader.error('cannot load heatmap\n' + status + '\n' + err); },
-      success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
-      if (data == null || data.length == 0) { loader.error('cannot load heatmap\n return is empty'); return; }
-      for (var i = 0; i < data.data.length; i++) data.data[i].rx = data.data[i].x;
-      loader.parentView.viewdata.heatmapData = data;
-      loader.loadComplete();
-      }
-  });
 };
 
 LoaderHeatmap.prototype.loadHeatmapTargets = function(net, name) {
@@ -197,13 +167,5 @@ LoaderHeatmap.prototype.loadLine = function(mat, name) {
       loader.loadCompleteLine();
       }
   });
-};
-
-LoaderHeatmap.prototype.error = function(msg, type) {
-  msg = this.parentView.viewname + ': ' + msg;
-  console.error(msg);
-  user.alert(msg);
-  if (type != 'line')  // if cannot add line, it is ok
-    this.parentView.layout.showError();
 };
 */

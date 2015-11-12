@@ -62,7 +62,7 @@ var Dialog = {
     modal.find('.modal-content').load('templates/create-view.html', function() {
       modal.modal();
       modal.find('.selectpicker').selectpicker();
-      modal.find('#btnDone').click(function() {
+      modal.find('#btn-next').click(function() {
         var type = modal.find('#type').val();
         switch (type) {
         case 'network':
@@ -94,7 +94,7 @@ var Dialog = {
       modal.find('.selectpicker').selectpicker();
 
       // Create
-      modal.find('#btnCreate').click(function() {
+      modal.find('#btn-create').click(function() {
         var viewName = modal.find('#view-name').val();
         ViewManager.createView('network', viewName, {
           networkName: modal.find('#network').val(),
@@ -134,7 +134,7 @@ var Dialog = {
       });
 
       // Create
-      modal.find('#btnCreate').click(function() {
+      modal.find('#btn-create').click(function() {
         var viewName = modal.find('#view-name').val();
         ViewManager.createView('binding', viewName, {
           gene: modal.find('#gene').val(),
@@ -156,12 +156,12 @@ var Dialog = {
       modal.find('.selectpicker').selectpicker();
 
       // Create
-      modal.find('#btnCreate').click(function() {
+      modal.find('#btn-create').click(function() {
         var viewName = modal.find('#view-name').val();
         ViewManager.createView('expression', viewName, {
           matrixName: modal.find('#matrix').val(),
-          geneRegex: modal.find('#geneRegex').val(),
-          condRegex: modal.find('#condRegex').val()
+          geneRegex: modal.find('#gene-regex').val(),
+          condRegex: modal.find('#cond-regex').val()
         });
       });
     });
