@@ -75,6 +75,15 @@ ViewRenderer.prototype.render = function() {};
 ViewRenderer.prototype.dataLoaded = function() {};
 
 /**
+ * Checks if the data has been loaded.
+ * @private
+ * @return {boolean} If the data is ready to be plotted.
+ */
+ViewRenderer.prototype.dataReady_ = function() {
+  return false;
+};
+
+/**
  * Handles the resize update of the view.
  */
 ViewRenderer.prototype.resize = function() {

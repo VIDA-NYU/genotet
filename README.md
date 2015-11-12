@@ -29,4 +29,5 @@ A configuration file is needed to set the data paths. The file shall be located 
 bindingPath = D:/bnetvis_data/wiggle/
 networkPath = D:/bnetvis_data/network/
 expressionPath = D:/bnetvis_data/
+bigwigtowigPath = /D:/bnetvis_data/wiggle/bigwigtoWig
 ```

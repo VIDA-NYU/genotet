@@ -33,9 +33,14 @@ var Data = {
   organism: 'th17',
 
   /**
-   * Color scale from red to green.
+   * Color scale from red to blue.
    */
   redBlueScale: ['#ab1e1e', 'gray', '#1e6eab'],
+
+  /**
+   * Color scale from black to red to yellow
+   */
+  redYellowScale: ["black", "red", "yellow"],
 
   /**
    * Initializes Data properties.

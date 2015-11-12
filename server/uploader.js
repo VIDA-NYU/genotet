@@ -10,7 +10,6 @@ var multer = require('multer');
 var shell = require('shelljs');
 
 var utils = require('./utils');
-var binding = require('./binding');
 var segtree = require('./segtree');
 
 var upload = multer();
@@ -46,12 +45,16 @@ module.exports = {
 
       // write down the gene name and description
       var filename = req.file.originalname.substr(0, req.file.originalname.length - 3);
-      var fd = fs.openSync(prefix + 'NameInfo', 'a');
-      fd.write(filename + '\t' + req.genename + '\t' + req.description + '\n');
+      var fd = fs.openSync(prefix + 'WiggleInfo', 'a');
+      fd.write(filename + '\t' + req.specifiedname + '\t' + req.description + '\n');
       fd.close();
     } else if (fileType == 'network') {
-      var fd = fs.openSync(prefix + 'NameInfo', 'a');
-      fd.write(filename + '\t' + req.genename + '\t' + req.description + '\n');
+      var fd = fs.openSync(prefix + 'NetworkInfo', 'a');
+      fd.write(filename + '\t' + req.specifiedname + '\t' + req.description + '\n');
+      fd.close();
+    } else if (fileType == 'expression') {
+      var fd = fs.openSync(prefix + 'ExpmatInfo', 'a');
+      fd.write(filename + '\t' + req.specifiedname + '\t' + req.description + '\n');
       fd.close();
     }
     return isFinish;

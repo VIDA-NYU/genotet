@@ -43,6 +43,11 @@ var Menu = {
       Dialog.create('organism');
     });
 
+    // Upload data.
+    $('#upload').click(function() {
+      Dialog.create('upload');
+    });
+
     /*
     // TODO(bowen): View linking and grouping are obsolete.
     $('#view-link').click(function() {

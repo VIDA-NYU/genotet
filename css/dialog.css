@@ -15,3 +15,13 @@
   height: 50px;
   width: 100px;
 }
+
+#modal #description {
+  width: 440px;
+  height: 200px;
+  resize: none;
+}
+
+#modal #file {
+  margin-top: 15px;
+}
