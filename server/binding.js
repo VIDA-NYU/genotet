@@ -351,6 +351,27 @@ module.exports = {
       console.log('SegmentTree read');
     }
     return cache;
+  },
+
+  /**
+   * List all the wiggle files in the server
+   * @param {string} wiggleAddr Folder of the wiggle file in the server
+   * @returns {Array} array of object of each wiggle file
+   */
+  listBindingGenes: function(wiggleAddr) {
+    var descFile = wiggleAddr + 'WiggleInfo';
+    var ret = [];
+    var buf = utils.readFileToBuf(descFile);
+    var descLine = buf.toString().split('\n');
+    for (var i = 0; i < descLine.length; i++) {
+      var part = descLine[i].split('\t');
+      ret.push({
+        fileName: part[0],
+        gene: part[1],
+        description: part[2]
+      });
+    }
+    return ret;
   }
 
 };
