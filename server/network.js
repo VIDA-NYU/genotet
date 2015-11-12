@@ -219,5 +219,26 @@ module.exports = {
     }
     console.log('comb request returns', nodes.length);
     return nodes;
+  },
+
+  /**
+   * List all the networks in the server
+   * @param {string} networkAddr Folder of the network in the server
+   * @returns {Array} array of object of each network file
+   */
+  listNetwork: function(networkAddr) {
+    var descFile = networkAddr + 'NetworkInfo';
+    var ret = [];
+    var buf = utils.readFileToBuf(descFile);
+    var descLine = buf.toString().split('\n');
+    for (var i = 0; i < descLine.length; i++) {
+      var part = descLine[i].split('\t');
+      ret.push({
+        fileName: part[0],
+        networkName: part[1],
+        description: part[2]
+      });
+    }
+    return ret;
   }
 };

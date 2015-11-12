@@ -184,6 +184,9 @@ app.get('/genotet', function(req, res) {
       file = networkAddr + net + '.bnet';
       data = networkgetNetTargets(file, name);
       break;
+    case 'list-network':
+      data = network.listNetwork(networkAddr);
+      break;
 
     // Binding data queries
     case 'exons':
@@ -213,6 +216,10 @@ app.get('/genotet', function(req, res) {
       data.gene = gene;
       data.chr = chr;
       break;
+    case 'list-binding':
+      data = binding.listBindingGenes(wiggleAddr);
+      break;
+
     // Expression matrix data queries
     case 'expmat':
       var file = expmatFile[req.query.mat];
@@ -228,6 +235,9 @@ app.get('/genotet', function(req, res) {
       var fileExp = expmatFile[mat], fileTfa = tfamatFile[mat];
       name = name.toLowerCase();
       data = expmat.getExpmatLine(fileExp, fileTfa, name);
+      break;
+    case 'list-matrix':
+      data = expmat.listMatrix(expmatAddr);
       break;
 
 

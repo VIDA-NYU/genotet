@@ -283,5 +283,26 @@ module.exports = {
       geneNames: selrownames,
       condNames: selcolnames
     }
+  },
+
+  /**
+   * List all the expression matrix files in the server
+   * @param {string} expmatAddr Folder of the expression matrix file in the server
+   * @returns {Array} array of object of each expression matrix file
+   */
+  listMatrix: function(expmatAddr) {
+    var descFile = expmatAddr + 'ExpmatInfo';
+    var ret = [];
+    var buf = utils.readFileToBuf(descFile);
+    var descLine = buf.toString().split('\n');
+    for (var i = 0; i < descLine.length; i++) {
+      var part = descLine[i].split('\t');
+      ret.push({
+        fileName: part[0],
+        matrixName: part[1],
+        description: part[2]
+      });
+    }
+    return ret;
   }
 };
