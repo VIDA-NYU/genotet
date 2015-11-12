@@ -16,31 +16,35 @@ var Dialog = {
       return;
     }
     switch (type) {
-    case 'create-view':
-      this.createView();
-      break;
-    case 'create-network':
-      this.createNetwork();
-      break;
-    case 'create-binding':
-      this.createBinding();
-      break;
-    case 'create-expression':
-      this.createExpression();
-      break;
-    case 'organism':
-      this.organism();
-      break;
-    default:
-      Core.error('unknown view type in Dialog.create:', type);
-      break;
+      case 'create-view':
+        this.createView_();
+        break;
+      case 'create-network':
+        this.createNetwork_();
+        break;
+      case 'create-binding':
+        this.createBinding_();
+        break;
+      case 'create-expression':
+        this.createExpression_();
+        break;
+      case 'organism':
+        this.organism_();
+        break;
+      case 'upload':
+        this.upload_();
+        break;
+      default:
+        Core.error('unknown view type in Dialog.create:', type);
+        break;
     }
   },
 
   /**
    * Creates a organism selection dialog.
+   * @private
    */
-  organism: function() {
+  organism_: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/organism.html', function() {
       modal.modal();
@@ -56,8 +60,9 @@ var Dialog = {
 
   /**
    * Creates a dialog for view creation.
+   * @private
    */
-  createView: function() {
+  createView_: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-view.html', function() {
       modal.modal();
@@ -84,8 +89,9 @@ var Dialog = {
 
   /**
    * Creates a dialog for network creation.
+   * @private
    */
-  createNetwork: function() {
+  createNetwork_: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-network.html', function() {
       modal.modal();
@@ -106,8 +112,9 @@ var Dialog = {
 
   /**
    * Creates a dialog for genome browser creation.
+   * @private
    */
-  createBinding: function() {
+  createBinding_: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-binding.html', function() {
       modal.modal();
@@ -146,8 +153,9 @@ var Dialog = {
 
   /**
    * Creates a dialog for expression matrix creation.
+   * @private
    */
-  createExpression: function() {
+  createExpression_: function() {
     var modal = $('#modal');
     modal.find('.modal-content').load('templates/create-expression.html', function() {
       modal.modal();
@@ -163,6 +171,20 @@ var Dialog = {
           geneRegex: modal.find('#gene-regex').val(),
           condRegex: modal.find('#cond-regex').val()
         });
+      });
+    });
+  },
+
+  /**
+   * Creates a dialog for uploading data.
+   * @private
+   */
+  upload_: function() {
+    var modal = $('#modal');
+    modal.find('.modal-content').load('templates/upload.html', function() {
+      modal.modal();
+      modal.find('.selectpicker').selectpicker();
+      modal.find('#btn-upload').click(function() {
       });
     });
   }

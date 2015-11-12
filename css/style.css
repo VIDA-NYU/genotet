@@ -8,7 +8,9 @@ body {
 }
 
 #main {
+  position: absolute;
   padding: 0;
+  top: 30px;
 }
 
 .alert {
@@ -72,7 +74,6 @@ body {
   min-height: 28px !important;
 }
 
-#main {
-  position: absolute;
-  top: 30px;
+.navbar-fixed-top a:hover {
+  cursor: pointer;
 }
