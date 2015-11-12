@@ -201,6 +201,9 @@ ExpressionRenderer.prototype.drawMatrixCells_ = function () {
     .attr('y', function (d, i, j) {
       return j * cellHeight;
     })
+    .style('stroke', function (d) {
+      return colorScale(d);
+    })
     .style('fill', function (d) {
       return colorScale(d);
     });
