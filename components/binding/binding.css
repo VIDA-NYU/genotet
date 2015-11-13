@@ -55,4 +55,7 @@
 
 .binding-panel .track-gene button {
   border: none;
+  background-image: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }
