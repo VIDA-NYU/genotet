@@ -71,7 +71,8 @@ var PanelManager = {
       this.togglePanel_();
     }
     $(view).on('genotet.focus', function() {
-      $('#' + tabID + ' a').trigger('click');
+      $('.sideways li.active').removeClass('active');
+      $('#' + tabID).addClass('active');
     });
 
     var container = $('#panel-view-' + viewID);
