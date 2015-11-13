@@ -26,11 +26,6 @@ var PanelManager = {
     this.container_.children('#btn-toggle').click(function() {
       this.togglePanel_();
     }.bind(this));
-    $('.sideways').click(function() {
-      if (!this.showPanel_) {
-        this.togglePanel_();
-      }
-    }.bind(this));
   },
 
   /**
@@ -64,16 +59,17 @@ var PanelManager = {
     $('#panel-view-init').clone()
       .attr('id', 'panel-view-' + viewID)
       .appendTo('.tab-content');
-    $('#' + tabID + ' a').trigger('click');
-
-    this.container_.show();
-    if (!this.showPanel_) {
-      this.togglePanel_();
-    }
     $(view).on('genotet.focus', function() {
       $('.sideways li.active').removeClass('active');
       $('#' + tabID).addClass('active');
     });
+    $('.sideways li a').off().click(function() {
+      if (!this.showPanel_) {
+        this.togglePanel_();
+      }
+    }.bind(this));
+    this.container_.show();
+    $('#' + tabID + ' a').trigger('click');
 
     var container = $('#panel-view-' + viewID);
     return container;
@@ -117,6 +113,6 @@ var PanelManager = {
       .addClass('tab-pane active')
       .attr('id', 'panel-view-init')
       .appendTo(tabContent);
-    $('.side-panel').css('display', 'none');
+    $('#side-panel').css('display', 'none');
   }
 };

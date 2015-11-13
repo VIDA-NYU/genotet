@@ -72,9 +72,11 @@
 }
 
 #side-panel .sideways.tabs-left {
+  border: none;
   left: 0px;
   margin-left: -51px;
   margin-right: -1px;
+  width: 0px;
 }
 
 .sideways > li > a {
