@@ -233,7 +233,7 @@ ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function () {
   //}]);
   var heatmapData = this.data.matrix;
   var geneLabelsData = heatmapData.geneNames;
-  var cellHeight = this.heatmapHeight_ / heatmapData.geneNames.length;
+  var cellHeight = this.heatmapHeight_ / geneLabelsData.length;
   var labels = this.svgGeneLabels_.selectAll('text').data(geneLabelsData);
   labels.enter().append('text')
     .text(_.identity)
@@ -265,17 +265,29 @@ ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function () {
     return;
   }
   // TODO(liana): Implement the below...
-  var labels = this.svgConditionLabels_.selectAll('text').data([{
-    label: 'a vertical label'
-  }]);
+  var heatmapData = this.data.matrix;
+  var conditionLabelsData = heatmapData.conditionNames;
+  var cellWidth = this.heatmapWidth_ / conditionLabelsData.length;
+  //var labels = this.svgConditionLabels_.selectAll('text').data([{
+  //  label: 'a vertical label'
+  //}]);
+  var labels = this.svgConditionLabels_.selectAll('text').data(conditionLabelsData);
   labels.enter().append('text')
+    .text(_.identity)
+    .attr('x', 0)
+    .style('text-anchor', 'right')
     .classed('condition-label', true);
   labels.exit().remove();
   labels
-    .attr('transform', Utils.getTransform([0, 0], 1, 90))
-    .text(function (condition) {
-      return condition.label
-    });
+    .attr('transform', Utils.getTransform([this.geneLabelWidth_, this.conditionLabelHeight_], 1, -90))
+    .attr('y', function(d, i){
+      return i * cellWidth;
+    })
+    .style('text-anchor', 'right')
+    .text(_.identity);
+    //.text(function (condition) {
+    //  return condition.label
+    //});
 };
 
 /**
@@ -306,10 +318,10 @@ ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function () {
     this.geneLabelWidth_ = 30;
   }
   if (!this.data.options.showConditionLabels) {
-    this.conditionLabelHeight_ = 0;
+    this.conditionLabelHeight_ = 100;
   } else {
     // To implement... replace dummy value.
-    this.conditionLabelHeight_ = 50;
+    this.conditionLabelHeight_ = 200;
   }
 };
 
