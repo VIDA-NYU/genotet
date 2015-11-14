@@ -71,12 +71,12 @@ ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 300;
 
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.init = function () {
+ExpressionRenderer.prototype.init = function() {
   ExpressionRenderer.base.init.call(this);
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.initLayout = function () {
+ExpressionRenderer.prototype.initLayout = function() {
   /**
    * SVG group for profile plot (line charts).
    * @private {!d3.selection}
@@ -113,12 +113,12 @@ ExpressionRenderer.prototype.initLayout = function () {
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.layout = function () {
+ExpressionRenderer.prototype.layout = function() {
   // Gets the label sizes so as to set the offset of heatmap SVG.
   this.getHeatmapLabelSizes_();
   // Compute the shifting sizes.
   this.profileHeight_ = this.data.options.showProfiles ?
-    this.DEFAULT_PROFILE_HEIGHT : 0;
+      this.DEFAULT_PROFILE_HEIGHT : 0;
 
   this.svgHeatmap_
     .attr('transform', Utils.getTransform([0, this.profileHeight_]));
@@ -137,17 +137,17 @@ ExpressionRenderer.prototype.layout = function () {
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.dataLoaded = function () {
+ExpressionRenderer.prototype.dataLoaded = function() {
   this.render();
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.dataReady_ = function () {
+ExpressionRenderer.prototype.dataReady_ = function() {
   return this.data.matrix;
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.render = function () {
+ExpressionRenderer.prototype.render = function() {
   if (!this.dataReady_()) {
     return;
   }
@@ -163,7 +163,7 @@ ExpressionRenderer.prototype.render = function () {
  * Renders the expression matrix onto the scene.
  * @private
  */
-ExpressionRenderer.prototype.drawExpressionMatrix_ = function () {
+ExpressionRenderer.prototype.drawExpressionMatrix_ = function() {
   this.drawMatrixCells_();
   this.drawMatrixGeneLabels_();
   this.drawMatrixConditionLabels_();
@@ -173,8 +173,7 @@ ExpressionRenderer.prototype.drawExpressionMatrix_ = function () {
  * Renders the expression matrix cells.
  * @private
  */
-ExpressionRenderer.prototype.drawMatrixCells_ = function () {
-  // TODO(liana): Implement this...
+ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var cells = this.svgHeatmapContent_.selectAll('rect.cell').data([{
     width: this.heatmapWidth_,
     height: this.heatmapHeight_
@@ -195,25 +194,25 @@ ExpressionRenderer.prototype.drawMatrixCells_ = function () {
     .enter().append('rect')
     .attr('width', this.heatmapWidth_ / heatmapData.conditionNames.length)
     .attr('height', this.heatmapHeight_ / heatmapData.geneNames.length)
-    .attr('x', function (d, i, j) {
+    .attr('x', function(d, i, j) {
       return i * cellWidth;
     })
-    .attr('y', function (d, i, j) {
+    .attr('y', function(d, i, j) {
       return j * cellHeight;
     })
-    .style('stroke', function (d) {
+    .style('stroke', function(d) {
       return colorScale(d);
     })
-    .style('fill', function (d) {
+    .style('fill', function(d) {
       return colorScale(d);
     });
     //.classed('cell', true);
   cells.exit().remove();
   cells
-    .attr('width', function (cell) {
+    .attr('width', function(cell) {
       return cell.width;
     })
-    .attr('height', function (cell) {
+    .attr('height', function(cell) {
       return cell.height;
     });
 };
@@ -222,12 +221,11 @@ ExpressionRenderer.prototype.drawMatrixCells_ = function () {
  * Renders the expression matrix gene (row) labels.
  * @private
  */
-ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function () {
+ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
   if (!this.data.options.showGeneLabels) {
     this.svgGeneLabels_.selectAll('*').remove();
     return;
   }
-  // TODO(liana): Implement the below...
   //var labels = this.svgGeneLabels_.selectAll('text').data([{
   //  label: 'a horizontal label'
   //}]);
@@ -238,7 +236,7 @@ ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function () {
   labels.enter().append('text')
     .text(_.identity)
     .attr('x', 0)
-    .attr('y', function (d, i) {
+    .attr('y', function(d, i) {
       return i * cellHeight;
     })
     .style('text-anchor', 'middle')
@@ -250,7 +248,7 @@ ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function () {
       return i * cellHeight;
     })
     .text(_.identity);
-  //  .text(function (gene) {
+  //  .text(function(gene) {
   //    return gene.label;
   //  });
 };
@@ -259,12 +257,11 @@ ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function () {
  * Renders the expression matrix condition (column) labels.
  * @private
  */
-ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function () {
+ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   if (!this.data.options.showConditionLabels) {
     this.svgConditionLabels_.selectAll('*').remove();
     return;
   }
-  // TODO(liana): Implement the below...
   var heatmapData = this.data.matrix;
   var conditionLabelsData = heatmapData.conditionNames;
   var cellWidth = this.heatmapWidth_ / conditionLabelsData.length;
@@ -285,7 +282,7 @@ ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function () {
     })
     .style('text-anchor', 'right')
     .text(_.identity);
-    //.text(function (condition) {
+    //.text(function(condition) {
     //  return condition.label
     //});
 };
@@ -294,7 +291,7 @@ ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function () {
  * Renders the expression profiles for the selected genes as line charts.
  * @private
  */
-ExpressionRenderer.prototype.drawGeneProfiles_ = function () {
+ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   if (!this.data.options.showProfiles) {
     this.svgProfile_.selectAll('*').remove();
     return;
@@ -308,26 +305,28 @@ ExpressionRenderer.prototype.drawGeneProfiles_ = function () {
  *     this.conditionLabelHeight
  * @private
  */
-ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function () {
-  // TODO(liana): Computes the horizontal/vertical text margin allocated for
-  // the heatmap labels.
+ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
+  var heatmapData = this.data.matrix;
+  var geneLabelsData = heatmapData.geneNames;
+  var conditionLabelsData = heatmapData.conditionNames;
   if (!this.data.options.showGeneLabels) {
     this.geneLabelWidth_ = 0;
   } else {
-    // To implement... replace dummy value.
-    this.geneLabelWidth_ = 30;
-    console.log(this.geneLabelWidth_);
+    this.geneLabelWidth_ = geneLabelsData.sort(function(a, b) {
+        return b.length - a.length;
+      })[0].length * 5;
   }
   if (!this.data.options.showConditionLabels) {
     this.conditionLabelHeight_ = 100;
   } else {
-    // To implement... replace dummy value.
-    this.conditionLabelHeight_ = 200;
+    this.conditionLabelHeight_ = conditionLabelsData.sort(function(a, b) {
+        return b.length - a.length;
+      })[0].length * 6.5;
   }
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.resize = function () {
+ExpressionRenderer.prototype.resize = function() {
   ExpressionRenderer.base.resize.call(this);
   this.render();
 };
