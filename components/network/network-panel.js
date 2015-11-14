@@ -89,7 +89,7 @@ NetworkPanel.prototype.dataLoaded = function() {
  * @private
  */
 NetworkPanel.prototype.hideInfo_ = function() {
-  this.container_.find('#info').hide();
+  this.container_.find('#node-info, #edge-info').hide();
 };
 
 /**
@@ -129,7 +129,7 @@ NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
  * @param {!Object} node Node of which the info is to be displayed.
  */
 NetworkPanel.prototype.displayNodeInfo = function(node) {
-  var info = this.container_.find('#info').show();
+  var info = this.container_.find('#node-info').show();
   this.setNodeInfo_(node, info);
 };
 
@@ -138,7 +138,7 @@ NetworkPanel.prototype.displayNodeInfo = function(node) {
  * @param {!Object} edge Edge of which the info is to be displayed.
  */
 NetworkPanel.prototype.displayEdgeInfo = function(edge) {
-  var info = this.container_.find('#info').show();
+  var info = this.container_.find('#edge-info').show();
   this.setEdgeInfo_(edge, info);
 };
 

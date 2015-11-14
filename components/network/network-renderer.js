@@ -442,6 +442,7 @@ NetworkRenderer.prototype.drawEdges_ = function() {
     .style('fill', getEdgeColor)
     .on('click', function(edge) {
       this.signal('edge-click', edge);
+      this.selectEdge(edge);
     }.bind(this))
     .on('mouseenter', function(edge) {
       this.signal('edge-hover', edge);
@@ -509,6 +510,18 @@ NetworkRenderer.prototype.selectNode = function(node) {
     }.bind(this));
 };
 
+/**
+ * Selects an edge to highlight it.
+ * @param {!Object} edge Edge selected.
+ */
+NetworkRenderer.prototype.selectEdge = function(edge) {
+  this.data.edgeSelected = edge;
+  var idSelected = edge.id;
+  this.svgEdges_.selectAll('g')
+    .classed('active', function(edge) {
+      return edge.id == idSelected;
+    }.bind(this))
+};
 
 /*
 NetworkRenderer.prototype.nodeDragStart = function(d) {

@@ -11,6 +11,10 @@
   stroke-width: 4px;
 }
 
+.view.network .edges g.active path {
+  stroke: orange;
+}
+
 .view.network .nodes * {
   stroke: black;
   stroke-width: 2px;
