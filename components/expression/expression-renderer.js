@@ -271,7 +271,7 @@ ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function () {
   //var labels = this.svgConditionLabels_.selectAll('text').data([{
   //  label: 'a vertical label'
   //}]);
-  var labels = this.svgConditionLabels_.selectAll('text').data(conditionLabelsData);
+  var labels = this.svgConditionLabels_.selectAll('text').data(conditionLabelsData.reverse());
   labels.enter().append('text')
     .text(_.identity)
     .attr('x', 0)
@@ -279,7 +279,7 @@ ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function () {
     .classed('condition-label', true);
   labels.exit().remove();
   labels
-    .attr('transform', Utils.getTransform([this.geneLabelWidth_, this.conditionLabelHeight_], 1, -90))
+    .attr('transform', Utils.getTransform([this.heatmapWidth_, 0], 1, 90))
     .attr('y', function(d, i){
       return i * cellWidth;
     })
@@ -316,6 +316,7 @@ ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function () {
   } else {
     // To implement... replace dummy value.
     this.geneLabelWidth_ = 30;
+    console.log(this.geneLabelWidth_);
   }
   if (!this.data.options.showConditionLabels) {
     this.conditionLabelHeight_ = 100;
