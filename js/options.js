@@ -5,7 +5,7 @@
 'use strict';
 
 var Options = {
-  allowAlert: true,
+  allowMessage: true,
 
   /**
    * Initializes the system options.
@@ -13,7 +13,7 @@ var Options = {
   init: function() {
   },
 
-  toggleAllowAlert: function() {
-    this.allowAlert = !this.allowAllert;
+  toggleAllowMessage: function() {
+    this.allowMessage = !this.allowMessage;
   }
 };

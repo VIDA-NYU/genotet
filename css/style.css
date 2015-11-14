@@ -15,10 +15,12 @@ body {
 
 .alert {
   padding: 5px 15px;
-  margin: 30px 0px 0px 0px;
+  margin: 29px 0px 0px 0px;
 }
 
-#error, #warning {
+#error,
+#warning,
+#success {
   text-align: center;
 }
 
@@ -70,8 +72,10 @@ body {
   height: 28px;
   font-size: 1em;
 }
+
 .navbar {
   min-height: 28px !important;
+  z-index: 0;
 }
 
 .navbar-fixed-top a:hover {

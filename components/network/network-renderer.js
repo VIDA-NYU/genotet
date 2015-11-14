@@ -104,7 +104,7 @@ NetworkRenderer.prototype.NODE_LABEL_OFFSET_X = 10;
 NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y =
     NetworkRenderer.prototype.NODE_LABEL_SIZE / 2;
 /** @const {number} */
-NetworkRenderer.prototype.NODE_SIZE = 5;
+NetworkRenderer.prototype.NODE_SIZE = 6;
 /** @const {number} */
 NetworkRenderer.prototype.EDGE_ARROW_LENGTH = 10;
 /**
@@ -324,7 +324,20 @@ NetworkRenderer.prototype.drawNodes_ = function() {
       return node.id;
     });
   nodesRegular.enter().append('circle')
-    .attr('r', this.NODE_SIZE);
+    .attr('r', this.NODE_SIZE)
+    .attr('id', function(node) {
+      return node.id;
+    })
+    .on('click', function(node) {
+      this.signal('node-click', node);
+      this.selectNode(node);
+    }.bind(this))
+    .on('mouseenter', function(node) {
+      this.signal('node-hover', node);
+    }.bind(this))
+    .on('mouseleave', function(node) {
+      this.signal('node-unhover', node);
+    }.bind(this));
   nodesRegular.exit().remove();
   nodesRegular
     .attr('cx', function(node) {
@@ -339,8 +352,21 @@ NetworkRenderer.prototype.drawNodes_ = function() {
       return node.id;
     });
   nodesTF.enter().append('rect')
+    .attr('id', function(node) {
+      return node.id;
+    })
     .attr('width', this.NODE_SIZE * 2)
-    .attr('height', this.NODE_SIZE * 2);
+    .attr('height', this.NODE_SIZE * 2)
+    .on('click', function(node) {
+      this.signal('node-click', node);
+      this.selectNode(node);
+    }.bind(this))
+    .on('mouseenter', function(node) {
+      this.signal('node-hover', node);
+    }.bind(this))
+    .on('mouseleave', function(node) {
+      this.signal('node-unhover', node);
+    }.bind(this));
   nodesTF.exit().remove();
   nodesTF
     .attr('x', function(node) {
@@ -370,7 +396,7 @@ NetworkRenderer.prototype.drawNodeLabels_ = function() {
   labels.enter().append('text')
     .text(function(node) {
       return node.name;
-    })
+    });
   labels.exit().remove();
   var fontSize = this.NODE_LABEL_SIZE / this.zoomScale_;
   var yOffset = this.NODE_LABEL_OFFSET_Y / this.zoomScale_;
@@ -413,7 +439,16 @@ NetworkRenderer.prototype.drawEdges_ = function() {
     });
   var gsEnter = gs.enter().append('g')
     .style('stroke', getEdgeColor)
-    .style('fill', getEdgeColor);
+    .style('fill', getEdgeColor)
+    .on('click', function(edge) {
+      this.signal('edge-click', edge);
+    }.bind(this))
+    .on('mouseenter', function(edge) {
+      this.signal('edge-hover', edge);
+    }.bind(this))
+    .on('mouseleave', function(edge) {
+      this.signal('edge-unhover', edge);
+    }.bind(this));
   gsEnter.append('path')
     .classed('edge', true);
   gsEnter.append('path')
@@ -459,6 +494,19 @@ NetworkRenderer.prototype.drawEdges_ = function() {
       var points = getArrowPoints(ps, pt);
       return line(points);
     });
+};
+
+/**
+ * Selects a node to highlight it.
+ * @param {!Object} node Node selected.
+ */
+NetworkRenderer.prototype.selectNode = function(node) {
+  this.data.nodeSelected = node;
+  var idSelected = node.id;
+  this.svgNodes_.selectAll('rect, circle')
+    .classed('active', function(node) {
+      return node.id == idSelected;
+    }.bind(this));
 };
 
 

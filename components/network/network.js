@@ -53,6 +53,27 @@ function NetworkView(viewName, params) {
   $(this.loader).on('genotet.gene-remove', function() {
     this.renderer.dataLoaded();
   }.bind(this));
+
+  // Node and edge hover in network
+  $(this.renderer)
+    .on('genotet.node-click', function(event, data) {
+      this.panel.displayNodeInfo(data);
+    }.bind(this))
+    .on('genotet.node-hover', function(event, data) {
+      this.panel.tooltipNode(data);
+    }.bind(this))
+    .on('genotet.node-unhover', function(event, data) {
+      Tooltip.hideAll();
+    }.bind(this))
+    .on('genotet.edge-click', function(event, data) {
+      this.panel.displayEdgeInfo(data);
+    }.bind(this))
+    .on('genotet.edge-hover', function(event, data) {
+      this.panel.tooltipEdge(data);
+    }.bind(this))
+    .on('genotet.edge-unhover', function(event, data) {
+      Tooltip.hideAll();
+    }.bind(this));
 }
 
 NetworkView.prototype = Object.create(View.prototype);

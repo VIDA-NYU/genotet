@@ -37,9 +37,9 @@ NetworkLoader.prototype.load = function(networkName, geneRegex) {
 NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
   this.signal('loadStart');
   var params = {
-    type: 'net',
-    net: networkName,
-    exp: geneRegex
+    type: 'network',
+    networkName: networkName,
+    geneRegex: geneRegex
   };
   $.get(Data.serverURL, params, function(data) {
     // Store the last applied networkName and geneRegex.

@@ -17,6 +17,7 @@ var Core = {
     ViewManager.init();
     Menu.init();
     Options.init();
+    Tooltip.init();
 
     // Allow turning off an alert.
     $('.alert button').click(function() {
@@ -37,7 +38,7 @@ var Core = {
   warning: function() {
     var msg = Array.prototype.slice.call(arguments).join(' ');
     console.warn(msg);
-    if (Options.allowAlert) {
+    if (Options.allowMessage) {
       $('#warning').text(msg);
       $('#warning').parent().slideDown();
     }
@@ -49,9 +50,21 @@ var Core = {
   error: function() {
     var msg = Array.prototype.slice.call(arguments).join(' ');
     console.error(msg);
-    if (Options.allowAlert) {
+    if (Options.allowMessage) {
       $('#error').text(msg);
       $('#error').parent().slideDown();
     }
-  }
+  },
+
+  /**
+   * Displays a user visible success message at the top of the screen.
+   */
+  success: function() {
+    var msg = Array.prototype.slice.call(arguments).join(' ');
+    console.info(msg);
+    if (Options.allowMessage) {
+      $('#success').text(msg);
+      $('#success').parent().slideDown();
+    }
+  },
 };
