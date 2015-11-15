@@ -71,6 +71,7 @@ function config() {
         break;
       case 'bigWigToWigPath':
         bigWigToWigPath = value;
+        break;
       case 'uploadPath':
         uploadPath = value;
     }
