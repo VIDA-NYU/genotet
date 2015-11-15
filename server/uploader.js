@@ -23,35 +23,54 @@ module.exports = {
    * @param {Object} file File object received from multer.
    * @param {string} prefix The destination folder to upload the file to.
    * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
-   * @returns {boolean} Success or not as a JS Object.
+   * @returns {Object} Success or not as a JS Object.
    */
   uploadFile: function(desc, file, prefix, bigWigToWigAddr) {
     var fileType = desc.type;
+    console.log(desc);
+    console.log(file);
+    var source = fs.createReadStream(file.path);
+    var dest;
 
-    // TODO(jiaming): Fix the below
-    /*
+    if (desc.type == 'binding') {
+      dest = fs.createWriteStream(prefix + file.originalname);
+      source.pipe(dest);
+      source.on("end", function(){});
+      source.on("err", function(err){});
+      fs.unlinkSync(file.path);
 
-    if (fileType == 'wiggle') {
-      // bowen: fieldname is the form field name and is not path to file.
-      this.bigwigtoBcwig(prefix, req.file.filedname, bigWigToWigAddr);
+      //this.bigwigtoBcwig(prefix, file.originalname, bigWigToWigAddr);
 
       // write down the gene name and description
-      var filename = req.file.originalname.substr(0, req.file.originalname.length - 3);
-
       var fd = fs.openSync(prefix + 'WiggleInfo', 'a');
-      fd.write(filename + '\t' + desc.name + '\t' + desc.description + '\n');
-      fd.close();
+      fs.writeSync(fd, file.originalname + '\t' + desc.name + '\t' + desc.description + '\n');
+      fs.closeSync(fd);
     } else if (fileType == 'network') {
+      dest = fs.createWriteStream(prefix + desc.name + '.bw');
+      source.pipe(dest);
+      source.on("end", function(){});
+      source.on("err", function(err){});
+
+      // write down the network name and description
       var fd = fs.openSync(prefix + 'NetworkInfo', 'a');
-      fd.write(filename + '\t' + desc.name + '\t' + desc.description + '\n');
-      fd.close();
+      fs.writeSync(fd, file.originalname + '\t' + desc.name + '\t' + desc.description + '\n');
+      fs.closeSync(fd);
     } else if (fileType == 'expression') {
+      dest = fs.createWriteStream(prefix + desc.name + '.bw');
+      source.pipe(dest);
+      source.on("end", function(){});
+      source.on("err", function(err){});
+
+      // write down the expression name and description
       var fd = fs.openSync(prefix + 'ExpmatInfo', 'a');
-      fd.write(filename + '\t' + desc.namee + '\t' + desc.description + '\n');
-      fd.close();
+      fs.writeSync(fd, file.originalname + '\t' + desc.namee + '\t' + desc.description + '\n');
+      fs.closeSync(fd);
     }
 
-    */
+    return {
+      success: true
+    };
+
   },
 
   /**
@@ -60,10 +79,12 @@ module.exports = {
    * @param {string} bwFile Name of the bigwig file (without prefix).
    * @param {string} bigwigtoWigAder The convention script path.
    */
-  bigwigtoBcwig: function(prefix, bwFile, bigwigtoWigAddr) {
+  bigwigtoBcwig: function(prefix, bwFile, bigWigWoWigAddr) {
     // convert *.bw into *.wig
     var wigFileName = bwFile.substr(0, bwFile.length - 3) + '.wig';
-    shell.exec('./' + bigwigtoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
+    console.log("start transfer");
+    shell.exec(bigWigWoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
+    console.log(bigWigWoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
 
     // convert *.wig into *.bcwig
     var seg = {};  // for segment tree, 22 trees for each chromosome, it is a map
@@ -119,7 +140,7 @@ module.exports = {
         bcwigBuf.writeFloatLE(seg[chr][i].val, i * 4 + 4);
         var fd = fs.openSync(bcwigFile, 'w');
         fs.writeSync(fd, buf, 0, 4 * seg[chr].length, 0);
-        fd.close();
+        fs.closeSync(fd);
       }
     }
 
@@ -136,7 +157,7 @@ module.exports = {
       }
       var fd = fs.openSync(segFile, 'w');
       fs.writeSync(fd, segBuf, 0, offset, 0);
-      fd.close();
+      fs.closeSync(fd);
     }
   }
 

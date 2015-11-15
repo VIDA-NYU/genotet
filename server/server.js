@@ -24,7 +24,7 @@ var uploader = require('./uploader.js');
 var app = express();
 
 var upload = multer({
-  dest: '/genotet/'
+  dest: '/Users/JiamingDong/Documents/vida_data/'
 });
 
 /**
@@ -70,6 +70,7 @@ function config() {
         break;
       case 'bigWigToWigPath':
         bigWigToWigAddr = value;
+        break;
     }
   }
 }
