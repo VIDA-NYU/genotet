@@ -12,7 +12,7 @@ Installation:
 
     ```
     cd server
-    npm install express
+    npm install
     ```
 
 - Modify server/server.js to locate the data at correct directories.

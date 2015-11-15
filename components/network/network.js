@@ -23,6 +23,9 @@ function NetworkView(viewName, params) {
   /** @protected {NetworkPanel} */
   this.panel = new NetworkPanel(this.data);
 
+  /** @protected {NetworkTable} */
+  this.table = new NetworkTable(this.data);
+
   /** @protected {NetworkRenderer} */
   this.renderer = new NetworkRenderer(this.container, this.data);
 
@@ -50,9 +53,36 @@ function NetworkView(viewName, params) {
   }.bind(this));
 
   // Gene removal update
-  $(this.loader).on('genotet.gene-remove', function() {
-    this.renderer.dataLoaded();
-  }.bind(this));
+  $(this.loader)
+    .on('genotet.geneRemove', function() {
+      this.renderer.dataLoaded();
+    }.bind(this))
+    .on('genotet.incidentEdges', function() {
+      this.table.create(this.panel.edgeListContainer(),
+          this.data.incidentEdges);
+    }.bind(this));
+
+  // Node and edge hover in network
+  $(this.renderer)
+    .on('genotet.nodeClick', function(event, node) {
+      this.panel.displayNodeInfo(node);
+      this.loader.incidentEdges(node);
+    }.bind(this))
+    .on('genotet.nodeHover', function(event, node) {
+      this.panel.tooltipNode(node);
+    }.bind(this))
+    .on('genotet.nodeUnhover', function(event, node) {
+      Tooltip.hideAll();
+    }.bind(this))
+    .on('genotet.edgeClick', function(event, edge) {
+      this.panel.displayEdgeInfo(edge);
+    }.bind(this))
+    .on('genotet.edgeHover', function(event, edge) {
+      this.panel.tooltipEdge(edge);
+    }.bind(this))
+    .on('genotet.edgeUnhover', function(event, edge) {
+      Tooltip.hideAll();
+    }.bind(this));
 }
 
 NetworkView.prototype = Object.create(View.prototype);

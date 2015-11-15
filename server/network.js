@@ -8,20 +8,20 @@ var utils = require('./utils');
 
 module.exports = {
   /**
-   * Reads the network data from the buffer.
+   * Reads the entire network data from the buffer.
    * @param {Buffer} buf File buffer of the network data.
-   * @returns {{
-   *     numNode: number,
-   *     numEdge: number,
-   *     nodes: !Array,
-   *     edges: !Array,
+   * @return {{
+   *     numNodes: number,  Total number of nodes in the network
+   *     numEdges: number,  Total number of edges in the network
+   *     nodes: !Array<!Object>,
+   *     edges: !Array<!Object>,
    *     names: !Array<string>
    *   }}
    */
   readNet: function(buf) {
     // Read number of nodes, number of TFs, and number of bytes for node names.
-    var numNode = buf.readInt32LE(0);
-    var numTF = buf.readInt32LE(4);
+    var numNodes = buf.readInt32LE(0);
+    var numTFs = buf.readInt32LE(4);
     var nameBytes = buf.readInt32LE(8);
 
     var offset = 12;
@@ -30,18 +30,18 @@ module.exports = {
     offset += nameBytes;
 
     var nodes = [];
-    for (var i = 0; i < numNode; i++) {
+    for (var i = 0; i < numNodes; i++) {
       nodes.push({
         id: names[i],
         name: names[i],
-        isTF: i < numTF ? true : false
+        isTF: i < numTFs ? true : false
       });
     }
-    var numEdge = buf.readInt32LE(offset);
+    var numEdges = buf.readInt32LE(offset);
     offset += 4;
 
     var edges = [];
-    for (var i = 0; i < numEdge; i++) {
+    for (var i = 0; i < numEdges; i++) {
       var s = buf.readInt32LE(offset);
       var t = buf.readInt32LE(offset + 4);
       var w = buf.readDoubleLE(offset + 8);
@@ -54,8 +54,8 @@ module.exports = {
       });
     }
     return {
-      numNode: numNode,
-      numEdge: numEdge,
+      numNodes: numNodes,
+      numEdges: numEdges,
       nodes: nodes,
       edges: edges,
       names: names
@@ -63,39 +63,43 @@ module.exports = {
   },
 
   /**
-   * Reads and returns the network data.
+   * Gets the network data according to the gene selection.
    * @param {string} file Network file name.
-   * @param {string} exp Regex for gene selection.
+   * @param {string} geneRegex Regex for gene selection.
    * @returns {{
-   *     nodes: Array,
-   *     edges: Array,
-   *     wmax: number,
-   *     wmin: number
+   *     nodes: !Array<!Object>,
+   *     edges: !Array<!Object>,
+   *     weightMax: number,
+   *     weightMin: number
    *   }} The network data JS object.
    */
-  getNet: function(file, exp) {
-    console.log(file, exp);
+  getNet: function(file, geneRegex) {
+    console.log(file, geneRegex);
     var buf = utils.readFileToBuf(file);
-    if (buf == null)
+    if (buf == null) {
       return console.error('cannot read file', file), [];
+    }
 
     var result = this.readNet(buf);
     var nodes = [], nodeKeys = {};
     var edges = [];
+    var regex;
     try {
-      exp = RegExp(exp, 'i');
+      regex = RegExp(geneRegex, 'i');
     } catch (e) {
-      exp = 'a^'; // return empty network
+      regex = 'a^'; // return empty network
     }
-    for (var i = 0; i < result.numNode; i++) {
-      if (result.names[i].match(exp) != null) {
+    var numNode = result.nodes.length;
+    var numEdge = result.edges.length;
+    for (var i = 0; i < numNode; i++) {
+      if (result.names[i].match(regex) != null) {
         var nd = result.nodes[i];
         nodes.push(nd);
         nodeKeys[result.names[i]] = true;
       }
     }
     var wmax = -Infinity, wmin = Infinity;
-    for (var i = 0; i < result.numEdge; i++) {
+    for (var i = 0; i < numEdge; i++) {
       var s = result.edges[i].source;
       var t = result.edges[i].target;
       var w = result.edges[i].weight;
@@ -111,68 +115,40 @@ module.exports = {
       }
     }
     console.log('return',
-      nodes.length + '/'+ result.numNode,
+      nodes.length + '/'+ result.numNodes,
       'nodes and',
-      edges.length + '/'+ result.numEdge,
+      edges.length + '/'+ result.numEdges,
       'edges'
     );
 
     return {
       nodes: nodes,
       edges: edges,
-      wmax: wmax,
-      wmin: wmin
-    };
-  },
-
-  /**
-   * Gets the genes being targeted by the given gene.
-   * @param {string} file Network file name.
-   * @param {string} name Regulator gene name.
-   * @returns {{exp: string}} Regex selecting the targeted genes.
-   */
-  getNetTargets: function(file, name) {
-    var buf = utils.readFileToBuf(file);
-    if (buf == null)
-      return console.error('cannot read file', file), [];
-    var result = this.readNet(buf);
-    var exp = '^'+ name + '$';
-    for (var i = 0; i < result.numEdge; i++) {
-      var s = result.edges[i].source, t = result.edges[i].target;
-      if (result.names[s] == name) {
-        exp += '|^'+ result.names[t] + '$';
-      }
-    }
-    return {
-      exp: exp
+      weightMax: wmax,
+      weightMin: wmin
     };
   },
 
   /**
    * Gets the incident edges of a given gene.
    * @param {string} file Network file name.
-   * @param {string} name Gene name of which to get the incident edges.
+   * @param {string} gene Gene name of which to get the incident edges.
    * @returns {!Array} Incident edges.
    */
-  getEdges: function(file, name) {
+  getIncidentEdges: function(file, gene) {
     var buf = utils.readFileToBuf(file);
-    if (buf == null)
+    if (buf == null) {
       return console.error('cannot read file', file), [];
-    var result = this.readNet(buf);
-    var edges = [];
-    for (var i = 0; i < result.numEdge; i++) {
-      var s = result.edges[i].source, t = result.edges[i].target, w = result.edges[i].weight;
-      if (result.names[s] == name || result.names[t] == name) {
-        edges.push({
-          id: result.names[s] + ',' + result.names[t],
-          source: result.names[s],
-          target: result.names[t],
-          weight: w,
-          sourceId: s,
-          targetId: t
-        }); // source and target are names
-      }
     }
+    var result = this.readNet(buf);
+    gene = gene.toLowerCase();
+    var edges = [];
+    result.edges.forEach(function(edge) {
+      if (edge.source.toLowerCase() == gene ||
+          edge.target.toLowerCase() == gene) {
+        edges.push(edge);
+      }
+    });
     return edges;
   },
 

@@ -6,58 +6,52 @@
 
 var path;
 var fs = require('fs');
-var multer = require('multer');
 var shell = require('shelljs');
 
 var utils = require('./utils.js');
 var segtree = require('./segtree.js');
 
-var upload = multer();
-
 module.exports = {
 
   /**
    * Uploads a file or a directory to server.
-   * @param {Object} req inncluding query parameders.
+   * @param {{
+   *   type: string,
+   *   name: string,
+   *   description: string
+   * }} desc File description.
+   * @param {Object} file File object received from multer.
    * @param {string} prefix The destination folder to upload the file to.
-   * @param {string} bigwigtoWigAdr Directory of script of BigwigtoWig.
+   * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
    * @returns {boolean} Success or not as a JS Object.
    */
-  uploadFile: function(req, prefix, bigwigtoWigAddr) {
+  uploadFile: function(desc, file, prefix, bigWigToWigAddr) {
+    var fileType = desc.type;
 
-    var fileType = req.fileType;
-
-    var isFinish = true;
-    upload = multer({dest: prefix});
-    isFinish = upload(req, function(err){
-      if (err) {
-        return false;
-      }
-      return true;
-    });
-
-    if (!isFinish) {
-      return false;
-    }
+    // TODO(jiaming): Fix the below
+    /*
 
     if (fileType == 'wiggle') {
-      this.bigwigtoBcwig(prefix, req.file.filedname, bigwigtoWigAddr);
+      // bowen: fieldname is the form field name and is not path to file.
+      this.bigwigtoBcwig(prefix, req.file.filedname, bigWigToWigAddr);
 
       // write down the gene name and description
       var filename = req.file.originalname.substr(0, req.file.originalname.length - 3);
+
       var fd = fs.openSync(prefix + 'WiggleInfo', 'a');
-      fd.write(filename + '\t' + req.specifiedname + '\t' + req.description + '\n');
+      fd.write(filename + '\t' + desc.name + '\t' + desc.description + '\n');
       fd.close();
     } else if (fileType == 'network') {
       var fd = fs.openSync(prefix + 'NetworkInfo', 'a');
-      fd.write(filename + '\t' + req.specifiedname + '\t' + req.description + '\n');
+      fd.write(filename + '\t' + desc.name + '\t' + desc.description + '\n');
       fd.close();
     } else if (fileType == 'expression') {
       var fd = fs.openSync(prefix + 'ExpmatInfo', 'a');
-      fd.write(filename + '\t' + req.specifiedname + '\t' + req.description + '\n');
+      fd.write(filename + '\t' + desc.namee + '\t' + desc.description + '\n');
       fd.close();
     }
-    return isFinish;
+
+    */
   },
 
   /**

@@ -20,8 +20,10 @@
     "bootstrap-switch": "~3.3.2",
     "bootstrap-vertical-tabs": "~1.2.1",
     "d3": "~3.5.6",
+    "datatables": "DataTables#~1.10.10",
     "jquery": "~2.1.4",
     "jquery-ui": "~1.11.4",
+    "select2": "~4.0.0",
     "underscore": "~1.8.3"
   }
 }

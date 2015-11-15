@@ -9,6 +9,11 @@ var Data = {
   serverURL: 'http://localhost:3000/genotet',
 
   /**
+   * Data are uploaded to this URL by posting multipart form data.
+   */
+  uploadURL: 'http://localhost:3000/genotet/upload',
+
+  /**
    * Genes with binding data available in the Genotet system.
    * TODO(bowen): Create the array upon organism selection,
    *     retrieve gene list from server.
@@ -33,9 +38,14 @@ var Data = {
   organism: 'th17',
 
   /**
-   * Color scale from red to green.
+   * Color scale from red to blue.
    */
   redBlueScale: ['#ab1e1e', 'gray', '#1e6eab'],
+
+  /**
+   * Color scale from black to red to yellow.
+   */
+  redYellowScale: ["black", "red", "yellow"],
 
   /**
    * Initializes Data properties.
