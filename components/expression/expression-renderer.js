@@ -20,6 +20,7 @@ function ExpressionRenderer(container, data) {
    * @private {number}
    */
   this.geneLabelWidth_ = 0;
+  this.geneLabelWidthFactor_ = 5;
 
   /**
    * The maximum height the vertical experiment condition labels.
@@ -27,6 +28,7 @@ function ExpressionRenderer(container, data) {
    * @private {number}
    */
   this.conditionLabelHeight_ = 0;
+  this.conditionLabelHeightFactor_ = 6.5;
 
   /**
    * Height of the gene profile plot.
@@ -297,19 +299,24 @@ ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
   var heatmapData = this.data.matrix;
   var geneLabelsData = heatmapData.geneNames;
   var conditionLabelsData = heatmapData.conditionNames;
-  if (!this.data.options.showGeneLabels) {
-    this.geneLabelWidth_ = 0;
-  } else {
-    this.geneLabelWidth_ = geneLabelsData.sort(function(a, b) {
-        return b.length - a.length;
-      })[0].length * 5;
+  this.geneLabelWidth_ = 0;
+  this.conditionLabelHeight_ = 0;
+
+  if (this.data.options.showGeneLabels) {
+    for (var i = 0; i < geneLabelsData.length; i++) {
+      if (geneLabelsData[i].length > this.geneLabelWidth_) {
+        this.geneLabelWidth_ = geneLabelsData[i].length;
+      }
+    }
+    this.geneLabelWidth_ *= this.geneLabelWidthFactor_;
   }
-  if (!this.data.options.showConditionLabels) {
-    this.conditionLabelHeight_ = 100;
-  } else {
-    this.conditionLabelHeight_ = conditionLabelsData.sort(function(a, b) {
-        return b.length - a.length;
-      })[0].length * 6.5;
+  if (this.data.options.showConditionLabels) {
+    for (var i = 0; i < conditionLabelsData.length; i++) {
+      if (conditionLabelsData[i].length > this.conditionLabelHeight_) {
+        this.conditionLabelHeight_ = conditionLabelsData[i].length;
+      }
+    }
+    this.conditionLabelHeight_ *= this.conditionLabelHeightFactor_;
   }
 };
 
