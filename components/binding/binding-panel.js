@@ -98,14 +98,24 @@ BindingPanel.prototype.initPanel = function() {
   }.bind(this));
 
   // Locus search
-  this.container_.find('#locus button').click(function() {
+  var findLocus = function() {
     var gene = this.container_.find('#locus input').val();
     this.signal('locus', gene);
-  }.bind(this));
+  }.bind(this);
+  this.container_.find('#locus button')
+    .click(function() {
+      findLocus();
+    });
+  this.container_.find('#locus input')
+    .on('keypress', function(event) {
+      if (event.which == Utils.keyCodes.ENTER) {
+        findLocus();
+      }
+    });
 
   // Add track
   this.container_.find('#genes #add').click(function() {
-    this.signal('add-track');
+    this.signal('addTrack');
   }.bind(this));
 };
 
@@ -180,7 +190,7 @@ BindingPanel.prototype.addTrack_ = function() {
 
   // Removal button
   uiTrack.find('#remove').click(
-      this.signal.bind(this, 'remove-track', trackIndex));
+      this.signal.bind(this, 'removeTrack', trackIndex));
 
   // Set gene
   select.on('select2:select', function(event) {
