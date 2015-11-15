@@ -78,6 +78,10 @@ body {
   z-index: 0;
 }
 
+.navbar-fixed-top {
+  z-index: 101;
+}
+
 .navbar-fixed-top a:hover {
   cursor: pointer;
 }

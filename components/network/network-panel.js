@@ -75,8 +75,6 @@ NetworkPanel.prototype.initPanel = function() {
       });
     }.bind(this));
   }, this);
-
-  this.hideInfo_();
 };
 
 /** @inheritDoc */
@@ -85,11 +83,38 @@ NetworkPanel.prototype.dataLoaded = function() {
 };
 
 /**
+ * Gets a container to render the incident edge table.
+ * @return {!jQuery} The edge list container.
+ */
+NetworkPanel.prototype.edgeListContainer = function() {
+  var edgeList = this.container_.find('#edge-list');
+  edgeList.html(this.container_.find('#edge-list-template').html());
+  return edgeList.children('table');
+};
+
+/**
+ * Hides node info.
+ * @private
+ */
+NetworkPanel.prototype.hideNodeInfo_ = function() {
+  this.container_.find('#node-info').slideUp();
+};
+
+/**
+ * Hides edge info.
+ * @private
+ */
+NetworkPanel.prototype.hideEdgeInfo_ = function() {
+  this.container_.find('#edge-info').slideUp();
+};
+
+/**
  * Hides all info boxes.
  * @private
  */
 NetworkPanel.prototype.hideInfo_ = function() {
-  this.container_.find('#node-info, #edge-info').hide();
+  this.hideNodeInfo_();
+  this.hideEdgeInfo_();
 };
 
 /**
@@ -129,8 +154,11 @@ NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
  * @param {!Object} node Node of which the info is to be displayed.
  */
 NetworkPanel.prototype.displayNodeInfo = function(node) {
-  var info = this.container_.find('#node-info').show();
+  var info = this.container_.find('#node-info').hide().slideDown();
   this.setNodeInfo_(node, info);
+  info.find('.close').click(function() {
+    this.hideNodeInfo_();
+  }.bind(this));
 };
 
 /**
@@ -138,8 +166,11 @@ NetworkPanel.prototype.displayNodeInfo = function(node) {
  * @param {!Object} edge Edge of which the info is to be displayed.
  */
 NetworkPanel.prototype.displayEdgeInfo = function(edge) {
-  var info = this.container_.find('#edge-info').show();
+  var info = this.container_.find('#edge-info').hide().slideDown();
   this.setEdgeInfo_(edge, info);
+  info.find('.close').click(function() {
+    this.hideEdgeInfo_();
+  }.bind(this));
 };
 
 /**
@@ -147,10 +178,10 @@ NetworkPanel.prototype.displayEdgeInfo = function(edge) {
  * @param {!Object} node Node being hovered.
  */
 NetworkPanel.prototype.tooltipNode = function(node) {
-  var tooltip = Tooltip.new();
+  var tooltip = Tooltip.new();+
   this.setNodeInfo_(node, tooltip);
   // Tooltip cannot be interacted with, thus link is not shown.
-  tooltip.find('#subtiwiki').remove();
+  tooltip.find('#subtiwiki, .close').remove();
 };
 
 /**
@@ -160,4 +191,5 @@ NetworkPanel.prototype.tooltipNode = function(node) {
 NetworkPanel.prototype.tooltipEdge = function(edge) {
   var tooltip = Tooltip.new();
   this.setEdgeInfo_(edge, tooltip);
+  tooltip.find('.close').remove();
 };

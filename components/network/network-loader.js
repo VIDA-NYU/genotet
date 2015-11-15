@@ -79,9 +79,9 @@ NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
   }
   this.signal('loadStart');
   var params = {
-    type: 'net',
-    net: this.data.networkName, // Use the previous network name
-    exp: regex
+    type: 'network',
+    networkName: this.data.networkName, // Use the previous network name
+    geneRegex: regex
   };
   $.get(Data.serverURL, params, function(data) {
     data.geneRegex = regex;
@@ -113,7 +113,7 @@ NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
   });
 
   this.updateGeneRegex_();
-  this.signal('gene-remove');
+  this.signal('geneRemove');
 };
 
 /**
@@ -128,6 +128,23 @@ NetworkLoader.prototype.updateGeneRegex_ = function() {
     regex += node.id + (index == this.data.nodes.length - 1 ? '' : '|');
   }, this);
   this.data.geneRegex = regex;
+};
+
+/**
+ * Fetches the incident edges of a given node.
+ * @param {!Object} node Node of which the incident edges are queried.
+ */
+NetworkLoader.prototype.incidentEdges = function(node) {
+  var params = {
+    type: 'incident-edges',
+    networkName: this.data.networkName,
+    gene: node.id
+  };
+  $.get(Data.serverURL, params, function(data) {
+    this.data.incidentEdges = data;
+    this.signal('incidentEdges');
+  }.bind(this), 'jsonp')
+    .fail(this.fail.bind(this, 'cannot get incident edges', params));
 };
 
 /*
@@ -156,40 +173,4 @@ LoaderGraph.prototype.loadComb = function(net, exp) {
   });
 };
 
-LoaderGraph.prototype.loadEdges = function(net, name) {
-  var loader = this;
-  $.ajax({
-    type: 'GET', url: addr, dataType: 'jsonp',
-    data: {
-      args: 'type=edges&net=' + net + '&name=' + name
-    },
-    error: function(xhr, status, err) { loader.error('cannot load edges\n' + status + '\n' + err); },
-    success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
-
-      var viewname = loader.parentView.viewname + '-list';
-      var view = $('#view'+ loader.parentView.viewid);
-      var left = parseInt(view.css('left')) + parseInt(view.css('width')),
-        top = parseInt(view.css('top'));
-      createView(viewname, 'table', null, loader.parentView.layout.rawheight, left, top);
-
-      linkView(loader.parentView.viewname, viewname);
-      linkView(viewname, loader.parentView.viewname);  // link back
-      groupView(viewname, loader.parentView.viewname);
-
-      var wrapper = {};
-      wrapper.net = net;
-      wrapper.name = name;
-      wrapper.columns = ['Source', 'Target', 'Weight', 'Loaded'];
-      wrapper.rows = data;
-      var viewdata = loader.parentView.viewdata;
-      for (var i = 0; i < wrapper.rows.length; i++) {
-        if (viewdata.visibleLinks[wrapper.rows[i].id] == true) wrapper.rows[i].loaded = 'Yes';
-        else wrapper.rows[i].loaded = '';
-      }
-      getView(viewname).viewdata = wrapper;
-      getView(viewname).layout.reloadData();
-    }
-  });
-};
 */

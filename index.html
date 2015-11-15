@@ -13,6 +13,9 @@
   <script type="text/javascript" src="bower_components/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
   <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
   <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
+  <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
+  <script type="text/javascript" src="bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="bower_components/datatables/media/js/dataTables.bootstrap.min.js"></script>
 
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css"/>
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/theme.css"/>
@@ -21,9 +24,8 @@
   <link rel="stylesheet" href="bower_components/bootstrap-select/dist/css/bootstrap-select.min.css"/>
   <link rel="stylesheet" href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css"/>
   <link rel="stylesheet" href="bower_components/bootstrap-vertical-tabs/bootstrap.vertical-tabs.min.css"/>
-  <!-- CDN -->
-  <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1-rc.1/js/select2.min.js"></script>
-  <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1-rc.1/css/select2.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
+  <link rel="stylesheet" href="bower_components/datatables/media/css/dataTables.bootstrap.min.css"/>
 
   <!-- global css -->
   <link type="text/css" rel="stylesheet" href="css/style.css" rel="stylesheet"/>
@@ -122,23 +124,27 @@
       </ul>
     </div>
   </nav>
+
+  <!-- main canvas -->
+  <div id="main" class="container-fluid">
+  </div>
+
   <div id="alert" class="container-fluid">
     <div class="row">
       <div class="alert alert-success" style="display:none">
-        <button type="button" class="close" data-hide="alert">&times;</button>
-        <div id="success">Warning displayed here</div>
+        <button type="button" class="close">&times;</button>
+        <div id="success">Success info displayed here</div>
       </div>
       <div class="alert alert-warning" style="display:none">
-        <button type="button" class="close" data-hide="alert">&times;</button>
+        <button type="button" class="close">&times;</button>
         <div id="warning">Warning displayed here</div>
       </div>
       <div class="alert alert-danger" style="display:none">
-        <button type="button" class="close" data-hide="alert">&times;</button>
+        <button type="button" class="close">&times;</button>
         <div id="error">Error displayed here</div>
       </div>
     </div>
   </div>
-  <div id="main" class="container-fluid"></div>
   <div id="modal" class="modal fade">
     <div class="modal-dialog">
       <div class="modal-content">

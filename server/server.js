@@ -171,22 +171,16 @@ app.get('/genotet', function(req, res) {
       break;
     case 'incident-edges':
       // Edges incident to one node
-      var net = req.query.net.toLowerCase(),
-        name = req.query.name,
-        file = networkAddr + net + '.bnet';
-      data = network.getEdges(file, name);
+      var networkName = req.query.networkName.toLowerCase(),
+        gene = req.query.gene,
+        file = networkAddr + networkName + '.bnet';
+      data = network.getIncidentEdges(file, gene);
       break;
-    case 'comb':
-      var net = req.query.net,
-        exp = utils.decodeSpecialChar(req.query.exp),
-        file = networkAddr + net + '.bnet';
-      data = network.getComb(file, exp);
-      break;
-    case 'targets':
-      var name = req.query.name,
-        net = req.query.net;
-      file = networkAddr + net + '.bnet';
-      data = networkgetNetTargets(file, name);
+    case 'combined-regulation':
+      var networkName = req.query.networkName,
+        geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
+        file = networkAddr + networkName + '.bnet';
+      data = network.getComb(file, geneRegex);
       break;
     case 'list-network':
       data = network.listNetwork(networkAddr);

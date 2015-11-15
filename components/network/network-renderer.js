@@ -238,7 +238,7 @@ NetworkRenderer.prototype.dataReady_ = function() {
  */
 NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
-    .domain([this.data.wmin, this.data.wmax])
+    .domain([this.data.weightMin, this.data.weightMax])
     .range(Data.redBlueScale);
 
   // Store which nodes exist in the new data.
@@ -329,14 +329,14 @@ NetworkRenderer.prototype.drawNodes_ = function() {
       return node.id;
     })
     .on('click', function(node) {
-      this.signal('node-click', node);
+      this.signal('nodeClick', node);
       this.selectNode(node);
     }.bind(this))
     .on('mouseenter', function(node) {
-      this.signal('node-hover', node);
+      this.signal('nodeHover', node);
     }.bind(this))
     .on('mouseleave', function(node) {
-      this.signal('node-unhover', node);
+      this.signal('nodeUnhover', node);
     }.bind(this));
   nodesRegular.exit().remove();
   nodesRegular
@@ -358,14 +358,14 @@ NetworkRenderer.prototype.drawNodes_ = function() {
     .attr('width', this.NODE_SIZE * 2)
     .attr('height', this.NODE_SIZE * 2)
     .on('click', function(node) {
-      this.signal('node-click', node);
+      this.signal('nodeClick', node);
       this.selectNode(node);
     }.bind(this))
     .on('mouseenter', function(node) {
-      this.signal('node-hover', node);
+      this.signal('nodeHover', node);
     }.bind(this))
     .on('mouseleave', function(node) {
-      this.signal('node-unhover', node);
+      this.signal('nodeUnhover', node);
     }.bind(this));
   nodesTF.exit().remove();
   nodesTF
@@ -441,14 +441,14 @@ NetworkRenderer.prototype.drawEdges_ = function() {
     .style('stroke', getEdgeColor)
     .style('fill', getEdgeColor)
     .on('click', function(edge) {
-      this.signal('edge-click', edge);
+      this.signal('edgeClick', edge);
       this.selectEdge(edge);
     }.bind(this))
     .on('mouseenter', function(edge) {
-      this.signal('edge-hover', edge);
+      this.signal('edgeHover', edge);
     }.bind(this))
     .on('mouseleave', function(edge) {
-      this.signal('edge-unhover', edge);
+      this.signal('edgeUnhover', edge);
     }.bind(this));
   gsEnter.append('path')
     .classed('edge', true);
