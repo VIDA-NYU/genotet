@@ -6,7 +6,7 @@
 
 var path;
 var fs = require('fs');
-var shell = require('shelljs');
+var child = require('child_process');
 
 var utils = require('./utils.js');
 var segtree = require('./segtree.js');
@@ -30,41 +30,19 @@ module.exports = {
     console.log(desc);
     console.log(file);
     var source = fs.createReadStream(file.path);
-    var dest;
+    var dest = fs.createWriteStream(prefix + desc.name);
+    source.pipe(dest);
+    source.on("end", function(){});
+    source.on("err", function(err){});
+    fs.unlink(file.path);
+
+    // write down the network name and description
+    var fd = fs.openSync(prefix + desc.name + ".txt", 'w');
+    fs.writeSync(fd, desc.description);
+    fs.closeSync(fd);
 
     if (desc.type == 'binding') {
-      dest = fs.createWriteStream(prefix + file.originalname);
-      source.pipe(dest);
-      source.on("end", function(){});
-      source.on("err", function(err){});
-      fs.unlinkSync(file.path);
-
-      //this.bigwigtoBcwig(prefix, file.originalname, bigWigToWigAddr);
-
-      // write down the gene name and description
-      var fd = fs.openSync(prefix + 'WiggleInfo', 'a');
-      fs.writeSync(fd, file.originalname + '\t' + desc.name + '\t' + desc.description + '\n');
-      fs.closeSync(fd);
-    } else if (fileType == 'network') {
-      dest = fs.createWriteStream(prefix + desc.name + '.bw');
-      source.pipe(dest);
-      source.on("end", function(){});
-      source.on("err", function(err){});
-
-      // write down the network name and description
-      var fd = fs.openSync(prefix + 'NetworkInfo', 'a');
-      fs.writeSync(fd, file.originalname + '\t' + desc.name + '\t' + desc.description + '\n');
-      fs.closeSync(fd);
-    } else if (fileType == 'expression') {
-      dest = fs.createWriteStream(prefix + desc.name + '.bw');
-      source.pipe(dest);
-      source.on("end", function(){});
-      source.on("err", function(err){});
-
-      // write down the expression name and description
-      var fd = fs.openSync(prefix + 'ExpmatInfo', 'a');
-      fs.writeSync(fd, file.originalname + '\t' + desc.namee + '\t' + desc.description + '\n');
-      fs.closeSync(fd);
+      //this.bigwigtoBcwig(prefix, desc.name, bigWigToWigAddr);
     }
 
     return {
@@ -81,9 +59,9 @@ module.exports = {
    */
   bigwigtoBcwig: function(prefix, bwFile, bigWigWoWigAddr) {
     // convert *.bw into *.wig
-    var wigFileName = bwFile.substr(0, bwFile.length - 3) + '.wig';
-    console.log("start transfer");
-    shell.exec(bigWigWoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
+    var wigFileName = bwFile + '.wig';
+    console.log('start transfer');
+    //child.execSync(bigWigWoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
     console.log(bigWigWoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
 
     // convert *.wig into *.bcwig
@@ -122,7 +100,7 @@ module.exports = {
     }
 
     // write to *.bcwig file
-    var namecode = bwFile.substr(0, bwFile.length - 3);
+    var namecode = bwFile;
 
     // if the folder already exists, then delete it
     if (fs.exists(prefix + namecode)) {
