@@ -23,6 +23,9 @@ function View(viewName) {
   /** @private {string} */
   this.headerText_ = '';
 
+  /** @private {boolean} */
+  this.sendSignal_ = true;
+
   /** @protected {!jQuery} */
   this.container = $('<div></div>')
     .addClass('view')
@@ -64,7 +67,7 @@ View.prototype.init = function() {
       containment: '#main',
       start: function(event) {
         ViewManager.blurAllViews();
-        this.focus();
+        this.focus(this.sendSignal_);
       }.bind(this)
     })
     .resizable({
@@ -83,7 +86,7 @@ View.prototype.init = function() {
   // Set up focus event hook.
   this.container.click(function(event) {
     ViewManager.blurAllViews();
-    this.focus();
+    this.focus(this.sendSignal_);
     // Prevent event from hitting the background, which would blur the view.
     event.stopPropagation();
   }.bind(this));
@@ -143,11 +146,13 @@ View.prototype.headerText = function(headerText) {
 /**
  * Makes the view appear focused.
  */
-View.prototype.focus = function() {
+View.prototype.focus = function(sendSignal) {
   this.container.addClass('focused');
-  this.signal('focus');
   // Re-append to appear on top of other views.
   this.container.appendTo('#main');
+  if (sendSignal) {
+    this.signal('focus');
+  }
 };
 
 /**

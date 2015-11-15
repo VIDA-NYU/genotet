@@ -16,6 +16,12 @@ var PanelManager = {
   showPanel_: true,
 
   /**
+   * Whether sends focused signal..
+   * @private {boolean}
+   */
+  sendSignal_: false,
+
+  /**
    * Side panel container.
    * @private {jQuery}
    */
@@ -64,28 +70,43 @@ var PanelManager = {
    * @param {string} viewName Name of the view.
    */
   addPanel: function(view) {
-    var viewID = view.name().replace(/\s/g, '');
+    var viewID = view.name().replace(/\s/g, '-');
     var tabID = 'panel-tab-' + viewID;
+    var tabContentID = 'panel-view-' + viewID;
     $('#panel-tab-init').clone()
       .attr('id', tabID)
       .appendTo('.sideways')
       .find('a')
-      .attr('href', '#panel-view-' + viewID)
+      .attr('href', '#' + tabContentID)
       .append(view.name());
     $('#panel-view-init').clone()
-      .attr('id', 'panel-view-' + viewID)
+      .attr('id', tabContentID)
       .appendTo('.tab-content');
     $(view).on('genotet.focus', function() {
       $('.sideways li.active').removeClass('active');
       $('#' + tabID).addClass('active');
+      $('.tab-content div.active').removeClass('active');
+      $('#' + tabContentID).addClass('active');
     });
-    $('.sideways li a').off().click(function() {
+    $('.sideways li a').off().click(function(event) {
       if (!this.showPanel_) {
         this.togglePanel_();
       }
+      event.stopPropagation();
+      var clickedTabID = $(event.target).parent().attr('id');
+      var clickedViewID = clickedTabID.replace('panel-tab-', '');
+      var clickedViewName = clickedViewID.replace(/\-/g, ' ');
+      var clickedView = ViewManager.views[clickedViewName];
+      $('#main div.focused').removeClass('focused');
+      clickedView.focus(this.sendSignal_);
+      $('.sideways li.active').removeClass('active');
+      $(event.target).parent().addClass('active');
     }.bind(this));
     this.container_.show();
-    $('#' + tabID + ' a').trigger('click');
+    $('.sideways li.active').removeClass('active');
+    $('#' + tabID).addClass('active');
+    $('#main div.focused').removeClass('focused');
+    view.focus(this.sendSignal_);
 
     var container = $('#panel-view-' + viewID);
     return container;
