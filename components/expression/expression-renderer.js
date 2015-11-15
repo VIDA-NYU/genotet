@@ -174,6 +174,7 @@ ExpressionRenderer.prototype.drawExpressionMatrix_ = function() {
  * @private
  */
 ExpressionRenderer.prototype.drawMatrixCells_ = function() {
+  this.svgHeatmapContent_.selectAll('g').remove();
   var cells = this.svgHeatmapContent_.selectAll('rect.cell').data([{
     width: this.heatmapWidth_,
     height: this.heatmapHeight_
@@ -206,7 +207,6 @@ ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     .style('fill', function(d) {
       return colorScale(d);
     });
-    //.classed('cell', true);
   cells.exit().remove();
   cells
     .attr('width', function(cell) {
@@ -226,9 +226,6 @@ ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
     this.svgGeneLabels_.selectAll('*').remove();
     return;
   }
-  //var labels = this.svgGeneLabels_.selectAll('text').data([{
-  //  label: 'a horizontal label'
-  //}]);
   var heatmapData = this.data.matrix;
   var geneLabelsData = heatmapData.geneNames;
   var cellHeight = this.heatmapHeight_ / geneLabelsData.length;
@@ -248,9 +245,6 @@ ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
       return i * cellHeight;
     })
     .text(_.identity);
-  //  .text(function(gene) {
-  //    return gene.label;
-  //  });
 };
 
 /**
@@ -265,9 +259,6 @@ ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   var heatmapData = this.data.matrix;
   var conditionLabelsData = heatmapData.conditionNames;
   var cellWidth = this.heatmapWidth_ / conditionLabelsData.length;
-  //var labels = this.svgConditionLabels_.selectAll('text').data([{
-  //  label: 'a vertical label'
-  //}]);
   var labels = this.svgConditionLabels_.selectAll('text').data(conditionLabelsData.reverse());
   labels.enter().append('text')
     .text(_.identity)
@@ -282,9 +273,6 @@ ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
     })
     .style('text-anchor', 'right')
     .text(_.identity);
-    //.text(function(condition) {
-    //  return condition.label
-    //});
 };
 
 /**
