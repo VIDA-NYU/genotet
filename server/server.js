@@ -23,30 +23,31 @@ var uploader = require('./uploader.js');
 // Application
 var app = express();
 
-var upload = multer({
-  dest: '/Users/JiamingDong/Documents/vida_data/'
-});
-
 /**
  * Path of wiggle files.
  * @type {string}
  */
-var wiggleAddr;
+var wigglePath;
 /**
  * Path of network files.
  * @type {string}
  */
-var networkAddr;
+var networkPath;
 /**
  * Path of expression matrix files.
  * @type {string}
  */
-var expressionAddr;
+var expressionPath;
 /**
  * Path of bigwig to Wig conversion script
  * @type {string}
  */
-var bigWigToWigAddr;
+var bigWigToWigPath;
+/**
+ * Path of temporary uploaded files.
+ * @type {string}
+ */
+var uploadPath;
 
 /**
  * Reads the configuration file and gets the file paths.
@@ -60,23 +61,28 @@ function config() {
     var value = tokens[i + 2];
     switch(variable) {
       case 'bindingPath':
-        wiggleAddr = value;
+        wigglePath = value;
         break;
       case 'networkPath':
-        networkAddr = value;
+        networkPath = value;
         break;
       case 'expressionPath':
-        expressionAddr = value;
+        expressionPath = value;
         break;
       case 'bigWigToWigPath':
-        bigWigToWigAddr = value;
+        bigWigToWigPath = value;
         break;
+      case 'uploadPath':
+        uploadPath = value;
     }
   }
 }
 // Configures the server paths.
 config();
 
+var upload = multer({
+  dest: uploadPath
+});
 
 /**
  * Mapping from expression matrix names to their binding data track names.
@@ -87,7 +93,7 @@ var genecodes = {};
  * Path of the name code file that maps gene names to binding data track names.
  * @type {string}
  */
-var codeFile = wiggleAddr + 'namecode';
+var codeFile = wigglePath + 'namecode';
 /**
  * Reads the genes' name codes and stores the mapping in genecodes.
  */
@@ -108,15 +114,15 @@ readCodes();
  * Path of the exon info file.
  * @type {string}
  */
-var exonFile = wiggleAddr + 'exons.bin';
+var exonFile = wigglePath + 'exons.bin';
 
 /**
  * Mapping from expression matrix names to their file locations.
  * @type {!Object<string>}
  */
 var expressionFile = {
-  'b-subtilis': expressionAddr + 'expressionMatrix.bin',
-  'rna-seq': expressionAddr + 'rnaseq.bin'
+  'b-subtilis': expressionPath + 'expressionMatrix.bin',
+  'rna-seq': expressionPath + 'rnaseq.bin'
 };
 
 /**
@@ -124,7 +130,7 @@ var expressionFile = {
  * @type {!Object<string>}
  */
 var tfamatFile = {
-  'b-subtilis': expressionAddr + 'tfa.matrix2.bin',
+  'b-subtilis': expressionPath + 'tfa.matrix2.bin',
   'rna-seq': null
 };
 
@@ -137,16 +143,16 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   var prefix;
   switch(req.body.type) {
     case 'network':
-      prefix = networkAddr;
+      prefix = networkPath;
       break;
     case 'binding':
-      prefix = wiggleAddr;
+      prefix = wigglePath;
       break;
     case 'expression':
-      prefix = expressionAddr;
+      prefix = expressionPath;
       break;
   }
-  uploader.uploadFile(req.body, req.file, prefix, bigWigToWigAddr);
+  uploader.uploadFile(req.body, req.file, prefix, bigWigToWigPath);
   res.header('Access-Control-Allow-Origin', '*');
   res.jsonp({
     success: true
@@ -166,7 +172,7 @@ app.get('/genotet', function(req, res) {
     case 'network':
       var networkName = req.query.networkName.toLowerCase(),
         geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
-        file = networkAddr + networkName + '.bnet';
+        file = networkPath + networkName + '.bnet';
       geneRegex = geneRegex == '' ? 'a^' : geneRegex;
       data = network.getNet(file, geneRegex);
       break;
@@ -174,17 +180,17 @@ app.get('/genotet', function(req, res) {
       // Edges incident to one node
       var networkName = req.query.networkName.toLowerCase(),
         gene = req.query.gene,
-        file = networkAddr + networkName + '.bnet';
+        file = networkPath + networkName + '.bnet';
       data = network.getIncidentEdges(file, gene);
       break;
     case 'combined-regulation':
       var networkName = req.query.networkName,
         geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
-        file = networkAddr + networkName + '.bnet';
+        file = networkPath + networkName + '.bnet';
       data = network.getComb(file, geneRegex);
       break;
     case 'list-network':
-      data = network.listNetwork(networkAddr);
+      data = network.listNetwork(networkPath);
       break;
 
     // Binding data queries
@@ -208,7 +214,7 @@ app.get('/genotet', function(req, res) {
       console.log(gene, namecode);
 
 
-      var file = wiggleAddr + namecode + '/' + namecode +
+      var file = wigglePath + namecode + '/' + namecode +
           '_treat_afterfiting_chr' + chr + '.bcwig';
 
       data = binding.getBinding(file, xl, xr);
@@ -216,7 +222,7 @@ app.get('/genotet', function(req, res) {
       data.chr = chr;
       break;
     case 'list-binding':
-      data = binding.listBindingGenes(wiggleAddr);
+      data = binding.listBindingGenes(wigglePath);
       break;
 
     // Expression matrix data queries
@@ -236,7 +242,7 @@ app.get('/genotet', function(req, res) {
       data = expression.getExpmatLine(fileExp, fileTfa, name);
       break;
     case 'list-matrix':
-      data = expmat.listMatrix(expmatAddr);
+      data = expmat.listMatrix(expmatPath);
       break;
 
     // Undefined type, error
