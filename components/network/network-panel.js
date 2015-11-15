@@ -27,6 +27,10 @@ NetworkPanel.base = ViewPanel.prototype;
 /** @inheritDoc */
 NetworkPanel.prototype.template = 'components/network/network-panel.html';
 
+/** @const {string} */
+NetworkPanel.prototype.SUBTIWIKI_URL =
+  'http://subtiwiki.uni-goettingen.de/bank/index.php?gene=';
+
 /** @inheritDoc */
 NetworkPanel.prototype.panel = function(container) {
   NetworkPanel.base.panel.call(this, container);
@@ -76,4 +80,116 @@ NetworkPanel.prototype.initPanel = function() {
 /** @inheritDoc */
 NetworkPanel.prototype.dataLoaded = function() {
   this.container_.find('#network input').val(this.data.networkName);
+};
+
+/**
+ * Gets a container to render the incident edge table.
+ * @return {!jQuery} The edge list container.
+ */
+NetworkPanel.prototype.edgeListContainer = function() {
+  var edgeList = this.container_.find('#edge-list');
+  edgeList.html(this.container_.find('#edge-list-template').html());
+  return edgeList.children('table');
+};
+
+/**
+ * Hides node info.
+ * @private
+ */
+NetworkPanel.prototype.hideNodeInfo_ = function() {
+  this.container_.find('#node-info').slideUp();
+};
+
+/**
+ * Hides edge info.
+ * @private
+ */
+NetworkPanel.prototype.hideEdgeInfo_ = function() {
+  this.container_.find('#edge-info').slideUp();
+};
+
+/**
+ * Hides all info boxes.
+ * @private
+ */
+NetworkPanel.prototype.hideInfo_ = function() {
+  this.hideNodeInfo_();
+  this.hideEdgeInfo_();
+};
+
+/**
+ * Adds the node info into a given container.
+ * @param {!Object} node Info of which info is to be displayed.
+ * @param {!jQuery} container Info container.
+ * @private
+ */
+NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
+  container.html(this.container_.find('#node-info-template').html());
+  container.children('#name').children('span')
+    .text(node.name);
+  container.children('#is-tf')
+    .css('display', node.isTF ? '' : 'none');
+  container.children('#subtiwiki').children('a')
+    .attr('href', this.SUBTIWIKI_URL + node.id);
+};
+
+/**
+ * Adds the edge info into a given container.
+ * @param {!Object} edge Edge of which info is to be displayed.
+ * @param {!jQuery} container Info container.
+ * @private
+ */
+NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
+  container.html(this.container_.find('#edge-info-template').html());
+  container.children('#source').children('span')
+    .text(edge.source.name);
+  container.children('#target').children('span')
+    .text(edge.target.name);
+  container.children('#weight').children('span')
+    .text(edge.weight);
+};
+
+/**
+ * Displays the info box for network node.
+ * @param {!Object} node Node of which the info is to be displayed.
+ */
+NetworkPanel.prototype.displayNodeInfo = function(node) {
+  var info = this.container_.find('#node-info').hide().slideDown();
+  this.setNodeInfo_(node, info);
+  info.find('.close').click(function() {
+    this.hideNodeInfo_();
+  }.bind(this));
+};
+
+/**
+ * Displays the info box for network edge.
+ * @param {!Object} edge Edge of which the info is to be displayed.
+ */
+NetworkPanel.prototype.displayEdgeInfo = function(edge) {
+  var info = this.container_.find('#edge-info').hide().slideDown();
+  this.setEdgeInfo_(edge, info);
+  info.find('.close').click(function() {
+    this.hideEdgeInfo_();
+  }.bind(this));
+};
+
+/**
+ * Displays a tooltip around cursor about a hovered node.
+ * @param {!Object} node Node being hovered.
+ */
+NetworkPanel.prototype.tooltipNode = function(node) {
+  var tooltip = Tooltip.new();+
+  this.setNodeInfo_(node, tooltip);
+  // Tooltip cannot be interacted with, thus link is not shown.
+  tooltip.find('#subtiwiki, .close').remove();
+};
+
+/**
+ * Displays a tooltip around cursor about a hovered edge.
+ * @param {!Object} edge Edge being hovered.
+ */
+NetworkPanel.prototype.tooltipEdge = function(edge) {
+  var tooltip = Tooltip.new();
+  this.setEdgeInfo_(edge, tooltip);
+  tooltip.find('.close').remove();
 };

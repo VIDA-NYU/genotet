@@ -1,89 +1,50 @@
 .view.network .edges path.edge {
   fill: none;
-  stroke-width: 1.5px;
+  stroke-width: 2px;
 }
 
 .view.network .edges path.arrow {
-  stroke-width: 1px;
+  stroke-width: 2px;
 }
 
-.network-panel .btn-update {
-
+.view.network .edges g:hover path {
+  stroke-width: 4px;
 }
 
-/*
-.node {
-  fill: red;
-  stroke: gray;
-  stroke-width: 1.5px;
-}
-
-.node_highlight {
-  fill: black;
-  fill-opacity: .0;
+.view.network .edges g.active path {
   stroke: orange;
-  stroke-width: 4.0px;
 }
-
-.node_select {
+.view.network .edges g.active path.arrow {
   fill: orange;
-  stroke: gray;
-  stroke-width: 1.5px;
 }
 
-.nodeiobj {
+.view.network .nodes * {
   stroke: black;
-  fill: black;
-  stroke-opacity: .0;
-  opacity: .0;
+  stroke-width: 2px;
 }
 
-.link {
-  stroke: #999;
-  stroke-opacity: .6;
-  stroke-width: 3.0;
-}
-
-.linkiobj {
-  stroke: black;
-  stroke-width: 10.0;
-  stroke-opacity: .0;
-}
-
-.linkdir {
-  fill: white;
-  stroke-opacity: .6;
-  stroke-width: 2.0;
-}
-
-.link_highlight {
+.view.network .nodes *.active {
   stroke: orange;
-  stroke-opacity: 1.0;
-  stroke-width: 5.0;
 }
 
-.linkdir_highlight {
-  stroke: orange;
-  fill: white;
-  stroke-width: 4.0;
+.view.network .nodes *:hover {
+  stroke-width: 4px;
 }
 
-.link_select {
-  fill: orange;
-  stroke: orange;
-  stroke-width: 3.0;
+.panel.network .box label {
+  margin-right: 5px;
 }
 
-.linkdir_select {
-  fill: white;
-  stroke: orange;
-  stroke-width: 2.0;
+.panel.network .box {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 10px;
 }
 
-.graphinfo {
-  font-size: 12px;
-  letter-spacing: 1px;
-  color: black;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
+.panel.network #edge-list {
+  font-size: .9em;
 }
-*/
+
+.panel.network #edge-list .pagination > li > a {
+  padding: 6px;
+}

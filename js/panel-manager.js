@@ -29,14 +29,30 @@ var PanelManager = {
   },
 
   /**
+   * Gets the current width of the side panel. This is used to set the
+   * horizontal panel offset (right parameter).
+   * @return {number} Current width of the panel.
+   * @private
+   */
+  getWidth_: function() {
+    return this.container_.find('.tab-content').outerWidth() +
+        this.COLLAPSED_WIDTH;
+  },
+
+  /**
    * Toggles the side panel.
    * @private
    */
   togglePanel_: function() {
-    this.container_.toggleClass('active', !this.showPanel_, {
+    this.container_.toggleClass('active');
+    this.showPanel_ = !this.showPanel_;
+    var rightValue = this.showPanel_ ?
+        0 : -(this.getWidth_() - this.COLLAPSED_WIDTH);
+    this.container_.animate({
+      right: rightValue + 'px'
+    }, {
       duration: this.TRANSITION_TIME,
       complete: function() {
-        this.showPanel_ = !this.showPanel_;
         $('#icon-button')
           .toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
       }.bind(this)

@@ -219,26 +219,23 @@ var Dialog = {
         formData.append('description', modal.find('#description').val());
         formData.append('file', file[0].files[0]);
 
-
         $.ajax({
           url: Data.uploadURL,
           type: 'POST',
           data: formData,
           enctype: 'multipart/form-data',
           processData: false,
-          contentType: false,
-          success: function(data) {
-            console.log(data);
-          }
-        });
-        /*
-         .done(function(data) {
-         console.log('ok', data);
-         })
-         .fail(function(data) {
-         console.log('fail', data);
-         });
-         */
+          contentType: false
+        }).done(function(data) {
+            if (!data.success) {
+              Core.error('failed to upload data', data.message);
+            } else {
+              Core.success('data uploaded');
+            }
+          })
+          .fail(function(res) {
+            Core.error('failed to upload data');
+          });
       });
     });
   }

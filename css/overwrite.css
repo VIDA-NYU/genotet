@@ -1,5 +1,7 @@
-/** Nasty overwriting to make select2 appear like bootstrap select */
-
+/*
+  Select2
+  - Nasty hacks for making select2 appear like bootstrap select.
+*/
 .select2-container .select2-selection--single .select2-selection__rendered {
   padding: 6px 12px;
   line-height: 1.42857143;
@@ -43,7 +45,18 @@
   background-color: white;
 }
 
-/** jQuery-UI **/
+/*
+  DataTables
+  - Make search box smaller.
+*/
+div.dataTables_wrapper div.dataTables_filter > label > input {
+  width: 100px;
+}
+
+/*
+  jQuery-UI
+  - Hide the south-east resizable grip.
+*/
 .ui-icon-gripsmall-diagonal-se {
   opacity: 0;
 }

@@ -17,13 +17,13 @@ var Test = {
       geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
       condRegex: '.*'
     });
-    ViewManager.createView('network', 'My Network', {
-      networkName: 'th17',
-      geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
-    });
     ViewManager.createView('binding', 'My Genome Browser', {
       gene: 'BATF',
       chr: '1'
+    });
+    ViewManager.createView('network', 'My Network', {
+      networkName: 'th17',
+      geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
     });
   }
 };

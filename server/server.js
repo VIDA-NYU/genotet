@@ -147,7 +147,9 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   }
   uploader.uploadFile(req.body, req.file, prefix, bigWigToWigAddr);
   res.header('Access-Control-Allow-Origin', '*');
-  res.end();
+  res.jsonp({
+    success: true
+  });
 });
 
 /**
@@ -160,31 +162,25 @@ app.get('/genotet', function(req, res) {
 
   switch(type) {
     // Network data queries
-    case 'net':
-      var net = req.query.net.toLowerCase(),
-        exp = utils.decodeSpecialChar(req.query.exp),
-        file = networkAddr + net + '.bnet';
-      exp = exp == '' ? 'a^' : exp;
-      data = network.getNet(file, exp);
+    case 'network':
+      var networkName = req.query.networkName.toLowerCase(),
+        geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
+        file = networkAddr + networkName + '.bnet';
+      geneRegex = geneRegex == '' ? 'a^' : geneRegex;
+      data = network.getNet(file, geneRegex);
       break;
-    case 'edges':
+    case 'incident-edges':
       // Edges incident to one node
-      var net = req.query.net.toLowerCase(),
-        name = req.query.name,
-        file = networkAddr + net + '.bnet';
-      data = network.getEdges(file, name);
+      var networkName = req.query.networkName.toLowerCase(),
+        gene = req.query.gene,
+        file = networkAddr + networkName + '.bnet';
+      data = network.getIncidentEdges(file, gene);
       break;
-    case 'comb':
-      var net = req.query.net,
-        exp = utils.decodeSpecialChar(req.query.exp),
-        file = networkAddr + net + '.bnet';
-      data = network.getComb(file, exp);
-      break;
-    case 'targets':
-      var name = req.query.name,
-        net = req.query.net;
-      file = networkAddr + net + '.bnet';
-      data = networkgetNetTargets(file, name);
+    case 'combined-regulation':
+      var networkName = req.query.networkName,
+        geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
+        file = networkAddr + networkName + '.bnet';
+      data = network.getComb(file, geneRegex);
       break;
     case 'list-network':
       data = network.listNetwork(networkAddr);
@@ -241,7 +237,6 @@ app.get('/genotet', function(req, res) {
     case 'list-matrix':
       data = expmat.listMatrix(expmatAddr);
       break;
-
 
     // Undefined type, error
     default:
