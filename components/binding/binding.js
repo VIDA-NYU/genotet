@@ -58,6 +58,10 @@ function BindingView(viewName, params) {
       this.renderer.zoomTransform(range);
     }.bind(this))
     .on('genotet.locus', function(event, gene) {
+      if (!gene) {
+        Core.warning('please enter gene name');
+        return;
+      }
       this.loader.findLocus(gene);
     }.bind(this))
     .on('genotet.chr', function(event, chr) {
@@ -67,12 +71,12 @@ function BindingView(viewName, params) {
       // Switch updates
       this.renderer.render();
     }.bind(this))
-    .on('genotet.add-track', function() {
+    .on('genotet.addTrack', function() {
       var track = this.data.tracks.slice(-1).pop();
       this.loader.loadFullTrack(this.data.tracks.length, track.gene,
           this.data.chr);
     }.bind(this))
-    .on('genotet.remove-track', function(event, trackIndex) {
+    .on('genotet.removeTrack', function(event, trackIndex) {
       this.data.tracks.splice(trackIndex, 1);
       this.renderer.render();
       this.panel.updateTracks();

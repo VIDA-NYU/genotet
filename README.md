@@ -26,8 +26,9 @@ Installation:
 
 A configuration file is needed to set the data paths. The file shall be located at _server/config_.
 ```
-bindingPath = D:/bnetvis_data/wiggle/
-networkPath = D:/bnetvis_data/network/
-expressionPath = D:/bnetvis_data/
-bigwigtowigPath = /D:/bnetvis_data/wiggle/bigwigtoWig
+networkPath = .../genotet_data/network/
+bindingPath = .../genotet_data/binding/
+expressionPath = .../genotet_data/expression/
+bigWigToWigPath = .../genotet_data/
+uploadPath = .../genotet_data/upload/
 ```
