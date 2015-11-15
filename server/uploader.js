@@ -9,8 +9,8 @@ var fs = require('fs');
 var multer = require('multer');
 var shell = require('shelljs');
 
-var utils = require('./utils');
-var segtree = require('./segtree');
+var utils = require('./utils.js');
+var segtree = require('./segtree.js');
 
 var upload = multer();
 

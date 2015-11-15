@@ -17,6 +17,7 @@ var utils = require('./utils.js');
 var network = require('./network.js');
 var binding = require('./binding.js');
 var expression = require('./expression.js');
+var uploader = require('./uploader.js');
 
 // Application
 var app = express();
