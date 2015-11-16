@@ -66,6 +66,19 @@ var PanelManager = {
   },
 
   /**
+   * Activate the side panel.
+   * @private
+   */
+  activatePanel_: function(viewID) {
+    var tabID = 'panel-tab-' + viewID;
+    var tabContentID = 'panel-view-' + viewID;
+    $('.sideways li.active').removeClass('active');
+    $('#' + tabID).addClass('active');
+    $('.tab-content div.active').removeClass('active');
+    $('#' + tabContentID).addClass('active');
+  },
+
+  /**
    * Creates a panel with the given name.
    * @param {string} viewName Name of the view.
    */
@@ -83,11 +96,9 @@ var PanelManager = {
       .attr('id', tabContentID)
       .appendTo('.tab-content');
     $(view).on('genotet.focus', function() {
-      $('.sideways li.active').removeClass('active');
-      $('#' + tabID).addClass('active');
-      $('.tab-content div.active').removeClass('active');
-      $('#' + tabContentID).addClass('active');
-    });
+      var clickedViewID = view.name().replace(/\s/g, '-');
+      this.activatePanel_(clickedViewID);
+    }.bind(this));
     $('.sideways li a').off().click(function(event) {
       if (!this.showPanel_) {
         this.togglePanel_();
@@ -99,12 +110,10 @@ var PanelManager = {
       var clickedView = ViewManager.views[clickedViewName];
       $('#main div.focused').removeClass('focused');
       clickedView.focus(this.sendSignal_);
-      $('.sideways li.active').removeClass('active');
-      $(event.target).parent().addClass('active');
+      this.activatePanel_(clickedViewID);
     }.bind(this));
     this.container_.show();
-    $('.sideways li.active').removeClass('active');
-    $('#' + tabID).addClass('active');
+    this.activatePanel_(viewID);
     $('#main div.focused').removeClass('focused');
     view.focus(this.sendSignal_);
 
@@ -117,7 +126,7 @@ var PanelManager = {
    * @param {string} viewName Name of the view.
    */
   removePanel: function(viewName) {
-    var viewID = viewName.replace(/\s/g, '');
+    var viewID = viewName.replace(/\s/g, '-');
     var tab = $('#panel-tab-' + viewID);
     var panel = $('#panel-view-' + viewID);
     var activated = tab.hasClass('active');
