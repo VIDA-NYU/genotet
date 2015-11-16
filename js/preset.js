@@ -2,17 +2,21 @@
  * @fileoverview Preset defines a set of preset view layouts.
  */
 
-var Preset = {
-  /**
-   * Loads a preset with the given name.
-   * @param {string} preset
-   */
-  loadPreset: function(preset) {
-    if (!preset) {
-      preset = 'default';
-    }
+'use strict';
 
-    switch (preset) {
+/** @const */
+genotet.preset = {};
+
+/**
+ * Loads a preset with the given name.
+ * @param {string} preset
+ */
+genotet.preset.loadPreset = function(preset) {
+  if (!preset) {
+    preset = 'default';
+  }
+
+  switch (preset) {
     case 'default':
       break;
     case 'network':
@@ -22,8 +26,7 @@ var Preset = {
     case 'binding':
       break;
     default:
-      Core.error('unknown preset:', preset);
+      genotet.error('unknown preset:', preset);
       return;
-    }
   }
 };

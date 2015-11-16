@@ -35,6 +35,11 @@
   <link type="text/css" rel="stylesheet" href="css/tooltip.css" rel="stylesheet"/>
 
   <!-- components -->
+
+  <!-- used by all components -->
+  <script type="text/javascript" src="js/genotet.js"></script>
+  <script type="text/javascript" src="js/utils.js"></script>
+
   <!-- base -->
   <script type="text/javascript" src="components/base/view.js"></script>
   <script type="text/javascript" src="components/base/view-loader.js"></script>
@@ -63,22 +68,20 @@
   <link type="text/css" rel="stylesheet" href="components/binding/binding.css"/>
 
   <!-- main js -->
-  <script type="text/javascript" src="js/utils.js"></script>
   <script type="text/javascript" src="js/data.js"></script>
   <script type="text/javascript" src="js/menu.js"></script>
-  <script type="text/javascript" src="js/view-manager.js"></script>
   <script type="text/javascript" src="js/panel-manager.js"></script>
-  <script type="text/javascript" src="js/welcome.js"></script>
+  <script type="text/javascript" src="js/view-manager.js"></script>
+  <!--<script type="text/javascript" src="js/welcome.js"></script>-->
   <script type="text/javascript" src="js/dialog.js"></script>
   <script type="text/javascript" src="js/tooltip.js"></script>
   <script type="text/javascript" src="js/options.js"></script>
-  <script type="text/javascript" src="js/core.js"></script>
   <script type="text/javascript" src="js/test.js"></script>
 
   <!-- program entry -->
   <script type="text/javascript">
     $(document).ready(function () {
-      Core.init();
+      genotet.init();
     });
   </script>
 </head>

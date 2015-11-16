@@ -9,14 +9,11 @@
  * @param {!Object} data Data object to be written.
  * @constructor
  */
-function NetworkLoader(data) {
-  NetworkLoader.base.constructor.call(this, data);
-}
+genotet.NetworkLoader = function(data) {
+  this.base.constructor.call(this, data);
+};
 
-NetworkLoader.prototype = Object.create(ViewLoader.prototype);
-NetworkLoader.prototype.constructor = NetworkLoader;
-NetworkLoader.base = ViewLoader.prototype;
-
+genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);
 
 /**
  * Loads the network data, adding the genes given by geneRegex.
@@ -24,7 +21,7 @@ NetworkLoader.base = ViewLoader.prototype;
  * @param {string} geneRegex Regex for gene selection.
  * @override
  */
-NetworkLoader.prototype.load = function(networkName, geneRegex) {
+genotet.NetworkLoader.prototype.load = function(networkName, geneRegex) {
   this.loadNetwork_(networkName, geneRegex);
 };
 
@@ -34,14 +31,14 @@ NetworkLoader.prototype.load = function(networkName, geneRegex) {
  * @param {string} geneRegex Regex that selects the gene set.
  * @private
  */
-NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
+genotet.NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
   this.signal('loadStart');
   var params = {
     type: 'network',
     networkName: networkName,
     geneRegex: geneRegex
   };
-  $.get(Data.serverURL, params, function(data) {
+  $.get(genotet.data.serverURL, params, function(data) {
     // Store the last applied networkName and geneRegex.
     _(data).extend({
       networkName: networkName,
@@ -58,7 +55,7 @@ NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
  * @param {string} method Update method, either 'set' or 'add'.
  * @param {string} geneRegex Regex that selects the genes to be updated.
  */
-NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
+genotet.NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
   var regex = this.data.geneRegex;
   switch(method) {
     case 'set':
@@ -83,7 +80,7 @@ NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
     networkName: this.data.networkName, // Use the previous network name
     geneRegex: regex
   };
-  $.get(Data.serverURL, params, function(data) {
+  $.get(genotet.data.serverURL, params, function(data) {
     data.geneRegex = regex;
     _(this.data).extend(data);
     this.signal('loadComplete');
@@ -97,12 +94,12 @@ NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
  * @param {string} geneRegex Regex selecting the genes to be removed.
  * @private
  */
-NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
+genotet.NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
   var regex;
   try {
     regex = RegExp(geneRegex, 'i');
   } catch (e) {
-    Core.error('invalid gene regex', geneRegex);
+    genotet.error('invalid gene regex', geneRegex);
     return;
   };
   this.data.nodes = _(this.data.nodes).filter(function(node) {
@@ -122,7 +119,7 @@ NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
  * This function sets the gene regex to a verbose concatenation of the gene
  * ids. This is only called in removeGenes_().
  */
-NetworkLoader.prototype.updateGeneRegex_ = function() {
+genotet.NetworkLoader.prototype.updateGeneRegex_ = function() {
   var regex = '';
   this.data.nodes.forEach(function(node, index) {
     regex += node.id + (index == this.data.nodes.length - 1 ? '' : '|');
@@ -134,13 +131,13 @@ NetworkLoader.prototype.updateGeneRegex_ = function() {
  * Fetches the incident edges of a given node.
  * @param {!Object} node Node of which the incident edges are queried.
  */
-NetworkLoader.prototype.incidentEdges = function(node) {
+genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   var params = {
     type: 'incident-edges',
     networkName: this.data.networkName,
     gene: node.id
   };
-  $.get(Data.serverURL, params, function(data) {
+  $.get(genotet.data.serverURL, params, function(data) {
     this.data.incidentEdges = data;
     this.signal('incidentEdges');
   }.bind(this), 'jsonp')

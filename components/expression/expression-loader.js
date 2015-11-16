@@ -10,19 +10,16 @@
  * @extends {ViewLoader}
  * @constructor
  */
-function ExpressionLoader(data) {
-  ExpressionLoader.base.constructor.call(this, data);
+genotet.ExpressionLoader = function(data) {
+  this.base.constructor.call(this, data);
 
   _(this.data).extend({
     matrix: null,
     profiles: []
   });
-}
+};
 
-ExpressionLoader.prototype = Object.create(ViewLoader.prototype);
-ExpressionLoader.prototype.constructor = ExpressionLoader;
-ExpressionLoader.base = ViewLoader.prototype;
-
+genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
 
 /**
  * Loads the expression matrix data, with given gene and condition selectors.
@@ -31,7 +28,7 @@ ExpressionLoader.base = ViewLoader.prototype;
  * @param {string} conditionRegex Regex for experiment condition selection.
  * @override
  */
-ExpressionLoader.prototype.load = function(matrixName, geneRegex,
+genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
     conditionRegex) {
   this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
 };
@@ -44,7 +41,7 @@ ExpressionLoader.prototype.load = function(matrixName, geneRegex,
  * @param {string} conditionRegex Regex for experiment condition selection.
  * @private
  */
-ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
+genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     geneRegex, conditionRegex) {
   this.signal('loadStart');
   var params = {
@@ -54,7 +51,7 @@ ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     expcols: conditionRegex
   };
 
-  $.get(Data.serverURL, params, function(data) {
+  $.get(genotet.data.serverURL, params, function(data) {
     // Store the last applied data selectors.
     _(data).extend({
       matrixname: matrixName,
@@ -125,7 +122,7 @@ LoaderHeatmap.prototype.loadHeatmapTargets = function(net, name) {
       data: { 'args': 'type=targets&net='+ net + '&name='+ name },
     error: function(xhr, status, err) { loader.error('cannot load targets for heatmap\n' + status + '\n' + err); },
       success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
+      var data = JSON.parse(result, genotet.utils.parse);
       if (data == null || data.length == 0) { loader.error('cannot load targets for heatmap\n return is empty'); return; }
       loader.loadHeatmap(loader.lastIdentifier.mat, data.exp);
       }
@@ -147,7 +144,7 @@ LoaderHeatmap.prototype.loadLine = function(mat, name) {
       data: { 'args': args },
     error: function() { loader.error('cannot load heatmap line'); },
       success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
+      var data = JSON.parse(result, genotet.utils.parse);
       if (data == null || data.length == 0) {
         loader.error('cannot load heatmap line\ngene not found in expression matrix', 'line');
         return;

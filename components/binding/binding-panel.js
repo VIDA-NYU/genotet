@@ -9,8 +9,8 @@
  * @param {!Object} data Data object of the view.
  * @constructor
  */
-function BindingPanel(data) {
-  BindingPanel.base.constructor.call(this, data);
+genotet.BindingPanel = function(data) {
+  this.base.constructor.call(this, data);
 
   // Set the view options.
   _(this.data.options).extend({
@@ -30,22 +30,20 @@ function BindingPanel(data) {
    * Select2 for chromosome.
    */
   this.selectChr_;
-}
+};
 
-BindingPanel.prototype = Object.create(ViewPanel.prototype);
-BindingPanel.prototype.constructor = BindingPanel;
-BindingPanel.base = ViewPanel.prototype;
+genotet.utils.inherit(genotet.BindingPanel, genotet.ViewPanel);
 
 /** @inheritDoc */
-BindingPanel.prototype.template = 'components/binding/binding-panel.html';
+genotet.BindingPanel.prototype.template = 'components/binding/binding-panel.html';
 
 /** @inheritDoc */
-BindingPanel.prototype.panel = function(container) {
-  BindingPanel.base.panel.call(this, container);
+genotet.BindingPanel.prototype.panel = function(container) {
+  this.base.panel.call(this, container);
 };
 
 /** @inheritDoc */
-BindingPanel.prototype.initPanel = function() {
+genotet.BindingPanel.prototype.initPanel = function() {
   this.initChrs_();
 
   // Initialize switches.
@@ -85,7 +83,7 @@ BindingPanel.prototype.initPanel = function() {
         .click(update);
       this.container_.find(ui.selector + ' input')
         .on('keypress', function(event) {
-          if (event.which == Utils.keyCodes.ENTER) {
+          if (event.which == genotet.utils.keyCodes.ENTER) {
             update();
           }
         });
@@ -108,7 +106,7 @@ BindingPanel.prototype.initPanel = function() {
     });
   this.container_.find('#locus input')
     .on('keypress', function(event) {
-      if (event.which == Utils.keyCodes.ENTER) {
+      if (event.which == genotet.utils.keyCodes.ENTER) {
         findLocus();
       }
     });
@@ -124,7 +122,7 @@ BindingPanel.prototype.initPanel = function() {
  * @param {number} start Start coordinate.
  * @param {number} end End coordinate.
  */
-BindingPanel.prototype.updateCoordinates = function(start, end) {
+genotet.BindingPanel.prototype.updateCoordinates = function(start, end) {
   this.container_.find('#start-coordinate input').val(parseInt(start));
   this.container_.find('#end-coordinate input').val(parseInt(end));
 };
@@ -133,7 +131,7 @@ BindingPanel.prototype.updateCoordinates = function(start, end) {
  * Updates the chromosome.
  * @param {string} chr Chromosome.
  */
-BindingPanel.prototype.updateChr = function(chr) {
+genotet.BindingPanel.prototype.updateChr = function(chr) {
   this.selectChr_.val(chr).trigger('change', [{
     passive: true
   }]);
@@ -143,8 +141,8 @@ BindingPanel.prototype.updateChr = function(chr) {
  * Sets the chromosomes for selection.
  * @private
  */
-BindingPanel.prototype.initChrs_ = function() {
-  var chrs = Data.bindingChrs.map(function (chr, index) {
+genotet.BindingPanel.prototype.initChrs_ = function() {
+  var chrs = genotet.data.bindingChrs.map(function (chr, index) {
     return {
       id: chr,
       text: chr
@@ -163,7 +161,7 @@ BindingPanel.prototype.initChrs_ = function() {
  * Adds a select2 for a new track.
  * @private
  */
-BindingPanel.prototype.addTrack_ = function() {
+genotet.BindingPanel.prototype.addTrack_ = function() {
   var trackIndex = this.data.tracks.length - 1;
   var ui = this.container_.find('#genes #tracks');
   var uiTrack = ui.find('#track-template').clone()
@@ -171,7 +169,7 @@ BindingPanel.prototype.addTrack_ = function() {
     .attr('id', 'track-' + trackIndex)
     .show();
 
-  var genes = Data.bindingGenes.map(function (gene, index) {
+  var genes = genotet.data.bindingGenes.map(function (gene, index) {
     return {
       id: gene,
       text: gene
@@ -205,7 +203,7 @@ BindingPanel.prototype.addTrack_ = function() {
 /**
  * Updates the gene selected for each track.
  */
-BindingPanel.prototype.updateTracks = function() {
+genotet.BindingPanel.prototype.updateTracks = function() {
   var numTracks = this.data.tracks.length;
   var uiTracks = this.container_.find('#genes .track-gene');
   if (uiTracks.length > numTracks) {

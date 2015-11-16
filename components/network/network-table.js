@@ -10,9 +10,9 @@
  * @param {!Object} data Data object of the view.
  * @constructor
  */
-function NetworkTable(data) {
+genotet.NetworkTable = function(data) {
   this.data = data;
-}
+};
 
 /**
  * Creates an incident edge table with the given data, inside a given
@@ -26,7 +26,7 @@ function NetworkTable(data) {
  *       Whether the edge has been added to the network
  * }>} edges List of edges.
  */
-NetworkTable.prototype.create = function(table, edges) {
+genotet.NetworkTable.prototype.create = function(table, edges) {
   var edgeIds = {};
   this.data.edges.forEach(function(edge) {
     edgeIds[edge.id] = true;

@@ -9,8 +9,8 @@
  * @param {!Object} data Data object of the view.
  * @constructor
  */
-function NetworkPanel(data) {
-  NetworkPanel.base.constructor.call(this, data);
+genotet.NetworkPanel = function(data) {
+  this.base.constructor.call(this, data);
 
   // Set the view options.
   _(this.data.options).extend({
@@ -18,26 +18,25 @@ function NetworkPanel(data) {
     showTFToTF: true,
     showTFToNonTF: true
   });
-}
+};
 
-NetworkPanel.prototype = Object.create(ViewPanel.prototype);
-NetworkPanel.prototype.constructor = NetworkPanel;
-NetworkPanel.base = ViewPanel.prototype;
+genotet.utils.inherit(genotet.NetworkPanel, genotet.ViewPanel);
 
 /** @inheritDoc */
-NetworkPanel.prototype.template = 'components/network/network-panel.html';
+genotet.NetworkPanel.prototype.template =
+    'components/network/network-panel.html';
 
 /** @const {string} */
-NetworkPanel.prototype.SUBTIWIKI_URL =
+genotet.NetworkPanel.prototype.SUBTIWIKI_URL =
   'http://subtiwiki.uni-goettingen.de/bank/index.php?gene=';
 
 /** @inheritDoc */
-NetworkPanel.prototype.panel = function(container) {
-  NetworkPanel.base.panel.call(this, container);
+genotet.NetworkPanel.prototype.panel = function(container) {
+  this.base.panel.call(this, container);
 };
 
 /** @inheritDoc */
-NetworkPanel.prototype.initPanel = function() {
+genotet.NetworkPanel.prototype.initPanel = function() {
   // Initialize switches
   this.container_.find('.switches input').bootstrapSwitch({
     size: 'mini'
@@ -64,7 +63,7 @@ NetworkPanel.prototype.initPanel = function() {
       var input = this.container_.find('#genes input');
       var geneRegex = input.val();
       if (geneRegex == '') {
-        Core.warning('missing input gene selection')
+        genotet.warning('missing input gene selection')
         return;
       }
       input.val('');
@@ -78,7 +77,7 @@ NetworkPanel.prototype.initPanel = function() {
 };
 
 /** @inheritDoc */
-NetworkPanel.prototype.dataLoaded = function() {
+genotet.NetworkPanel.prototype.dataLoaded = function() {
   this.container_.find('#network input').val(this.data.networkName);
 };
 
@@ -86,7 +85,7 @@ NetworkPanel.prototype.dataLoaded = function() {
  * Gets a container to render the incident edge table.
  * @return {!jQuery} The edge list container.
  */
-NetworkPanel.prototype.edgeListContainer = function() {
+genotet.NetworkPanel.prototype.edgeListContainer = function() {
   var edgeList = this.container_.find('#edge-list');
   edgeList.html(this.container_.find('#edge-list-template').html());
   return edgeList.children('table');
@@ -96,7 +95,7 @@ NetworkPanel.prototype.edgeListContainer = function() {
  * Hides node info.
  * @private
  */
-NetworkPanel.prototype.hideNodeInfo_ = function() {
+genotet.NetworkPanel.prototype.hideNodeInfo_ = function() {
   this.container_.find('#node-info').slideUp();
 };
 
@@ -104,7 +103,7 @@ NetworkPanel.prototype.hideNodeInfo_ = function() {
  * Hides edge info.
  * @private
  */
-NetworkPanel.prototype.hideEdgeInfo_ = function() {
+genotet.NetworkPanel.prototype.hideEdgeInfo_ = function() {
   this.container_.find('#edge-info').slideUp();
 };
 
@@ -112,7 +111,7 @@ NetworkPanel.prototype.hideEdgeInfo_ = function() {
  * Hides all info boxes.
  * @private
  */
-NetworkPanel.prototype.hideInfo_ = function() {
+genotet.NetworkPanel.prototype.hideInfo_ = function() {
   this.hideNodeInfo_();
   this.hideEdgeInfo_();
 };
@@ -123,7 +122,7 @@ NetworkPanel.prototype.hideInfo_ = function() {
  * @param {!jQuery} container Info container.
  * @private
  */
-NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
+genotet.NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
   container.html(this.container_.find('#node-info-template').html());
   container.children('#name').children('span')
     .text(node.name);
@@ -139,7 +138,7 @@ NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
  * @param {!jQuery} container Info container.
  * @private
  */
-NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
+genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
   container.html(this.container_.find('#edge-info-template').html());
   container.children('#source').children('span')
     .text(edge.source.name);
@@ -153,7 +152,7 @@ NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
  * Displays the info box for network node.
  * @param {!Object} node Node of which the info is to be displayed.
  */
-NetworkPanel.prototype.displayNodeInfo = function(node) {
+genotet.NetworkPanel.prototype.displayNodeInfo = function(node) {
   var info = this.container_.find('#node-info').hide().slideDown();
   this.setNodeInfo_(node, info);
   info.find('.close').click(function() {
@@ -165,7 +164,7 @@ NetworkPanel.prototype.displayNodeInfo = function(node) {
  * Displays the info box for network edge.
  * @param {!Object} edge Edge of which the info is to be displayed.
  */
-NetworkPanel.prototype.displayEdgeInfo = function(edge) {
+genotet.NetworkPanel.prototype.displayEdgeInfo = function(edge) {
   var info = this.container_.find('#edge-info').hide().slideDown();
   this.setEdgeInfo_(edge, info);
   info.find('.close').click(function() {
@@ -177,8 +176,8 @@ NetworkPanel.prototype.displayEdgeInfo = function(edge) {
  * Displays a tooltip around cursor about a hovered node.
  * @param {!Object} node Node being hovered.
  */
-NetworkPanel.prototype.tooltipNode = function(node) {
-  var tooltip = Tooltip.new();+
+genotet.NetworkPanel.prototype.tooltipNode = function(node) {
+  var tooltip = genotet.tooltip.new();+
   this.setNodeInfo_(node, tooltip);
   // Tooltip cannot be interacted with, thus link is not shown.
   tooltip.find('#subtiwiki, .close').remove();
@@ -188,8 +187,8 @@ NetworkPanel.prototype.tooltipNode = function(node) {
  * Displays a tooltip around cursor about a hovered edge.
  * @param {!Object} edge Edge being hovered.
  */
-NetworkPanel.prototype.tooltipEdge = function(edge) {
-  var tooltip = Tooltip.new();
+genotet.NetworkPanel.prototype.tooltipEdge = function(edge) {
+  var tooltip = genotet.tooltip.new();
   this.setEdgeInfo_(edge, tooltip);
   tooltip.find('.close').remove();
 };
