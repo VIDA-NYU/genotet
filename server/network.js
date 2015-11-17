@@ -203,17 +203,23 @@ module.exports = {
    * @returns {Array} array of object of each network file
    */
   listNetwork: function(networkAddr) {
-    var descFile = networkAddr + 'NetworkInfo';
+    var folder = expmatAddr;
     var ret = [];
-    var buf = utils.readFileToBuf(descFile);
-    var descLine = buf.toString().split('\n');
-    for (var i = 0; i < descLine.length; i++) {
-      var part = descLine[i].split('\t');
-      ret.push({
-        fileName: part[0],
-        networkName: part[1],
-        description: part[2]
-      });
+    var files = fs.readdirSync(folder);
+    for (var i = 0; i < files.length; i++) {
+      var stat = fs.lstatSync(folder + files[i]);
+      if (!stat.isDirectory) {
+        if (files[i].indexOf('.txt') != -1) {
+          var fname = files[i].substr(0, files[i].length - 4);
+          var description;
+          var fd = fs.openSync(folder + files[i]);
+          fs.readSync(fd, description);
+          ret.push({
+            networkName: fname,
+            description: description.toString()
+          });
+        }
+      }
     }
     return ret;
   }
