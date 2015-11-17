@@ -12,26 +12,24 @@
  * @extends {View}
  * @constructor
  */
-function ExpressionView(viewName, params) {
-  ExpressionView.base.constructor.call(this, viewName);
+genotet.ExpressionView = function(viewName, params) {
+  this.base.constructor.call(this, viewName);
 
   this.container.addClass('expression');
 
   /** @protected {ExpressionLoader} */
-  this.loader = new ExpressionLoader(this.data);
+  this.loader = new genotet.ExpressionLoader(this.data);
 
   /** @protected {ExpressionPanel} */
-  this.panel = new ExpressionPanel(this.data);
+  this.panel = new genotet.ExpressionPanel(this.data);
 
   /** @protected {ExpressionRenderer} */
-  this.renderer = new ExpressionRenderer(this.container, this.data);
+  this.renderer = new genotet.ExpressionRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
   }.bind(this));
-}
+};
 
-ExpressionView.prototype = Object.create(View.prototype);
-ExpressionView.prototype.constructor = ExpressionView;
-ExpressionView.base = View.prototype;
+genotet.utils.inherit(genotet.ExpressionView, genotet.View);

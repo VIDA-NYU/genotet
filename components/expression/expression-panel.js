@@ -9,8 +9,8 @@
  * @param {!Object} data Data object of the view.
  * @constructor
  */
-function ExpressionPanel(data) {
-  ExpressionPanel.base.constructor.call(this, data);
+genotet.ExpressionPanel = function(data) {
+  this.base.constructor.call(this, data);
   _(this.data.options).extend({
     // TODO(bowen): Check how TFA data will be used.
     //showTFA: true,
@@ -26,27 +26,26 @@ function ExpressionPanel(data) {
    * @private {select2}
    */
   this.selectProfiles_;
-}
+};
 
-ExpressionPanel.prototype = Object.create(ViewPanel.prototype);
-ExpressionPanel.prototype.constructor = ExpressionPanel;
-ExpressionPanel.base = ViewPanel.prototype;
+genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
 
 /** @inheritDoc */
-ExpressionPanel.prototype.template = 'components/expression/expression-panel.html';
+genotet.ExpressionPanel.prototype.template =
+    'components/expression/expression-panel.html';
 
 /** @inheritDoc */
-ExpressionPanel.prototype.panel = function(container) {
-  ExpressionPanel.base.panel.call(this, container);
+genotet.ExpressionPanel.prototype.panel = function(container) {
+  this.base.panel.call(this, container);
 };
 
 /** @inheritDoc */
-ExpressionPanel.prototype.dataLoaded = function() {
+genotet.ExpressionPanel.prototype.dataLoaded = function() {
   this.updateGenes(this.data.matrix.geneNames);
 };
 
 /** @inheritDoc */
-ExpressionPanel.prototype.initPanel = function() {
+genotet.ExpressionPanel.prototype.initPanel = function() {
   // Data may have not been loaded. Use empty list.
   this.updateGenes([]);
 
@@ -77,7 +76,7 @@ ExpressionPanel.prototype.initPanel = function() {
  * Select2 will regenerate the selection list each time updated.
  * @param {!Array<string>} genes List of genes.
  */
-ExpressionPanel.prototype.updateGenes = function(genes) {
+genotet.ExpressionPanel.prototype.updateGenes = function(genes) {
   var genes = genes.map(function(gene, index) {
     return {
       id: gene,

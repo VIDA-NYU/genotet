@@ -11,8 +11,8 @@
  * @extends {ViewRenderer}
  * @constructor
  */
-function ExpressionRenderer(container, data) {
-  ExpressionRenderer.base.constructor.call(this, container, data);
+genotet.ExpressionRenderer = function(container, data) {
+  this.base.constructor.call(this, container, data);
 
   /**
    * The maximum width of the horizontal gene labels.
@@ -46,14 +46,12 @@ function ExpressionRenderer(container, data) {
    * @private {number}
    */
   this.heatmapHeight_ = 0;
-}
+};
 
-ExpressionRenderer.prototype = Object.create(ViewRenderer.prototype);
-ExpressionRenderer.prototype.constructor = ExpressionRenderer;
-ExpressionRenderer.base = ViewRenderer.prototype;
+genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
 
 /** @const {number} */
-ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 300;
+genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 300;
 
 /*
  // gene profile properties
@@ -73,12 +71,12 @@ ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 300;
 
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.init = function() {
-  ExpressionRenderer.base.init.call(this);
+genotet.ExpressionRenderer.prototype.init = function() {
+  this.base.init.call(this);
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.initLayout = function() {
+genotet.ExpressionRenderer.prototype.initLayout = function() {
   /**
    * SVG group for profile plot (line charts).
    * @private {!d3.selection}
@@ -115,7 +113,7 @@ ExpressionRenderer.prototype.initLayout = function() {
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.layout = function() {
+genotet.ExpressionRenderer.prototype.layout = function() {
   // Gets the label sizes so as to set the offset of heatmap SVG.
   this.getHeatmapLabelSizes_();
   // Compute the shifting sizes.
@@ -123,33 +121,33 @@ ExpressionRenderer.prototype.layout = function() {
       this.DEFAULT_PROFILE_HEIGHT : 0;
 
   this.svgHeatmap_
-    .attr('transform', Utils.getTransform([0, this.profileHeight_]));
+    .attr('transform', genotet.utils.getTransform([0, this.profileHeight_]));
 
   this.heatmapWidth_ = this.canvasWidth_ - this.geneLabelWidth_;
   this.heatmapHeight_ = this.canvasHeight_ - this.profileHeight_ -
     this.conditionLabelHeight_;
 
   this.svgHeatmapContent_
-    .attr('transform', Utils.getTransform([this.geneLabelWidth_, 0]));
+    .attr('transform', genotet.utils.getTransform([this.geneLabelWidth_, 0]));
   this.svgConditionLabels_
-    .attr('transform', Utils.getTransform([
+    .attr('transform', genotet.utils.getTransform([
       this.geneLabelWidth_,
       this.heatmapHeight_
     ]));
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.dataLoaded = function() {
+genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   this.render();
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.dataReady_ = function() {
+genotet.ExpressionRenderer.prototype.dataReady_ = function() {
   return this.data.matrix;
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.render = function() {
+genotet.ExpressionRenderer.prototype.render = function() {
   if (!this.dataReady_()) {
     return;
   }
@@ -165,7 +163,7 @@ ExpressionRenderer.prototype.render = function() {
  * Renders the expression matrix onto the scene.
  * @private
  */
-ExpressionRenderer.prototype.drawExpressionMatrix_ = function() {
+genotet.ExpressionRenderer.prototype.drawExpressionMatrix_ = function() {
   this.drawMatrixCells_();
   this.drawMatrixGeneLabels_();
   this.drawMatrixConditionLabels_();
@@ -175,7 +173,7 @@ ExpressionRenderer.prototype.drawExpressionMatrix_ = function() {
  * Renders the expression matrix cells.
  * @private
  */
-ExpressionRenderer.prototype.drawMatrixCells_ = function() {
+genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   this.svgHeatmapContent_.selectAll('g').remove();
   var cells = this.svgHeatmapContent_.selectAll('rect.cell').data([{
     width: this.heatmapWidth_,
@@ -223,7 +221,7 @@ ExpressionRenderer.prototype.drawMatrixCells_ = function() {
  * Renders the expression matrix gene (row) labels.
  * @private
  */
-ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
+genotet.ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
   if (!this.data.options.showGeneLabels) {
     this.svgGeneLabels_.selectAll('*').remove();
     return;
@@ -253,7 +251,7 @@ ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
  * Renders the expression matrix condition (column) labels.
  * @private
  */
-ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
+genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   if (!this.data.options.showConditionLabels) {
     this.svgConditionLabels_.selectAll('*').remove();
     return;
@@ -281,7 +279,7 @@ ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
  * Renders the expression profiles for the selected genes as line charts.
  * @private
  */
-ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
+genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   if (!this.data.options.showProfiles) {
     this.svgProfile_.selectAll('*').remove();
     return;
@@ -321,8 +319,8 @@ ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
 };
 
 /** @inheritDoc */
-ExpressionRenderer.prototype.resize = function() {
-  ExpressionRenderer.base.resize.call(this);
+genotet.ExpressionRenderer.prototype.resize = function() {
+  this.base.resize.call(this);
   this.render();
 };
 

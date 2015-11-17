@@ -10,21 +10,19 @@
  * @extends {ViewLoader}
  * @constructor
  */
-function BindingLoader(data) {
-  BindingLoader.base.constructor.call(this, data);
+genotet.BindingLoader = function(data) {
+  this.base.constructor.call(this, data);
 
   _(this.data).extend({
     tracks: [],
     exons: []
   });
-}
+};
 
-BindingLoader.prototype = Object.create(ViewLoader.prototype);
-BindingLoader.prototype.constructor = BindingLoader;
-BindingLoader.base = ViewLoader.prototype;
+genotet.utils.inherit(genotet.BindingLoader, genotet.ViewLoader);
 
 /** @const {number} */
-BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
+genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 
 /**
  * Loads the binding data for a given gene and chromosome.
@@ -33,7 +31,7 @@ BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
-BindingLoader.prototype.load = function(gene, chr, opt_track) {
+genotet.BindingLoader.prototype.load = function(gene, chr, opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   this.data.chr = chr;
   this.loadFullTrack(trackIndex, gene, chr);
@@ -44,7 +42,7 @@ BindingLoader.prototype.load = function(gene, chr, opt_track) {
  * loads the full binding data for all tracks. This usually happens
  * when chromosome is changed.
  */
-BindingLoader.prototype.loadFullTracks = function() {
+genotet.BindingLoader.prototype.loadFullTracks = function() {
   this.data.tracks.forEach(function(track) {
     var params = {
       type: 'binding',
@@ -53,7 +51,7 @@ BindingLoader.prototype.loadFullTracks = function() {
     };
     // First send query for the overview (without detail range).
     this.signal('loadStart');
-    $.get(Data.serverURL, params, function(data) {
+    $.get(genotet.data.serverURL, params, function(data) {
       track.overview = data;
       this.updateRanges_();
       this.signal('loadComplete');
@@ -66,7 +64,7 @@ BindingLoader.prototype.loadFullTracks = function() {
       xr: this.data.detailXMax
     });
     this.signal('loadStart');
-    $.get(Data.serverURL, params, function(data) {
+    $.get(genotet.data.serverURL, params, function(data) {
       track.detail = data;
       this.signal('loadComplete');
     }.bind(this), 'jsonp')
@@ -80,14 +78,14 @@ BindingLoader.prototype.loadFullTracks = function() {
  * @param {string} gene Gene name.
  * @param {string} chr Chromosome.
  */
-BindingLoader.prototype.loadFullTrack = function(trackIndex, gene, chr) {
+genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene, chr) {
   var params = {
     type: 'binding',
     gene: gene,
     chr: chr
   };
   this.signal('loadStart');
-  $.get(Data.serverURL, params, function(data) {
+  $.get(genotet.data.serverURL, params, function(data) {
     var track = {
       gene: gene,
       overview: data,
@@ -111,7 +109,7 @@ BindingLoader.prototype.loadFullTrack = function(trackIndex, gene, chr) {
       xr: this.data.detailXMax
     });
     this.signal('loadStart');
-    $.get(Data.serverURL, params, function(data) {
+    $.get(genotet.data.serverURL, params, function(data) {
       // If a new track is created. This may be received before the track object
       // is created. Therefore create an empty object in that case.
       if (!this.data.tracks[trackIndex]) {
@@ -130,7 +128,7 @@ BindingLoader.prototype.loadFullTrack = function(trackIndex, gene, chr) {
  * @param {number} xl Range's left coordinate.
  * @param {number} xr Range's right coordinate.
  */
-BindingLoader.prototype.loadTrackDetail = function(xl ,xr) {
+genotet.BindingLoader.prototype.loadTrackDetail = function(xl ,xr) {
   this.data.detailXMin = xl;
   this.data.detailXMax = xr;
   this.data.tracks.forEach(function(track) {
@@ -142,7 +140,7 @@ BindingLoader.prototype.loadTrackDetail = function(xl ,xr) {
       xl: xl,
       xr: xr
     };
-    $.get(Data.serverURL, params, function(data) {
+    $.get(genotet.data.serverURL, params, function(data) {
       track.detail = data;
       this.signal('loadComplete');
     }.bind(this), 'jsonp')
@@ -155,13 +153,13 @@ BindingLoader.prototype.loadTrackDetail = function(xl ,xr) {
  * @param {string} chr Chromosome.
  * @private
  */
-BindingLoader.prototype.loadExons_ = function(chr) {
+genotet.BindingLoader.prototype.loadExons_ = function(chr) {
   this.signal('loadStart');
   var params = {
     type: 'exons',
     chr: chr
   };
-  $.get(Data.serverURL, params, function(data) {
+  $.get(genotet.data.serverURL, params, function(data) {
     this.data.exons = data;
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
@@ -173,15 +171,15 @@ BindingLoader.prototype.loadExons_ = function(chr) {
  * Queries the locus of a given gene.
  * @param {string} gene Gene name to be searched for.
  */
-BindingLoader.prototype.findLocus = function(gene) {
+genotet.BindingLoader.prototype.findLocus = function(gene) {
   this.signal('loadStart');
   var params = {
     type: 'locus',
     gene: gene
   };
-  $.get(Data.serverURL, params, function(res) {
+  $.get(genotet.data.serverURL, params, function(res) {
     if (!res.success) {
-      Core.warning('gene locus not found');
+      genotet.warning('gene locus not found');
     } else {
       var span = res.txEnd - res.txStart;
       this.data.detailXMin = res.txStart - span * this.LOCUS_MARGIN_RATIO;
@@ -203,7 +201,7 @@ BindingLoader.prototype.findLocus = function(gene) {
  * Changes the chromosome of the genome browser.
  * @param {string} chr Chromosome.
  */
-BindingLoader.prototype.switchChr = function(chr) {
+genotet.BindingLoader.prototype.switchChr = function(chr) {
   this.data.chr = chr;
   this.loadExons_(chr);
   this.loadFullTracks();
@@ -213,7 +211,7 @@ BindingLoader.prototype.switchChr = function(chr) {
  * Updates the detail and overall ranges for the data.
  * @private
  */
-BindingLoader.prototype.updateRanges_ = function() {
+genotet.BindingLoader.prototype.updateRanges_ = function() {
   // Computes the overview range across all tracks.
   var overviewXMin = Infinity, overviewXMax = -Infinity;
   this.data.tracks.forEach(function(track) {

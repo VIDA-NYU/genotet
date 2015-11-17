@@ -12,19 +12,19 @@
  * @extends {View}
  * @constructor
  */
-function BindingView(viewName, params) {
-  BindingView.base.constructor.call(this, viewName);
+genotet.BindingView = function(viewName, params) {
+  this.base.constructor.call(this, viewName);
 
   this.container.addClass('binding');
 
   /** @protected {BindingLoader} */
-  this.loader = new BindingLoader(this.data);
+  this.loader = new genotet.BindingLoader(this.data);
 
   /** @protected {BindingPanel} */
-  this.panel = new BindingPanel(this.data);
+  this.panel = new genotet.BindingPanel(this.data);
 
   /** @protected {BindingRenderer} */
-  this.renderer = new BindingRenderer(this.container, this.data);
+  this.renderer = new genotet.BindingRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
@@ -45,12 +45,12 @@ function BindingView(viewName, params) {
         [data.coordinate, this.data.detailXMax] :
         [this.data.detailXMin, data.coordinate];
       if (range[0] > range[1]) {
-        Core.warning('start coordinate must be <= end coordinate:', range);
+        genotet.warning('start coordinate must be <= end coordinate:', range);
         return;
       }
       if (range[0] < this.data.overviewXMin ||
         range[1] > this.data.overviewXMax) {
-        Core.warning('coordinate out of range',
+        genotet.warning('coordinate out of range',
             [this.data.overviewXMin, this.data.overviewXMax]);
         return;
       }
@@ -59,7 +59,7 @@ function BindingView(viewName, params) {
     }.bind(this))
     .on('genotet.locus', function(event, gene) {
       if (!gene) {
-        Core.warning('please enter gene name');
+        genotet.warning('please enter gene name');
         return;
       }
       this.loader.findLocus(gene);
@@ -93,19 +93,17 @@ function BindingView(viewName, params) {
     .on('genotet.track', function(event) {
       this.panel.updateTracks();
     }.bind(this));
-}
+};
 
-BindingView.prototype = Object.create(View.prototype);
-BindingView.prototype.constructor = BindingView;
-BindingView.base = View.prototype;
+genotet.utils.inherit(genotet.BindingView, genotet.View);
 
 /** @override */
-BindingView.prototype.defaultWidth = function() {
+genotet.BindingView.prototype.defaultWidth = function() {
   return Math.max(this.MIN_WIDTH,
-      $(window).width() - PanelManager.COLLAPSED_WIDTH);
+      $(window).width() - genotet.panelManager.COLLAPSED_WIDTH);
 };
 
 /** @override */
-BindingView.prototype.defaultHeight = function() {
+genotet.BindingView.prototype.defaultHeight = function() {
   return 200;
 };

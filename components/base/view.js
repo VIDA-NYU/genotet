@@ -1,5 +1,5 @@
 /**
- * @fileoverview Contains the definition of the View class.
+ * @fileoverview Base view class definition.
  */
 
 'use strict';
@@ -9,7 +9,7 @@
  * @param viewName Name of the view.
  * @constructor
  */
-function View(viewName) {
+genotet.View = function(viewName) {
   /** @protected {ViewRenderer} */
   this.renderer;
   /** @protected {ViewLoader} */
@@ -43,30 +43,30 @@ function View(viewName) {
   this.data = {
     options: {}
   };
-}
+};
 
 /**
  * HTML template of the view.
  * @protected {string}
  */
-View.prototype.template = 'components/base/view.html';
+genotet.View.prototype.template = 'components/base/view.html';
 
 /** @const {number} */
-View.prototype.MIN_WIDTH = 10;
+genotet.View.prototype.MIN_WIDTH = 10;
 /** @const {number} */
-View.prototype.MIN_HEIGHT = 10;
+genotet.View.prototype.MIN_HEIGHT = 10;
 
 /**
  * Initializes the view: adds the mouse event listeners, sets the header.
  */
-View.prototype.init = function() {
+genotet.View.prototype.init = function() {
   this.container
     .draggable({
       handle: '.view-header',
       snap: true,
       containment: '#main',
       start: function(event) {
-        ViewManager.blurAllViews();
+        genotet.viewManager.blurAllViews();
         this.focus(this.sendSignal_);
       }.bind(this)
     })
@@ -78,14 +78,14 @@ View.prototype.init = function() {
       height: this.defaultHeight()
     });
 
-  var pos = ViewManager.findPosition(this);
+  var pos = genotet.viewManager.findPosition(this);
   this.container.css(pos);
 
   this.headerText(this.viewName_);
 
   // Set up focus event hook.
   this.container.click(function(event) {
-    ViewManager.blurAllViews();
+    genotet.viewManager.blurAllViews();
     this.focus(this.sendSignal_);
     // Prevent event from hitting the background, which would blur the view.
     event.stopPropagation();
@@ -93,7 +93,7 @@ View.prototype.init = function() {
 
   // Set up close event hook.
   this.container.find('.close').click(function(event) {
-    ViewManager.closeView(this);
+    genotet.viewManager.closeView(this);
     this.close();
   }.bind(this));
 
@@ -123,7 +123,7 @@ View.prototype.init = function() {
  * Sets the view name. If null, return the current view name.
  * @param {?string} name View name.
  */
-View.prototype.name = function(name) {
+genotet.View.prototype.name = function(name) {
   if (!name) {
     return this.viewName_;
   }
@@ -134,7 +134,7 @@ View.prototype.name = function(name) {
  * Sets the header text of the view. If null, return the current header.
  * @param {?string} headerText View header text.
  */
-View.prototype.headerText = function(headerText) {
+genotet.View.prototype.headerText = function(headerText) {
   if (!headerText) {
     return this.headerText_;
   }
@@ -146,7 +146,7 @@ View.prototype.headerText = function(headerText) {
 /**
  * Makes the view appear focused.
  */
-View.prototype.focus = function(sendSignal) {
+genotet.View.prototype.focus = function(sendSignal) {
   this.container.addClass('focused');
   // Re-append to appear on top of other views.
   this.container.appendTo('#main');
@@ -158,14 +158,14 @@ View.prototype.focus = function(sendSignal) {
 /**
  * Removes the focused effect of the view.
  */
-View.prototype.blur = function() {
+genotet.View.prototype.blur = function() {
   this.container.removeClass('focused');
 };
 
 /**
  * Closes the view and removes it from the screen.
  */
-View.prototype.close = function() {
+genotet.View.prototype.close = function() {
   this.container.remove();
 };
 
@@ -173,7 +173,7 @@ View.prototype.close = function() {
  * Gets the rectangle area the view occupies.
  * @return {{x: number, y: number, w: number, h: number}}
  */
-View.prototype.rect = function() {
+genotet.View.prototype.rect = function() {
   return {
     x: this.container.position().left,
     y: this.container.position().top,
@@ -186,7 +186,7 @@ View.prototype.rect = function() {
  * Gets the default width of the view.
  * @return {number} Default view width.
  */
-View.prototype.defaultWidth = function() {
+genotet.View.prototype.defaultWidth = function() {
   return 500;
 };
 
@@ -194,7 +194,7 @@ View.prototype.defaultWidth = function() {
  * Gets the default height of the view.
  * @return {number} Default view height.
  */
-View.prototype.defaultHeight = function() {
+genotet.View.prototype.defaultHeight = function() {
   return this.defaultWidth() / (16 / 10);
 };
 
@@ -202,7 +202,7 @@ View.prototype.defaultHeight = function() {
  * Sets the panel container and creates the panel user interface.
  * @param {!jQuery} container jQuery container of the side panel.
  */
-View.prototype.createPanel = function(container) {
+genotet.View.prototype.createPanel = function(container) {
   this.panel.create(container);
 };
 
@@ -211,6 +211,6 @@ View.prototype.createPanel = function(container) {
  * @param {string} eventType Type of event.
  * @param {Object} data Data object to be sent via the event.
  */
-View.prototype.signal = function(eventType, data) {
+genotet.View.prototype.signal = function(eventType, data) {
   $(this).trigger('genotet.' + eventType, [data]);
 };

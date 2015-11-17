@@ -11,8 +11,8 @@
  * @extends {ViewRenderer}
  * @constructor
  */
-function NetworkRenderer(container, data) {
-  NetworkRenderer.base.constructor.call(this, container, data);
+genotet.NetworkRenderer = function(container, data) {
+  this.base.constructor.call(this, container, data);
 
   /**
    * Filter settings.
@@ -72,19 +72,17 @@ function NetworkRenderer(container, data) {
   this.zoomTranslate_ = [0, 0];
   /** @private {number} */
   this.zoomScale_ = 1.0;
-  /** @private {NetworkRenderer.MouseState} */
+  /** @private {genotet.NetworkRenderer.MouseState} */
   this.mouseState_ = this.MouseState.NONE;
-}
+};
 
-NetworkRenderer.prototype = Object.create(ViewRenderer.prototype);
-NetworkRenderer.prototype.constructor = NetworkRenderer;
-NetworkRenderer.base = ViewRenderer.prototype;
+genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
 
 /**
  * State of mouse interaction.
  * @enum {number}
  */
-NetworkRenderer.prototype.MouseState = {
+genotet.NetworkRenderer.prototype.MouseState = {
   NONE: 0,
   SELECT: 1,
   ZOOM: 2
@@ -94,29 +92,29 @@ NetworkRenderer.prototype.MouseState = {
  * Scaling extent for D3 zoom.
  * @const {!Array<number>}
  */
-NetworkRenderer.prototype.ZOOM_EXTENT = [.03125, 8];
+genotet.NetworkRenderer.prototype.ZOOM_EXTENT = [.03125, 8];
 
 /** @const {number} */
-NetworkRenderer.prototype.NODE_LABEL_SIZE = 14;
+genotet.NetworkRenderer.prototype.NODE_LABEL_SIZE = 14;
 /** @const {number} */
-NetworkRenderer.prototype.NODE_LABEL_OFFSET_X = 10;
+genotet.NetworkRenderer.prototype.NODE_LABEL_OFFSET_X = 10;
 /** @const {number} */
-NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y =
-    NetworkRenderer.prototype.NODE_LABEL_SIZE / 2;
+genotet.NetworkRenderer.prototype.NODE_LABEL_OFFSET_Y =
+    genotet.NetworkRenderer.prototype.NODE_LABEL_SIZE / 2;
 /** @const {number} */
-NetworkRenderer.prototype.NODE_SIZE = 6;
+genotet.NetworkRenderer.prototype.NODE_SIZE = 6;
 /** @const {number} */
-NetworkRenderer.prototype.EDGE_ARROW_LENGTH = 10;
+genotet.NetworkRenderer.prototype.EDGE_ARROW_LENGTH = 10;
 /**
  * Shifting percentage of curved edge.
  * @const {number}
  */
-NetworkRenderer.prototype.EDGE_CURVE_SHIFT = 0.1;
+genotet.NetworkRenderer.prototype.EDGE_CURVE_SHIFT = 0.1;
 
 
 /** @inheritDoc */
-NetworkRenderer.prototype.init = function() {
-  NetworkRenderer.base.init.call(this);
+genotet.NetworkRenderer.prototype.init = function() {
+  this.base.init.call(this);
 
   /** @private {d3.zoom} */
   this.zoom_ = d3.behavior.zoom()
@@ -126,7 +124,7 @@ NetworkRenderer.prototype.init = function() {
 };
 
 /** @inheritDoc */
-NetworkRenderer.prototype.initLayout = function() {
+genotet.NetworkRenderer.prototype.initLayout = function() {
   // Create group elements in the svg for nodes, edges, etc.
   // Groups shall be created in the reverse order of their appearing order.
   /**
@@ -153,7 +151,7 @@ NetworkRenderer.prototype.initLayout = function() {
  * Renders the network onto the scene.
  * @override
  */
-NetworkRenderer.prototype.render = function() {
+genotet.NetworkRenderer.prototype.render = function() {
   if (!this.dataReady_()) {
     return;
   }
@@ -165,7 +163,7 @@ NetworkRenderer.prototype.render = function() {
 /**
  * Updates the network without starting force.
  */
-NetworkRenderer.prototype.update = function() {
+genotet.NetworkRenderer.prototype.update = function() {
   this.drawNetwork_();
 };
 
@@ -175,7 +173,7 @@ NetworkRenderer.prototype.update = function() {
  * This must be called after the data is prepared (nodes in edge objects are
  * replaced by node references.
  */
-NetworkRenderer.prototype.updateVisibility = function() {
+genotet.NetworkRenderer.prototype.updateVisibility = function() {
   for (var id in this.edges_) {
     var edge = this.edges_[id];
     edge.visible = true;
@@ -192,7 +190,7 @@ NetworkRenderer.prototype.updateVisibility = function() {
  * Prepares the network data and renders the network.
  * @override
  */
-NetworkRenderer.prototype.dataLoaded = function() {
+genotet.NetworkRenderer.prototype.dataLoaded = function() {
   this.prepareData_();
   this.render();
 };
@@ -201,8 +199,8 @@ NetworkRenderer.prototype.dataLoaded = function() {
  * Re-renders the scene upon resize.
  * @override
  */
-NetworkRenderer.prototype.resize = function() {
-  NetworkRenderer.base.resize.call(this);
+genotet.NetworkRenderer.prototype.resize = function() {
+  this.base.resize.call(this);
   this.render();
 };
 
@@ -210,12 +208,12 @@ NetworkRenderer.prototype.resize = function() {
  * Handles mouse zoom event.
  * @private
  */
-NetworkRenderer.prototype.zoomHandler_ = function() {
+genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
   var translate = d3.event.translate;
   var scale = d3.event.scale;
 
   this.canvas.selectAll('.render-group')
-    .attr('transform', Utils.getTransform(translate, scale));
+    .attr('transform', genotet.utils.getTransform(translate, scale));
 
   this.zoomTranslate_ = translate;
   this.zoomScale_ = scale;
@@ -227,7 +225,7 @@ NetworkRenderer.prototype.zoomHandler_ = function() {
  * Checks whether the data has been loaded.
  * @private
  */
-NetworkRenderer.prototype.dataReady_ = function() {
+genotet.NetworkRenderer.prototype.dataReady_ = function() {
   return this.data.nodes;
 };
 
@@ -236,10 +234,10 @@ NetworkRenderer.prototype.dataReady_ = function() {
  * Prepares necessary things for rendering the data, e.g. color scale.
  * @private
  */
-NetworkRenderer.prototype.prepareData_ = function() {
+genotet.NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
     .domain([this.data.weightMin, this.data.weightMax])
-    .range(Data.redBlueScale);
+    .range(genotet.data.redBlueScale);
 
   // Store which nodes exist in the new data.
   // The nodes belong to both old and new data shall not be assigned
@@ -260,7 +258,8 @@ NetworkRenderer.prototype.prepareData_ = function() {
   this.edges_ = {};
   this.data.edges.forEach(function(edge) {
     if (!this.nodes_[edge.source] || !this.nodes_[edge.target]) {
-      Core.error('edge contains nodes that do not exist', JSON.stringify(edge));
+      genotet.error('edge contains nodes that do not exist',
+          JSON.stringify(edge));
       this.showFailure();
     }
     if (!this.edges_[edge.id]) {
@@ -298,7 +297,7 @@ NetworkRenderer.prototype.prepareData_ = function() {
  * so that existing objects get only updated.
  * @private
  */
-NetworkRenderer.prototype.drawNetwork_ = function() {
+genotet.NetworkRenderer.prototype.drawNetwork_ = function() {
   this.drawNodes_();
   this.drawEdges_();
 };
@@ -307,7 +306,7 @@ NetworkRenderer.prototype.drawNetwork_ = function() {
  * Renders the network nodes.
  * @private
  */
-NetworkRenderer.prototype.drawNodes_ = function() {
+genotet.NetworkRenderer.prototype.drawNodes_ = function() {
   var genesRegular = [];
   var genesTF = [];
   $.each(this.nodes_, function(id, node) {
@@ -384,7 +383,7 @@ NetworkRenderer.prototype.drawNodes_ = function() {
  * when options.showLabels is set.
  * @private
  */
-NetworkRenderer.prototype.drawNodeLabels_ = function() {
+genotet.NetworkRenderer.prototype.drawNodeLabels_ = function() {
   if (!this.data.options.showLabels) {
     this.svgNodeLabels_.selectAll('*').remove();
     return;
@@ -415,7 +414,7 @@ NetworkRenderer.prototype.drawNodeLabels_ = function() {
  * Renders the network edges.
  * @private
  */
-NetworkRenderer.prototype.drawEdges_ = function() {
+genotet.NetworkRenderer.prototype.drawEdges_ = function() {
   // Use color to encode edge weight.
   var getEdgeColor = function(edge) {
     return this.colorScale_(edge.weight);
@@ -424,13 +423,13 @@ NetworkRenderer.prototype.drawEdges_ = function() {
   // Create a shifted point around the middle of the edge to be the control
   // point of the edge's curve.
   var getShiftPoint = function(ps, pt) {
-    var m = Utils.middlePoint(ps, pt);
-    var d = Utils.subtractVector(ps, pt);
-    d = Utils.perpendicularVector(d);
-    d = Utils.normalizeVector(d);
-    d = Utils.multiplyVector(d, Utils.vectorDistance(ps, pt) *
+    var m = genotet.utils.middlePoint(ps, pt);
+    var d = genotet.utils.subtractVector(ps, pt);
+    d = genotet.utils.perpendicularVector(d);
+    d = genotet.utils.normalizeVector(d);
+    d = genotet.utils.multiplyVector(d, genotet.utils.vectorDistance(ps, pt) *
       this.EDGE_CURVE_SHIFT);
-    return Utils.addVector(m, d);
+    return genotet.utils.addVector(m, d);
   }.bind(this);
 
   var gs = this.svgEdges_.selectAll('g')
@@ -476,11 +475,15 @@ NetworkRenderer.prototype.drawEdges_ = function() {
   // Create a stroke that looks like an arrow.
   var getArrowPoints = function(ps, pt) {
     var pm = getShiftPoint(ps, pt);
-    var ds = Utils.normalizeVector(Utils.subtractVector(ps, pt));
-    var dm = Utils.normalizeVector(Utils.subtractVector(pm, pt));
-    var p1 = Utils.addVector(pt, Utils.multiplyVector(dm, this.NODE_SIZE));
-    var p2 = Utils.addVector(p1, Utils.multiplyVector(ds, this.EDGE_ARROW_LENGTH));
-    var p3 = Utils.mirrorPoint(p2, p1, pm, 1);
+    var ds = genotet.utils.normalizeVector(
+        genotet.utils.subtractVector(ps, pt));
+    var dm = genotet.utils.normalizeVector(
+        genotet.utils.subtractVector(pm, pt));
+    var p1 = genotet.utils.addVector(pt,
+        genotet.utils.multiplyVector(dm, this.NODE_SIZE));
+    var p2 = genotet.utils.addVector(p1,
+        genotet.utils.multiplyVector(ds, this.EDGE_ARROW_LENGTH));
+    var p3 = genotet.utils.mirrorPoint(p2, p1, pm, 1);
     return [p1, p2, p3];
   }.bind(this);
 
@@ -501,7 +504,7 @@ NetworkRenderer.prototype.drawEdges_ = function() {
  * Selects a node to highlight it.
  * @param {!Object} node Node selected.
  */
-NetworkRenderer.prototype.selectNode = function(node) {
+genotet.NetworkRenderer.prototype.selectNode = function(node) {
   this.data.nodeSelected = node;
   var idSelected = node.id;
   this.svgNodes_.selectAll('rect, circle')
@@ -514,7 +517,7 @@ NetworkRenderer.prototype.selectNode = function(node) {
  * Selects an edge to highlight it.
  * @param {!Object} edge Edge selected.
  */
-NetworkRenderer.prototype.selectEdge = function(edge) {
+genotet.NetworkRenderer.prototype.selectEdge = function(edge) {
   this.data.edgeSelected = edge;
   var idSelected = edge.id;
   this.svgEdges_.selectAll('g')
@@ -524,7 +527,7 @@ NetworkRenderer.prototype.selectEdge = function(edge) {
 };
 
 /*
-NetworkRenderer.prototype.nodeDragStart = function(d) {
+genotet.NetworkRenderer.prototype.nodeDragStart = function(d) {
   //if(manager.ctrlDown) return;
   this.dragstartX = d3.event.sourceEvent.offsetX;
   this.dragstartY = d3.event.sourceEvent.offsetY;
@@ -534,7 +537,7 @@ NetworkRenderer.prototype.nodeDragStart = function(d) {
   this.dragging = true;
 };
 
-NetworkRenderer.prototype.nodeDrag = function(d) {
+genotet.NetworkRenderer.prototype.nodeDrag = function(d) {
   var layout = this;
 
   d.x = (d3.event.x - this.trans[0]) / this.scale;
@@ -604,7 +607,7 @@ NetworkRenderer.prototype.nodeDrag = function(d) {
   }
 };
 
-NetworkRenderer.prototype.nodeDragEnd = function(d) {
+genotet.NetworkRenderer.prototype.nodeDragEnd = function(d) {
   this.dragendX = d3.event.sourceEvent.offsetX;
   this.dragendY = d3.event.sourceEvent.offsetY;
 
@@ -623,7 +626,7 @@ NetworkRenderer.prototype.nodeDragEnd = function(d) {
   }
 };
 
-NetworkRenderer.prototype.mouseDownNode = function(d) {
+genotet.NetworkRenderer.prototype.mouseDownNode = function(d) {
   if (d3.event.button == 2) // right click
   {
     delete this.data.visibleNodes[d.id];  // hide the node
@@ -637,7 +640,7 @@ NetworkRenderer.prototype.mouseDownNode = function(d) {
   }
 };
 
-NetworkRenderer.prototype.mouseDownLink = function(d) {
+genotet.NetworkRenderer.prototype.mouseDownLink = function(d) {
   if (d3.event.button == 2) // right click
   {
     delete this.data.visibleLinks[d.id];  // hide the edge
@@ -646,7 +649,7 @@ NetworkRenderer.prototype.mouseDownLink = function(d) {
   }
 };
 
-NetworkRenderer.prototype.highlightLink = function(d) {
+genotet.NetworkRenderer.prototype.highlightLink = function(d) {
   if (this.dragging || this.zooming) return;
 
   this.visualizeElement({'content': d, 'type': 'link'}, 'highlight');
@@ -658,13 +661,13 @@ NetworkRenderer.prototype.highlightLink = function(d) {
   this.svg.select('#graphinfo').text(info);
 };
 
-NetworkRenderer.prototype.unhighlightLink = function(d) {
+genotet.NetworkRenderer.prototype.unhighlightLink = function(d) {
     var layout = this;
 
   this.visualizeElement(null, 'highlight');
 };
 
-NetworkRenderer.prototype.highlightNode = function(d) {
+genotet.NetworkRenderer.prototype.highlightNode = function(d) {
   if (this.dragging || this.zooming) return;
 
   this.visualizeElement({'content': d, 'type': 'node'}, 'highlight');
@@ -676,28 +679,28 @@ NetworkRenderer.prototype.highlightNode = function(d) {
   //this.svg.select("#v"+d.id).attr("class", "node_hl");
 };
 
-NetworkRenderer.prototype.unhighlightNode = function(d) {
+genotet.NetworkRenderer.prototype.unhighlightNode = function(d) {
   if (this.dragging) return;
   this.visualizeElement(null, 'highlight');
   this.svg.select('#lbl_v'+ d.id).attr('visibility', this.showLabel ? 'visible': 'hidden');
   //this.svg.select("#v"+d.id).attr("class", "node");
 };
 
-NetworkRenderer.prototype.selectNode = function(d) {
+genotet.NetworkRenderer.prototype.selectNode = function(d) {
   if (this.dragging || this.zooming) return;
   if (this.blockclick) { this.blockclick = false; return; }
 
   this.visualizeElement({'content': d, 'type': 'node'}, 'select');
 };
 
-NetworkRenderer.prototype.selectLink = function(d) {
+genotet.NetworkRenderer.prototype.selectLink = function(d) {
   if (this.dragging || this.zooming) return;
   if (this.blockclick) { this.blockclick = false; return; }
 
   this.visualizeElement({'content': d, 'type': 'link'}, 'select');
 };
 
-NetworkRenderer.prototype.toggleForce = function() {
+genotet.NetworkRenderer.prototype.toggleForce = function() {
   if (this.forcing) this.force.stop();
   else this.force.resume();
   this.forcing = !this.forcing;
