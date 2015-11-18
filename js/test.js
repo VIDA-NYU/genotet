@@ -17,7 +17,7 @@ genotet.test.run = function() {
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
     matrixName: 'rna-seq',
     geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
-    condRegex: '.*'
+    condRegex: 'SL134.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     gene: 'BATF',
