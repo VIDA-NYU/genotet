@@ -101,7 +101,7 @@ genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName, conditionNam
     .text(conditionName);
 };
 
-genotet.ExpressionPanel.prototype.hideEdgeInfo_ = function() {
+genotet.ExpressionPanel.prototype.hideCellInfo_ = function() {
   this.container_.find('#cell-info').slideUp();
 };
 
@@ -115,7 +115,7 @@ genotet.ExpressionPanel.prototype.displayCellInfo = function(cell, geneName, con
   var info = this.container_.find('#cell-info').hide().slideDown();
   this.setCellInfo_(geneName, conditionName, info);
   info.find('.close').click(function() {
-    this.hideEdgeInfo_();
+    this.hideCellInfo_();
   }.bind(this));
 };
 
