@@ -127,6 +127,12 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
   this.svgHeatmapContent_ = this.svgHeatmap_.append('g')
     .classed('content', true);
   /**
+   * SVG group for the heatmap tooltip.
+   * @private {!d3.selection}
+   */
+  this.svgHeatmapTooltip_ = this.svgHeatmap_.append('g')
+    .classed('tooltip', true);
+  /**
    * SVG group for the heatmap gene (row) labels.
    * @private {!d3.selection}
    */
@@ -208,7 +214,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var heatmapData = this.data.matrix;
   var cellWidth = this.heatmapWidth_ / heatmapData.conditionNames.length;
   var cellHeight = this.heatmapHeight_ / heatmapData.geneNames.length;
-  console.log(heatmapData);
+  //console.log(heatmapData);
   var colorScale = d3.scale.linear()
     .domain([heatmapData.valueMin, heatmapData.valueMax])
     .range(genotet.data.redYellowScale);
@@ -237,7 +243,33 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     })
     .style('fill', function(d) {
       return colorScale(d);
-    });
+    })
+    .on('mouseover', function(d, i, j) {
+      var hoverCell = d3.event.target;
+      this.signal(
+        'cellHover',
+        [
+          hoverCell,
+          heatmapData.geneNames[j],
+          heatmapData.conditionNames[i]
+        ]
+      );
+    }.bind(this))
+    .on('mouseout', function(d) {
+      var hoverCell = d3.event.target;
+      this.signal('cellUnhover', [hoverCell, colorScale(d)]);
+    }.bind(this))
+    .on('click', function(d, i , j) {
+      var hoverCell = d3.event.target;
+      this.signal(
+        'cellClick',
+        [
+          hoverCell,
+          heatmapData.geneNames[j],
+          heatmapData.conditionNames[i]
+        ]
+      );
+    }.bind(this));
   cells.exit().remove();
 };
 
@@ -286,7 +318,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   labels.enter().append('text')
     .attr('transform', genotet.utils.getTransform([
       this.textHeight_ / 2 + cellWidth / 2,
-      this.conditionLabelHeight_ - this.labelMargin_
+      this.conditionLabelHeight_ + this.profileHeight_ - this.labelMargin_
     ], 1, -90))
     .classed('condition-label', true);
   labels.exit().remove();

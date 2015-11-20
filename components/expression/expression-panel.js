@@ -93,6 +93,32 @@ genotet.ExpressionPanel.prototype.updateGenes = function(genes) {
   });
 };
 
+genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName, conditionName, container) {
+  container.html(this.container_.find('#cell-info-template').html());
+  container.children('#gene').children('span')
+    .text(geneName);
+  container.children('#condition').children('span')
+    .text(conditionName);
+};
+
+genotet.ExpressionPanel.prototype.hideEdgeInfo_ = function() {
+  this.container_.find('#cell-info').slideUp();
+};
+
+genotet.ExpressionPanel.prototype.tooltipHeatmap = function(geneName, conditionName) {
+  var tooltip = genotet.tooltip.new();
+  this.setCellInfo_(geneName, conditionName, tooltip)
+  tooltip.find('.close').remove();
+};
+
+genotet.ExpressionPanel.prototype.displayCellInfo = function(cell, geneName, conditionName) {
+  var info = this.container_.find('#cell-info').hide().slideDown();
+  this.setCellInfo_(geneName, conditionName, info);
+  info.find('.close').click(function() {
+    this.hideEdgeInfo_();
+  }.bind(this));
+};
+
 /*
 $('#'+ this.htmlid + ' #labelrow').attr('checked', this.labelrows).change(function() { return layout.toggleLabelrows(); });
 $('#'+ this.htmlid + ' #labelcol').attr('checked', this.labelcols).change(function() { return layout.toggleLablecols(); });

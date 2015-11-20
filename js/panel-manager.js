@@ -116,7 +116,7 @@ genotet.panelManager.addPanel = function(view) {
     var clickedTabID = $(event.target).parent().attr('id');
     var clickedViewID = clickedTabID.replace('panel-tab-', '');
     var clickedViewName = clickedViewID.replace(/\-/g, ' ');
-    var clickedView = ViewManager.views[clickedViewName];
+    var clickedView = genotet.viewManager.views[clickedViewName];
     $('#main div.focused').removeClass('focused');
     clickedView.focus(this.sendSignal_);
     this.activatePanel_(clickedViewID);

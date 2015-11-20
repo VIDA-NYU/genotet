@@ -30,6 +30,24 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
   }.bind(this));
+
+  $(this.renderer)
+    .on('genotet.cellHover', function(event, data) {
+      var cellSelection = d3.select(data[0]);
+      cellSelection.style('stroke', 'white');
+      this.panel.tooltipHeatmap(data[1], data[2]);
+    }.bind(this))
+    .on('genotet.cellUnhover', function(event, data) {
+      var cellSelection = d3.select(data[0]);
+      cellSelection.style('stroke', function() {
+        return data[1];
+      });
+      genotet.tooltip.hideAll();
+    }.bind(this))
+    .on('genotet.cellClick', function(event, data) {
+      var cellSelection = d3.select(data[0]);
+      this.panel.displayCellInfo(cellSelection, data[1], data[2]);
+    }.bind(this));
 };
 
 genotet.utils.inherit(genotet.ExpressionView, genotet.View);

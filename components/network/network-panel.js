@@ -177,7 +177,7 @@ genotet.NetworkPanel.prototype.displayEdgeInfo = function(edge) {
  * @param {!Object} node Node being hovered.
  */
 genotet.NetworkPanel.prototype.tooltipNode = function(node) {
-  var tooltip = genotet.tooltip.new();+
+  var tooltip = genotet.tooltip.new();
   this.setNodeInfo_(node, tooltip);
   // Tooltip cannot be interacted with, thus link is not shown.
   tooltip.find('#subtiwiki, .close').remove();

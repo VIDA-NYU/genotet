@@ -1,3 +1,9 @@
+.panel.expression .box {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
 /*
 .expression .polyline {
   stroke-opacity: .75;
