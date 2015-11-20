@@ -6,6 +6,9 @@
 
 var utils = require('./utils');
 
+var fs = require('fs');
+var rl = require('readline');
+
 module.exports = {
   /**
    * Reads the entire network data from the buffer.
@@ -211,7 +214,7 @@ module.exports = {
       if (!stat.isDirectory) {
         if (files[i].indexOf('.txt') != -1) {
           var fname = files[i].substr(0, files[i].length - 4);
-          var description;
+          var description = "";
           var fd = fs.openSync(folder + files[i]);
           fs.readSync(fd, description);
           ret.push({
@@ -221,6 +224,32 @@ module.exports = {
         }
       }
     }
+    return ret;
+  },
+
+  /**
+   * Read network from a .tsv file
+   * @param {string} networkFile path to the .tsv network file
+   * @return {Array} array of each edge and its weights
+   */
+  readNetwork: function(networkFile) {
+    var lines = rl.createInterface({
+      input: fs.createReadStream(networkFile),
+      terminal: false
+    });
+    var ret = [];
+    lines.on('line', function(line) {
+      var parts = line.split('\t');
+      var numbers = [];
+      for (var i = 2; i < parts.length; i++) {
+        numbers.push(parseFloat(parts[i]));
+      }
+      ret.push({
+        regular: parts[0],
+        target: parts[1],
+        values: numbers
+      });
+    });
     return ret;
   }
 };

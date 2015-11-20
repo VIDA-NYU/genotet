@@ -7,6 +7,7 @@
 var utils = require('./utils');
 
 var fs = require('fs');
+var rl = require('readline');
 
 module.exports = {
   /**
@@ -263,6 +264,40 @@ module.exports = {
         }
       }
     }
+    return ret;
+  },
+
+  /**
+   * Read expression matrix from text file
+   * @param {string} expressionFile path to the expression file
+   * @returns {Array} the expression matrix
+   */
+  readExpression: function(expressionFile) {
+    var lines = rl.createInterface({
+      input: fs.createReadStream(expressionFile),
+      terminal: false
+    });
+    var ret = [];
+    var isFirstCol = true;
+    lines.on('line', function(line) {
+      var parts = line.split('\t');
+      var tmpLine = [];
+      if (isFirstCol) {
+        isFirstCol = false;
+        for (var i = 0; i < parts.length; i++) {
+          tmpLine.push(parts[i]);
+        }
+      } else {
+        for (var i = 0; i < parts.length; i++) {
+          if (i == 0) {
+            tmpLine.push(parts[i]);
+          } else {
+            tmpLine.push(parseFloat(parts[i]));
+          }
+        }
+      }
+      ret.push(tmpLine);
+    });
     return ret;
   }
 };
