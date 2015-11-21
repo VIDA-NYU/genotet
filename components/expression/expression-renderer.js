@@ -387,14 +387,12 @@ genotet.ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
       return s.length;
     }));
     this.geneLabelWidth_ *= this.GENE_LABEL_HEIGHT_FACTOR_;
-    //this.geneLabelWidth_ += this.LABEL_MARGIN_;
   }
   if (this.data.options.showConditionLabels) {
     this.conditionLabelHeight_ = d3.max(conditionLabelsData.map(function(s) {
       return s.length;
     }));
     this.conditionLabelHeight_ *= this.CONDITION_LABEL_HEIGHT_FACTOR_;
-    //this.conditionLabelHeight_ += this.LABEL_MARGIN_;
   }
 };
 

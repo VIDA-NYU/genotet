@@ -92,7 +92,7 @@ genotet.panelManager.activatePanel_ = function(viewID) {
  * @param {string} viewName Name of the view.
  */
 genotet.panelManager.addPanel = function(view) {
-  var viewID = view.name().replace(/\s/g, '-');
+  var viewID = view.viewID_;
   var tabID = 'panel-tab-' + viewID;
   var tabContentID = 'panel-view-' + viewID;
   $('#panel-tab-init').clone()
@@ -105,19 +105,21 @@ genotet.panelManager.addPanel = function(view) {
     .attr('id', tabContentID)
     .appendTo('.tab-content');
   $(view).on('genotet.focus', function() {
-    var clickedViewID = view.name().replace(/\s/g, '-');
+    var clickedViewID = view.viewID_;
     this.activatePanel_(clickedViewID);
   }.bind(this));
+
+  // Remove the click event handler to avoid multiple executions.
   $('.sideways li a').off().click(function(event) {
+    event.stopPropagation();
     if (!this.showPanel_) {
       this.togglePanel_();
     }
-    event.stopPropagation();
     var clickedTabID = $(event.target).parent().attr('id');
     var clickedViewID = clickedTabID.replace('panel-tab-', '');
     var clickedViewName = clickedViewID.replace(/\-/g, ' ');
     var clickedView = genotet.viewManager.views[clickedViewName];
-    $('#main div.focused').removeClass('focused');
+    genotet.viewManager.blurAllViews();
     clickedView.focus(this.sendSignal_);
     this.activatePanel_(clickedViewID);
   }.bind(this));
@@ -126,7 +128,7 @@ genotet.panelManager.addPanel = function(view) {
     this.togglePanel_();
   }
   this.activatePanel_(viewID);
-  $('#main div.focused').removeClass('focused');
+  genotet.viewManager.blurAllViews();
   view.focus(this.sendSignal_);
 
 var container = $('#panel-view-' + viewID);
@@ -153,7 +155,7 @@ genotet.panelManager.removePanel = function(viewName) {
     // One is the hidden template to be cloned.
     this.container_.hide();
   }
-},
+};
 
 /**
  * Closes all panels.

@@ -21,6 +21,9 @@ genotet.View = function(viewName) {
   this.viewName_ = viewName;
 
   /** @private {string} */
+  this.viewID_ = viewName.replace(/\s/g, '-');
+
+  /** @private {string} */
   this.headerText_ = '';
 
   /** @private {boolean} */
