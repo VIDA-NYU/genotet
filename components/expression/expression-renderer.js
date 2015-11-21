@@ -238,8 +238,6 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var heatmapRects = heatmapRows.selectAll('.rect')
     .data(_.identity)
     .enter().append('rect')
-    .attr('width', cellWidth)
-    .attr('height', cellHeight)
     .style('stroke', function(value) {
       return colorScale(value);
     })
@@ -274,6 +272,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     }.bind(this));
   cells.exit().remove();
   heatmapRects
+    .attr('width', cellWidth)
+    .attr('height', cellHeight)
     .attr('x', function(value, i) {
       return i * cellWidth;
     })
