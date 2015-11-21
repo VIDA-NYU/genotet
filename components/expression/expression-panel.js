@@ -93,6 +93,13 @@ genotet.ExpressionPanel.prototype.updateGenes = function(genes) {
   });
 };
 
+/**
+ * Adds the cell info into a given container.
+ * @param {!String} geneName Gene name of which info is to be displayed.
+ * @param {!String} conditionName Condition name of which info is to be displayed.
+ * @param {!jQuery} container Info container.
+ * @private
+ */
 genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName, conditionName, container) {
   container.html(this.container_.find('#cell-info-template').html());
   container.children('#gene').children('span')
@@ -101,23 +108,39 @@ genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName, conditionNam
     .text(conditionName);
 };
 
+/**
+ * Hides all info boxes.
+ * @private
+ */
 genotet.ExpressionPanel.prototype.hideCellInfo_ = function() {
   this.container_.find('#cell-info').slideUp();
 };
 
+/**
+ * Displays a tooltip around cursor about a hovered cell.
+ * @param {!String} geneName Gene Name being hovered.
+ * @param {!String} conditionName Condition Name being hovered.
+ */
 genotet.ExpressionPanel.prototype.tooltipHeatmap = function(geneName, conditionName) {
   var tooltip = genotet.tooltip.new();
   this.setCellInfo_(geneName, conditionName, tooltip)
   tooltip.find('.close').remove();
 };
 
-genotet.ExpressionPanel.prototype.displayCellInfo = function(cell, geneName, conditionName) {
+/**
+ * Displays the info box for expression cell.
+ * @param {!String} geneName Gene Name of which the info is to be displayed.
+ * @param {!String} conditionName Condition Name of which the info is to be displayed.
+ */
+genotet.ExpressionPanel.prototype.displayCellInfo = function(geneName, conditionName) {
   var info = this.container_.find('#cell-info').hide().slideDown();
   this.setCellInfo_(geneName, conditionName, info);
   info.find('.close').click(function() {
     this.hideCellInfo_();
   }.bind(this));
 };
+
+
 
 /*
 $('#'+ this.htmlid + ' #labelrow').attr('checked', this.labelrows).change(function() { return layout.toggleLabelrows(); });

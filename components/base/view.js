@@ -145,6 +145,7 @@ genotet.View.prototype.headerText = function(headerText) {
 
 /**
  * Makes the view appear focused.
+ * @param {?string} flag of sending signal.
  */
 genotet.View.prototype.focus = function(sendSignal) {
   this.container.addClass('focused');

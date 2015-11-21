@@ -30,21 +30,3 @@
 .view.network .nodes *:hover {
   stroke-width: 4px;
 }
-
-.panel.network .box label {
-  margin-right: 5px;
-}
-
-.panel.network .box {
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  padding: 10px;
-}
-
-.panel.network #edge-list {
-  font-size: .9em;
-}
-
-.panel.network #edge-list .pagination > li > a {
-  padding: 6px;
-}

@@ -31,22 +31,18 @@ genotet.ExpressionView = function(viewName, params) {
     this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
   }.bind(this));
 
+  // Cell hover in expression.
   $(this.renderer)
-    .on('genotet.cellHover', function(event, data) {
-      var cellSelection = d3.select(data[0]);
-      cellSelection.style('stroke', 'white');
-      this.panel.tooltipHeatmap(data[1], data[2]);
+    .on('genotet.cellHover', function(event, cell) {
+      this.renderer.highlightHoverCell_(cell, true);
+      this.panel.tooltipHeatmap(cell.geneName, cell.conditionName);
     }.bind(this))
-    .on('genotet.cellUnhover', function(event, data) {
-      var cellSelection = d3.select(data[0]);
-      cellSelection.style('stroke', function() {
-        return data[1];
-      });
+    .on('genotet.cellUnhover', function(event, cell) {
+      this.renderer.highlightHoverCell_(cell, false);
       genotet.tooltip.hideAll();
     }.bind(this))
-    .on('genotet.cellClick', function(event, data) {
-      var cellSelection = d3.select(data[0]);
-      this.panel.displayCellInfo(cellSelection, data[1], data[2]);
+    .on('genotet.cellClick', function(event, cell) {
+      this.panel.displayCellInfo(cell.geneName, cell.conditionName);
     }.bind(this));
 };
 
