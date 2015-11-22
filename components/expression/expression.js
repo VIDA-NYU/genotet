@@ -31,6 +31,25 @@ genotet.ExpressionView = function(viewName, params) {
     this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
   }.bind(this));
 
+  // Set up rendering update.
+  $(this.panel).on('genotet.update', function(event, data) {
+    switch(data.type) {
+      case 'label':
+        this.renderer.update();
+        break;
+      // TODO(Liana): Implement this...
+      //case 'visibility':
+      //  this.renderer.updateVisibility();
+      //  this.renderer.update();
+      //  break;
+      //case 'auto-scale':
+      //  this.loader.updateGenes(data.method, data.regex);
+      //  break;
+      default:
+        genotet.error('unknown update type', data.type);
+    }
+  }.bind(this));
+
   // Cell hover in expression.
   $(this.renderer)
     .on('genotet.cellHover', function(event, cell) {

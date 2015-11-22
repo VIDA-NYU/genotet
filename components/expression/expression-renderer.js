@@ -65,12 +65,6 @@ genotet.ExpressionRenderer = function(container, data) {
   this.TEXT_HEIGHT_ = 14.5;
 
   /**
-   * The top margin of the gene labels.
-   * @private {number}
-   */
-  this.TOP_MARGIN_ = 12;
-
-  /**
    * Height of the gene profile plot.
    * This value will be zero when profiles are not shown.
    * @private {number}
@@ -165,10 +159,22 @@ genotet.ExpressionRenderer.prototype.layout = function() {
   this.svgHeatmap_
     .attr('transform', genotet.utils.getTransform([0, this.profileHeight_]));
 
-  this.heatmapWidth_ = this.canvasWidth_ - this.geneLabelWidth_ -
-    this.LABEL_MARGIN_;
-  this.heatmapHeight_ = this.canvasHeight_ - this.profileHeight_ -
-    this.conditionLabelHeight_ - this.LABEL_MARGIN_;
+  if (this.data.options.showGeneLabels) {
+    this.heatmapWidth_ = this.canvasWidth_ - this.geneLabelWidth_ -
+      this.LABEL_MARGIN_;
+  }
+  else {
+    this.heatmapWidth_ = this.canvasWidth_ - this.geneLabelWidth_;
+  }
+
+  if (this.data.options.showConditionLabels) {
+    this.heatmapHeight_ = this.canvasHeight_ - this.profileHeight_ -
+      this.conditionLabelHeight_ - this.LABEL_MARGIN_;
+  }
+  else {
+    this.heatmapHeight_ = this.canvasHeight_ - this.profileHeight_ -
+      this.conditionLabelHeight_;
+  }
 
   this.svgHeatmapContent_
     .attr('transform', genotet.utils.getTransform([
@@ -206,6 +212,30 @@ genotet.ExpressionRenderer.prototype.render = function() {
 };
 
 /**
+ * Updates the expression without starting force.
+ */
+genotet.ExpressionRenderer.prototype.update = function() {
+  this.render();
+};
+
+/**
+ * Updates the visibility of cells.
+ * This must be called after the data is prepared.
+ */
+//genotet.ExpressionRenderer.prototype.updateVisibility = function() {
+//  for (var id in this.edges_) {
+//    var edge = this.edges_[id];
+//    edge.visible = true;
+//    if (edge.source.isTF) {
+//      if (edge.target.isTF && !this.data.options.showTFToTF ||
+//        !edge.target.isTF && !this.data.options.showTFToNonTF) {
+//        edge.visible = false;
+//      }
+//    }
+//  }
+//};
+
+/**
  * Renders the expression matrix onto the scene.
  * @private
  */
@@ -226,24 +256,23 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var colorScale = d3.scale.linear()
     .domain([heatmapData.valueMin, heatmapData.valueMax])
     .range(genotet.data.redYellowScale);
+  var transformLeft = 0;
+  var transformTop = this.conditionLabelHeight_ + this.profileHeight_;
+  if (this.data.options.showGeneLabels) {
+    transformLeft += this.LABEL_MARGIN_;
+  }
+  if (this.data.options.showConditionLabels) {
+    transformTop += this.LABEL_MARGIN_;
+  }
 
   this.svgHeatmapContent_.selectAll('g').remove();
   var cells = this.svgHeatmapContent_.selectAll('rect.cell').data(heatmapData.values);
-  var heatmapRows = cells.enter().append('g')
-    .attr("transform", genotet.utils.getTransform([
-      this.LABEL_MARGIN_,
-      this.conditionLabelHeight_ + this.profileHeight_ + this.LABEL_MARGIN_
-    ]));
+  var heatmapRows = cells.enter().append('g');
   cells.exit().remove();
+  heatmapRows.attr("transform", genotet.utils.getTransform([transformLeft, transformTop]));
   var heatmapRects = heatmapRows.selectAll('.rect')
     .data(_.identity)
     .enter().append('rect')
-    .style('stroke', function(value) {
-      return colorScale(value);
-    })
-    .style('fill', function(value) {
-      return colorScale(value);
-    })
     .on('mouseover', function(value, i, j) {
       var hoverCell = d3.event.target;
       var cell = this.cell_ = {
@@ -279,6 +308,12 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     })
     .attr('y', function(velue, i, j) {
       return j * cellHeight;
+    })
+    .style('stroke', function(value) {
+      return colorScale(value);
+    })
+    .style('fill', function(value) {
+      return colorScale(value);
     });
 };
 
@@ -294,16 +329,20 @@ genotet.ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
   var heatmapData = this.data.matrix;
   var geneLabelsData = heatmapData.geneNames;
   var cellHeight = this.heatmapHeight_ / geneLabelsData.length;
+  var transformTop = this.profileHeight_ + this.TEXT_HEIGHT_ / 2 + cellHeight / 2;
+  if (this.data.options.showConditionLabels) {
+    transformTop += this.conditionLabelHeight_ + this.LABEL_MARGIN_;
+  }
+
   var labels = this.svgGeneLabels_.selectAll('text').data(geneLabelsData);
   labels.enter().append('text')
-    .attr("transform", genotet.utils.getTransform([
-      this.geneLabelWidth_,
-      this.conditionLabelHeight_ + this.profileHeight_ +
-        this.TOP_MARGIN_ + this.LABEL_MARGIN_ + cellHeight / 2
-    ]))
     .classed('gene-label', true);
   labels.exit().remove();
   labels
+    .attr("transform", genotet.utils.getTransform([
+      this.geneLabelWidth_,
+      transformTop
+    ]))
     .text(_.identity)
     .attr('x', 0)
     .attr('y', function(geneName, i){
@@ -324,15 +363,20 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   var heatmapData = this.data.matrix;
   var conditionLabelsData = heatmapData.conditionNames;
   var cellWidth = this.heatmapWidth_ / conditionLabelsData.length;
+  var transformLeft = this.TEXT_HEIGHT_ / 2 + cellWidth / 2;
+  if (this.data.options.showGeneLabels) {
+    transformLeft += this.LABEL_MARGIN_;
+  }
+
   var labels = this.svgConditionLabels_.selectAll('text').data(conditionLabelsData);
   labels.enter().append('text')
-    .attr('transform', genotet.utils.getTransform([
-      this.LABEL_MARGIN_ + this.TEXT_HEIGHT_ / 2 + cellWidth / 2,
-      this.conditionLabelHeight_ + this.profileHeight_
-    ], 1, -90))
     .classed('condition-label', true);
   labels.exit().remove();
   labels
+    .attr('transform', genotet.utils.getTransform([
+      transformLeft,
+      this.conditionLabelHeight_ + this.profileHeight_
+    ], 1, -90))
     .text(_.identity)
     .attr('x', 0)
     .attr('y', function(conditionName, i){
