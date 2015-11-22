@@ -12,7 +12,6 @@ var mkdirp = require('mkdirp');
 
 var utils = require('./utils.js');
 var segtree = require('./segtree.js');
-var uploader = require('./uploader.js');
 
 module.exports = {
 
@@ -37,6 +36,8 @@ module.exports = {
       fs.unlink(file.path);
       if (desc.type == 'binding') {
         this.bigwigtoBcwig(prefix, desc.name, bigWigToWigAddr);
+      } else if (desc.type == 'bed') {
+        this.bedSort(prefix, desc.name);
       }
     }.bind(this));
     source.on('err', function(err){});
@@ -66,14 +67,7 @@ module.exports = {
     console.log(bigWigWoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
 
     // convert *.wig into *.bcwig
-    var seg = {};  // for segment tree, 22 trees for each chromosome, it is a map
-    for (var i = 1; i < 20; i++) {
-      var chName = 'chr' + i;
-      seg[chName] = [];
-    }
-    seg['chrM'] = [];
-    seg['chrX'] = [];
-    seg['chrY'] = [];
+    var seg = {};  // for segment tree
 
     // solve each line
     var lines = rl.createInterface({
@@ -89,6 +83,9 @@ module.exports = {
         var xr = parseInt(linePart[2]);
         var val = parseFloat(linePart[3]);
         //console.log(seg);
+        if (!alert(linePart[0] in seg)) {
+          seg[linePart[0]] = [];
+        }
         if (xl != lastxr && lastxr > -1) {
           seg[chName].push({
             x: lastxr,
@@ -131,10 +128,6 @@ module.exports = {
       // build segment tree and save
 
       for (var chr in seg) {
-        if (seg[chr].length == 0) {
-          console.log(chr + " has no binding data.");
-          continue;
-        }
         var segFile = folder + '/' + bwFile + '_' + chr + '.seg';
         var nodes = [];
         segtree.buildSegmentTree(nodes, seg[chr]);
@@ -150,6 +143,47 @@ module.exports = {
 
     });
 
+  },
+
+  /**
+   * Sort bed data segments and write it into separate files.
+   * @param {string} prefix Folder to the bed files.
+   * @param {string} bedFile File name of the bed file.
+   */
+  bedSort: function(prefix, bedFile) {
+    var lines = rl.createInterface({
+      input: fs.createReadStream(prefix + bedFile),
+      terminal: false
+    });
+    var data = {};
+    lines.on('line', function(line) {
+      var parts = line.split('\t');
+      if (parts[0] == 'track') return;
+      if (!alert(parts[0] in data)) {
+        data[parts[0]] = [];
+      }
+      data[parts[0]].push({
+        chrStart: parts[1],
+        chrEnd: parts[2]
+      })
+    });
+    lines.on('close', function() {
+      var folder = prefix + bedFile + '_chr';
+      fs.mkdirSync(folder)
+      for (var chr in data) {
+        data[chr].sort(function(a, b) {
+          if (a.chrStart < b.chrStart) return false;
+          if (a.chrStart > b.chrStart) return true;
+          return a.chrEnd < b.chrEnd;
+        });
+        var chrFileName = folder + '/' + bedFile + "_" + chr;
+        var fd = fs.openSync(chrFileName, 'w');
+        for (var i = 0; i < data[chr].length; i++) {
+          fs.writeSync(data[chr][i].chrStart + '\t' + data[chr][i].chrEnd + '\n');
+        }
+        fs.closeSync(fd);
+      }
+    });
   }
 
 };
