@@ -1,3 +1,7 @@
+.text-highlight {
+  fill: red;
+}
+
 /*
 .expression .polyline {
   stroke-opacity: .75;

@@ -22,6 +22,8 @@ genotet.ExpressionRenderer = function(container, data) {
     container_: null,
     geneName: null,
     conditionName: null,
+    row: 0,
+    column: 0,
     value: 0,
     colorscaleValue: 0
   };
@@ -278,7 +280,9 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       var cell = this.cell_ = {
         container_: hoverCell,
         geneName: heatmapData.geneNames[j],
-        conditionName: heatmapData.conditionNames[i]
+        conditionName: heatmapData.conditionNames[i],
+        row: j,
+        column: i
       };
       this.signal('cellHover', cell);
     }.bind(this))
@@ -295,7 +299,9 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       var cell = this.cell_ = {
         container_: hoverCell,
         geneName: heatmapData.geneNames[j],
-        conditionName: heatmapData.conditionNames[i]
+        conditionName: heatmapData.conditionNames[i],
+        row: j,
+        column: i
       };
       this.signal('cellClick', cell);
     }.bind(this));
@@ -404,11 +410,19 @@ genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell, highli
   var cellSelection = d3.select(cell.container_)
   if (highlight_) {
     cellSelection.style('stroke', 'white');
+    this.svgGeneLabels_.selectAll('text').classed('text-highlight', function(d, i) {
+      return cell.row == i;
+    });
+    this.svgConditionLabels_.selectAll('text').classed('text-highlight', function(d, i) {
+      return cell.column == i;
+    });
   }
   else {
     cellSelection.style('stroke', function() {
       return cell.colorscaleValue;
     });
+    this.svgGeneLabels_.selectAll('text').classed('text-highlight', false);
+    this.svgConditionLabels_.selectAll('text').classed('text-highlight', false);
   }
 };
 
