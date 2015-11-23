@@ -4,16 +4,24 @@
 
 'use strict';
 
-var Options = {
-  allowMessage: true,
+/** @const */
+genotet.options = {};
 
-  /**
-   * Initializes the system options.
-   */
-  init: function() {
-  },
+/**
+ * Whether to allow the message bar to popup.
+ * @type {boolean}
+ */
+genotet.options.allowMessage = true;
 
-  toggleAllowMessage: function() {
-    this.allowMessage = !this.allowMessage;
-  }
+/**
+ * Initializes the system options.
+ */
+genotet.options.init = function() {
+};
+
+/**
+ * Toggles allow message option.
+ */
+genotet.options.toggleAllowMessage = function() {
+  this.allowMessage = !this.allowMessage;
 };

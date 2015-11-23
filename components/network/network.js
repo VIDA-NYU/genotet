@@ -12,22 +12,22 @@
  * @extends {View}
  * @constructor
  */
-function NetworkView(viewName, params) {
-  NetworkView.base.constructor.call(this, viewName);
+genotet.NetworkView = function(viewName, params) {
+  this.base.constructor.call(this, viewName);
 
   this.container.addClass('network');
 
   /** @protected {NetworkLoader} */
-  this.loader = new NetworkLoader(this.data);
+  this.loader = new genotet.NetworkLoader(this.data);
 
   /** @protected {NetworkPanel} */
-  this.panel = new NetworkPanel(this.data);
+  this.panel = new genotet.NetworkPanel(this.data);
 
   /** @protected {NetworkTable} */
-  this.table = new NetworkTable(this.data);
+  this.table = new genotet.NetworkTable(this.data);
 
   /** @protected {NetworkRenderer} */
-  this.renderer = new NetworkRenderer(this.container, this.data);
+  this.renderer = new genotet.NetworkRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
@@ -48,7 +48,7 @@ function NetworkView(viewName, params) {
         this.loader.updateGenes(data.method, data.regex);
         break;
       default:
-        Core.error('unknown update type', data.type);
+        genotet.error('unknown update type', data.type);
     }
   }.bind(this));
 
@@ -72,7 +72,7 @@ function NetworkView(viewName, params) {
       this.panel.tooltipNode(node);
     }.bind(this))
     .on('genotet.nodeUnhover', function(event, node) {
-      Tooltip.hideAll();
+      genotet.tooltip.hideAll();
     }.bind(this))
     .on('genotet.edgeClick', function(event, edge) {
       this.panel.displayEdgeInfo(edge);
@@ -81,10 +81,8 @@ function NetworkView(viewName, params) {
       this.panel.tooltipEdge(edge);
     }.bind(this))
     .on('genotet.edgeUnhover', function(event, edge) {
-      Tooltip.hideAll();
+      genotet.tooltip.hideAll();
     }.bind(this));
-}
+};
 
-NetworkView.prototype = Object.create(View.prototype);
-NetworkView.prototype.constructor = NetworkView;
-NetworkView.base = View.prototype;
+genotet.utils.inherit(genotet.NetworkView, genotet.View);

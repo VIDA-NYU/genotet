@@ -1,64 +1,56 @@
+/**
+ * @fileoverview Genotet menu (navbar).
+ */
+
 'use strict';
 
-var Menu = {
-  /**
-   * Initializes the system menu.
-   */
-  init: function() {
-    // View section.
-    $('#view-create').click(function() {
-      Dialog.create('create-view');
-    });
-    $('#view-closeall').click(function() {
-      ViewManager.closeAllViews();
-    });
+/** @const */
+genotet.menu = {};
 
-    // Preset section.
-    $('#preset-default').click(function() {
-      Preset.loadPreset('default');
-    });
-    $('#preset-network').click(function() {
-      Preset.loadPreset('network');
-    });
-    $('#preset-expression').click(function() {
-      Preset.loadPreset('expression');
-    });
-    $('#preset-binding').click(function() {
-      Preset.loadPreset('binding');
-    });
+/**
+ * Initializes the system menu.
+ */
+genotet.menu.init = function() {
+  // View section.
+  $('#view-create').click(function() {
+    genotet.dialog.create('create-view');
+  });
+  $('#view-closeall').click(function() {
+    genotet.viewManager.closeAllViews();
+  });
 
-    // Options section.
-    // TODO(bowen): Add system options.
-    $('#option-alert').click(function() {
-      Options.toggleAllowAlert();
-    });
+  // Preset section.
+  $('#preset-default').click(function() {
+    genotet.preset.loadPreset('default');
+  });
+  $('#preset-network').click(function() {
+    genotet.preset.loadPreset('network');
+  });
+  $('#preset-expression').click(function() {
+    genotet.preset.loadPreset('expression');
+  });
+  $('#preset-binding').click(function() {
+    genotet.preset.loadPreset('binding');
+  });
 
-    // Help document.
-    $('#help').click(function() {
-      window.open('help.html');
-    });
+  // Options section.
+  // TODO(bowen): Add system options.
+  $('#option-alert').click(function() {
+    genotet.options.toggleAllowAlert();
+  });
 
-    // Organism selection.
-    $('#organism').click(function() {
-      Dialog.create('organism');
-    });
+  // Help document.
+  $('#help').click(function() {
+    window.open('help.html');
+  });
 
-    // Upload data.
-    $('#upload').click(function() {
-      Dialog.create('upload');
-    });
+  // Organism selection.
+  $('#organism').click(function() {
+    genotet.dialog.create('organism');
+  });
 
-    /*
-    // TODO(bowen): View linking and grouping are obsolete.
-    $('#view-link').click(function() {
-      return;
-    });
-    $('#view-unlink').click(function() {
-      return;
-    });
-    $('#view-group').click(function() {
-      return;
-    });
-    */
-  }
+  // Upload data.
+  $('#upload').click(function() {
+    genotet.dialog.create('upload');
+  });
 };
