@@ -339,14 +339,18 @@ module.exports = {
 
       var buf = new Buffer(4 + nodes.length * 4);
       buf.writeInt32LE(nodes.length, 0);
-      for (var i = 0, offset = 4; i < nodes.length; i++, offset += 4) buf.writeFloatLE(nodes[i], offset);
+      for (var i = 0, offset = 4; i < nodes.length; i++, offset += 4) {
+        buf.writeFloatLE(nodes[i], offset);
+      }
       var fd = fs.openSync(segfile, 'w');
       fs.writeSync(fd, buf, 0, offset, 0);
       console.log('SegmentTree written');
-    }else {
+    } else {
       var num = buf.readInt32LE(0);
       var nodes = [];
-      for (var i = 0, offset = 4; i < num; i++, offset += 4) nodes.push(buf.readFloatLE(offset));
+      for (var i = 0, offset = 4; i < num; i++, offset += 4) {
+        nodes.push(buf.readFloatLE(offset));
+      }
       cache.nodes = nodes;
       console.log('SegmentTree read');
     }
