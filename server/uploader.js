@@ -83,7 +83,7 @@ module.exports = {
         var xr = parseInt(linePart[2]);
         var val = parseFloat(linePart[3]);
         //console.log(seg);
-        if (!alert(linePart[0] in seg)) {
+        if (!seg.hasOwnProperty(linePart[0])) {
           seg[linePart[0]] = [];
         }
         if (xl != lastxr && lastxr > -1) {
@@ -126,7 +126,6 @@ module.exports = {
 
 
       // build segment tree and save
-
       for (var chr in seg) {
         var segFile = folder + '/' + bwFile + '_' + chr + '.seg';
         var nodes = [];
@@ -158,8 +157,8 @@ module.exports = {
     var data = {};
     lines.on('line', function(line) {
       var parts = line.split('\t');
-      if (parts[0] == 'track') return;
-      if (!alert(parts[0] in data)) {
+      if (parts[0].indexOf('track') != -1) return;
+      if (!data.hasOwnProperty(parts[0])) {
         data[parts[0]] = [];
       }
       data[parts[0]].push({
@@ -168,6 +167,8 @@ module.exports = {
       })
     });
     lines.on('close', function() {
+      console.log('writing bed data...');
+      console.log(data);
       var folder = prefix + bedFile + '_chr';
       fs.mkdirSync(folder)
       for (var chr in data) {
@@ -179,7 +180,7 @@ module.exports = {
         var chrFileName = folder + '/' + bedFile + "_" + chr;
         var fd = fs.openSync(chrFileName, 'w');
         for (var i = 0; i < data[chr].length; i++) {
-          fs.writeSync(data[chr][i].chrStart + '\t' + data[chr][i].chrEnd + '\n');
+          fs.writeSync(fd, data[chr][i].chrStart + '\t' + data[chr][i].chrEnd + '\n');
         }
         fs.closeSync(fd);
       }

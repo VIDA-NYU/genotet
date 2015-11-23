@@ -231,15 +231,12 @@ app.get('/genotet', function(req, res) {
       var xl = req.query.xl,
         xr = req.query.xr,
         chr = req.query.chr,
-        gene = utils.decodeSpecialChar(req.query.gene).toLowerCase();
-
-      var namecode = genecodes[gene];
+        gene = utils.decodeSpecialChar(req.query.gene);
 
       console.log(gene, namecode);
 
 
-      var file = wigglePath + namecode + '/' + namecode +
-          '_treat_afterfiting_chr' + chr + '.bcwig';
+      var file = wigglePath + gene + '_chr/' + gene + '_' + chr + '.bcwig';
 
       data = binding.getBinding(file, xl, xr);
       data.gene = gene;
