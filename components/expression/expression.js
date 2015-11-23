@@ -35,7 +35,7 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.panel).on('genotet.update', function(event, data) {
     switch(data.type) {
       case 'label':
-        this.renderer.update();
+        this.renderer.renderExpressionMatrix_();
         break;
       // TODO(Liana): Implement this...
       //case 'visibility':
