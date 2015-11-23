@@ -19,6 +19,7 @@ var network = require('./network.js');
 var binding = require('./binding.js');
 var expression = require('./expression.js');
 var uploader = require('./uploader.js');
+var bed = require('./bed.js');
 
 // Application
 var app = express();
@@ -48,6 +49,11 @@ var bigWigToWigPath;
  * @type {string}
  */
 var uploadPath;
+/**
+ * Path of bed data files.
+ * @type {string}
+ */
+var bedPath;
 
 /**
  * Reads the configuration file and gets the file paths.
@@ -74,6 +80,10 @@ function config() {
         break;
       case 'uploadPath':
         uploadPath = value;
+        break;
+      case 'bedPath':
+        bedPath = value;
+        break;
     }
   }
 }
@@ -151,6 +161,9 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     case 'expression':
       prefix = expressionPath;
       break;
+    case 'bed':
+      prefix = bedPath;
+      break;
   }
   uploader.uploadFile(req.body, req.file, prefix, bigWigToWigPath);
   res.header('Access-Control-Allow-Origin', '*');
@@ -191,6 +204,17 @@ app.get('/genotet', function(req, res) {
       break;
     case 'list-network':
       data = network.listNetwork(networkPath);
+      break;
+    case 'read-net':
+      var networkName = req.query.networkName;
+      var file = networkPath + networkName;
+      var result = network.readNetwork(file);
+      if (result.success) {
+        data = result.data;
+      } else {
+        data = null;
+        console.log('network data invalid');
+      }
       break;
 
     // Binding data queries
@@ -242,7 +266,19 @@ app.get('/genotet', function(req, res) {
       data = expression.getExpmatLine(fileExp, fileTfa, name);
       break;
     case 'list-matrix':
-      data = expmat.listMatrix(expmatPath);
+      data = expression.listMatrix(expmatPath);
+      break;
+    case 'read-expression':
+      var file = expressionPath + req.query.name;
+      data = expression.readExpression(file);
+      break;
+
+    // Bed data queries
+    case 'read-bed':
+      var file = req.query.file;
+      var chr = req.query.chr;
+      var dir = bedPath + file + '_chr/' + file + '_' + chr;
+      data = bed.readBed(dir);
       break;
 
     // Undefined type, error

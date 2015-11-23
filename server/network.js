@@ -228,18 +228,24 @@ module.exports = {
   },
 
   /**
-   * Read network from a .tsv file
-   * @param {string} networkFile path to the .tsv network file
-   * @return {Array} array of each edge and its weights
+   * Read network from a .tsv file.
+   * @param {string} networkFile path to the .tsv network file.
+   * @return {Object} success with data or fail with reason.
    */
   readNetwork: function(networkFile) {
     var lines = rl.createInterface({
       input: fs.createReadStream(networkFile),
       terminal: false
     });
+    var validFile = true;
     var ret = [];
     lines.on('line', function(line) {
+      if (!validFile) return;
       var parts = line.split('\t');
+      if (parts.length < 3) {
+        validFile = false;
+        return;
+      }
       var numbers = [];
       for (var i = 2; i < parts.length; i++) {
         numbers.push(parseFloat(parts[i]));
@@ -250,6 +256,15 @@ module.exports = {
         values: numbers
       });
     });
-    return ret;
+    if (!validFile) {
+      return {
+        success: false,
+        reason: 'input invalid'
+      }
+    }
+    return {
+      success: true,
+      data: ret
+    }
   }
 };
