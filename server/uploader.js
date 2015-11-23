@@ -154,6 +154,7 @@ module.exports = {
       input: fs.createReadStream(prefix + bedFile),
       terminal: false
     });
+    console.log('separating bed data...');
     var data = {};
     lines.on('line', function(line) {
       var parts = line.split('\t');
@@ -168,14 +169,11 @@ module.exports = {
     });
     lines.on('close', function() {
       console.log('writing bed data...');
-      console.log(data);
       var folder = prefix + bedFile + '_chr';
       fs.mkdirSync(folder)
       for (var chr in data) {
         data[chr].sort(function(a, b) {
-          if (a.chrStart < b.chrStart) return false;
-          if (a.chrStart > b.chrStart) return true;
-          return a.chrEnd < b.chrEnd;
+          return a.chrStart - b.chrStart;
         });
         var chrFileName = folder + '/' + bedFile + "_" + chr;
         var fd = fs.openSync(chrFileName, 'w');
@@ -184,6 +182,7 @@ module.exports = {
         }
         fs.closeSync(fd);
       }
+      console.log('bed chromosome data finish.');
     });
   }
 
