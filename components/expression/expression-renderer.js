@@ -78,7 +78,7 @@ genotet.ExpressionRenderer = function(container, data) {
    */
   this.PROFILE_MARGINS = {
     TOP: 10,
-    RIGHT: 10,
+    RIGHT: 0,
     BOTTOM: 20,
     LEFT: 40
   },
@@ -390,6 +390,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   var heatmapData = this.data.matrix;
   this.svgProfile_.selectAll('g').remove();
   this.svgProfile_.attr('width', this.canvasWidth_);
+  this.PROFILE_MARGINS.LEFT = this.geneLabelWidth_ + this.LABEL_MARGIN_;
 
   var xScale = d3.scale.linear().range([
     this.PROFILE_MARGINS.LEFT,
@@ -417,7 +418,9 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .attr('transform', 'translate(' + this.PROFILE_MARGINS.LEFT + ', 0)');
 
   var colors = d3.scale.category20()
-    .range();
+      .range()
+      .concat(d3.scale.category20b().range())
+      .concat(d3.scale.category20c().range());
   var profileContent = this.svgProfile_.append('g')
     .attr(
       'width',
@@ -437,17 +440,18 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .y(function(data) {
       return yScale(data);
     })
-    .interpolate("basis");
+    .interpolate('linear');
   console.log(heatmapData);
   lines.enter().append('path')
     .attr('d', function(data) {
       return line(data);
     })
-    .attr('stroke', function(d, i) {
-      return colors[i % 20];
+  lines.exit().remove();
+  lines.attr('stroke', function(data, i) {
+      return colors[genotet.utils.hashString(heatmapData.geneNames[i]) % 60];
+      //return genotet.utils.hashStringToColorCode(heatmapData.geneNames[i]);
     })
     .attr('fill', 'none');
-  lines.exit().remove();
 };
 
 /**
