@@ -97,7 +97,7 @@ genotet.ExpressionRenderer = function(container, data) {
 genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
 
 /** @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 80;
+genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 150;
 
 /*
  // gene profile properties
@@ -394,35 +394,31 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   var xScale = d3.scale.linear().range([
     this.PROFILE_MARGINS.LEFT,
     this.canvasWidth_ - this.PROFILE_MARGINS.RIGHT
-  ]).domain([0, heatmapData.conditionNames.length]);
+  ]).domain([0, heatmapData.conditionNames.length - 1]);
   var yScale = d3.scale.linear().range([
     this.profileHeight_ - this.PROFILE_MARGINS.BOTTOM,
     this.PROFILE_MARGINS.TOP
   ]).domain([heatmapData.valueMin, heatmapData.valueMax]);
-  console.log(xScale.range());
-  console.log(xScale.domain());
-  console.log(yScale.range());
-  console.log(yScale.domain());
   var xAxis = d3.svg.axis()
     .scale(xScale).orient('bottom');
   var yAxis = d3.svg.axis()
       .scale(yScale).orient('left');
   this.svgProfile_
     .append('svg:g').call(xAxis)
+    .classed('axis', true)
+    .classed('x', true)
     .attr(
       'transform',
       'translate(0, ' + (this.profileHeight_ - this.PROFILE_MARGINS.BOTTOM) + ')'
     );
   this.svgProfile_
     .append('svg:g').call(yAxis)
+    .classed('axis', true)
     .attr('transform', 'translate(' + this.PROFILE_MARGINS.LEFT + ', 0)');
 
-  var color = d3.scale.category20();
+  var colors = d3.scale.category20()
+    .range();
   var profileContent = this.svgProfile_.append('g')
-    .attr(
-      'transform',
-      'translate(' + this.PROFILE_MARGINS.LEFT + ', ' + this.PROFILE_MARGINS.TOP + ')'
-    )
     .attr(
       'width',
       this.canvasWidth_ - this.PROFILE_MARGINS.LEFT - this.PROFILE_MARGINS.RIGHT
@@ -435,8 +431,8 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   var lines = profileContent.selectAll('path')
     .data(heatmapData.values);
   var line = d3.svg.line()
-    .x(function(data, i, j) {
-      return xScale(j);
+    .x(function(data, i) {
+      return xScale(i);
     })
     .y(function(data) {
       return yScale(data);
@@ -444,10 +440,13 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .interpolate("basis");
   console.log(heatmapData);
   lines.enter().append('path')
-    .attr('d', line(function(data) {
-      return data;
-    }))
-    .attr('stroke', 'red');
+    .attr('d', function(data) {
+      return line(data);
+    })
+    .attr('stroke', function(d, i) {
+      return colors[i % 20];
+    })
+    .attr('fill', 'none');
   lines.exit().remove();
 };
 

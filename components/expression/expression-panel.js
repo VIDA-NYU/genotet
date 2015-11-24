@@ -17,7 +17,7 @@ genotet.ExpressionPanel = function(data) {
     // TODO(bowen): Check how TFA data will be used.
     //showTFA: true,
     showGeneLabels: true,
-    showConditionLabels: true,
+    showConditionLabels: false,
     showProfiles: true,
     showGradient: false,
     autoScaleGradient: false
@@ -58,10 +58,6 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
 
   // Switch actions
   [
-    //{selector: '#overview', type: 'overview', attribute: 'showOverview'},
-    //{selector: '#bed', type: 'bed', attribute: 'showBed'},
-    //{selector: '#exons', type: 'exons', attribute: 'showExons'},
-    //{selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScale'}
     {selector: '#label-genes', type: 'label', attribute: 'showGeneLabels'},
     {selector: '#label-conditions', type: 'label', attribute: 'showConditionLabels'},
     {selector: '#show-profile', type: 'visibility', attribute: 'showProfiles'},

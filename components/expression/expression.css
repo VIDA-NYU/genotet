@@ -2,6 +2,22 @@
   fill: red;
 }
 
+.axis {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.axis .tick text {
+  fill: #000;
+  stroke: none;
+}
+
+.axis.x .tick {
+  display: none;
+}
+
 /*
 .expression .polyline {
   stroke-opacity: .75;
