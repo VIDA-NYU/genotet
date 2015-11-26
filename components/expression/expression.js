@@ -37,11 +37,10 @@ genotet.ExpressionView = function(viewName, params) {
       case 'label':
         this.renderer.renderExpressionMatrix_();
         break;
+      case 'visibility':
+        this.renderer.renderExpressionMatrix_();
+        break;
       // TODO(Liana): Implement this...
-      //case 'visibility':
-      //  this.renderer.updateVisibility();
-      //  this.renderer.update();
-      //  break;
       //case 'auto-scale':
       //  this.loader.updateGenes(data.method, data.regex);
       //  break;

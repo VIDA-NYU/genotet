@@ -39,7 +39,7 @@ genotet.ExpressionRenderer = function(container, data) {
    * The factor of the maximum width of the horizontal gene labels.
    * @private {number}
    */
-  this.GENE_LABEL_HEIGHT_FACTOR_ = 8.725;
+  this.GENE_LABEL_WIDTH_FACTOR_ = 8.725;
 
   /**
    * The maximum height of the vertical experiment condition labels.
@@ -92,12 +92,21 @@ genotet.ExpressionRenderer = function(container, data) {
    * @private {number}
    */
   this.heatmapHeight_ = 0;
+
+  /**
+   * Margin of the gene profile.
+   * @private {number}
+   */
+  this.geneProfileMargin_ = 0;
 };
 
 genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 150;
+
+/** @const {number} */
+genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_MARGIN = 40;
 
 /*
  // gene profile properties
@@ -249,6 +258,9 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   if (this.data.options.showGeneLabels) {
     transformLeft += this.LABEL_MARGIN_;
   }
+  else if (this.data.options.showProfiles) {
+    transformLeft += this.DEFAULT_PROFILE_MARGIN;
+  }
   if (this.data.options.showConditionLabels) {
     transformTop += this.LABEL_MARGIN_;
   }
@@ -359,6 +371,9 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   if (this.data.options.showGeneLabels) {
     transformLeft += this.LABEL_MARGIN_;
   }
+  else if (this.data.options.showProfiles) {
+    transformLeft += this.DEFAULT_PROFILE_MARGIN;
+  }
 
   var labels = this.svgConditionLabels_.selectAll('text').data(conditionLabelsData);
   labels.enter().append('text')
@@ -386,11 +401,16 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     this.svgProfile_.selectAll('*').remove();
     return;
   }
+  else if (!this.data.options.showGeneLabels) {
+    this.PROFILE_MARGINS.LEFT = this.DEFAULT_PROFILE_MARGIN;
+  }
+  else {
+    this.PROFILE_MARGINS.LEFT = this.geneLabelWidth_ + this.LABEL_MARGIN_;
+  }
 
   var heatmapData = this.data.matrix;
   this.svgProfile_.selectAll('g').remove();
   this.svgProfile_.attr('width', this.canvasWidth_);
-  this.PROFILE_MARGINS.LEFT = this.geneLabelWidth_ + this.LABEL_MARGIN_;
 
   var xScale = d3.scale.linear().range([
     this.PROFILE_MARGINS.LEFT,
@@ -496,7 +516,7 @@ genotet.ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
     this.geneLabelWidth_ = d3.max(geneLabelsData.map(function(s) {
       return s.length;
     }));
-    this.geneLabelWidth_ *= this.GENE_LABEL_HEIGHT_FACTOR_;
+    this.geneLabelWidth_ *= this.GENE_LABEL_WIDTH_FACTOR_;
   }
   if (this.data.options.showConditionLabels) {
     this.conditionLabelHeight_ = d3.max(conditionLabelsData.map(function(s) {
