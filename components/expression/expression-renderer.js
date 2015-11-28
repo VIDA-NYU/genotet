@@ -28,8 +28,6 @@ genotet.ExpressionRenderer = function(container, data) {
     colorscaleValue: 0
   };
 
-  this.geneProfileIndex_ = [];
-
   /**
    * The maximum width of the horizontal gene labels.
    * This value will be zero when gene labels are not shown.
@@ -461,8 +459,8 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
       return yScale(data);
     })
     .interpolate('linear');
-  for (var i = 0; i < this.geneProfileIndex_.length; i++) {
-    var geneIndex = this.geneProfileIndex_[i];
+  for (var i = 0; i < this.data.profiles.length; i++) {
+    var geneIndex = this.data.profiles[i];
     profileContent.append('path')
       .attr('d', line(heatmapData.values[geneIndex]))
       .attr('stroke', function(data, i) {
@@ -477,7 +475,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.addGeneProfile_ = function(geneIndex) {
-  this.geneProfileIndex_.push(geneIndex);
+  this.data.profiles.push(geneIndex);
   this.drawGeneProfiles_();
 };
 
@@ -486,8 +484,8 @@ genotet.ExpressionRenderer.prototype.addGeneProfile_ = function(geneIndex) {
  * @private
  */
 genotet.ExpressionRenderer.prototype.removeGeneProfile_ = function(geneIndex) {
-  var index = this.geneProfileIndex_.indexOf(geneIndex);
-  this.geneProfileIndex_.splice(index, 1);
+  var index = this.data.profiles.indexOf(geneIndex);
+  this.data.profiles.splice(index, 1);
   this.drawGeneProfiles_();
 };
 

@@ -15,6 +15,7 @@ genotet.ExpressionLoader = function(data) {
 
   _(this.data).extend({
     matrix: null,
+    genes: [],
     profiles: []
   });
 };
@@ -28,8 +29,8 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
  * @param {string} conditionRegex Regex for experiment condition selection.
  * @override
  */
-genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
-                                                    conditionRegex) {
+genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex, conditionRegex) {
+  this.data.genes = geneRegex.split('|');
   this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
 };
 
@@ -41,8 +42,7 @@ genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
  * @param {string} conditionRegex Regex for experiment condition selection.
  * @private
  */
-genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
-                                                                     geneRegex, conditionRegex) {
+genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName, geneRegex, conditionRegex) {
   this.signal('loadStart');
   var params = {
     type: 'expression',
@@ -73,23 +73,34 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
  */
 genotet.ExpressionLoader.prototype.updateGenes = function(method, geneRegex, originParams) {
   var regex = this.data.matrix.geneRegex;
-  console.log(this.data.matrix);
+  geneRegex = geneRegex.toUpperCase();
   switch (method) {
     case 'setGene':
       // Totally replace the regex.
       regex = geneRegex;
+      this.data.genes = [];
+      this.data.genes.push(geneRegex);
       break;
     case 'addGene':
       // Concat the two regex's. We need to include the previously existing
       // genes too so as to find the edges between the new genes and old
       // ones.
       regex += '|' + geneRegex;
+      this.data.genes.push(geneRegex);
       break;
-    //case 'removeGene':
-    //  // Remove genes do not need communication with the server.
-    //  this.removeGenes_(geneRegex);
-    //  // Return immediately. No ajax.
-    //  return;
+    case 'removeGene':
+      // Remove the regex.
+      var index = this.data.genes.indexOf(geneRegex);
+      if (index == -1) {
+        genotet.error('invalid gene regex', geneRegex);
+        return;
+      };
+      this.data.genes.splice(index, 1);
+      regex = '';
+      this.data.genes.forEach(function(geneNames, i) {
+        regex += geneNames + (i == this.data.genes.length - 1 ? '' : '|');
+      }, this);
+      break;
   }
   this.signal('loadStart');
   var params = {
@@ -98,7 +109,6 @@ genotet.ExpressionLoader.prototype.updateGenes = function(method, geneRegex, ori
     exprows: regex,
     expcols: originParams.condRegex
   };
-  console.log(regex);
   $.get(genotet.data.serverURL, params, function(data) {
       // Store the last applied data selectors.
       _(data).extend({
@@ -112,6 +122,39 @@ genotet.ExpressionLoader.prototype.updateGenes = function(method, geneRegex, ori
     }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot update genes in the expression', params));
 };
+
+/**
+ * Removes the selected genes from the current expression data.
+ * @param {string} geneRegex Regex selecting the genes to be removed.
+ * @private
+ */
+genotet.ExpressionLoader.prototype.removeGenes_ = function(geneRegex) {
+  var index = this.data.genes.indexOf(geneRegex);
+  this.data.genes.splice(index, 1);
+
+  var regex = '';
+  this.data.nodes.forEach(function(node, index) {
+    regex += node.id + (index == this.data.nodes.length - 1 ? '' : '|');
+  }, this);
+  this.data.geneRegex = regex;
+  //var regex;
+  //try {
+  //  regex = RegExp(geneRegex, 'i');
+  //} catch (e) {
+  //  genotet.error('invalid gene regex', geneRegex);
+  //  return;
+  //};
+  //this.data.nodes = _(this.data.nodes).filter(function(node) {
+  //  return !node.id.match(regex);
+  //});
+  //this.data.edges = _(this.data.edges).filter(function(edge) {
+  //  return !edge.source.match(regex) && !edge.target.match(regex);
+  //});
+  //
+  //this.updateGeneRegex_();
+  this.signal('geneRemove');
+};
+
 
 /*
  LoaderHeatmap.prototype.updateData = function(identifier) {

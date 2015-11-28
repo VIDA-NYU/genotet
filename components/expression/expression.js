@@ -77,7 +77,7 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.loader)
     .on('genotet.updatePanel', function(event) {
       this.panel.dataLoaded();
-    }.bind(this))
+    }.bind(this));
 };
 
 genotet.utils.inherit(genotet.ExpressionView, genotet.View);

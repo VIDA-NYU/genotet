@@ -115,7 +115,6 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
       text: gene
     };
   });
-  console.log(genes);
   this.selectProfiles_ = this.container_.find('#profile select').empty();
   this.selectProfiles_.select2({
       data: genes,
