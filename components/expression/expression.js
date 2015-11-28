@@ -12,7 +12,7 @@
  * @extends {View}
  * @constructor
  */
-genotet.ExpressionView = function (viewName, params) {
+genotet.ExpressionView = function(viewName, params) {
   this.base.constructor.call(this, viewName);
 
   this.container.addClass('expression');
@@ -27,19 +27,22 @@ genotet.ExpressionView = function (viewName, params) {
   this.renderer = new genotet.ExpressionRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
-  $(this.container).on('genotet.ready', function () {
+  $(this.container).on('genotet.ready', function() {
     this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
   }.bind(this));
 
   // Set up rendering update.
   $(this.panel)
-    .on('genotet.update', function (event, data) {
+    .on('genotet.update', function(event, data) {
       switch (data.type) {
         case 'label':
           this.renderer.renderExpressionMatrix_();
           break;
         case 'visibility':
           this.renderer.renderExpressionMatrix_();
+          break;
+        case 'gene':
+          this.loader.updateGenes(data.method, data.regex, params);
           break;
         // TODO(Liana): Implement this...
         //case 'auto-scale':
@@ -49,26 +52,32 @@ genotet.ExpressionView = function (viewName, params) {
           genotet.error('unknown update type', data.type);
       }
     }.bind(this))
-    .on('genotet.addGeneProfile', function (event, geneIndex) {
+    .on('genotet.addGeneProfile', function(event, geneIndex) {
       this.renderer.addGeneProfile_(geneIndex);
     }.bind(this))
-    .on('genotet.removeGeneProfile', function (event, geneIndex) {
+    .on('genotet.removeGeneProfile', function(event, geneIndex) {
       this.renderer.removeGeneProfile_(geneIndex);
     }.bind(this));
 
   // Cell hover in expression.
   $(this.renderer)
-    .on('genotet.cellHover', function (event, cell) {
+    .on('genotet.cellHover', function(event, cell) {
       this.renderer.highlightHoverCell_(cell, true);
       this.panel.tooltipHeatmap(cell.geneName, cell.conditionName);
     }.bind(this))
-    .on('genotet.cellUnhover', function (event, cell) {
+    .on('genotet.cellUnhover', function(event, cell) {
       this.renderer.highlightHoverCell_(cell, false);
       genotet.tooltip.hideAll();
     }.bind(this))
-    .on('genotet.cellClick', function (event, cell) {
+    .on('genotet.cellClick', function(event, cell) {
       this.panel.displayCellInfo(cell.geneName, cell.conditionName);
     }.bind(this));
+
+  // Update expression panel.
+  $(this.loader)
+    .on('genotet.updatePanel', function(event) {
+      this.panel.dataLoaded();
+    }.bind(this))
 };
 
 genotet.utils.inherit(genotet.ExpressionView, genotet.View);

@@ -16,8 +16,8 @@
   width: calc(100% - 40px);
 }
 
-#side-panel .sub-buttons {
-  float: right;
+#side-panel .sub-buttons{
+  text-align: right;
 }
 
 #side-panel .btn-update {

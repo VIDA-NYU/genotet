@@ -9,7 +9,7 @@
  * @param {!Object} data Data object of the view.
  * @constructor
  */
-genotet.ExpressionPanel = function (data) {
+genotet.ExpressionPanel = function(data) {
   this.base.constructor.call(this, data);
 
   // Set the view options.
@@ -37,17 +37,17 @@ genotet.ExpressionPanel.prototype.template =
   'components/expression/expression-panel.html';
 
 /** @inheritDoc */
-genotet.ExpressionPanel.prototype.panel = function (container) {
+genotet.ExpressionPanel.prototype.panel = function(container) {
   this.base.panel.call(this, container);
 };
 
 /** @inheritDoc */
-genotet.ExpressionPanel.prototype.dataLoaded = function () {
+genotet.ExpressionPanel.prototype.dataLoaded = function() {
   this.updateGenes(this.data.matrix.geneNames);
 };
 
 /** @inheritDoc */
-genotet.ExpressionPanel.prototype.initPanel = function () {
+genotet.ExpressionPanel.prototype.initPanel = function() {
   // Data may have not been loaded. Use empty list.
   this.updateGenes([]);
 
@@ -63,9 +63,9 @@ genotet.ExpressionPanel.prototype.initPanel = function () {
     {selector: '#show-profiles', type: 'visibility', attribute: 'showProfiles'},
     {selector: '#show-gradient', type: 'visibility', attribute: 'showGradient'},
     {selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScaleGradient'}
-  ].forEach(function (bSwitch) {
+  ].forEach(function(bSwitch) {
     this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
-      function (event, state) {
+      function(event, state) {
         this.data.options[bSwitch.attribute] = state;
         this.signal('update', {
           type: bSwitch.type
@@ -73,16 +73,34 @@ genotet.ExpressionPanel.prototype.initPanel = function () {
       }.bind(this));
   }, this);
 
-  // Add gene profiles
+  // Add and remove gene profiles
   this.selectProfiles_
-    .on('select2:select', function (event) {
+    .on('select2:select', function(event) {
       var geneIndex = event.params.data.element.index;
       this.signal('addGeneProfile', geneIndex);
     }.bind(this))
-    .on('select2:unselect', function (event) {
+    .on('select2:unselect', function(event) {
       var geneIndex = event.params.data.element.index;
       this.signal('removeGeneProfile', geneIndex);
     }.bind(this));
+
+  // Gene update
+  ['setGene', 'addGene', 'removeGene'].forEach(function(method) {
+    this.container_.find('#genes #' + method).click(function() {
+      var input = this.container_.find('#genes input');
+      var geneRegex = input.val();
+      if (geneRegex == '') {
+        genotet.warning('missing input gene selection')
+        return;
+      }
+      input.val('');
+      this.signal('update', {
+        type: 'gene',
+        regex: geneRegex,
+        method: method
+      });
+    }.bind(this));
+  }, this);
 };
 
 /**
@@ -90,15 +108,16 @@ genotet.ExpressionPanel.prototype.initPanel = function () {
  * Select2 will regenerate the selection list each time updated.
  * @param {!Array<string>} genes List of genes.
  */
-genotet.ExpressionPanel.prototype.updateGenes = function (genes) {
-  var genes = genes.map(function (gene, index) {
+genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
+  var genes = gene.map(function(gene, index) {
     return {
       id: gene,
       text: gene
     };
   });
-  this.selectProfiles_ = this.container_.find('#profile select')
-    .select2({
+  console.log(genes);
+  this.selectProfiles_ = this.container_.find('#profile select').empty();
+  this.selectProfiles_.select2({
       data: genes,
       multiple: true
     });
@@ -114,7 +133,7 @@ genotet.ExpressionPanel.prototype.updateGenes = function (genes) {
  * @param {!jQuery} container Info container.
  * @private
  */
-genotet.ExpressionPanel.prototype.setCellInfo_ = function (geneName, conditionName, container) {
+genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName, conditionName, container) {
   container.html(this.container_.find('#cell-info-template').html());
   container.children('#gene').children('span')
     .text(geneName);
@@ -126,7 +145,7 @@ genotet.ExpressionPanel.prototype.setCellInfo_ = function (geneName, conditionNa
  * Hides all info boxes.
  * @private
  */
-genotet.ExpressionPanel.prototype.hideCellInfo_ = function () {
+genotet.ExpressionPanel.prototype.hideCellInfo_ = function() {
   this.container_.find('#cell-info').slideUp();
 };
 
@@ -135,7 +154,7 @@ genotet.ExpressionPanel.prototype.hideCellInfo_ = function () {
  * @param {!String} geneName Gene Name being hovered.
  * @param {!String} conditionName Condition Name being hovered.
  */
-genotet.ExpressionPanel.prototype.tooltipHeatmap = function (geneName, conditionName) {
+genotet.ExpressionPanel.prototype.tooltipHeatmap = function(geneName, conditionName) {
   var tooltip = genotet.tooltip.new();
   this.setCellInfo_(geneName, conditionName, tooltip)
   tooltip.find('.close').remove();
@@ -146,10 +165,10 @@ genotet.ExpressionPanel.prototype.tooltipHeatmap = function (geneName, condition
  * @param {!String} geneName Gene Name of which the info is to be displayed.
  * @param {!String} conditionName Condition Name of which the info is to be displayed.
  */
-genotet.ExpressionPanel.prototype.displayCellInfo = function (geneName, conditionName) {
+genotet.ExpressionPanel.prototype.displayCellInfo = function(geneName, conditionName) {
   var info = this.container_.find('#cell-info').hide().slideDown();
   this.setCellInfo_(geneName, conditionName, info);
-  info.find('.close').click(function () {
+  info.find('.close').click(function() {
     this.hideCellInfo_();
   }.bind(this));
 };
