@@ -101,6 +101,24 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       });
     }.bind(this));
   }, this);
+
+  // Condition update
+  ['setCondition', 'addCondition', 'removeCondition'].forEach(function(method) {
+    this.container_.find('#conditions #' + method).click(function() {
+      var input = this.container_.find('#conditions input');
+      var conditionRegex = input.val();
+      if (conditionRegex == '') {
+        genotet.warning('missing input condition selection')
+        return;
+      }
+      input.val('');
+      this.signal('update', {
+        type: 'condition',
+        regex: conditionRegex,
+        method: method
+      });
+    }.bind(this));
+  }, this);
 };
 
 /**

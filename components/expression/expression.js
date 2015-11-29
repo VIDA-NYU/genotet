@@ -44,6 +44,9 @@ genotet.ExpressionView = function(viewName, params) {
         case 'gene':
           this.loader.updateGenes(data.method, data.regex, params);
           break;
+        case 'condition':
+          this.loader.updateConditions(data.method, data.regex, params);
+          break;
         // TODO(Liana): Implement this...
         //case 'auto-scale':
         //  this.loader.updateGenes(data.method, data.regex);
