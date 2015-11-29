@@ -14,7 +14,7 @@ module.exports = {
    * @param {string} bedFile Path to the bed file.
    * @returns {Array} Contains the intervals of bed data.
    */
-  readBed: function(bedFile) {
+  readBed: function(bedFile, xl, xr) {
     rl.createInterface({
       input: fs.createReadStream(bedFile),
       terminal: false
@@ -22,9 +22,14 @@ module.exports = {
     var data = [];
     rl.on('line', function(line) {
       var parts = line.split('\t');
+      var xLeft = parseInt(parts[0]);
+      var xRight = parseInt(parts[1]);
+      if (xLeft > xr || xRight < xl) {
+        return;
+      }
       data.push({
-        chrStart: parseInt(parts[0]),
-        chrEnd: parseInt(parts[1])
+        chrStart: xLeft,
+        chrEnd: xRight
       })
     });
     return data;
