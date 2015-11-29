@@ -165,7 +165,6 @@ genotet.ExpressionLoader.prototype.updateConditions = function(method, condition
       }, this);
       break;
   }
-  console.log(regex);
   var geneRegex = '';
   this.data.genes.forEach(function(geneNames, i) {
     geneRegex += geneNames + (i == this.data.genes.length - 1 ? '' : '|');

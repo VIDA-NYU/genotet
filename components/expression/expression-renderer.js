@@ -29,6 +29,17 @@ genotet.ExpressionRenderer = function(container, data) {
   };
 
   /**
+   * Path object storing the rendering properties of expression cell.
+   * @private {!Object}
+   */
+  this.path_ = {
+    container_: null,
+    geneName: null,
+    row: 0,
+    color: null
+  };
+
+  /**
    * The maximum width of the horizontal gene labels.
    * This value will be zero when gene labels are not shown.
    * @private {number}
@@ -459,15 +470,43 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
       return yScale(data);
     })
     .interpolate('linear');
-  for (var i = 0; i < this.data.profiles.length; i++) {
-    var geneIndex = this.data.profiles[i];
+  this.data.profiles.forEach(function(path, i) {
+    var geneIndex = this.data.profiles[i].row;
+    var pathColor = colors[genotet.utils.hashString(heatmapData.geneNames[geneIndex]) % 60];
     profileContent.append('path')
       .attr('d', line(heatmapData.values[geneIndex]))
-      .attr('stroke', function(data, i) {
-        return colors[genotet.utils.hashString(heatmapData.geneNames[geneIndex]) % 60];
-      })
-      .attr('fill', 'none');
-  }
+      .attr('stroke', pathColor)
+      .attr('fill', 'none')
+      .on('mouseover', function(value) {
+        var hoverPath = d3.event.target;
+        this.data.profiles[i] = {
+          container_: hoverPath,
+          geneName: heatmapData.geneNames[geneIndex],
+          row: geneIndex,
+          color: pathColor
+        };
+        this.signal('pathHover', this.data.profiles[i]);
+      }.bind(this))
+      .on('mouseout', function(value) {
+        var hoverPath = d3.event.target;
+        this.data.profiles[i] = {
+          container_: hoverPath,
+          color: pathColor
+        };
+        this.signal('pathUnhover', this.data.profiles[i]);
+      }.bind(this));
+      //.on('click', function(d, i, j) {
+      //  var hoverCell = d3.event.target;
+      //  var cell = this.cell_ = {
+      //    container_: hoverCell,
+      //    geneName: heatmapData.geneNames[j],
+      //    conditionName: heatmapData.conditionNames[i],
+      //    row: j,
+      //    column: i
+      //  };
+      //  this.signal('cellClick', cell);
+      //}.bind(this));
+  }, this);
 };
 
 /**
@@ -475,7 +514,10 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.addGeneProfile_ = function(geneIndex) {
-  this.data.profiles.push(geneIndex);
+  var path = this.path_ = {
+    row: geneIndex
+  };
+  this.data.profiles.push(path);
   this.drawGeneProfiles_();
 };
 
@@ -484,7 +526,11 @@ genotet.ExpressionRenderer.prototype.addGeneProfile_ = function(geneIndex) {
  * @private
  */
 genotet.ExpressionRenderer.prototype.removeGeneProfile_ = function(geneIndex) {
-  var index = this.data.profiles.indexOf(geneIndex);
+  var index = -1;
+  this.data.profiles.forEach(function(path, i) {
+    index = (path.row == geneIndex ? i : -1);
+  }, this);
+  //var index = this.data.profiles.indexOf(geneIndex);
   this.data.profiles.splice(index, 1);
   this.drawGeneProfiles_();
 };
@@ -494,7 +540,7 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile_ = function(geneIndex) {
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell, highlight_) {
-  var cellSelection = d3.select(cell.container_)
+  var cellSelection = d3.select(cell.container_);
   if (highlight_) {
     cellSelection.style('stroke', 'white');
     this.svgGeneLabels_.selectAll('text').classed('text-highlight', function(d, i) {
@@ -510,6 +556,30 @@ genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell, highli
     });
     this.svgGeneLabels_.selectAll('text').classed('text-highlight', false);
     this.svgConditionLabels_.selectAll('text').classed('text-highlight', false);
+  }
+};
+
+/**
+ * Highlights the hover path for the gene profile.
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(path, highlight_) {
+  var pathSelection = d3.select(path.container_);
+  if (highlight_) {
+    pathSelection
+      .style('stroke', 'orange')
+      .style('stroke-width', 2);
+    this.svgGeneLabels_.selectAll('text').classed('text-highlight', function(d, i) {
+      return path.row == i;
+    });
+  }
+  else {
+    pathSelection
+      .style('stroke', function() {
+        return path.color;
+      })
+      .style('stroke-width', 1);
+    this.svgGeneLabels_.selectAll('text').classed('text-highlight', false);
   }
 };
 

@@ -76,6 +76,20 @@ genotet.ExpressionView = function(viewName, params) {
       this.panel.displayCellInfo(cell.geneName, cell.conditionName);
     }.bind(this));
 
+  // Path hover in expression.
+  $(this.renderer)
+    .on('genotet.pathHover', function(event, path) {
+      this.renderer.highlightHoverPath_(path, true);
+      //this.panel.tooltipHeatmap(cell.geneName, cell.conditionName);
+    }.bind(this))
+    .on('genotet.pathUnhover', function(event, path) {
+      this.renderer.highlightHoverPath_(path, false);
+      //genotet.tooltip.hideAll();
+    }.bind(this));
+    //.on('genotet.cellClick', function(event, cell) {
+    //  this.panel.displayCellInfo(cell.geneName, cell.conditionName);
+    //}.bind(this));
+
   // Update expression panel.
   $(this.loader)
     .on('genotet.updatePanel', function(event) {
