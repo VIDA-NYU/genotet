@@ -302,13 +302,13 @@ module.exports = {
 
     for (var i = 0; i < n; i++) {
       var x = buf.readInt32LE(offset),
-          val = buf.readInt32LE(offset + 4);
+          val = buf.readFloatLE(offset + 4);
       segs.push({
         'x' : x,
         'value' : val
       });
-      offset += 6;
-      // 1 int, 1 short
+      offset += 8;
+      // 1 int, 1 float
     }
 
     console.log('read complete, cache size', bindingCache.list.length);
@@ -329,7 +329,7 @@ module.exports = {
     cache.xmin = segs[0].x;
     cache.xmax = segs[segs.length - 1].x;
     // build segment tree
-    var segfile = file.substr(0, file.length - 4) + '.seg';
+    var segfile = file.substr(0, file.length - 6) + '.seg';
     var buf = utils.readFileToBuf(segfile);
     if (buf == null) {  // no segtree file, build the tree
       var nodes = [];
@@ -338,7 +338,7 @@ module.exports = {
       console.log('SegmentTree constructed');
 
       var buf = new Buffer(4 + nodes.length * 4);
-      buf.writeInt32LE(nodes.length, 0);
+      buf.writeFloatLE(nodes.length, 0);
       for (var i = 0, offset = 4; i < nodes.length; i++, offset += 4) {
         buf.writeFloatLE(nodes[i], offset);
       }

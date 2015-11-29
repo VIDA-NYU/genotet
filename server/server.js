@@ -233,10 +233,7 @@ app.get('/genotet', function(req, res) {
         chr = req.query.chr,
         gene = utils.decodeSpecialChar(req.query.gene);
 
-      console.log(gene, namecode);
-
-
-      var file = wigglePath + gene + '_chr/' + gene + '_' + chr + '.bcwig';
+      var file = wigglePath + gene + '_chr/' + gene + '_chr' + chr + '.bcwig';
 
       data = binding.getBinding(file, xl, xr);
       data.gene = gene;

@@ -20,7 +20,7 @@ genotet.test.run = function() {
     condRegex: '.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
-    gene: 'BATF',
+    gene: 'SL3037_SL3036',
     chr: '1'
   });
   genotet.viewManager.createView('network', 'My Network', {
