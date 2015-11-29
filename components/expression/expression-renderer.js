@@ -215,7 +215,7 @@ genotet.ExpressionRenderer.prototype.layout = function() {
 
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.dataLoaded = function() {
-  this.render();
+  this.render(this.data.options.autoScaleGradient);
 };
 
 /** @inheritDoc */
@@ -224,14 +224,7 @@ genotet.ExpressionRenderer.prototype.dataReady_ = function() {
 };
 
 /** @inheritDoc */
-genotet.ExpressionRenderer.prototype.render = function() {
-  this.renderExpressionMatrix_();
-};
-
-/**
- * Renders the expression without starting force.
- */
-genotet.ExpressionRenderer.prototype.renderExpressionMatrix_ = function() {
+genotet.ExpressionRenderer.prototype.render = function(autoScale_) {
   if (!this.dataReady_()) {
     return;
   }
@@ -239,7 +232,7 @@ genotet.ExpressionRenderer.prototype.renderExpressionMatrix_ = function() {
   // of heatmap and gene profiles.
   this.layout();
 
-  this.drawExpressionMatrix_();
+  this.drawExpressionMatrix_(autoScale_);
   this.drawGeneProfiles_();
 };
 
@@ -247,8 +240,8 @@ genotet.ExpressionRenderer.prototype.renderExpressionMatrix_ = function() {
  * Renders the expression matrix onto the scene.
  * @private
  */
-genotet.ExpressionRenderer.prototype.drawExpressionMatrix_ = function() {
-  this.drawMatrixCells_();
+genotet.ExpressionRenderer.prototype.drawExpressionMatrix_ = function(autoScale_) {
+  this.drawMatrixCells_(autoScale_);
   this.drawMatrixGeneLabels_();
   this.drawMatrixConditionLabels_();
 };
@@ -257,13 +250,21 @@ genotet.ExpressionRenderer.prototype.drawExpressionMatrix_ = function() {
  * Renders the expression matrix cells.
  * @private
  */
-genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
+genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function(autoScale_) {
   var heatmapData = this.data.matrix;
   var cellWidth = this.heatmapWidth_ / heatmapData.conditionNames.length;
   var cellHeight = this.heatmapHeight_ / heatmapData.geneNames.length;
-  var colorScale = d3.scale.linear()
-    .domain([heatmapData.valueMin, heatmapData.valueMax])
-    .range(genotet.data.redYellowScale);
+  var colorScale = d3.scale.linear();
+  if (autoScale_) {
+    colorScale
+      .domain([heatmapData.valueMin, heatmapData.valueMax])
+      .range(genotet.data.redYellowScale);
+  }
+  else {
+    colorScale
+      .domain([heatmapData.allValueMin, heatmapData.allValueMax])
+      .range(genotet.data.redYellowScale);
+  }
   var transformLeft = 0;
   var transformTop = this.conditionLabelHeight_ + this.profileHeight_;
   if (this.data.options.showGeneLabels) {
@@ -602,7 +603,7 @@ genotet.ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.resize = function() {
   this.base.resize.call(this);
-  this.render();
+  this.render(this.data.options.autoScaleGradient);
 };
 
 /*

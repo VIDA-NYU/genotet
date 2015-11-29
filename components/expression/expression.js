@@ -36,10 +36,10 @@ genotet.ExpressionView = function(viewName, params) {
     .on('genotet.update', function(event, data) {
       switch (data.type) {
         case 'label':
-          this.renderer.renderExpressionMatrix_();
+          this.renderer.render();
           break;
         case 'visibility':
-          this.renderer.renderExpressionMatrix_();
+          this.renderer.render();
           break;
         case 'gene':
           this.loader.updateGenes(data.method, data.regex, params);
@@ -47,10 +47,9 @@ genotet.ExpressionView = function(viewName, params) {
         case 'condition':
           this.loader.updateConditions(data.method, data.regex, params);
           break;
-        // TODO(Liana): Implement this...
-        //case 'auto-scale':
-        //  this.loader.updateGenes(data.method, data.regex);
-        //  break;
+        case 'auto-scale':
+          this.renderer.render(this.data.options.autoScaleGradient);
+          break;
         default:
           genotet.error('unknown update type', data.type);
       }

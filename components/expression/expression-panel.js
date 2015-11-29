@@ -20,7 +20,7 @@ genotet.ExpressionPanel = function(data) {
     showConditionLabels: false,
     showProfiles: true,
     showGradient: false,
-    autoScaleGradient: false
+    autoScaleGradient: true
   });
 
   /**
