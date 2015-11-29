@@ -473,39 +473,27 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   this.data.profiles.forEach(function(path, i) {
     var geneIndex = this.data.profiles[i].row;
     var pathColor = colors[genotet.utils.hashString(heatmapData.geneNames[geneIndex]) % 60];
+    this.data.profiles[i] = {
+      geneName: heatmapData.geneNames[geneIndex],
+      row: geneIndex,
+      color: pathColor
+    };
     profileContent.append('path')
       .attr('d', line(heatmapData.values[geneIndex]))
       .attr('stroke', pathColor)
       .attr('fill', 'none')
       .on('mouseover', function(value) {
-        var hoverPath = d3.event.target;
-        this.data.profiles[i] = {
-          container_: hoverPath,
-          geneName: heatmapData.geneNames[geneIndex],
-          row: geneIndex,
-          color: pathColor
-        };
+        this.data.profiles[i].container_= d3.event.target;
         this.signal('pathHover', this.data.profiles[i]);
       }.bind(this))
       .on('mouseout', function(value) {
-        var hoverPath = d3.event.target;
-        this.data.profiles[i] = {
-          container_: hoverPath,
-          color: pathColor
-        };
+        this.data.profiles[i].container_= d3.event.target;
         this.signal('pathUnhover', this.data.profiles[i]);
+      }.bind(this))
+      .on('click', function(value, i) {
+        this.data.profiles[i].container_= d3.event.target;
+        this.signal('pathClick', this.data.profiles[i]);
       }.bind(this));
-      //.on('click', function(d, i, j) {
-      //  var hoverCell = d3.event.target;
-      //  var cell = this.cell_ = {
-      //    container_: hoverCell,
-      //    geneName: heatmapData.geneNames[j],
-      //    conditionName: heatmapData.conditionNames[i],
-      //    row: j,
-      //    column: i
-      //  };
-      //  this.signal('cellClick', cell);
-      //}.bind(this));
   }, this);
 };
 
