@@ -260,14 +260,16 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
     if (!this.nodes_[edge.source] || !this.nodes_[edge.target]) {
       genotet.error('edge contains nodes that do not exist',
           JSON.stringify(edge));
-      this.showFailure();
+      // TODO(bowen): show failure after fixing.
+      // this.showFailure();
+      return;
     }
     if (!this.edges_[edge.id]) {
       this.edges_[edge.id] = {
         id: edge.id,
         source: this.nodes_[edge.source],
         target: this.nodes_[edge.target],
-        weight: edge.weight,
+        weight: edge.weight[0],
         visible: true
       };
     }
@@ -394,7 +396,7 @@ genotet.NetworkRenderer.prototype.drawNodeLabels_ = function() {
     });
   labels.enter().append('text')
     .text(function(node) {
-      return node.name;
+      return node.label;
     });
   labels.exit().remove();
   var fontSize = this.NODE_LABEL_SIZE / this.zoomScale_;
@@ -525,184 +527,3 @@ genotet.NetworkRenderer.prototype.selectEdge = function(edge) {
       return edge.id == idSelected;
     }.bind(this))
 };
-
-/*
-genotet.NetworkRenderer.prototype.nodeDragStart = function(d) {
-  //if(manager.ctrlDown) return;
-  this.dragstartX = d3.event.sourceEvent.offsetX;
-  this.dragstartY = d3.event.sourceEvent.offsetY;
-
-  this.oldtrans = this.trans;
-  //this.unhighlightNode(d);
-  this.dragging = true;
-};
-
-genotet.NetworkRenderer.prototype.nodeDrag = function(d) {
-  var layout = this;
-
-  d.x = (d3.event.x - this.trans[0]) / this.scale;
-  d.y = (d3.event.y - this.trans[1]) / this.scale;
-
-  var x = d.x,
-    y = d.y,
-    nx = x * layout.scale + layout.trans[0],
-    ny = y * layout.scale + layout.trans[1];
-
-
-  for (var i = 0; i < this.links.length; i++) {
-    if (this.links[i].source.id == d.id) {
-      this.links[i].source.x = x;
-      this.links[i].source.y = y;
-
-      this.svg.select('#e'+ this.links[i].id)
-        .attr('x1', layout.edgeCoordinate(this.links[i], 'x1') * layout.scale + layout.trans[0])
-        .attr('y1', layout.edgeCoordinate(this.links[i], 'y1') * layout.scale + layout.trans[1])
-        .attr('x2', layout.edgeCoordinate(this.links[i], 'x2') * layout.scale + layout.trans[0])
-        .attr('y2', layout.edgeCoordinate(this.links[i], 'y2') * layout.scale + layout.trans[1]);
-      this.svg.select('#iobj_e'+ this.links[i].id)
-        .attr('x1', layout.edgeCoordinate(this.links[i], 'x1') * layout.scale + layout.trans[0])
-        .attr('y1', layout.edgeCoordinate(this.links[i], 'y1') * layout.scale + layout.trans[1])
-        .attr('x2', layout.edgeCoordinate(this.links[i], 'x2') * layout.scale + layout.trans[0])
-        .attr('y2', layout.edgeCoordinate(this.links[i], 'y2') * layout.scale + layout.trans[1]);
-      this.svg.select('#ed'+ this.links[i].id).attr('points', function(d) { return layout.edgeArrow(d); });
-    }else if (this.links[i].target.id == d.id) {
-      this.links[i].target.x = x;
-      this.links[i].target.y = y;
-
-      this.svg.select('#e'+ this.links[i].id)
-        .attr('x1', layout.edgeCoordinate(this.links[i], 'x1') * layout.scale + layout.trans[0])
-        .attr('y1', layout.edgeCoordinate(this.links[i], 'y1') * layout.scale + layout.trans[1])
-        .attr('x2', layout.edgeCoordinate(this.links[i], 'x2') * layout.scale + layout.trans[0])
-        .attr('y2', layout.edgeCoordinate(this.links[i], 'y2') * layout.scale + layout.trans[1]);
-      this.svg.select('#iobj_e'+ this.links[i].id)
-        .attr('x1', layout.edgeCoordinate(this.links[i], 'x1') * layout.scale + layout.trans[0])
-        .attr('y1', layout.edgeCoordinate(this.links[i], 'y1') * layout.scale + layout.trans[1])
-        .attr('x2', layout.edgeCoordinate(this.links[i], 'x2') * layout.scale + layout.trans[0])
-        .attr('y2', layout.edgeCoordinate(this.links[i], 'y2') * layout.scale + layout.trans[1]);
-      this.svg.select('#ed'+ this.links[i].id).attr('points', function(d) { return layout.edgeArrow(d); });
-    }
-  }
-
-  // update node(iobj) and label
-  this.svg.select('#v'+ d.id).attr('cx', nx).attr('cy', ny);
-  this.svg.select('#iobj_v'+ d.id).attr('cx', nx).attr('cy', ny);
-  this.svg.select('#lbl_v'+ d.id).attr('x', nx).attr('y', ny - layout.labelGap);
-
-  // update highlighted node
-  this.svg.select('#node_highlight').attr('cx', nx).attr('cy', ny);
-
-  if (this.selectedElement.content != null) {
-    var sd = this.selectedElement.content;
-    if (this.selectedElement.type == 'node' && d.id == sd.id) {
-      this.svg.select('#node_select').attr('cx', nx).attr('cy', ny);
-    }else if (this.selectedElement.type == 'link') {
-      if (d.id == sd.source.id) {
-        this.svg.select('#link_select').attr('x1', nx).attr('y1', ny);
-        this.svg.select('#linkdir_select').attr('points', function(d) { return layout.edgeArrow(d); });
-      }else if (d.id == sd.target.id) {
-        this.svg.select('#link_select').attr('x2', nx).attr('y2', ny);
-        this.svg.select('#linkdir_select').attr('points', function(d) { return layout.edgeArrow(d); });
-      }
-    }
-  }
-};
-
-genotet.NetworkRenderer.prototype.nodeDragEnd = function(d) {
-  this.dragendX = d3.event.sourceEvent.offsetX;
-  this.dragendY = d3.event.sourceEvent.offsetY;
-
-  var dx = this.dragendX - this.dragstartX,
-    dy = this.dragendY - this.dragstartY;
-  var move = Math.sqrt(dx * dx + dy * dy);
-
-  this.zoom.translate(this.oldtrans);  // cancel the translation from the drag
-
-  this.dragging = false;
-  if (move <= 5.0) {
-    // no move, treated as click
-    this.visualizeElement({'content': d, 'type': 'node'}, 'select');
-  }else {
-    this.blockclick = true;
-  }
-};
-
-genotet.NetworkRenderer.prototype.mouseDownNode = function(d) {
-  if (d3.event.button == 2) // right click
-  {
-    delete this.data.visibleNodes[d.id];  // hide the node
-    for (var i = 0; i < this.data.links.length; i++) {
-      if (this.data.links[i].source.id == d.id || this.data.links[i].target.id == d.id) {  // hide incident edges
-        delete this.data.visibleLinks[this.data.links[i].id];
-      }
-    }
-    if (getView(this.parentView.viewname + '-list') != null) closeView(this.parentView.viewname + '-list');
-    this.parentView.loader.reparseData(true); // remove only
-  }
-};
-
-genotet.NetworkRenderer.prototype.mouseDownLink = function(d) {
-  if (d3.event.button == 2) // right click
-  {
-    delete this.data.visibleLinks[d.id];  // hide the edge
-    if (getView(this.parentView.viewname + '-list') != null) closeView(this.parentView.viewname + '-list');
-    this.parentView.loader.reparseData(true); // remove only
-  }
-};
-
-genotet.NetworkRenderer.prototype.highlightLink = function(d) {
-  if (this.dragging || this.zooming) return;
-
-  this.visualizeElement({'content': d, 'type': 'link'}, 'highlight');
-
-  var info = 'source: ' + d.source.name +
-    '       target: ' + d.target.name +
-    '       weight: ' + d.weight +
-    '       id: ' + d.id;
-  this.svg.select('#graphinfo').text(info);
-};
-
-genotet.NetworkRenderer.prototype.unhighlightLink = function(d) {
-    var layout = this;
-
-  this.visualizeElement(null, 'highlight');
-};
-
-genotet.NetworkRenderer.prototype.highlightNode = function(d) {
-  if (this.dragging || this.zooming) return;
-
-  this.visualizeElement({'content': d, 'type': 'node'}, 'highlight');
-  this.svg.select('#lbl_v'+ d.id).attr('visibility', 'visible');
-  var info = 'name: ' + d.name +
-  '       isTF: ' + d.isTF +
-  '       id: ' + d.id;
-  this.svg.select('#graphinfo').text(info);
-  //this.svg.select("#v"+d.id).attr("class", "node_hl");
-};
-
-genotet.NetworkRenderer.prototype.unhighlightNode = function(d) {
-  if (this.dragging) return;
-  this.visualizeElement(null, 'highlight');
-  this.svg.select('#lbl_v'+ d.id).attr('visibility', this.showLabel ? 'visible': 'hidden');
-  //this.svg.select("#v"+d.id).attr("class", "node");
-};
-
-genotet.NetworkRenderer.prototype.selectNode = function(d) {
-  if (this.dragging || this.zooming) return;
-  if (this.blockclick) { this.blockclick = false; return; }
-
-  this.visualizeElement({'content': d, 'type': 'node'}, 'select');
-};
-
-genotet.NetworkRenderer.prototype.selectLink = function(d) {
-  if (this.dragging || this.zooming) return;
-  if (this.blockclick) { this.blockclick = false; return; }
-
-  this.visualizeElement({'content': d, 'type': 'link'}, 'select');
-};
-
-genotet.NetworkRenderer.prototype.toggleForce = function() {
-  if (this.forcing) this.force.stop();
-  else this.force.resume();
-  this.forcing = !this.forcing;
-};
-*/

@@ -45,10 +45,10 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     geneRegex, conditionRegex) {
   this.signal('loadStart');
   var params = {
-    type: 'expression',
-    mat: matrixName,
-    exprows: geneRegex,
-    expcols: conditionRegex
+    type: 'read-expression',
+    matrixName: matrixName,
+    geneRegex: geneRegex,
+    conditionRegex: conditionRegex
   };
 
   $.get(genotet.data.serverURL, params, function(data) {

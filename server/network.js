@@ -8,7 +8,6 @@ var utils = require('./utils');
 
 var fs = require('fs');
 var rl = require('readline');
-var lbl = require('line-by-line');
 
 module.exports = {
   /**
@@ -289,6 +288,7 @@ module.exports = {
         names.push(parts[1]);
         nodes.push({
           id: parts[0],
+          label: parts[0],
           isTF: false
         });
         nodeId[parts[0]] = nodes.length - 1;

@@ -14,7 +14,7 @@ genotet.test.run = function() {
   // Implement test sequences here. This is intended for manual testing,
   // e.g. the following lines create a few views.
 
-  genotet.viewManager.createView('read-expression', 'My Expression Matrix', {
+  genotet.viewManager.createView('expression', 'My Expression Matrix', {
     matrixName: 'expressionMatrix',
     geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
     condRegex: '.*'
