@@ -270,33 +270,69 @@ module.exports = {
   /**
    * Read expression matrix from text file
    * @param {string} expressionFile path to the expression file
-   * @returns {Array} the expression matrix
+   * @returns {Object} the expression matrix
    */
-  readExpression: function(expressionFile) {
+  readExpression: function(expressionFile, geneRegex, conditionRegex) {
     var lines = rl.createInterface({
       input: fs.createReadStream(expressionFile),
       terminal: false
     });
-    var ret = [];
+    var ret = {};
+    var values = [];
     var isFirstCol = true;
+    var conditions = [];
+    var geneNames = [];
+    var conditionNames = [];
+    var valueMax = -Infinity;
+    var valueMin = Infinity;
+    var allValueMax = -Infinity;
+    var allValueMin = Infinity;
+    var expGene, expCondition;
+    try {
+      expGene = RegExp(geneRegex, 'i');
+      expCondition = RegExp(conditionRegex, 'i');
+    }catch (e) {
+      console.log('incorrect regular expression');
+      return;
+    }
     lines.on('line', function(line) {
       var parts = line.split('\t');
-      var tmpLine = [];
       if (isFirstCol) {
         isFirstCol = false;
-        for (var i = 0; i < parts.length; i++) {
-          tmpLine.push(parts[i]);
+        for (var i = 1; i < parts.length; i++) {
+          if (parts[i].match(expCondition)) {
+            conditions.push(i);
+            conditionNames.push(parts[i]);
+          }
         }
       } else {
-        for (var i = 0; i < parts.length; i++) {
-          if (i == 0) {
-            tmpLine.push(parts[i]);
-          } else {
-            tmpLine.push(parseFloat(parts[i]));
+        if (parts[0].match(expGene)) {
+          geneNames.push(parts[0]);
+          var tmpLine = [];
+          for (var i = 1; i < parts.length; i++) {
+            var value = parseInt(parts[i]);
+            valueMin = Math.min(valueMin, value);
+            valueMax = Math.max(valueMax, value);
+            tmpLine.push(value);
+          }
+        }
+        else {
+          for (var i = 1; i < parts.length; i++) {
+            var value = parseInt(parts[i]);
+            allValueMin = Math.min(allValueMin, value);
+            allValueMax = Math.max(allValueMax, value);
           }
         }
       }
-      ret.push(tmpLine);
+    });
+    lines.on('close', function() {
+      ret.values = values;
+      ret.geneNames = geneNames;
+      ret.conditionNames = conditionNames;
+      ret.valueMin = valueMin;
+      ret.valueMax = valueMax;
+      ret.allValueMin = allValueMin;
+      ret.allValueMax = allValueMax;
     });
     return ret;
   }

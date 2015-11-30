@@ -208,7 +208,8 @@ app.get('/genotet', function(req, res) {
     case 'read-net':
       var networkName = req.query.networkName;
       var file = networkPath + networkName;
-      var result = network.readNetwork(file);
+      var geneRegex = req.query.geneRegex;
+      var result = network.readNetwork(file, geneRegex);
       if (result.success) {
         data = result.data;
       } else {
@@ -232,7 +233,6 @@ app.get('/genotet', function(req, res) {
         xr = req.query.xr,
         chr = req.query.chr,
         gene = utils.decodeSpecialChar(req.query.gene);
-
       var file = wigglePath + gene + '_chr/' + gene + '_chr' + chr + '.bcwig';
 
       data = binding.getBinding(file, xl, xr);
@@ -246,8 +246,8 @@ app.get('/genotet', function(req, res) {
     // Expression matrix data queries
     case 'expression':
       var file = expressionFile[req.query.mat];
-      var exprows = req.query.exprows;
-      var expcols = req.query.expcols;
+      var exprows = req.query.geneRegex;
+      var expcols = req.query.conditionRegex;
       exprows = exprows == '' ? 'a^' : exprows;
       expcols = expcols == '' ? 'a^' : expcols;
       data = expression.getExpmat(file, exprows, expcols);
@@ -264,11 +264,13 @@ app.get('/genotet', function(req, res) {
       break;
     case 'read-expression':
       var file = expressionPath + req.query.name;
-      data = expression.readExpression(file);
+      var geneRegex = req.query.geneRegex;
+      var conditionRegex = req.query.conditionRegex;
+      data = expression.readExpression(file, geneRegex, conditionRegex);
       break;
 
     // Bed data queries
-    case 'read-bed':
+    case 'bed':
       var file = req.query.file;
       var chr = req.query.chr;
       var dir = bedPath + file + '_chr/' + file + '_' + chr;

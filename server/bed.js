@@ -29,7 +29,8 @@ module.exports = {
       }
       data.push({
         chrStart: xLeft,
-        chrEnd: xRight
+        chrEnd: xRight,
+        name: parts[2]
       })
     });
     return data;

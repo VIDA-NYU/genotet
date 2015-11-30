@@ -163,8 +163,9 @@ module.exports = {
         data[parts[0]] = [];
       }
       data[parts[0]].push({
-        chrStart: parts[1],
-        chrEnd: parts[2]
+        chrStart: parseInt(parts[1]),
+        chrEnd: parseInt(parts[2]),
+        name: parts[3]
       })
     });
     lines.on('close', function() {

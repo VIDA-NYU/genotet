@@ -49,11 +49,13 @@ module.exports = {
       var t = buf.readInt32LE(offset + 4);
       var w = buf.readDoubleLE(offset + 8);
       offset += 16;
+      var weight = [];
+      weight.push(w);
       edges.push({
         id: names[s] + ',' + names[t],
         source: names[s],
         target: names[t],
-        weight: w
+        weight: weight
       });
     }
     return {
@@ -76,14 +78,20 @@ module.exports = {
    *     weightMin: number
    *   }} The network data JS object.
    */
-  getNet: function(file, geneRegex) {
+  getNet: function(file, geneRegex, fileType) {
     console.log(file, geneRegex);
-    var buf = utils.readFileToBuf(file);
-    if (buf == null) {
-      return console.error('cannot read file', file), [];
+    var result;
+    if (fileType == 'bin') {
+      var buf = utils.readFileToBuf(file);
+      if (buf == null) {
+        return console.error('cannot read file', file), [];
+      }
+
+      result = this.readNet(buf);
+    } else if (fileType == 'text') {
+      result = readNetwork(file);
     }
 
-    var result = this.readNet(buf);
     var nodes = [], nodeKeys = {};
     var edges = [];
     var regex;
@@ -106,8 +114,10 @@ module.exports = {
       var s = result.edges[i].source;
       var t = result.edges[i].target;
       var w = result.edges[i].weight;
-      wmax = Math.max(w, wmax);
-      wmin = Math.min(w, wmin);
+      for (var j = 0; j < w.length; j++) {
+        wmax = Math.max(w[j], wmax);
+        wmin = Math.min(w[j], wmin);
+      }
       if (nodeKeys[s] && nodeKeys[t]) {
         edges.push({
           id: result.edges[i].id,
@@ -230,7 +240,7 @@ module.exports = {
   /**
    * Read network from a .tsv file.
    * @param {string} networkFile path to the .tsv network file.
-   * @return {Object} success with data or fail with reason.
+   * @return {Object} data of the network.
    */
   readNetwork: function(networkFile) {
     var lines = rl.createInterface({
@@ -238,7 +248,11 @@ module.exports = {
       terminal: false
     });
     var validFile = true;
-    var ret = [];
+    var ret = {};
+    var edges = [];
+    var nodes = [];
+    var names = [];
+    var nodeId = {};
     lines.on('line', function(line) {
       if (!validFile) return;
       var parts = line.split('\t');
@@ -250,12 +264,38 @@ module.exports = {
       for (var i = 2; i < parts.length; i++) {
         numbers.push(parseFloat(parts[i]));
       }
-      ret.push({
-        regular: parts[0],
+      if (nodeId.hasOwnProperty(parts[0])) {
+        edges[nodeId[parts[0]]].isTF = true;
+      } else {
+        names.push(parts[0]);
+        nodes.push({
+          id: parts[0],
+          isTF: true,
+        });
+        nodeId[parts[0]] = nodes.length - 1;
+      }
+      if (!nodeId.hasOwnProperty(parts[1])) {
+        names.push(parts[1]);
+        nodes.push({
+          id: parts[0],
+          isTF: false
+        });
+        nodeId[parts[0]] = nodes.length - 1;
+      }
+      edges.push({
+        id: parts[0] + ',' + parts[1],
+        source: parts[0],
         target: parts[1],
         values: numbers
       });
     });
+    lines.on('close', function() {
+      ret.nodes = nodes;
+      ret.edges = edges;
+      ret.names = names;
+      ret.numNodes = nodes.length;
+      ret.numEdges = edges.length;
+    })
     if (!validFile) {
       return {
         success: false,
