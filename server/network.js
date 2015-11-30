@@ -139,6 +139,7 @@ module.exports = {
     return {
       nodes: nodes,
       edges: edges,
+      valueNames: result.valueNames,
       weightMax: wmax,
       weightMin: wmin
     };
@@ -279,6 +280,7 @@ module.exports = {
         names.push(parts[0]);
         nodes.push({
           id: parts[0],
+          label: parts[0],
           isTF: true
         });
         nodeId[parts[0]] = nodes.length - 1;
