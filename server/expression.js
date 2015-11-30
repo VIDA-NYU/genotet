@@ -273,10 +273,6 @@ module.exports = {
    * @returns {Object} the expression matrix
    */
   readExpression: function(expressionFile, geneRegex, conditionRegex) {
-    var lines = rl.createInterface({
-      input: fs.createReadStream(expressionFile),
-      terminal: false
-    });
     var ret = {};
     var values = [];
     var isFirstCol = true;
@@ -293,9 +289,11 @@ module.exports = {
       expCondition = RegExp(conditionRegex, 'i');
     }catch (e) {
       console.log('incorrect regular expression');
-      return;
+      expGene = expCondition = 'a^';
     }
-    lines.on('line', function(line) {
+    var lines = fs.readFileSync(expressionFile).toString().split('\n');
+    for (var lineNum in lines) {
+      var line = lines[lineNum];
       var parts = line.split('\t');
       if (isFirstCol) {
         isFirstCol = false;
@@ -324,16 +322,14 @@ module.exports = {
           }
         }
       }
-    });
-    lines.on('close', function() {
-      ret.values = values;
-      ret.geneNames = geneNames;
-      ret.conditionNames = conditionNames;
-      ret.valueMin = valueMin;
-      ret.valueMax = valueMax;
-      ret.allValueMin = allValueMin;
-      ret.allValueMax = allValueMax;
-    });
+    }
+    ret.values = values;
+    ret.geneNames = geneNames;
+    ret.conditionNames = conditionNames;
+    ret.valueMin = valueMin;
+    ret.valueMax = valueMax;
+    ret.allValueMin = allValueMin;
+    ret.allValueMax = allValueMax;
     return ret;
   }
 };

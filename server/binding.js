@@ -338,7 +338,7 @@ module.exports = {
       console.log('SegmentTree constructed');
 
       var buf = new Buffer(4 + nodes.length * 4);
-      buf.writeFloatLE(nodes.length, 0);
+      buf.writeInt32LE(nodes.length, 0);
       for (var i = 0, offset = 4; i < nodes.length; i++, offset += 4) {
         buf.writeFloatLE(nodes[i], offset);
       }

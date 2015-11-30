@@ -14,8 +14,8 @@ genotet.test.run = function() {
   // Implement test sequences here. This is intended for manual testing,
   // e.g. the following lines create a few views.
 
-  genotet.viewManager.createView('expression', 'My Expression Matrix', {
-    matrixName: 'rna-seq',
+  genotet.viewManager.createView('read-expression', 'My Expression Matrix', {
+    matrixName: 'expressionMatrix',
     geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
     condRegex: '.*'
   });
@@ -24,7 +24,7 @@ genotet.test.run = function() {
     chr: '1'
   });
   genotet.viewManager.createView('network', 'My Network', {
-    networkName: 'th17',
+    networkName: 'meishei.tsv',
     geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
   });
 };

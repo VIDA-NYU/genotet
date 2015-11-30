@@ -185,9 +185,13 @@ app.get('/genotet', function(req, res) {
     case 'network':
       var networkName = req.query.networkName.toLowerCase(),
         geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
+        fileType = 'text';
         file = networkPath + networkName + '.bnet';
+      if (fileType == 'text') {
+        file = networkPath + networkName;
+      }
       geneRegex = geneRegex == '' ? 'a^' : geneRegex;
-      data = network.getNet(file, geneRegex);
+      data = network.getNet(file, geneRegex, fileType);
       break;
     case 'incident-edges':
       // Edges incident to one node

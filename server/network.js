@@ -8,6 +8,7 @@ var utils = require('./utils');
 
 var fs = require('fs');
 var rl = require('readline');
+var lbl = require('line-by-line');
 
 module.exports = {
   /**
@@ -89,7 +90,7 @@ module.exports = {
 
       result = this.readNet(buf);
     } else if (fileType == 'text') {
-      result = readNetwork(file);
+      result = this.readNetwork(file);
     }
 
     var nodes = [], nodeKeys = {};
@@ -100,6 +101,7 @@ module.exports = {
     } catch (e) {
       regex = 'a^'; // return empty network
     }
+
     var numNode = result.nodes.length;
     var numEdge = result.edges.length;
     for (var i = 0; i < numNode; i++) {
@@ -243,34 +245,41 @@ module.exports = {
    * @return {Object} data of the network.
    */
   readNetwork: function(networkFile) {
-    var lines = rl.createInterface({
-      input: fs.createReadStream(networkFile),
-      terminal: false
-    });
     var validFile = true;
     var ret = {};
     var edges = [];
     var nodes = [];
     var names = [];
     var nodeId = {};
-    lines.on('line', function(line) {
-      if (!validFile) return;
+    var isFirst = true;
+    var valueNames = [];
+    var lines = fs.readFileSync(networkFile).toString().split('\n');
+    for (var lineNum in lines) {
+      var line = lines[lineNum];
+      if (!validFile) continue;
       var parts = line.split('\t');
       if (parts.length < 3) {
         validFile = false;
-        return;
+        continue;
+      }
+      if (isFirst) {
+        isFirst = false;
+        for (var i = 2; i < parts.length; i++) {
+          valueNames.push(parts[i]);
+        }
+        continue;
       }
       var numbers = [];
       for (var i = 2; i < parts.length; i++) {
         numbers.push(parseFloat(parts[i]));
       }
       if (nodeId.hasOwnProperty(parts[0])) {
-        edges[nodeId[parts[0]]].isTF = true;
+        nodes[nodeId[parts[0]]].isTF = true;
       } else {
         names.push(parts[0]);
         nodes.push({
           id: parts[0],
-          isTF: true,
+          isTF: true
         });
         nodeId[parts[0]] = nodes.length - 1;
       }
@@ -286,25 +295,16 @@ module.exports = {
         id: parts[0] + ',' + parts[1],
         source: parts[0],
         target: parts[1],
-        values: numbers
+        weight: numbers
       });
-    });
-    lines.on('close', function() {
-      ret.nodes = nodes;
-      ret.edges = edges;
-      ret.names = names;
-      ret.numNodes = nodes.length;
-      ret.numEdges = edges.length;
-    })
-    if (!validFile) {
-      return {
-        success: false,
-        reason: 'input invalid'
-      }
     }
-    return {
-      success: true,
-      data: ret
-    }
+    ret.nodes = nodes;
+    ret.edges = edges;
+    ret.names = names;
+    ret.numNodes = nodes.length;
+    ret.numEdges = edges.length;
+    ret.valueNames = valueNames;
+
+    return ret;
   }
 };
