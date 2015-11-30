@@ -125,7 +125,7 @@ genotet.NetworkPanel.prototype.hideInfo_ = function() {
 genotet.NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
   container.html(this.container_.find('#node-info-template').html());
   container.children('#name').children('span')
-    .text(node.name);
+    .text(node.label);
   container.children('#is-tf')
     .css('display', node.isTF ? '' : 'none');
   container.children('#subtiwiki').children('a')
@@ -141,9 +141,9 @@ genotet.NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
 genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
   container.html(this.container_.find('#edge-info-template').html());
   container.children('#source').children('span')
-    .text(edge.source.name);
+    .text(edge.source.label);
   container.children('#target').children('span')
-    .text(edge.target.name);
+    .text(edge.target.label);
   container.children('#weight').children('span')
     .text(edge.weight);
 };
