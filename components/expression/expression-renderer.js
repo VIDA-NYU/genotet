@@ -224,7 +224,7 @@ genotet.ExpressionRenderer.prototype.dataReady_ = function() {
 };
 
 /** @inheritDoc */
-genotet.ExpressionRenderer.prototype.render = function(autoScale_) {
+genotet.ExpressionRenderer.prototype.render = function() {
   if (!this.dataReady_()) {
     return;
   }
@@ -232,7 +232,7 @@ genotet.ExpressionRenderer.prototype.render = function(autoScale_) {
   // of heatmap and gene profiles.
   this.layout();
 
-  this.drawExpressionMatrix_(autoScale_);
+  this.drawExpressionMatrix_();
   this.drawGeneProfiles_();
 };
 
@@ -240,8 +240,8 @@ genotet.ExpressionRenderer.prototype.render = function(autoScale_) {
  * Renders the expression matrix onto the scene.
  * @private
  */
-genotet.ExpressionRenderer.prototype.drawExpressionMatrix_ = function(autoScale_) {
-  this.drawMatrixCells_(autoScale_);
+genotet.ExpressionRenderer.prototype.drawExpressionMatrix_ = function() {
+  this.drawMatrixCells_();
   this.drawMatrixGeneLabels_();
   this.drawMatrixConditionLabels_();
 };
@@ -250,12 +250,12 @@ genotet.ExpressionRenderer.prototype.drawExpressionMatrix_ = function(autoScale_
  * Renders the expression matrix cells.
  * @private
  */
-genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function(autoScale_) {
+genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var heatmapData = this.data.matrix;
   var cellWidth = this.heatmapWidth_ / heatmapData.conditionNames.length;
   var cellHeight = this.heatmapHeight_ / heatmapData.geneNames.length;
   var colorScale = d3.scale.linear();
-  if (autoScale_) {
+  if (this.data.options.autoScaleGradient) {
     colorScale
       .domain([heatmapData.valueMin, heatmapData.valueMax])
       .range(genotet.data.redYellowScale);

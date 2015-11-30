@@ -61,7 +61,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
     {selector: '#label-genes', type: 'label', attribute: 'showGeneLabels'},
     {selector: '#label-conditions', type: 'label', attribute: 'showConditionLabels'},
     {selector: '#show-profiles', type: 'visibility', attribute: 'showProfiles'},
-    {selector: '#show-gradient', type: 'visibility', attribute: 'showGradient'},
+    //{selector: '#show-gradient', type: 'visibility', attribute: 'showGradient'},
     {selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScaleGradient'}
   ].forEach(function(bSwitch) {
     this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
