@@ -287,8 +287,8 @@ module.exports = {
       if (!nodeId.hasOwnProperty(parts[1])) {
         names.push(parts[1]);
         nodes.push({
-          id: parts[0],
-          label: parts[0],
+          id: parts[1],
+          label: parts[1],
           isTF: false
         });
         nodeId[parts[0]] = nodes.length - 1;
