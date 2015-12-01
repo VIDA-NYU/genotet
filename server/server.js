@@ -19,6 +19,7 @@ var network = require('./network.js');
 var binding = require('./binding.js');
 var expression = require('./expression.js');
 var uploader = require('./uploader.js');
+var bed = require('./bed.js');
 
 // Application
 var app = express();
@@ -48,6 +49,11 @@ var bigWigToWigPath;
  * @type {string}
  */
 var uploadPath;
+/**
+ * Path of bed data files.
+ * @type {string}
+ */
+var bedPath;
 
 /**
  * Reads the configuration file and gets the file paths.
@@ -74,6 +80,10 @@ function config() {
         break;
       case 'uploadPath':
         uploadPath = value;
+        break;
+      case 'bedPath':
+        bedPath = value;
+        break;
     }
   }
 }
@@ -151,6 +161,9 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     case 'expression':
       prefix = expressionPath;
       break;
+    case 'bed':
+      prefix = bedPath;
+      break;
   }
   uploader.uploadFile(req.body, req.file, prefix, bigWigToWigPath);
   res.header('Access-Control-Allow-Origin', '*');
@@ -172,9 +185,13 @@ app.get('/genotet', function(req, res) {
     case 'network':
       var networkName = req.query.networkName.toLowerCase(),
         geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
+        fileType = 'text';
         file = networkPath + networkName + '.bnet';
+      if (fileType == 'text') {
+        file = networkPath + networkName;
+      }
       geneRegex = geneRegex == '' ? 'a^' : geneRegex;
-      data = network.getNet(file, geneRegex);
+      data = network.getNet(file, geneRegex, fileType);
       break;
     case 'incident-edges':
       // Edges incident to one node
@@ -192,6 +209,18 @@ app.get('/genotet', function(req, res) {
     case 'list-network':
       data = network.listNetwork(networkPath);
       break;
+    case 'read-net':
+      var networkName = req.query.networkName;
+      var file = networkPath + networkName;
+      var geneRegex = req.query.geneRegex;
+      var result = network.readNetwork(file, geneRegex);
+      if (result.success) {
+        data = result.data;
+      } else {
+        data = null;
+        console.log('network data invalid');
+      }
+      break;
 
     // Binding data queries
     case 'exons':
@@ -207,15 +236,8 @@ app.get('/genotet', function(req, res) {
       var xl = req.query.xl,
         xr = req.query.xr,
         chr = req.query.chr,
-        gene = utils.decodeSpecialChar(req.query.gene).toLowerCase();
-
-      var namecode = genecodes[gene];
-
-      console.log(gene, namecode);
-
-
-      var file = wigglePath + namecode + '/' + namecode +
-          '_treat_afterfiting_chr' + chr + '.bcwig';
+        gene = utils.decodeSpecialChar(req.query.gene);
+      var file = wigglePath + gene + '_chr/' + gene + '_chr' + chr + '.bcwig';
 
       data = binding.getBinding(file, xl, xr);
       data.gene = gene;
@@ -227,9 +249,9 @@ app.get('/genotet', function(req, res) {
 
     // Expression matrix data queries
     case 'expression':
-      var file = expressionFile[req.query.mat];
-      var exprows = req.query.exprows;
-      var expcols = req.query.expcols;
+      var file = expressionFile[req.query.matrixName];
+      var exprows = req.query.geneRegex;
+      var expcols = req.query.conditionRegex;
       exprows = exprows == '' ? 'a^' : exprows;
       expcols = expcols == '' ? 'a^' : expcols;
       data = expression.getExpmat(file, exprows, expcols);
@@ -242,7 +264,21 @@ app.get('/genotet', function(req, res) {
       data = expression.getExpmatLine(fileExp, fileTfa, name);
       break;
     case 'list-matrix':
-      data = expmat.listMatrix(expmatPath);
+      data = expression.listMatrix(expmatPath);
+      break;
+    case 'read-expression':
+      var file = expressionPath + req.query.matrixName;
+      var geneRegex = req.query.geneRegex;
+      var conditionRegex = req.query.conditionRegex;
+      data = expression.readExpression(file, geneRegex, conditionRegex);
+      break;
+
+    // Bed data queries
+    case 'bed':
+      var file = req.query.file;
+      var chr = req.query.chr;
+      var dir = bedPath + file + '_chr/' + file + '_' + chr;
+      data = bed.readBed(dir, req.query.xl, req.query.xr);
       break;
 
     // Undefined type, error

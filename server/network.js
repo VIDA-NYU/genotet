@@ -6,6 +6,9 @@
 
 var utils = require('./utils');
 
+var fs = require('fs');
+var rl = require('readline');
+
 module.exports = {
   /**
    * Reads the entire network data from the buffer.
@@ -46,11 +49,13 @@ module.exports = {
       var t = buf.readInt32LE(offset + 4);
       var w = buf.readDoubleLE(offset + 8);
       offset += 16;
+      var weight = [];
+      weight.push(w);
       edges.push({
         id: names[s] + ',' + names[t],
         source: names[s],
         target: names[t],
-        weight: w
+        weight: weight
       });
     }
     return {
@@ -73,14 +78,20 @@ module.exports = {
    *     weightMin: number
    *   }} The network data JS object.
    */
-  getNet: function(file, geneRegex) {
+  getNet: function(file, geneRegex, fileType) {
     console.log(file, geneRegex);
-    var buf = utils.readFileToBuf(file);
-    if (buf == null) {
-      return console.error('cannot read file', file), [];
+    var result;
+    if (fileType == 'bin') {
+      var buf = utils.readFileToBuf(file);
+      if (buf == null) {
+        return console.error('cannot read file', file), [];
+      }
+
+      result = this.readNet(buf);
+    } else if (fileType == 'text') {
+      result = this.readNetwork(file);
     }
 
-    var result = this.readNet(buf);
     var nodes = [], nodeKeys = {};
     var edges = [];
     var regex;
@@ -89,6 +100,7 @@ module.exports = {
     } catch (e) {
       regex = 'a^'; // return empty network
     }
+
     var numNode = result.nodes.length;
     var numEdge = result.edges.length;
     for (var i = 0; i < numNode; i++) {
@@ -103,8 +115,10 @@ module.exports = {
       var s = result.edges[i].source;
       var t = result.edges[i].target;
       var w = result.edges[i].weight;
-      wmax = Math.max(w, wmax);
-      wmin = Math.min(w, wmin);
+      for (var j = 0; j < w.length; j++) {
+        wmax = Math.max(w[j], wmax);
+        wmin = Math.min(w[j], wmin);
+      }
       if (nodeKeys[s] && nodeKeys[t]) {
         edges.push({
           id: result.edges[i].id,
@@ -124,6 +138,7 @@ module.exports = {
     return {
       nodes: nodes,
       edges: edges,
+      valueNames: result.valueNames,
       weightMax: wmax,
       weightMin: wmin
     };
@@ -203,18 +218,95 @@ module.exports = {
    * @returns {Array} array of object of each network file
    */
   listNetwork: function(networkAddr) {
-    var descFile = networkAddr + 'NetworkInfo';
+    var folder = expmatAddr;
     var ret = [];
-    var buf = utils.readFileToBuf(descFile);
-    var descLine = buf.toString().split('\n');
-    for (var i = 0; i < descLine.length; i++) {
-      var part = descLine[i].split('\t');
-      ret.push({
-        fileName: part[0],
-        networkName: part[1],
-        description: part[2]
+    var files = fs.readdirSync(folder);
+    for (var i = 0; i < files.length; i++) {
+      var stat = fs.lstatSync(folder + files[i]);
+      if (!stat.isDirectory) {
+        if (files[i].indexOf('.txt') != -1) {
+          var fname = files[i].substr(0, files[i].length - 4);
+          var description = "";
+          var fd = fs.openSync(folder + files[i]);
+          fs.readSync(fd, description);
+          ret.push({
+            networkName: fname,
+            description: description.toString()
+          });
+        }
+      }
+    }
+    return ret;
+  },
+
+  /**
+   * Read network from a .tsv file.
+   * @param {string} networkFile path to the .tsv network file.
+   * @return {Object} data of the network.
+   */
+  readNetwork: function(networkFile) {
+    var validFile = true;
+    var ret = {};
+    var edges = [];
+    var nodes = [];
+    var names = [];
+    var nodeId = {};
+    var isFirst = true;
+    var valueNames = [];
+    var lines = fs.readFileSync(networkFile).toString().split('\n');
+    for (var lineNum in lines) {
+      var line = lines[lineNum];
+      if (!validFile) continue;
+      var parts = line.split('\t');
+      if (parts.length < 3) {
+        validFile = false;
+        continue;
+      }
+      if (isFirst) {
+        isFirst = false;
+        for (var i = 2; i < parts.length; i++) {
+          valueNames.push(parts[i]);
+        }
+        continue;
+      }
+      var numbers = [];
+      for (var i = 2; i < parts.length; i++) {
+        numbers.push(parseFloat(parts[i]));
+      }
+      if (nodeId.hasOwnProperty(parts[0])) {
+        nodes[nodeId[parts[0]]].isTF = true;
+      } else {
+        names.push(parts[0]);
+        nodes.push({
+          id: parts[0],
+          label: parts[0],
+          isTF: true
+        });
+        nodeId[parts[0]] = nodes.length - 1;
+      }
+      if (!nodeId.hasOwnProperty(parts[1])) {
+        names.push(parts[1]);
+        nodes.push({
+          id: parts[1],
+          label: parts[1],
+          isTF: false
+        });
+        nodeId[parts[0]] = nodes.length - 1;
+      }
+      edges.push({
+        id: parts[0] + ',' + parts[1],
+        source: parts[0],
+        target: parts[1],
+        weight: numbers
       });
     }
+    ret.nodes = nodes;
+    ret.edges = edges;
+    ret.names = names;
+    ret.numNodes = nodes.length;
+    ret.numEdges = edges.length;
+    ret.valueNames = valueNames;
+
     return ret;
   }
 };

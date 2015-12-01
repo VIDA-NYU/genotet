@@ -6,6 +6,9 @@
 
 var utils = require('./utils');
 
+var fs = require('fs');
+var rl = require('readline');
+
 module.exports = {
   /**
    * Reads the expression matrix data from the buffer.
@@ -243,18 +246,90 @@ module.exports = {
    * @returns {Array} array of object of each expression matrix file
    */
   listMatrix: function(expmatAddr) {
-    var descFile = expmatAddr + 'ExpmatInfo';
+    var folder = expmatAddr;
     var ret = [];
-    var buf = utils.readFileToBuf(descFile);
-    var descLine = buf.toString().split('\n');
-    for (var i = 0; i < descLine.length; i++) {
-      var part = descLine[i].split('\t');
-      ret.push({
-        fileName: part[0],
-        matrixName: part[1],
-        description: part[2]
-      });
+    var files = fs.readdirSync(folder);
+    for (var i = 0; i < files.length; i++) {
+      var stat = fs.lstatSync(folder + files[i]);
+      if (!stat.isDirectory) {
+        if (files[i].indexOf('.txt') != -1) {
+          var fname = files[i].substr(0, files[i].length - 4);
+          var description;
+          var fd = fs.openSync(folder + files[i]);
+          fs.readSync(fd, description);
+          ret.push({
+            matrixName: fname,
+            description: description.toString()
+          });
+        }
+      }
     }
+    return ret;
+  },
+
+  /**
+   * Read expression matrix from text file
+   * @param {string} expressionFile path to the expression file
+   * @returns {Object} the expression matrix
+   */
+  readExpression: function(expressionFile, geneRegex, conditionRegex) {
+    var ret = {};
+    var values = [];
+    var isFirstCol = true;
+    var conditions = [];
+    var geneNames = [];
+    var conditionNames = [];
+    var valueMax = -Infinity;
+    var valueMin = Infinity;
+    var allValueMax = -Infinity;
+    var allValueMin = Infinity;
+    var expGene, expCondition;
+    try {
+      expGene = RegExp(geneRegex, 'i');
+      expCondition = RegExp(conditionRegex, 'i');
+    }catch (e) {
+      console.log('incorrect regular expression');
+      expGene = expCondition = 'a^';
+    }
+    var lines = fs.readFileSync(expressionFile).toString().split('\n');
+    for (var lineNum in lines) {
+      var line = lines[lineNum];
+      var parts = line.split('\t');
+      if (isFirstCol) {
+        isFirstCol = false;
+        for (var i = 1; i < parts.length; i++) {
+          if (parts[i].match(expCondition)) {
+            conditions.push(i);
+            conditionNames.push(parts[i]);
+          }
+        }
+      } else {
+        if (parts[0].match(expGene)) {
+          geneNames.push(parts[0]);
+          var tmpLine = [];
+          for (var i = 1; i < parts.length; i++) {
+            var value = parseInt(parts[i]);
+            valueMin = Math.min(valueMin, value);
+            valueMax = Math.max(valueMax, value);
+            tmpLine.push(value);
+          }
+        }
+        else {
+          for (var i = 1; i < parts.length; i++) {
+            var value = parseInt(parts[i]);
+            allValueMin = Math.min(allValueMin, value);
+            allValueMax = Math.max(allValueMax, value);
+          }
+        }
+      }
+    }
+    ret.values = values;
+    ret.geneNames = geneNames;
+    ret.conditionNames = conditionNames;
+    ret.valueMin = valueMin;
+    ret.valueMax = valueMax;
+    ret.allValueMin = allValueMin;
+    ret.allValueMax = allValueMax;
     return ret;
   }
 };

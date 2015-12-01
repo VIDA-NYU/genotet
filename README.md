@@ -31,4 +31,5 @@ bindingPath = .../genotet_data/binding/
 expressionPath = .../genotet_data/expression/
 bigWigToWigPath = .../genotet_data/
 uploadPath = .../genotet_data/upload/
+bedPath = .../genotet_data/bed/
 ```

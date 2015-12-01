@@ -15,16 +15,16 @@ genotet.test.run = function() {
   // e.g. the following lines create a few views.
 
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
-    matrixName: 'rna-seq',
+    matrixName: 'expressionMatrix',
     geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
     condRegex: '.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
-    gene: 'BATF',
+    gene: 'SL3037_SL3036',
     chr: '1'
   });
   genotet.viewManager.createView('network', 'My Network', {
-    networkName: 'th17',
+    networkName: 'meishei.tsv',
     geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
   });
 };

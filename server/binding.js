@@ -296,19 +296,19 @@ module.exports = {
       return console.error('cannot read file', file), null;
     }
 
-    var n = buf.length / 6;
+    var n = buf.length / 8;
     var offset = 0;
     var segs = [];
 
     for (var i = 0; i < n; i++) {
       var x = buf.readInt32LE(offset),
-          val = buf.readInt16LE(offset + 4);
+          val = buf.readFloatLE(offset + 4);
       segs.push({
         'x' : x,
         'value' : val
       });
-      offset += 6;
-      // 1 int, 1 short
+      offset += 8;
+      // 1 int, 1 float
     }
 
     console.log('read complete, cache size', bindingCache.list.length);
@@ -329,7 +329,7 @@ module.exports = {
     cache.xmin = segs[0].x;
     cache.xmax = segs[segs.length - 1].x;
     // build segment tree
-    var segfile = file.substr(0, file.length - 4) + '.seg';
+    var segfile = file.substr(0, file.length - 6) + '.seg';
     var buf = utils.readFileToBuf(segfile);
     if (buf == null) {  // no segtree file, build the tree
       var nodes = [];
@@ -337,16 +337,20 @@ module.exports = {
       cache.nodes = nodes;
       console.log('SegmentTree constructed');
 
-      var buf = new Buffer(4 + nodes.length * 2);
+      var buf = new Buffer(4 + nodes.length * 4);
       buf.writeInt32LE(nodes.length, 0);
-      for (var i = 0, offset = 4; i < nodes.length; i++, offset += 2) buf.writeInt16LE(nodes[i], offset);
+      for (var i = 0, offset = 4; i < nodes.length; i++, offset += 4) {
+        buf.writeFloatLE(nodes[i], offset);
+      }
       var fd = fs.openSync(segfile, 'w');
       fs.writeSync(fd, buf, 0, offset, 0);
       console.log('SegmentTree written');
-    }else {
+    } else {
       var num = buf.readInt32LE(0);
       var nodes = [];
-      for (var i = 0, offset = 4; i < num; i++, offset += 2) nodes.push(buf.readInt16LE(offset));
+      for (var i = 0, offset = 4; i < num; i++, offset += 4) {
+        nodes.push(buf.readFloatLE(offset));
+      }
       cache.nodes = nodes;
       console.log('SegmentTree read');
     }
@@ -359,17 +363,23 @@ module.exports = {
    * @returns {Array} array of object of each wiggle file
    */
   listBindingGenes: function(wiggleAddr) {
-    var descFile = wiggleAddr + 'WiggleInfo';
+    var folder = expmatAddr;
     var ret = [];
-    var buf = utils.readFileToBuf(descFile);
-    var descLine = buf.toString().split('\n');
-    for (var i = 0; i < descLine.length; i++) {
-      var part = descLine[i].split('\t');
-      ret.push({
-        fileName: part[0],
-        gene: part[1],
-        description: part[2]
-      });
+    var files = fs.readdirSync(folder);
+    for (var i = 0; i < files.length; i++) {
+      var stat = fs.lstatSync(folder + files[i]);
+      if (!stat.isDirectory) {
+        if (files[i].indexOf('.txt') != -1) {
+          var fname = files[i].substr(0, files[i].length - 4);
+          var description;
+          var fd = fs.openSync(folder + files[i]);
+          fs.readSync(fd, description);
+          ret.push({
+            bindingName: fname,
+            description: description.toString()
+          });
+        }
+      }
     }
     return ret;
   }
