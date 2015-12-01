@@ -14,7 +14,7 @@
   stroke: none;
 }
 
-.axis.x .tick text {
+.axis.x .tick{
   display: none;
 }
 

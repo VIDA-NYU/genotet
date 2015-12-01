@@ -215,7 +215,7 @@ genotet.ExpressionRenderer.prototype.layout = function() {
 
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.dataLoaded = function() {
-  this.render(this.data.options.autoScaleGradient);
+  this.render();
 };
 
 /** @inheritDoc */
@@ -257,12 +257,20 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var colorScale = d3.scale.linear();
   if (this.data.options.autoScaleGradient) {
     colorScale
-      .domain([heatmapData.valueMin, heatmapData.valueMax])
+      .domain([
+        heatmapData.valueMin,
+        (heatmapData.valueMin + heatmapData.valueMax) / 2,
+        heatmapData.valueMax
+      ])
       .range(genotet.data.redYellowScale);
   }
   else {
     colorScale
-      .domain([heatmapData.allValueMin, heatmapData.allValueMax])
+      .domain([
+        heatmapData.allValueMin,
+        (heatmapData.allValueMin + heatmapData.allValueMax) / 2,
+        heatmapData.allValueMax
+      ])
       .range(genotet.data.redYellowScale);
   }
   var transformLeft = 0;
@@ -325,12 +333,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     .attr('y', function(velue, i, j) {
       return j * cellHeight;
     })
-    .style('stroke', function(value) {
-      return colorScale(value);
-    })
-    .style('fill', function(value) {
-      return colorScale(value);
-    });
+    .style('stroke', colorScale)
+    .style('fill', colorScale);
 };
 
 /**
@@ -467,9 +471,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .x(function(data, i) {
       return xScale(i);
     })
-    .y(function(data) {
-      return yScale(data);
-    })
+    .y(yScale)
     .interpolate('linear');
   this.data.profiles.forEach(function(path, i) {
     var geneIndex = this.data.profiles[i].row;
@@ -516,10 +518,12 @@ genotet.ExpressionRenderer.prototype.addGeneProfile_ = function(geneIndex) {
  */
 genotet.ExpressionRenderer.prototype.removeGeneProfile_ = function(geneIndex) {
   var index = -1;
-  this.data.profiles.forEach(function(path, i) {
-    index = (path.row == geneIndex ? i : -1);
-  }, this);
-  //var index = this.data.profiles.indexOf(geneIndex);
+  for (var i = 0; i < this.data.profiles.length; i++) {
+    if (this.data.profiles[i].row == geneIndex) {
+      index = i;
+      break;
+    }
+  }
   this.data.profiles.splice(index, 1);
   this.drawGeneProfiles_();
 };
@@ -603,7 +607,7 @@ genotet.ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.resize = function() {
   this.base.resize.call(this);
-  this.render(this.data.options.autoScaleGradient);
+  this.render();
 };
 
 /*

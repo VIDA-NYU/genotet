@@ -48,7 +48,7 @@ genotet.ExpressionView = function(viewName, params) {
           this.loader.updateConditions(data.method, data.regex, params);
           break;
         case 'auto-scale':
-          this.renderer.render(this.data.options.autoScaleGradient);
+          this.renderer.render();
           break;
         default:
           genotet.error('unknown update type', data.type);

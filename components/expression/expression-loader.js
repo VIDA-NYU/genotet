@@ -98,16 +98,10 @@ genotet.ExpressionLoader.prototype.updateGenes = function(method, geneRegex, ori
         return;
       };
       this.data.genes.splice(index, 1);
-      regex = '';
-      this.data.genes.forEach(function(geneRegexs, i) {
-        regex += geneRegexs + (i == this.data.genes.length - 1 ? '' : '|');
-      }, this);
+      regex = this.data.genes.join('|');
       break;
   }
-  var conditionRegex = '';
-  this.data.conditions.forEach(function(conditionNames, i) {
-    conditionRegex += conditionNames + (i == this.data.conditions.length - 1 ? '' : '|');
-  }, this);
+  var conditionRegex = this.data.conditions.join('|');
   this.signal('loadStart');
   var params = {
     type: 'expression',

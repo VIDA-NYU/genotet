@@ -17,12 +17,6 @@ genotet.panelManager.TRANSITION_TIME = 300;
 genotet.panelManager.showPanel_ = true;
 
 /**
- * Whether sends focused signal..
- * @private {boolean}
- */
-genotet.panelManager.sendSignal_ = false;
-
-/**
  * Side panel container.
  * @private {jQuery}
  */
@@ -120,7 +114,7 @@ genotet.panelManager.addPanel = function(view) {
     var clickedViewName = clickedViewID.replace(/\-/g, ' ');
     var clickedView = genotet.viewManager.views[clickedViewName];
     genotet.viewManager.blurAllViews();
-    clickedView.focus(this.sendSignal_);
+    clickedView.focus(false);
     this.activatePanel_(clickedViewID);
   }.bind(this));
   this.container_.show();
@@ -129,7 +123,7 @@ genotet.panelManager.addPanel = function(view) {
   }
   this.activatePanel_(viewID);
   genotet.viewManager.blurAllViews();
-  view.focus(this.sendSignal_);
+  view.focus(false);
 
 var container = $('#panel-view-' + viewID);
 return container;
