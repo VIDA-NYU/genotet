@@ -25,7 +25,7 @@ module.exports = {
    * @param {!Array<Object} segs Array of elements.
    *     Each element shall have an attribute named x.
    * @param {number} x Value to be searched for.
-   * @returns {number} Index of the array corresponding to x's position.
+   * @return {number} Index of the array corresponding to x's position.
    */
   binarySearch: function(segs, x) {
     var ll = 0, rr = segs.length - 1;
@@ -44,7 +44,7 @@ module.exports = {
   /**
    * Reads the file into a file buffer.
    * @param {string} file Name of the file.
-   * @returns {Buffer} Node.js file buffer.
+   * @return {Buffer} Node.js file buffer.
    */
   readFileToBuf: function(file) {
     if (fs.existsSync(file) == false)
@@ -61,7 +61,7 @@ module.exports = {
    * Replace special character values in URL by their original characters,
    * '+' and '?'.
    * @param {string} url The URL string to be decoded.
-   * @returns {string} The new URL with all special values replaced by the
+   * @return {string} The new URL with all special values replaced by the
    *     original characters.
    */
   decodeSpecialChar: function(url) {

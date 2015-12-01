@@ -102,7 +102,7 @@ module.exports = {
    * @param {string} fileExp File name of the expression matrix.
    * @param {string} fileTFA File name of the TFA matrix.
    * @param {string} name Name of the gene to be profiled.
-   * @returns {{
+   * @return {{
    *     name: string,
    *     values: !Array<number>,
    *     tfaValues: !Array<number>
@@ -169,7 +169,7 @@ module.exports = {
    * @param {string} file File name of the expression matrix data.
    * @param {string} exprows Regex selecting the genes.
    * @param {string} expcols Regex selecting the experiment conditions.
-   * @returns {{
+   * @return {{
    *     values: !Array<!Array<number>>,
    *     valueMin: number,
    *     valueMax: number,
@@ -243,7 +243,7 @@ module.exports = {
   /**
    * List all the expression matrix files in the server
    * @param {string} expmatAddr Folder of the expression matrix file in the server
-   * @returns {Array} array of object of each expression matrix file
+   * @return {Array} array of object of each expression matrix file
    */
   listMatrix: function(expmatAddr) {
     var folder = expmatAddr;
@@ -270,11 +270,9 @@ module.exports = {
   /**
    * Read expression matrix from text file
    * @param {string} expressionFile path to the expression file
-   * @returns {Object} the expression matrix
+   * @return {Object} the expression matrix
    */
   readExpression: function(expressionFile, geneRegex, conditionRegex) {
-    var ret = {};
-    var values = [];
     var isFirstCol = true;
     var conditions = [];
     var geneNames = [];
@@ -323,13 +321,14 @@ module.exports = {
         }
       }
     }
-    ret.values = values;
-    ret.geneNames = geneNames;
-    ret.conditionNames = conditionNames;
-    ret.valueMin = valueMin;
-    ret.valueMax = valueMax;
-    ret.allValueMin = allValueMin;
-    ret.allValueMax = allValueMax;
-    return ret;
+    return {
+      values: value,
+      geneNames: geneNames,
+      conditionNames: conditionNames,
+      valueMin: valueMin,
+      valueMax: valueMax,
+      allValueMin: allValueMin,
+      allValueMax: allValueMax
+    };
   }
 };

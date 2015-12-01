@@ -6,9 +6,8 @@
 
 var fs = require('fs');
 
-var utils = require('./utils'),
-  segtree = require('./segtree');
-
+var utils = require('./utils');
+var segtree = require('./segtree');
 
 /**
  * Number of samples created for each query.
@@ -192,9 +191,10 @@ module.exports = {
       xr = cache.xmax;
     }
 
-    var n = numSamples,
-      span = xr - xl,
-      segslen = (cache.nodes.length + 1) >> 1;
+    var n = numSamples;
+    var span = xr - xl;
+    // Used '>>' to avoid floating point result.
+    var segslen = (cache.nodes.length + 1) >> 1;
     var hist = {
       xMin: xl,
       xMax: xr,
@@ -236,20 +236,10 @@ module.exports = {
   },
 
   /**
-   * Gets the sampled binding data.
-   * @param {string} file File name of the binding data.
-   * @return {!Array<{x: number, value: number}>} Binding data as histogram.
-   */
-  getBindingSamples: function(file) {
-    // Currently the auto sampling size based on view width is disabled.
-    return this.getBinding(file);
-  },
-
-  /**
    * Searches for an exon and returns its coordinates.
    * @param {string} file File name of binding data to be searched within.
    * @param {string} name Name of the exon.
-   * @returns {!Object} Search result.
+   * @return {!Object} Search result.
    */
   searchExon: function(file, name) {
     var buf = utils.readFileToBuf(file);
@@ -278,7 +268,7 @@ module.exports = {
   /**
    * Loads the histogram stored in the given file.
    * @param {string} file File name.
-   * @returns {*}
+   * @return {*}
    */
   loadHistogram: function(file) {
     // Return the cached intervals & RMQ result.
@@ -358,9 +348,9 @@ module.exports = {
   },
 
   /**
-   * List all the wiggle files in the server
-   * @param {string} wiggleAddr Folder of the wiggle file in the server
-   * @returns {Array} array of object of each wiggle file
+   * Lists all the wiggle files in the server.
+   * @param {string} wiggleAddr Folder of the wiggle file in the server.
+   * @return {Array} Array of object of each wiggle file.
    */
   listBindingGenes: function(wiggleAddr) {
     var folder = expmatAddr;
@@ -383,5 +373,4 @@ module.exports = {
     }
     return ret;
   }
-
 };

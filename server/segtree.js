@@ -8,8 +8,8 @@ module.exports = {
   /**
    * Constructs the segment tree.
    * @param {!Array<number>} nodes Maximum values in the segment tree nodes.
-   * @param {!Array<{x: number, value: number>} vals Values of the data array.
-   * @returns {*}
+   * @param {!Array<{x: number, value: number}>} vals Values of the data array.
+   * @return {*}
    */
   buildSegmentTree: function(nodes, vals) { // vals shall be {x:.., value:..}
     var n = vals.length;
@@ -21,7 +21,7 @@ module.exports = {
    * @param {!Array<number>} nodes Maximum values in the segment tree nodes.
    * @param {number} xl Left endpoint of the range.
    * @param {number} xr Right endpoint of the range.
-   * @param {!Array<{x: number, value: number>} vals Values of the data array.
+   * @param {!Array<{x: number, value: number}>} vals Values of the data array.
    */
   buildSegmentTreeExec: function(nodes, xl, xr, vals) {
     if (xr == xl) {
@@ -44,7 +44,7 @@ module.exports = {
    * @param {number} xr Right endpoint of the range.
    * @param {number} nodexl Left endpoint of the node's subtree.
    * @param {number} nodexr Right endpoint of the node's subtree.
-   * @returns {number} Maximum value of the range involved.
+   * @return {number} Maximum value of the range involved.
    */
   querySegmentTree: function(nodes, index, xl, xr, nodexl, nodexr) {
     if (xr < xl) return 0;

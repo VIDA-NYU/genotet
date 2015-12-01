@@ -2,7 +2,7 @@
  * @fileoverview upload function handler
  */
 
-'use strict'
+'use strict';
 
 var path;
 var fs = require('fs');
@@ -25,22 +25,24 @@ module.exports = {
    * @param {Object} file File object received from multer.
    * @param {string} prefix The destination folder to upload the file to.
    * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
-   * @returns {Object} Success or not as a JS Object.
+   * @return {Object} Success or not as a JS Object.
    */
   uploadFile: function(desc, file, prefix, bigWigToWigAddr) {
-    var fileType = desc.type;
     var source = fs.createReadStream(file.path);
     var dest = fs.createWriteStream(prefix + desc.name);
     source.pipe(dest);
-    source.on('end', function() {
-      fs.unlink(file.path);
-      if (desc.type == 'binding') {
-        this.bigwigtoBcwig(prefix, desc.name, bigWigToWigAddr);
-      } else if (desc.type == 'bed') {
-        this.bedSort(prefix, desc.name);
-      }
-    }.bind(this));
-    source.on('err', function(err){});
+    source
+      .on('end', function() {
+        fs.unlink(file.path);
+        if (desc.type == 'binding') {
+          this.bigWigToBCWig(prefix, desc.name, bigWigToWigAddr);
+        } else if (desc.type == 'bed') {
+          this.bedSort(prefix, desc.name);
+        }
+      }.bind(this))
+      .on('err', function(err){
+        // TODO(jiaming)
+      });
 
     // write down the network name and description
     var fd = fs.openSync(prefix + desc.name + ".txt", 'w');
@@ -57,14 +59,19 @@ module.exports = {
    * Converts bigwig file to bcwig file and construct segment trees.
    * @param {string} prefix Folder that contains the bw file.
    * @param {string} bwFile Name of the bigwig file (without prefix).
-   * @param {string} bigwigtoWigAder The convention script path.
+   * @param {string} bigWigToWigAddr The convention script path.
    */
-  bigwigtoBcwig: function(prefix, bwFile, bigWigWoWigAddr) {
+  bigWigToBCWig: function(prefix, bwFile, bigWigToWigAddr) {
     // convert *.bw into *.wig
     var wigFileName = bwFile + '.wig';
     console.log('start transfer');
-    child.execSync(bigWigWoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
-    console.log(bigWigWoWigAddr + ' ' + prefix + bwFile + ' ' + prefix + wigFileName);
+    var cmd = [
+      bigWigToWigAddr,
+      prefix + bwFile,
+      prefix + wigFileName
+    ].join(' ');
+    child.execSync(cmd);
+    console.log(cmd);
 
     // convert *.wig into *.bcwig
     var seg = {};  // for segment tree
@@ -158,7 +165,9 @@ module.exports = {
     var data = {};
     lines.on('line', function(line) {
       var parts = line.split('\t');
-      if (parts[0].indexOf('track') != -1) return;
+      if (parts[0].indexOf('track') != -1) {
+        return;
+      }
       if (!data.hasOwnProperty(parts[0])) {
         data[parts[0]] = [];
       }

@@ -230,7 +230,7 @@ genotet.utils.encodeSpecialChar = function(s) {
  * @param {!Array<*>} arr Array.
  * @param {number} i Element index.
  * @param {number} j Element index.
- * @returns {!Array<number>}
+ * @return {!Array<number>}
  */
 genotet.utils.swap = function(arr, i, j) {
   var tmp = arr[i];

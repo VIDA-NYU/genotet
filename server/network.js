@@ -71,7 +71,7 @@ module.exports = {
    * Gets the network data according to the gene selection.
    * @param {string} file Network file name.
    * @param {string} geneRegex Regex for gene selection.
-   * @returns {{
+   * @return {{
    *     nodes: !Array<!Object>,
    *     edges: !Array<!Object>,
    *     weightMax: number,
@@ -148,7 +148,7 @@ module.exports = {
    * Gets the incident edges of a given gene.
    * @param {string} file Network file name.
    * @param {string} gene Gene name of which to get the incident edges.
-   * @returns {!Array} Incident edges.
+   * @return {!Array} Incident edges.
    */
   getIncidentEdges: function(file, gene) {
     var buf = utils.readFileToBuf(file);
@@ -171,7 +171,7 @@ module.exports = {
    * Finds the genes regulated by all the given TFs.
    * @param {string} file Network file name.
    * @param {string} exp Regex selecting the regulated targets.
-   * @returns {!Array} The combined regulators.
+   * @return {!Array} The combined regulators.
    */
   getComb: function(file, exp) {
     console.log(file, exp);
@@ -215,7 +215,7 @@ module.exports = {
   /**
    * List all the networks in the server
    * @param {string} networkAddr Folder of the network in the server
-   * @returns {Array} array of object of each network file
+   * @return {Array} array of object of each network file
    */
   listNetwork: function(networkAddr) {
     var folder = expmatAddr;
