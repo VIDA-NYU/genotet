@@ -85,19 +85,16 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName, regex) 
       // ones.
       geneRegex += '|' + regex;
       break;
-    //case 'removeCondition':
-    //  // Remove the regex.
-    //  var index = this.data.conditions.indexOf(conditionRegex);
-    //  if (index == -1) {
-    //    genotet.error('invalid condition regex', conditionRegex);
-    //    return;
-    //  };
-    //  this.data.conditions.splice(index, 1);
-    //  regex = '';
-    //  this.data.conditions.forEach(function(conditionRegexs, i) {
-    //    regex += conditionRegexs + (i == this.data.conditions.length - 1 ? '' : '|');
-    //  }, this);
-    //  break;
+    case 'removeGene':
+      // Remove the regex.
+      geneRegex = '';
+      this.data.matrix.geneNames.forEach(function(geneName) {
+        if (!geneName.match(regex)) {
+          geneRegex += geneName + '|';
+        }
+      });
+      geneRegex = geneRegex.slice(0, -1);
+      break;
     case 'setCondition':
       // Totally replace the regex.
       conditionRegex = regex;
@@ -108,16 +105,16 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName, regex) 
       // ones.
       conditionRegex += '|' + regex;
       break;
-    //case 'removeGene':
-    //  // Remove the regex.
-    //  var index = this.data.genes.indexOf(geneRegex);
-    //  if (index == -1) {
-    //    genotet.error('invalid gene regex', geneRegex);
-    //    return;
-    //  };
-    //  this.data.genes.splice(index, 1);
-    //  regex = this.data.genes.join('|');
-    //  break;
+    case 'removeCondition':
+      // Remove the regex.
+      conditionRegex = '';
+      this.data.matrix.conditionNames.forEach(function(conditionName) {
+        if (!conditionName.match(regex)) {
+          conditionRegex += conditionName + '|';
+        }
+      });
+      conditionRegex = conditionRegex.slice(0, -1);
+      break;
   }
   this.load(matrixName, geneRegex, conditionRegex);
 };
