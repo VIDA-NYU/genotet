@@ -42,10 +42,10 @@ genotet.ExpressionView = function(viewName, params) {
           this.renderer.render();
           break;
         case 'gene':
-          this.loader.updateGenes(data.method, data.regex, params);
+          this.loader.update(data.method, params.matrixName, data.regex);
           break;
         case 'condition':
-          this.loader.updateConditions(data.method, data.regex, params);
+          this.loader.update(data.method, params.matrixName, data.regex);
           break;
         case 'auto-scale':
           this.renderer.render();

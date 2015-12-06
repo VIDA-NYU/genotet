@@ -53,7 +53,7 @@ var uploadPath;
  * Reads the configuration file and gets the file paths.
  */
 function config() {
-  var tokens = fs.readFileSync('server/config')
+  var tokens = fs.readFileSync('config')
     .toString()
     .split(RegExp(/\s+/));
   for (var i = 0; i < tokens.length; i += 3) {

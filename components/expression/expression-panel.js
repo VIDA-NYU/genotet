@@ -90,7 +90,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       var input = this.container_.find('#genes input');
       var geneRegex = input.val();
       if (geneRegex == '') {
-        genotet.warning('missing input gene selection')
+        genotet.warning('missing input gene selection');
         return;
       }
       input.val('');
@@ -124,7 +124,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
 /**
  * Updates the genes in the profile list.
  * Select2 will regenerate the selection list each time updated.
- * @param {!Array<string>} genes List of genes.
+ * @param {!Array<string>} gene List of genes.
  */
 genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
   var genes = gene.map(function(gene, index) {

@@ -25,7 +25,7 @@ genotet.ExpressionRenderer = function(container, data) {
     row: 0,
     column: 0,
     value: 0,
-    colorscaleValue: 0
+    colorscaleValue: null
   };
 
   /**
@@ -285,14 +285,24 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     transformTop += this.LABEL_MARGIN_;
   }
 
-  this.svgHeatmapContent_.selectAll('g').remove();
-  var cells = this.svgHeatmapContent_.selectAll('rect.cell').data(heatmapData.values);
-  var heatmapRows = cells.enter().append('g');
-  cells.exit().remove();
+  console.log(heatmapData);
+  var heatmapRows = this.svgHeatmapContent_.selectAll('g').data(heatmapData.values);
+  heatmapRows.enter().append('g');
   heatmapRows.attr("transform", genotet.utils.getTransform([transformLeft, transformTop]));
-  var heatmapRects = heatmapRows.selectAll('.rect')
-    .data(_.identity)
-    .enter().append('rect')
+  heatmapRows.exit().remove();
+  var heatmapRects = heatmapRows.selectAll('rect').data(_.identity);
+  heatmapRects.enter().append('rect');
+  heatmapRects
+    .attr('width', cellWidth)
+    .attr('height', cellHeight)
+    .attr('x', function(value, i) {
+      return i * cellWidth;
+    })
+    .attr('y', function(value, i, j) {
+      return j * cellHeight;
+    })
+    .style('stroke', colorScale)
+    .style('fill', colorScale)
     .on('mouseover', function(value, i, j) {
       var hoverCell = d3.event.target;
       var cell = this.cell_ = {
@@ -323,18 +333,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       };
       this.signal('cellClick', cell);
     }.bind(this));
-  cells.exit().remove();
-  heatmapRects
-    .attr('width', cellWidth)
-    .attr('height', cellHeight)
-    .attr('x', function(value, i) {
-      return i * cellWidth;
-    })
-    .attr('y', function(velue, i, j) {
-      return j * cellHeight;
-    })
-    .style('stroke', colorScale)
-    .style('fill', colorScale);
+  heatmapRects.exit().remove();
 };
 
 /**
@@ -544,9 +543,7 @@ genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell, highli
     });
   }
   else {
-    cellSelection.style('stroke', function() {
-      return cell.colorscaleValue;
-    });
+    cellSelection.style('stroke', cell.colorscaleValue);
     this.svgGeneLabels_.selectAll('text').classed('text-highlight', false);
     this.svgConditionLabels_.selectAll('text').classed('text-highlight', false);
   }
