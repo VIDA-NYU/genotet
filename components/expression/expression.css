@@ -1,5 +1,10 @@
-.text-highlight {
-  fill: red;
+.profiles {
+  stroke-width: 1.5;
+}
+
+.profiles .highlighted {
+  stroke: orange;
+  stroke-width: 3;
 }
 
 .axis {
@@ -14,8 +19,24 @@
   stroke: none;
 }
 
-.axis.x .tick{
+.axis.x .tick {
   display: none;
+}
+
+.gene-label {
+  text-anchor: end;
+}
+
+.gene-label.highlighted{
+  fill: red;
+}
+
+.condition-label {
+  text-anchor: right;
+}
+
+.condition-label.highlighted{
+  fill: red;
 }
 
 /*

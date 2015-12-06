@@ -29,7 +29,7 @@ genotet.ExpressionRenderer = function(container, data) {
   };
 
   /**
-   * Path object storing the rendering properties of expression cell.
+   * Profile object storing the rendering properties of expression cell.
    * @private {!Object}
    */
   this.path_ = {
@@ -78,11 +78,20 @@ genotet.ExpressionRenderer = function(container, data) {
   this.TEXT_HEIGHT_ = 14.5;
 
   /**
-   * Height of the gene profile plot.
-   * This value will be zero when profiles are not shown.
+   * The size of the gene profile color category.
    * @private {number}
    */
-  this.profileHeight_ = this.DEFAULT_PROFILE_HEIGHT;
+  this.COLOR_CATEGORY_SIZE = 60;
+
+  /**
+   * The default gene profile color category.
+   * @private {array}
+   */
+  this.COLOR_CATEGORY = d3.scale.category20()
+    .range()
+    .concat(d3.scale.category20b().range())
+    .concat(d3.scale.category20c().range());
+
   /**
    * Margins of the gene profile plot.
    * @private {!Object}
@@ -92,7 +101,15 @@ genotet.ExpressionRenderer = function(container, data) {
     RIGHT: 0,
     BOTTOM: 20,
     LEFT: 40
-  },
+  };
+
+  /**
+   * Height of the gene profile plot.
+   * This value will be zero when profiles are not shown.
+   * @private {number}
+   */
+  this.profileHeight_ = this.DEFAULT_PROFILE_HEIGHT;
+
   /**
    * Width of the heatmap.
    * @private {number}
@@ -358,7 +375,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
     .classed('gene-label', true);
   labels.exit().remove();
   labels
-    .attr("transform", genotet.utils.getTransform([
+    .attr('transform', genotet.utils.getTransform([
       this.geneLabelWidth_,
       transformTop
     ]))
@@ -366,8 +383,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
     .attr('x', 0)
     .attr('y', function(geneName, i) {
       return i * cellHeight;
-    })
-    .style('text-anchor', 'end');
+    });
 };
 
 /**
@@ -403,8 +419,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
     .attr('x', 0)
     .attr('y', function(conditionName, i) {
       return i * cellWidth;
-    })
-    .style('text-anchor', 'right');
+    });
 };
 
 /**
@@ -452,10 +467,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .classed('axis', true)
     .attr('transform', 'translate(' + this.PROFILE_MARGINS.LEFT + ', 0)');
 
-  var colors = d3.scale.category20()
-    .range()
-    .concat(d3.scale.category20b().range())
-    .concat(d3.scale.category20c().range());
   var profileContent = this.svgProfile_.append('g')
     .attr(
       'width',
@@ -472,15 +483,19 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     })
     .y(yScale)
     .interpolate('linear');
-  this.data.profiles.forEach(function(path, i) {
+  this.data.profiles.forEach(function(profile, i) {
     var geneIndex = this.data.profiles[i].row;
-    var pathColor = colors[genotet.utils.hashString(heatmapData.geneNames[geneIndex]) % 60];
+    var pathColor =  this.COLOR_CATEGORY[
+    genotet.utils.hashString(
+      heatmapData.geneNames[geneIndex]
+    ) % this.COLOR_CATEGORY_SIZE];
     this.data.profiles[i] = {
       geneName: heatmapData.geneNames[geneIndex],
       row: geneIndex,
       color: pathColor
     };
     profileContent.append('path')
+      .classed('profile', true)
       .attr('d', line(heatmapData.values[geneIndex]))
       .attr('stroke', pathColor)
       .attr('fill', 'none')
@@ -504,10 +519,10 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.addGeneProfile_ = function(geneIndex) {
-  var path = this.path_ = {
+  var profile = this.profile_ = {
     row: geneIndex
   };
-  this.data.profiles.push(path);
+  this.data.profiles.push(profile);
   this.drawGeneProfiles_();
 };
 
@@ -531,46 +546,48 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile_ = function(geneIndex) {
  * Highlights the hover cell for the heatmap.
  * @private
  */
-genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell, highlight_) {
+genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell) {
   var cellSelection = d3.select(cell.container_);
-  if (highlight_) {
-    cellSelection.style('stroke', 'white');
-    this.svgGeneLabels_.selectAll('text').classed('text-highlight', function(d, i) {
-      return cell.row == i;
-    });
-    this.svgConditionLabels_.selectAll('text').classed('text-highlight', function(d, i) {
-      return cell.column == i;
-    });
-  }
-  else {
-    cellSelection.style('stroke', cell.colorscaleValue);
-    this.svgGeneLabels_.selectAll('text').classed('text-highlight', false);
-    this.svgConditionLabels_.selectAll('text').classed('text-highlight', false);
-  }
+  cellSelection.style('stroke', 'white');
+  this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
+    return cell.row == i;
+  });
+  this.svgConditionLabels_.selectAll('text').classed('highlighted', function(d, i) {
+    return cell.column == i;
+  });
 };
 
 /**
- * Highlights the hover path for the gene profile.
+ * Unhighlights the hover cell for the heatmap.
  * @private
  */
-genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(path, highlight_) {
-  var pathSelection = d3.select(path.container_);
-  if (highlight_) {
-    pathSelection
-      .style('stroke', 'orange')
-      .style('stroke-width', 2);
-    this.svgGeneLabels_.selectAll('text').classed('text-highlight', function(d, i) {
-      return path.row == i;
-    });
-  }
-  else {
-    pathSelection
-      .style('stroke', function() {
-        return path.color;
-      })
-      .style('stroke-width', 1);
-    this.svgGeneLabels_.selectAll('text').classed('text-highlight', false);
-  }
+genotet.ExpressionRenderer.prototype.unhighlightHoverCell_ = function(cell) {
+  var cellSelection = d3.select(cell.container_);
+  cellSelection.style('stroke', cell.colorscaleValue);
+  this.svgGeneLabels_.selectAll('text').classed('highlighted', false);
+  this.svgConditionLabels_.selectAll('text').classed('highlighted', false);
+};
+
+/**
+ * Highlights the hover profile for the gene profile.
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
+  var pathSelection = d3.select(profile.container_);
+  pathSelection.classed('highlighted', true);
+  this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
+    return profile.row == i;
+  });
+};
+
+/**
+ * Unhover profile for the gene profile.
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.unhighlightHoverPath_ = function(profile) {
+  var pathSelection = d3.select(profile.container_);
+  pathSelection.classed('highlighted', false);
+  this.svgGeneLabels_.selectAll('text').classed('highlighted', false);
 };
 
 /**

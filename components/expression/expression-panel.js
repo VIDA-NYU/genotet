@@ -125,6 +125,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
  * Updates the genes in the profile list.
  * Select2 will regenerate the selection list each time updated.
  * @param {!Array<string>} gene List of genes.
+ * @private
  */
 genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
   var genes = gene.map(function(gene, index) {
@@ -191,13 +192,13 @@ genotet.ExpressionPanel.prototype.displayCellInfo_ = function(geneName, conditio
 };
 
 /**
- * Adds the path info into a given container.
+ * Adds the profile info into a given container.
  * @param {!String} geneName Gene name of which info is to be displayed.
  * @param {!jQuery} container Info container.
  * @private
  */
 genotet.ExpressionPanel.prototype.setPathInfo_ = function(geneName, container) {
-  container.html(this.container_.find('#path-info-template').html());
+  container.html(this.container_.find('#profile-info-template').html());
   container.children('#genePath').children('span')
     .text(geneName);
 };
@@ -207,11 +208,11 @@ genotet.ExpressionPanel.prototype.setPathInfo_ = function(geneName, container) {
  * @private
  */
 genotet.ExpressionPanel.prototype.hidePathInfo_ = function() {
-  this.container_.find('#path-info').slideUp();
+  this.container_.find('#profile-info').slideUp();
 };
 
 /**
- * Displays a tooltip around cursor about a hovered path.
+ * Displays a tooltip around cursor about a hovered profile.
  * @param {!String} geneName Gene Name being hovered.
  */
 genotet.ExpressionPanel.prototype.tooltipGeneProfile_ = function(geneName) {
@@ -221,11 +222,11 @@ genotet.ExpressionPanel.prototype.tooltipGeneProfile_ = function(geneName) {
 };
 
 /**
- * Displays the info box for expression path.
+ * Displays the info box for expression profile.
  * @param {!String} geneName Gene Name of which the info is to be displayed.
  */
 genotet.ExpressionPanel.prototype.displayPathInfo_ = function(geneName) {
-  var info = this.container_.find('#path-info').hide().slideDown();
+  var info = this.container_.find('#profile-info').hide().slideDown();
   this.setPathInfo_(geneName, info);
   info.find('.close').click(function() {
     this.hidePathInfo_();

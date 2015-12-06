@@ -233,26 +233,6 @@ genotet.utils.hashString = function(s) {
 };
 
 /**
- * Hashes a string to a color.
- * @param {string} s
- * @return {number} Hash value is a 6-digit color code.
- */
-genotet.utils.hashStringToColorCode = function(s) {
-  if (typeof s != 'string') {
-    return genotet.error('x is not a string to hash');
-  }
-  var hash = 0;
-  for (var i = 0; i < s.length; i++) {
-    hash = s.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  var color = '#';
-  for (var i = 0; i < 3; i++) {
-    color += ("00" + ((hash >> i * 8) & 0xFF).toString(16)).slice(-2)
-  }
-  return color;
-};
-
-/**
  * Encodes special character by their URL form.
  * @param {string} s
  * @return {string}

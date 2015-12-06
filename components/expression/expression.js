@@ -64,11 +64,11 @@ genotet.ExpressionView = function(viewName, params) {
   // Cell hover in expression.
   $(this.renderer)
     .on('genotet.cellHover', function(event, cell) {
-      this.renderer.highlightHoverCell_(cell, true);
+      this.renderer.highlightHoverCell_(cell);
       this.panel.tooltipHeatmap_(cell.geneName, cell.conditionName);
     }.bind(this))
     .on('genotet.cellUnhover', function(event, cell) {
-      this.renderer.highlightHoverCell_(cell, false);
+      this.renderer.unhighlightHoverCell_(cell);
       genotet.tooltip.hideAll();
     }.bind(this))
     .on('genotet.cellClick', function(event, cell) {
@@ -78,11 +78,11 @@ genotet.ExpressionView = function(viewName, params) {
   // Path hover in expression.
   $(this.renderer)
     .on('genotet.pathHover', function(event, path) {
-      this.renderer.highlightHoverPath_(path, true);
+      this.renderer.highlightHoverPath_(path);
       this.panel.tooltipGeneProfile_(path.geneName);
     }.bind(this))
     .on('genotet.pathUnhover', function(event, path) {
-      this.renderer.highlightHoverPath_(path, false);
+      this.renderer.unhighlightHoverPath_(path);
       genotet.tooltip.hideAll();
     }.bind(this))
     .on('genotet.pathClick', function(event, path) {
