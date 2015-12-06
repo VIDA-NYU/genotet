@@ -15,6 +15,16 @@ genotet.ExpressionRenderer = function(container, data) {
   this.base.constructor.call(this, container, data);
 
   /**
+   * Gene profile data. Each element corresponds to one gene profile line.
+   * @protected {!Array<!{
+   *   container_: d3.selection,
+   *   geneName: string,
+   *   row: number,
+   *   color: string
+   * }>}
+   this.data.profiles;
+
+  /**
    * Cell object storing the rendering properties of expression cell.
    * @private {!Object}
    */
@@ -32,7 +42,7 @@ genotet.ExpressionRenderer = function(container, data) {
    * Profile object storing the rendering properties of expression cell.
    * @private {!Object}
    */
-  this.path_ = {
+  this.profile_ = {
     container_: null,
     geneName: null,
     row: 0,
