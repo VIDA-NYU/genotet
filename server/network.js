@@ -151,11 +151,7 @@ module.exports = {
    * @return {!Array} Incident edges.
    */
   getIncidentEdges: function(file, gene) {
-    var buf = utils.readFileToBuf(file);
-    if (buf == null) {
-      return console.error('cannot read file', file), [];
-    }
-    var result = this.readNet(buf);
+    var result = this.readNetwork(file);
     gene = gene.toLowerCase();
     var edges = [];
     result.edges.forEach(function(edge) {
@@ -218,7 +214,7 @@ module.exports = {
    * @return {Array} array of object of each network file
    */
   listNetwork: function(networkAddr) {
-    var folder = expmatAddr;
+    var folder = networkAddr;
     var ret = [];
     var files = fs.readdirSync(folder);
     for (var i = 0; i < files.length; i++) {
