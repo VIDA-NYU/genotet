@@ -65,28 +65,28 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.renderer)
     .on('genotet.cellHover', function(event, cell) {
       this.renderer.highlightHoverCell_(cell);
-      this.panel.tooltipHeatmap_(cell.geneName, cell.conditionName);
+      this.panel.tooltipHeatmap_(cell.geneName, cell.conditionName, cell.value);
     }.bind(this))
     .on('genotet.cellUnhover', function(event, cell) {
       this.renderer.unhighlightHoverCell_(cell);
       genotet.tooltip.hideAll();
     }.bind(this))
     .on('genotet.cellClick', function(event, cell) {
-      this.panel.displayCellInfo_(cell.geneName, cell.conditionName);
+      this.panel.displayCellInfo_(cell.geneName, cell.conditionName, cell.value);
     }.bind(this));
 
   // Path hover in expression.
   $(this.renderer)
-    .on('genotet.pathHover', function(event, path) {
-      this.renderer.highlightHoverPath_(path);
-      this.panel.tooltipGeneProfile_(path.geneName);
+    .on('genotet.pathHover', function(event, profile) {
+      this.renderer.highlightHoverPath_(profile);
+      this.panel.tooltipGeneProfile_(profile.geneName, profile.hoverConditionName, profile.hoverValue);
     }.bind(this))
-    .on('genotet.pathUnhover', function(event, path) {
-      this.renderer.unhighlightHoverPath_(path);
+    .on('genotet.pathUnhover', function(event, profile) {
+      this.renderer.unhighlightHoverPath_(profile);
       genotet.tooltip.hideAll();
     }.bind(this))
-    .on('genotet.pathClick', function(event, path) {
-      this.panel.displayPathInfo_(path.geneName);
+    .on('genotet.pathClick', function(event, profile) {
+      this.panel.displayPathInfo_(profile.geneName, profile.hoverConditionName, profile.hoverValue);
     }.bind(this));
 
   // Update expression panel.

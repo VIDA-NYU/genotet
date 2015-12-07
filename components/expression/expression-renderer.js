@@ -46,6 +46,8 @@ genotet.ExpressionRenderer = function(container, data) {
     container_: null,
     geneName: null,
     row: 0,
+    hoverValue: 0,
+    hoverConditionName: null,
     color: null
   };
 
@@ -337,7 +339,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         geneName: heatmapData.geneNames[j],
         conditionName: heatmapData.conditionNames[i],
         row: j,
-        column: i
+        column: i,
+        value: value
       };
       this.signal('cellHover', cell);
     }.bind(this))
@@ -349,14 +352,15 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       };
       this.signal('cellUnhover', cell);
     }.bind(this))
-    .on('click', function(d, i, j) {
+    .on('click', function(value, i, j) {
       var hoverCell = d3.event.target;
       var cell = this.cell_ = {
         container_: hoverCell,
         geneName: heatmapData.geneNames[j],
         conditionName: heatmapData.conditionNames[i],
         row: j,
-        column: i
+        column: i,
+        value: value
       };
       this.signal('cellClick', cell);
     }.bind(this));
@@ -455,7 +459,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   var xScale = d3.scale.linear().range([
     this.PROFILE_MARGINS.LEFT,
     this.canvasWidth_ - this.PROFILE_MARGINS.RIGHT
-  ]).domain([0, heatmapData.conditionNames.length - 1]);
+  ]).domain([0, heatmapData.conditionNames.length]);
   var yScale = d3.scale.linear().range([
     this.profileHeight_ - this.PROFILE_MARGINS.BOTTOM,
     this.PROFILE_MARGINS.TOP
@@ -507,18 +511,27 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     profileContent.append('path')
       .classed('profile', true)
       .attr('d', line(heatmapData.values[geneIndex]))
+      .attr('transform', 'translate(' + this.heatmapWidth_ / (heatmapData.conditionNames.length * 2) + ', 0)')
       .attr('stroke', pathColor)
       .attr('fill', 'none')
-      .on('mouseover', function(value) {
+      .on('mousemove', function() {
+        var conditionIndex = Math.floor(xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
+        var value = heatmapData.values[geneIndex][conditionIndex];
         this.data.profiles[i].container_= d3.event.target;
+        this.data.profiles[i].hoverValue = value;
+        this.data.profiles[i].hoverConditionName = heatmapData.conditionNames[conditionIndex];
         this.signal('pathHover', this.data.profiles[i]);
       }.bind(this))
-      .on('mouseout', function(value) {
+      .on('mouseout', function() {
         this.data.profiles[i].container_= d3.event.target;
         this.signal('pathUnhover', this.data.profiles[i]);
       }.bind(this))
-      .on('click', function(value, i) {
+      .on('click', function() {
+        var conditionIndex = Math.floor(xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
+        var value = heatmapData.values[geneIndex][conditionIndex];
         this.data.profiles[i].container_= d3.event.target;
+        this.data.profiles[i].hoverValue = value;
+        this.data.profiles[i].hoverConditionName = heatmapData.conditionNames[conditionIndex];
         this.signal('pathClick', this.data.profiles[i]);
       }.bind(this));
   }, this);
