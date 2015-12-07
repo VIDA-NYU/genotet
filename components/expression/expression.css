@@ -27,16 +27,26 @@
   text-anchor: end;
 }
 
-.gene-label.highlighted{
+.gene-label.highlighted {
   fill: red;
+}
+
+.gene-label.click-highlighted {
+  stroke: red;
+  strok-width: 4;
 }
 
 .condition-label {
   text-anchor: right;
 }
 
-.condition-label.highlighted{
+.condition-label.highlighted {
   fill: red;
+}
+
+.condition-label.click-highlighted {
+  stroke: red;
+  strok-width: 4;
 }
 
 /*

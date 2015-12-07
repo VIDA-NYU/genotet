@@ -46,8 +46,9 @@ genotet.ExpressionRenderer = function(container, data) {
     container_: null,
     geneName: null,
     row: 0,
-    hoverValue: 0,
+    hoverColumn: 0,
     hoverConditionName: null,
+    hoverValue: 0,
     color: null
   };
 
@@ -518,8 +519,9 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
         var conditionIndex = Math.floor(xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
         var value = heatmapData.values[geneIndex][conditionIndex];
         this.data.profiles[i].container_= d3.event.target;
-        this.data.profiles[i].hoverValue = value;
+        this.data.profiles[i].hoverColumn = conditionIndex;
         this.data.profiles[i].hoverConditionName = heatmapData.conditionNames[conditionIndex];
+        this.data.profiles[i].hoverValue = value;
         this.signal('pathHover', this.data.profiles[i]);
       }.bind(this))
       .on('mouseout', function() {
@@ -530,8 +532,9 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
         var conditionIndex = Math.floor(xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
         var value = heatmapData.values[geneIndex][conditionIndex];
         this.data.profiles[i].container_= d3.event.target;
-        this.data.profiles[i].hoverValue = value;
+        this.data.profiles[i].hoverColumn = conditionIndex;
         this.data.profiles[i].hoverConditionName = heatmapData.conditionNames[conditionIndex];
+        this.data.profiles[i].hoverValue = value;
         this.signal('pathClick', this.data.profiles[i]);
       }.bind(this));
   }, this);
@@ -601,6 +604,9 @@ genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
   this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
     return profile.row == i;
   });
+  this.svgConditionLabels_.selectAll('text').classed('highlighted', function(d, i) {
+    return profile.hoverColumn == i;
+  });
 };
 
 /**
@@ -611,6 +617,33 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverPath_ = function(profile) {
   var pathSelection = d3.select(profile.container_);
   pathSelection.classed('highlighted', false);
   this.svgGeneLabels_.selectAll('text').classed('highlighted', false);
+  this.svgConditionLabels_.selectAll('text').classed('highlighted', false);
+};
+
+/**
+ * Highlights the labels of clicked cell for the heatmap.
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.highlightLabelsForClickedCell_ = function(cell) {
+  this.svgGeneLabels_.selectAll('text').classed('click-highlighted', function (d, i) {
+    return cell.row == i;
+  });
+  this.svgConditionLabels_.selectAll('text').classed('click-highlighted', function (d, i) {
+    return cell.column == i;
+  });
+};
+
+/**
+ * Highlights the labels of clicked profile.
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.highlightLabelsForClickedProfile_ = function(profile) {
+  this.svgGeneLabels_.selectAll('text').attr('fill', 'black');
+  this.svgConditionLabels_.selectAll('text').attr('fill', 'black');
+  this.svgGeneLabels_.select('text:nth-child(' + (profile.row + 1) + ')')
+    .attr('fill', profile.color);
+  this.svgConditionLabels_.select('text:nth-child(' + (profile.hoverColumn + 1) + ')')
+    .attr('fill', profile.color);
 };
 
 /**
