@@ -21,7 +21,13 @@ genotet.View = function(viewName) {
   this.viewName_ = viewName;
 
   /** @private {string} */
+  this.viewID_ = viewName.replace(/\s/g, '-');
+
+  /** @private {string} */
   this.headerText_ = '';
+
+  /** @private {boolean} */
+  this.sendSignal_ = true;
 
   /** @protected {!jQuery} */
   this.container = $('<div></div>')
@@ -64,7 +70,7 @@ genotet.View.prototype.init = function() {
       containment: '#main',
       start: function(event) {
         genotet.viewManager.blurAllViews();
-        this.focus();
+        this.focus(this.sendSignal_);
       }.bind(this)
     })
     .resizable({
@@ -83,7 +89,7 @@ genotet.View.prototype.init = function() {
   // Set up focus event hook.
   this.container.click(function(event) {
     genotet.viewManager.blurAllViews();
-    this.focus();
+    this.focus(this.sendSignal_);
     // Prevent event from hitting the background, which would blur the view.
     event.stopPropagation();
   }.bind(this));
@@ -142,12 +148,15 @@ genotet.View.prototype.headerText = function(headerText) {
 
 /**
  * Makes the view appear focused.
+ * @param {?string} flag of sending signal.
  */
-genotet.View.prototype.focus = function() {
+genotet.View.prototype.focus = function(sendSignal) {
   this.container.addClass('focused');
-  this.signal('focus');
   // Re-append to appear on top of other views.
   this.container.appendTo('#main');
+  if (sendSignal) {
+    this.signal('focus');
+  }
 };
 
 /**

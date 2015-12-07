@@ -74,18 +74,7 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
       // Return immediately. No ajax.
       return;
   }
-  this.signal('loadStart');
-  var params = {
-    type: 'network',
-    networkName: this.data.networkName, // Use the previous network name
-    geneRegex: regex
-  };
-  $.get(genotet.data.serverURL, params, function(data) {
-    data.geneRegex = regex;
-    _(this.data).extend(data);
-    this.signal('loadComplete');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot update genes in the network', params));
+  this.load(this.data.networkName, regex);
 };
 
 

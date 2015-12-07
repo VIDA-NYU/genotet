@@ -273,6 +273,7 @@ module.exports = {
    * @return {Object} the expression matrix
    */
   readExpression: function(expressionFile, geneRegex, conditionRegex) {
+    var values = [];
     var isFirstCol = true;
     var values = [];
     var conditions = [];
