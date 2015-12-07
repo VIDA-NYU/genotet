@@ -32,8 +32,8 @@
 }
 
 .gene-label.click-highlighted {
+  fill: red;
   stroke: red;
-  strok-width: 4;
 }
 
 .condition-label {
@@ -45,8 +45,8 @@
 }
 
 .condition-label.click-highlighted {
+  fill: red;
   stroke: red;
-  strok-width: 4;
 }
 
 /*

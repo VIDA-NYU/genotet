@@ -374,8 +374,11 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
  */
 genotet.ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
   if (!this.data.options.showGeneLabels) {
-    this.svgGeneLabels_.selectAll('*').remove();
+    this.svgGeneLabels_.selectAll('*').attr('display', 'none');
     return;
+  }
+  else {
+    this.svgGeneLabels_.selectAll('*').attr('display', 'inline');
   }
   var heatmapData = this.data.matrix;
   var geneLabelsData = heatmapData.geneNames;
@@ -407,8 +410,11 @@ genotet.ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
  */
 genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   if (!this.data.options.showConditionLabels) {
-    this.svgConditionLabels_.selectAll('*').remove();
+    this.svgConditionLabels_.selectAll('*').attr('display', 'none');
     return;
+  }
+  else {
+    this.svgConditionLabels_.selectAll('*').attr('display', 'inline');
   }
   var heatmapData = this.data.matrix;
   var conditionLabelsData = heatmapData.conditionNames;
@@ -443,14 +449,17 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
  */
 genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   if (!this.data.options.showProfiles) {
-    this.svgProfile_.selectAll('*').remove();
+    this.svgProfile_.selectAll('*').attr('display', 'none');
     return;
   }
-  else if (!this.data.options.showGeneLabels) {
-    this.PROFILE_MARGINS.LEFT = this.DEFAULT_PROFILE_MARGIN;
-  }
   else {
-    this.PROFILE_MARGINS.LEFT = this.geneLabelWidth_ + this.LABEL_MARGIN_;
+    if (!this.data.options.showGeneLabels) {
+      this.PROFILE_MARGINS.LEFT = this.DEFAULT_PROFILE_MARGIN;
+    }
+    else {
+      this.PROFILE_MARGINS.LEFT = this.geneLabelWidth_ + this.LABEL_MARGIN_;
+    }
+    this.svgProfile_.selectAll('*').attr('display', 'inline');
   }
 
   var heatmapData = this.data.matrix;
