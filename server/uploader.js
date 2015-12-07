@@ -109,7 +109,7 @@ module.exports = {
 
     lines.on('close', function() {
       // write to *.bcwig file
-      console.log('start log it');
+      // console.log('start log it');
       // if the folder already exists, then delete it
       var folder = prefix + bwFile + '_chr';
       var stats = fs.lstatSync(folder);
