@@ -98,21 +98,15 @@ genotet.dialog.createNetwork_ = function() {
     modal.modal();
     var viewName = modal.find('#view-name');
     viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
-    //modal.find('.selectpicker').selectpicker();
+    modal.find('.selectpicker').selectpicker();
     var params = {
       type: 'list-network'
     };
-    var networks = [];
     $.get(genotet.data.serverURL, params, function(data) {
       data.forEach(function(network) {
-        networks.push({
-          id: network.networkName,
-          text: network.networkName
-        });
+        modal.find('.selectpicker').append('<option>' + network.networkName + '</option>');
       });
-      modal.find('#network').select2({
-        data: networks
-      });
+      modal.find('.selectpicker').selectpicker('refresh');
     }.bind(this), 'jsonp')
       .fail(function() {
         genotet.error('failed to get network list');
@@ -197,21 +191,15 @@ genotet.dialog.createExpression_ = function() {
     modal.modal();
     var viewName = modal.find('#view-name');
     viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
-    //modal.find('.selectpicker').selectpicker();
+    modal.find('.selectpicker').selectpicker();
     var params = {
       type: 'list-matrix'
     };
-    var matrices = [];
     $.get(genotet.data.serverURL, params, function(data) {
         data.forEach(function(matrix) {
-          matrices.push({
-            id: matrix.matrixName,
-            text: matrix.matrixName
-          });
+          modal.find('.selectpicker').append('<option>' + matrix.matrixName + '</option>');
         });
-        modal.find('#matrix').select2({
-          data: matrices
-        });
+        modal.find('.selectpicker').selectpicker('refresh');
       }.bind(this), 'jsonp')
       .fail(function() {
         genotet.error('failed to get expression list');

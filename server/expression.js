@@ -286,7 +286,7 @@ module.exports = {
       expGene = expCondition = 'a^';
     }
     var lines = fs.readFileSync(expressionFile).toString().split('\n');
-    for (var lineNum in lines) {
+    lines.forEach(function(line) {
       var line = lines[lineNum];
       var parts = line.split('\t');
       if (isFirstCol) {
@@ -316,9 +316,9 @@ module.exports = {
           }
         }
       }
-    }
+    });
     return {
-      values: value,
+      values: values,
       geneNames: geneNames,
       conditionNames: conditionNames,
       valueMin: valueMin,
