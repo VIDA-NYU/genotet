@@ -273,6 +273,7 @@ module.exports = {
    * @return {Object} the expression matrix
    */
   readExpression: function(expressionFile, geneRegex, conditionRegex) {
+    var values = [];
     var isFirstCol = true;
     var conditions = [];
     var geneNames = [];
@@ -321,8 +322,9 @@ module.exports = {
         }
       }
     }
+    // TODO(jdong): Push rows to values!
     return {
-      values: value,
+      values: values,
       geneNames: geneNames,
       conditionNames: conditionNames,
       valueMin: valueMin,
