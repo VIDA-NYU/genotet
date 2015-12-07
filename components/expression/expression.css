@@ -1,3 +1,54 @@
+.profiles {
+  stroke-width: 1.5;
+}
+
+.profiles .highlighted {
+  stroke: orange;
+  stroke-width: 3;
+}
+
+.axis {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.axis .tick text {
+  fill: #000;
+  stroke: none;
+}
+
+.axis.x .tick {
+  display: none;
+}
+
+.gene-label {
+  text-anchor: end;
+}
+
+.gene-label.highlighted {
+  fill: red;
+}
+
+.gene-label.click-highlighted {
+  fill: red;
+  stroke: red;
+}
+
+.condition-label {
+  text-anchor: right;
+}
+
+.condition-label.highlighted {
+  fill: red;
+}
+
+.condition-label.click-highlighted {
+  fill: red;
+  stroke: red;
+}
+
 /*
 .expression .polyline {
   stroke-opacity: .75;

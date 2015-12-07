@@ -69,33 +69,64 @@ genotet.panelManager.togglePanel_ = function() {
 };
 
 /**
+ * Activate the side panel.
+ * @private
+ */
+genotet.panelManager.activatePanel_ = function(viewID) {
+  var tabID = 'panel-tab-' + viewID;
+  var tabContentID = 'panel-view-' + viewID;
+  $('.sideways li.active').removeClass('active');
+  $('#' + tabID).addClass('active');
+  $('.tab-content div.active').removeClass('active');
+  $('#' + tabContentID).addClass('active');
+},
+
+/**
  * Creates a panel with the given name.
  * @param {string} viewName Name of the view.
  */
 genotet.panelManager.addPanel = function(view) {
-  var viewID = view.name().replace(/\s/g, '');
+  var viewID = view.viewID_;
   var tabID = 'panel-tab-' + viewID;
+  var tabContentID = 'panel-view-' + viewID;
   $('#panel-tab-init').clone()
     .attr('id', tabID)
     .appendTo('.sideways')
     .find('a')
-    .attr('href', '#panel-view-' + viewID)
+    .attr('href', '#' + tabContentID)
     .append(view.name());
   $('#panel-view-init').clone()
-    .attr('id', 'panel-view-' + viewID)
+    .attr('id', tabContentID)
     .appendTo('.tab-content');
-  $('#' + tabID + ' a').trigger('click');
+  $(view).on('genotet.focus', function() {
+    var clickedViewID = view.viewID_;
+    this.activatePanel_(clickedViewID);
+  }.bind(this));
 
+  // Remove the click event handler to avoid multiple executions.
+  $('.sideways li a').off().click(function(event) {
+    event.stopPropagation();
+    if (!this.showPanel_) {
+      this.togglePanel_();
+    }
+    var clickedTabID = $(event.target).parent().attr('id');
+    var clickedViewID = clickedTabID.replace('panel-tab-', '');
+    var clickedViewName = clickedViewID.replace(/\-/g, ' ');
+    var clickedView = genotet.viewManager.views[clickedViewName];
+    genotet.viewManager.blurAllViews();
+    clickedView.focus(false);
+    this.activatePanel_(clickedViewID);
+  }.bind(this));
   this.container_.show();
   if (!this.showPanel_) {
     this.togglePanel_();
   }
-  $(view).on('genotet.focus', function() {
-    $('#' + tabID + ' a').trigger('click');
-  });
+  this.activatePanel_(viewID);
+  genotet.viewManager.blurAllViews();
+  view.focus(false);
 
-  var container = $('#panel-view-' + viewID);
-  return container;
+var container = $('#panel-view-' + viewID);
+return container;
 };
 
 /**
@@ -103,7 +134,7 @@ genotet.panelManager.addPanel = function(view) {
  * @param {string} viewName Name of the view.
  */
 genotet.panelManager.removePanel = function(viewName) {
-  var viewID = viewName.replace(/\s/g, '');
+  var viewID = viewName.replace(/\s/g, '-');
   var tab = $('#panel-tab-' + viewID);
   var panel = $('#panel-view-' + viewID);
   var activated = tab.hasClass('active');
@@ -136,5 +167,5 @@ genotet.panelManager.closeAllPanels = function(e){
     .addClass('tab-pane active')
     .attr('id', 'panel-view-init')
     .appendTo(tabContent);
-  $('.side-panel').css('display', 'none');
+  $('#side-panel').css('display', 'none');
 };
