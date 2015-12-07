@@ -264,7 +264,7 @@ app.get('/genotet', function(req, res) {
       data = expression.getExpmatLine(fileExp, fileTfa, name);
       break;
     case 'list-matrix':
-      data = expression.listMatrix(expmatPath);
+      data = expression.listMatrix(expressionPath);
       break;
     case 'read-expression':
       var file = expressionPath + req.query.matrixName;

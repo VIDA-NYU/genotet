@@ -356,21 +356,17 @@ module.exports = {
     var folder = wiggleAddr;
     var ret = [];
     var files = fs.readdirSync(folder);
-    for (var i = 0; i < files.length; i++) {
-      var stat = fs.lstatSync(folder + files[i]);
-      if (!stat.isDirectory) {
-        if (files[i].indexOf('.txt') != -1) {
-          var fname = files[i].substr(0, files[i].length - 4);
-          var description;
-          var fd = fs.openSync(folder + files[i]);
-          fs.readSync(fd, description);
-          ret.push({
-            bindingName: fname,
-            description: description.toString()
-          });
-        }
+    files.forEach(function(file){
+      if (file.indexOf('.txt') != -1) {
+        var fname = file.substr(0, file.length - 4);
+        var fd = fs.openSync(folder + file, 'r');
+        var description = fs.readFileSync(fd, 'utf8');
+        ret.push({
+          bindingName: fname,
+          description: description.toString()
+        });
       }
-    }
+    });
     return ret;
   }
 };
