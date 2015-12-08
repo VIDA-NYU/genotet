@@ -197,7 +197,7 @@ app.get('/genotet', function(req, res) {
       // Edges incident to one node
       var networkName = req.query.networkName.toLowerCase(),
         gene = req.query.gene,
-        file = networkPath + networkName + '.bnet';
+        file = networkPath + networkName;
       data = network.getIncidentEdges(file, gene);
       break;
     case 'combined-regulation':

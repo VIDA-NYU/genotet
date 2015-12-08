@@ -353,7 +353,7 @@ module.exports = {
    * @return {Array} Array of object of each wiggle file.
    */
   listBindingGenes: function(wiggleAddr) {
-    var folder = expmatAddr;
+    var folder = wiggleAddr;
     var ret = [];
     var files = fs.readdirSync(folder);
     for (var i = 0; i < files.length; i++) {
