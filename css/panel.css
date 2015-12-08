@@ -89,13 +89,9 @@
   display: none;
 }
 
-.sideways li:nth-child(2) {
-  margin-top: 46.5px;
-}
-
 .sideways li:nth-child(2) a {
   border-top-right-radius: 0px;
-  margin-top: -2px;
+  margin-top: 47px;
 }
 
 .panel.binding #genes #add {
