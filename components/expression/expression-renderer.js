@@ -315,7 +315,6 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     transformTop += this.LABEL_MARGIN_;
   }
 
-  console.log(heatmapData);
   var heatmapRows = this.svgHeatmapContent_.selectAll('g').data(heatmapData.values);
   heatmapRows.enter().append('g');
   heatmapRows.attr("transform", genotet.utils.getTransform([transformLeft, transformTop]));
@@ -383,7 +382,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
   var heatmapData = this.data.matrix;
   var geneLabelsData = heatmapData.geneNames;
   var cellHeight = this.heatmapHeight_ / geneLabelsData.length;
-  var transformTop = this.profileHeight_ + this.TEXT_HEIGHT_ / 2 + cellHeight / 2;
+  var transformTop = this.profileHeight_ + this.TEXT_HEIGHT_ / 3 + cellHeight / 2;
   if (this.data.options.showConditionLabels) {
     transformTop += this.conditionLabelHeight_ + this.LABEL_MARGIN_;
   }
@@ -419,7 +418,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   var heatmapData = this.data.matrix;
   var conditionLabelsData = heatmapData.conditionNames;
   var cellWidth = this.heatmapWidth_ / conditionLabelsData.length;
-  var transformLeft = this.TEXT_HEIGHT_ / 2 + cellWidth / 2;
+  var transformLeft = this.TEXT_HEIGHT_ / 3 + cellWidth / 2;
   if (this.data.options.showGeneLabels) {
     transformLeft += this.LABEL_MARGIN_;
   }

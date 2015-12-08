@@ -17,7 +17,7 @@ genotet.ExpressionPanel = function(data) {
     // TODO(bowen): Check how TFA data will be used.
     //showTFA: true,
     showGeneLabels: true,
-    showConditionLabels: false,
+    showConditionLabels: true,
     showProfiles: true,
     showGradient: false,
     autoScaleGradient: true

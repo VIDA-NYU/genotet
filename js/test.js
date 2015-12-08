@@ -17,7 +17,7 @@ genotet.test.run = function() {
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
     matrixName: 'expressionMatrix',
     geneRegex: 'sig.*',
-    condRegex: '.*'
+    condRegex: 'SigH.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     gene: 'SL3037_SL3036',
