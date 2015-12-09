@@ -86,6 +86,12 @@ genotet.ExpressionRenderer = function(container, data) {
   this.LABEL_MARGIN_ = 10;
 
   /**
+   * The difference between the labels and the heatmap.
+   * @private {number}
+   */
+  this.LABEL_DIFFERENCE_ = 10;
+
+  /**
    * The height of the label text.
    * @private {number}
    */
@@ -222,14 +228,13 @@ genotet.ExpressionRenderer.prototype.layout = function() {
   this.svgHeatmap_
     .attr('transform', genotet.utils.getTransform([0, 0]));
 
-  this.heatmapWidth_ = this.canvasWidth_ - this.geneLabelWidth_;
+  this.heatmapWidth_ = this.canvasWidth_;
   if (this.data.options.showGeneLabels) {
-    this.heatmapWidth_ -= this.LABEL_MARGIN_;
+    this.heatmapWidth_ -= this.LABEL_MARGIN_ + this.geneLabelWidth_;
   }
-  this.heatmapHeight_ = this.canvasHeight_ - this.profileHeight_ -
-    this.conditionLabelHeight_;
+  this.heatmapHeight_ = this.canvasHeight_ - this.profileHeight_;
   if (this.data.options.showConditionLabels) {
-    this.heatmapHeight_ -= this.LABEL_MARGIN_;
+    this.heatmapHeight_ -= this.conditionLabelHeight_ + this.LABEL_MARGIN_ + this.LABEL_DIFFERENCE_;
   }
 
   this.svgHeatmapContent_
@@ -305,7 +310,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       .range(genotet.data.redYellowScale);
   }
   var transformLeft = 0;
-  var transformTop = this.conditionLabelHeight_ + this.profileHeight_;
+  var transformTop = this.profileHeight_;
   if (this.data.options.showGeneLabels) {
     transformLeft += this.LABEL_MARGIN_;
   }
@@ -313,7 +318,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     transformLeft += this.DEFAULT_PROFILE_MARGIN;
   }
   if (this.data.options.showConditionLabels) {
-    transformTop += this.LABEL_MARGIN_;
+    transformTop += this.conditionLabelHeight_ + this.LABEL_MARGIN_ + this.LABEL_DIFFERENCE_;
   }
 
   if (this.data.clickedCell){
@@ -401,7 +406,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixGeneLabels_ = function() {
   var cellHeight = this.heatmapHeight_ / geneLabelsData.length;
   var transformTop = this.profileHeight_ + this.TEXT_HEIGHT_ / 3 + cellHeight / 2;
   if (this.data.options.showConditionLabels) {
-    transformTop += this.conditionLabelHeight_ + this.LABEL_MARGIN_;
+    transformTop += this.conditionLabelHeight_ + this.LABEL_MARGIN_ + this.LABEL_DIFFERENCE_;
   }
 
   var labels = this.svgGeneLabels_.selectAll('text').data(geneLabelsData);
@@ -450,7 +455,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   labels
     .attr('transform', genotet.utils.getTransform([
       transformLeft,
-      this.conditionLabelHeight_ + this.profileHeight_
+      this.conditionLabelHeight_ + this.profileHeight_ + this.LABEL_MARGIN_
     ], 1, -90))
     .text(_.identity)
     .attr('x', 0)
