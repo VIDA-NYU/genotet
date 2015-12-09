@@ -27,7 +27,7 @@ genotet.ExpressionPanel = function(data) {
    * Select2 for selecting genes to profile.
    * @private {select2}
    */
-  this.selectProfiles_;
+  this.selectProfiles_ = null;
 };
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
@@ -163,7 +163,7 @@ genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName, conditionNam
 };
 
 /**
- * Hides all info boxes.
+ * Hides all cell info boxes.
  * @private
  */
 genotet.ExpressionPanel.prototype.hideCellInfo_ = function() {
@@ -217,7 +217,7 @@ genotet.ExpressionPanel.prototype.setPathInfo_ = function(geneName, conditionNam
 };
 
 /**
- * Hides all info boxes.
+ * Hides all profile info boxes.
  * @private
  */
 genotet.ExpressionPanel.prototype.hidePathInfo_ = function() {

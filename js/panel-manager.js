@@ -15,6 +15,8 @@ genotet.panelManager.TOGGLE_BTN_HEIGHT = 50;
 genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE = 20;
 /** @const {number} */
 genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE = 73;
+/** @const {number} */
+genotet.panelManager.TAB_HEIGHT_DIFFERENCE = 2;
 
 /**
  * Whether the panel is toggled on.
@@ -190,7 +192,7 @@ genotet.panelManager.adjustTabHeight = function(e) {
   var tabHeight =  tabSelector.find('li:nth-child(2) a').outerWidth();
   var tabContentHeight = $('.tab-content').outerHeight();
   var newTabHeight = Math.floor(
-    (tabContentHeight - this.TOGGLE_BTN_HEIGHT) / tabCount - 1
+    (tabContentHeight -  this.TAB_HEIGHT_DIFFERENCE - this.TOGGLE_BTN_HEIGHT) / tabCount - 1
   );
   tabSelector
     .find('li')
