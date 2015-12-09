@@ -55,7 +55,7 @@ genotet.data.redBlueScale = ['#ab1e1e', 'gray', '#1e6eab'];
  * Color scale from black to red to yellow.
  * @type {!d3.scale}
  */
-genotet.data.redYellowScale = ["black", "red", "yellow"];
+genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 
 /**
  * Initializes Data properties.
