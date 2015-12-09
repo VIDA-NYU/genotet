@@ -119,7 +119,7 @@ genotet.ExpressionRenderer = function(container, data) {
   this.PROFILE_MARGINS = {
     TOP: 10,
     RIGHT: 0,
-    BOTTOM: 20,
+    BOTTOM: 10,
     LEFT: 40
   };
 
@@ -152,6 +152,12 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 150;
+
+/** @const {number} */
+genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_HEIGHT = 25;
+
+/** @const {number} */
+genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN = 10;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_MARGIN = 40;
@@ -487,13 +493,37 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   this.svgProfile_.selectAll('g').remove();
   this.svgProfile_.attr('width', this.canvasWidth_);
 
+  var legend = this.svgProfile_.append('g')
+    .classed('legend', true)
+    .attr('transform', 'translate(' + this.PROFILE_MARGINS.LEFT
+      + ', ' + this.DEFAULT_PROFILE_LEGEND_MARGIN + ')');
+  var legendHeight = this.DEFAULT_PROFILE_LEGEND_HEIGHT - this.DEFAULT_PROFILE_LEGEND_MARGIN;
+
+  var i = 0;
+  var profileCount = this.data.profiles.length;
+  while (i < profileCount) {
+    var geneIndex = heatmapData.geneNames.indexOf(this.data.profiles[i].geneName);
+    if (geneIndex == -1) {
+      this.data.profiles.splice(i, 1);
+      profileCount--;
+    }
+    else {
+      this.data.profiles[i].row = geneIndex;
+      i++;
+    }
+  }
+
   var xScale = d3.scale.linear().range([
     this.PROFILE_MARGINS.LEFT,
     this.canvasWidth_ - this.PROFILE_MARGINS.RIGHT
   ]).domain([0, heatmapData.conditionNames.length]);
+  var yScaleTop = this.PROFILE_MARGINS.TOP + this.DEFAULT_PROFILE_LEGEND_HEIGHT;
+  if (this.data.profiles.length == 0) {
+    yScaleTop -= this.DEFAULT_PROFILE_LEGEND_HEIGHT;
+  }
   var yScale = d3.scale.linear().range([
     this.profileHeight_ - this.PROFILE_MARGINS.BOTTOM,
-    this.PROFILE_MARGINS.TOP
+    yScaleTop
   ]).domain([heatmapData.valueMin, heatmapData.valueMax]);
   var xAxis = d3.svg.axis()
     .scale(xScale).orient('bottom');
@@ -528,24 +558,24 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     })
     .y(yScale)
     .interpolate('linear');
-  var i = 0;
-  var profileCount = this.data.profiles.length;
-  while (i < profileCount) {
-    var geneIndex = heatmapData.geneNames.indexOf(this.data.profiles[i].geneName);
-    if (geneIndex == -1) {
-      this.data.profiles.splice(i, 1);
-      profileCount--;
-    }
-    else {
-      this.data.profiles[i].row = geneIndex;
-      i++;
-    }
-  }
+
   this.data.profiles.forEach(function(profile, i) {
     var pathColor =  this.COLOR_CATEGORY[genotet.utils.hashString(
       heatmapData.geneNames[profile.row]
     ) % this.COLOR_CATEGORY_SIZE];
     this.data.profiles[i].color = pathColor;
+    var legendWidth = i * (legendHeight
+      + profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR_);
+    legend.append('rect')
+      .attr('height', legendHeight)
+      .attr('width', legendHeight)
+      .attr('x', legendWidth)
+      .style('fill', pathColor);
+    legend.append('text')
+      .text(profile.geneName)
+      .attr('transform', 'translate(' + (legendHeight + 1) + ', '
+        + (legendHeight / 2 + this.TEXT_HEIGHT_ / 3) + ')')
+      .attr('x', legendWidth);
     profileContent.append('path')
       .classed('profile', true)
       .attr('d', line(heatmapData.values[profile.row]))
