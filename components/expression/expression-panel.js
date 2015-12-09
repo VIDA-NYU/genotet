@@ -134,11 +134,15 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
       text: gene
     };
   });
+  var geneProfiles = this.data.profiles.map(function(profile) {
+    return profile.geneName;
+  });
   this.selectProfiles_ = this.container_.find('#profile select').empty();
   this.selectProfiles_.select2({
       data: genes,
       multiple: true
-    });
+    })
+    .select2('val', geneProfiles);
   this.container_.find('#profile .select2-container').css({
     width: '100%'
   });
