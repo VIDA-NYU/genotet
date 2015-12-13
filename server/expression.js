@@ -270,6 +270,7 @@ module.exports = {
    */
   readExpression: function(expressionFile, geneRegex, conditionRegex) {
     var isFirstCol = true;
+    var values = [];
     var conditions = [];
     var geneNames = [];
     var conditionNames = [];
@@ -287,7 +288,6 @@ module.exports = {
     }
     var lines = fs.readFileSync(expressionFile).toString().split('\n');
     lines.forEach(function(line) {
-      var line = lines[lineNum];
       var parts = line.split('\t');
       if (isFirstCol) {
         isFirstCol = false;

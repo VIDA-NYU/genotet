@@ -256,7 +256,7 @@ app.get('/genotet', function(req, res) {
       expcols = expcols == '' ? 'a^' : expcols;
       data = expression.getExpmat(file, exprows, expcols);
       break;
-    case 'expression-profile':
+    case 'expressio-profile':
       var mat = req.query.mat;
       var name = req.query.name;
       var fileExp = expressionFile[mat], fileTfa = tfamatFile[mat];
