@@ -25,14 +25,7 @@ genotet.data.uploadURL = 'http://localhost:3000/genotet/upload';
  *     retrieve gene list from server.
  * @type {!Array<string>}
  */
-genotet.data.bindingGenes = [
-  'BATF', 'IRF4', 'MAF', 'RORC', 'STAT3', 'Hif1a', 'Etv6', 'Jmjd3',
-  'BATF-Th0', 'BATF-Th17', 'cMaf-Th0', 'cMaf-Th17', 'Fosl2-Th0', 'Fosl2-Th17',
-  'IRF4-Th0', 'IRF4-Th17', 'p300-Th0', 'p300-Th17', 'RORg-Th0', 'RORg-Th17',
-  'STAT3-Th0', 'STAT3-Th17', 'RNA-Seq-1h', 'RNA-Seq-3h', 'RNA-Seq-6h',
-  'RNA-Seq-9h', 'RNA-Seq-16h', 'RNA-Seq-24h', 'RNA-Seq-48h',
-  'FAIRE-Seq-IRF4+', 'FAIRE-Seq-IRF4-', 'FAIRE-Seq-Batf+', 'FAIRE-Seq-Batf-'
-];
+genotet.data.bindingGenes = [];
 
 /**
  * Binding data chromosomes. The array is created upon Data initialization.

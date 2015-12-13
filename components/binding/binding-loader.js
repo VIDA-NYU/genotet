@@ -235,3 +235,21 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
     });
   }
 };
+
+/**
+ * Loads binding data list into genotet.data.bindingGenes
+ */
+genotet.BindingLoader.prototype.loadBindingList = function() {
+  var params = {
+    type: 'list-binding'
+  };
+  $.get(genotet.data.serverURL, params, function(data) {
+    genotet.data.bindingGenes = [];
+    data.forEach(function(bindingGene) {
+      genotet.data.bindingGenes.push(bindingGene.bindingName);
+    });
+  }.bind(this), 'jsonp')
+    .fail(function() {
+      genotet.error('failed to get binding list');
+    });
+};
