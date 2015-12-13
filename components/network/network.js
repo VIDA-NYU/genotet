@@ -52,7 +52,7 @@ genotet.NetworkView = function(viewName, params) {
     }
   }.bind(this));
 
-  // Gene removal update
+  // Gene removal update.
   $(this.loader)
     .on('genotet.geneRemove', function() {
       this.renderer.dataLoaded();
@@ -62,7 +62,7 @@ genotet.NetworkView = function(viewName, params) {
           this.data.incidentEdges);
     }.bind(this));
 
-  // Node and edge hover in network
+  // Node and edge hover in network.
   $(this.renderer)
     .on('genotet.nodeClick', function(event, node) {
       this.panel.displayNodeInfo(node);

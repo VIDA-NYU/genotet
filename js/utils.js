@@ -208,10 +208,28 @@ genotet.utils.multiplyVector = function(p, k) {
  * Gets a random color from D3.
  * @return {string} Random color.
  */
-genotet.utils.randomColor = function(seed) {
+genotet.utils.randomColor = function() {
   var colors = d3.scale.category20().range();
   var index  = Math.floor(Math.random() * colors.length);
   return colors[index];
+};
+
+/**
+ * Hashes a string.
+ * @param {string} s
+ * @return {number} Hash value between [0, 1000000007).
+ */
+genotet.utils.hashString = function(s) {
+  if (typeof s != 'string') {
+    return genotet.error('x is not a string to hash');
+  }
+  var a = 3, p = 1000000007;
+  var result = 0;
+  for (var i = 0; i < s.length; i++) {
+    var x = s.charCodeAt(i);
+    result = (result * a + x) % p;
+  }
+  return result;
 };
 
 /**

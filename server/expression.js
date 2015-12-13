@@ -269,6 +269,7 @@ module.exports = {
    * @return {Object} the expression matrix
    */
   readExpression: function(expressionFile, geneRegex, conditionRegex) {
+    var values = [];
     var isFirstCol = true;
     var values = [];
     var conditions = [];
@@ -279,6 +280,7 @@ module.exports = {
     var allValueMax = -Infinity;
     var allValueMin = Infinity;
     var expGene, expCondition;
+    var validCol = [];
     try {
       expGene = RegExp(geneRegex, 'i');
       expCondition = RegExp(conditionRegex, 'i');
@@ -290,27 +292,37 @@ module.exports = {
     lines.forEach(function(line) {
       var parts = line.split('\t');
       if (isFirstCol) {
+        // first column contains the conditions
         isFirstCol = false;
         for (var i = 1; i < parts.length; i++) {
           if (parts[i].match(expCondition)) {
             conditions.push(i);
+            validCol.push(true);
             conditionNames.push(parts[i]);
+          } else {
+            validCol.push(false);
           }
         }
       } else {
+        // other columns contain a gene, and values
         if (parts[0].match(expGene)) {
           geneNames.push(parts[0]);
           var tmpLine = [];
           for (var i = 1; i < parts.length; i++) {
-            var value = parseInt(parts[i]);
-            valueMin = Math.min(valueMin, value);
-            valueMax = Math.max(valueMax, value);
-            tmpLine.push(value);
+            var value = parseFloat(parts[i]);
+            if (validCol[i - 1]) {
+              valueMin = Math.min(valueMin, value);
+              valueMax = Math.max(valueMax, value);
+              tmpLine.push(value);
+            }
+            allValueMin = Math.min(allValueMin, value);
+            allValueMax = Math.max(allValueMax, value);
           }
+          values.push(tmpLine);
         }
         else {
           for (var i = 1; i < parts.length; i++) {
-            var value = parseInt(parts[i]);
+            var value = parseFloat(parts[i]);
             allValueMin = Math.min(allValueMin, value);
             allValueMax = Math.max(allValueMax, value);
           }
