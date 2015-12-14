@@ -19,7 +19,6 @@ genotet.BindingView = function(viewName, params) {
 
   /** @protected {BindingLoader} */
   this.loader = new genotet.BindingLoader(this.data);
-  this.loader.loadBindingList();
 
   /** @protected {BindingPanel} */
   this.panel = new genotet.BindingPanel(this.data);

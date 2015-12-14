@@ -97,7 +97,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene, chr) 
     this.signal('loadComplete');
     if (addTrack) {
       // Add one more track.
-      this.signal('track');
+      this.loadBindingList();
     }
   }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load binding overview', params));
@@ -248,6 +248,7 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
     data.forEach(function(bindingGene) {
       genotet.data.bindingGenes.push(bindingGene.bindingName);
     });
+    this.signal('track');
   }.bind(this), 'jsonp')
     .fail(function() {
       genotet.error('failed to get binding list');
