@@ -1,0 +1,57 @@
+.modal-body {
+  td {
+    padding: 2px;
+  }
+
+  td:first-child {
+    font-weight: bold;
+  }
+}
+
+#modal {
+  #gene,
+  #chr {
+    width: 220px;
+  }
+
+  #description {
+    width: 440px;
+    height: 200px;
+    resize: none;
+  }
+
+  .file-section {
+    margin-top: 15px;
+    position: relative;
+    height: 30px;
+  }
+
+  .btn-organism {
+    height: 50px;
+    width: 100px;
+  }
+
+  .file-section {
+    #btn-file {
+      border-radius: 4px 0px 0px 4px;
+      float: left;
+      z-indeex: 1;
+    }
+    #file {
+      display: none;
+      top: 0px;
+      position: absolute;
+    }
+    #file-display {
+      border-radius: 0px 4px 4px 0px;
+      border-left: none;
+      background: none;
+      left: 101px;
+      position: absolute;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width: calc(100% - 101px);
+      white-space: nowrap;
+    }
+  }
+}

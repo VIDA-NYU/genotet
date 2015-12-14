@@ -65,7 +65,7 @@ function config() {
   for (var i = 0; i < tokens.length; i += 3) {
     var variable = tokens[i];
     var value = tokens[i + 2];
-    switch(variable) {
+    switch (variable) {
       case 'bindingPath':
         wigglePath = value;
         break;
@@ -151,7 +151,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   console.log('POST upload');
 
   var prefix;
-  switch(req.body.type) {
+  switch (req.body.type) {
     case 'network':
       prefix = networkPath;
       break;
@@ -180,7 +180,7 @@ app.get('/genotet', function(req, res) {
   var data;
   console.log('GET', type);
 
-  switch(type) {
+  switch (type) {
     // Network data queries
     case 'network':
       var networkName = req.query.networkName.toLowerCase(),

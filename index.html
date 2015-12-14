@@ -27,63 +27,9 @@
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
   <link rel="stylesheet" href="bower_components/datatables/media/css/dataTables.bootstrap.min.css"/>
 
-  <!-- global css -->
-  <link type="text/css" rel="stylesheet" href="css/style.css" rel="stylesheet"/>
-  <link type="text/css" rel="stylesheet" href="css/dialog.css" rel="stylesheet"/>
-  <link type="text/css" rel="stylesheet" href="css/overwrite.css" rel="stylesheet"/>
-  <link type="text/css" rel="stylesheet" href="css/panel.css" rel="stylesheet"/>
-  <link type="text/css" rel="stylesheet" href="css/tooltip.css" rel="stylesheet"/>
-
-  <!-- components -->
-
-  <!-- used by all components -->
-  <script type="text/javascript" src="js/genotet.js"></script>
-  <script type="text/javascript" src="js/utils.js"></script>
-
-  <!-- base -->
-  <script type="text/javascript" src="components/base/view.js"></script>
-  <script type="text/javascript" src="components/base/view-loader.js"></script>
-  <script type="text/javascript" src="components/base/view-panel.js"></script>
-  <script type="text/javascript" src="components/base/view-renderer.js"></script>
-  <link type="text/css" rel="stylesheet" href="components/base/view.css" rel="stylesheet"/>
-  <!-- network -->
-  <script type="text/javascript" src="components/network/network-loader.js"></script>
-  <script type="text/javascript" src="components/network/network-panel.js"></script>
-  <script type="text/javascript" src="components/network/network-renderer.js"></script>
-  <script type="text/javascript" src="components/network/network.js"></script>
-  <script type="text/javascript" src="components/network/network-table.js"></script>
-  <link type="text/css" rel="stylesheet" href="components/network/network.css"/>
-  <link type="text/css" rel="stylesheet" href="components/network/network-table.css"/>
-  <!-- expression -->
-  <script type="text/javascript" src="components/expression/expression-loader.js"></script>
-  <script type="text/javascript" src="components/expression/expression-panel.js"></script>
-  <script type="text/javascript" src="components/expression/expression-renderer.js"></script>
-  <script type="text/javascript" src="components/expression/expression.js"></script>
-  <link type="text/css" rel="stylesheet" href="components/expression/expression.css"/>
-  <!-- binding -->
-  <script type="text/javascript" src="components/binding/binding-loader.js"></script>
-  <script type="text/javascript" src="components/binding/binding-panel.js"></script>
-  <script type="text/javascript" src="components/binding/binding-renderer.js"></script>
-  <script type="text/javascript" src="components/binding/binding.js"></script>
-  <link type="text/css" rel="stylesheet" href="components/binding/binding.css"/>
-
-  <!-- main js -->
-  <script type="text/javascript" src="js/data.js"></script>
-  <script type="text/javascript" src="js/menu.js"></script>
-  <script type="text/javascript" src="js/panel-manager.js"></script>
-  <script type="text/javascript" src="js/view-manager.js"></script>
-  <!--<script type="text/javascript" src="js/welcome.js"></script>-->
-  <script type="text/javascript" src="js/dialog.js"></script>
-  <script type="text/javascript" src="js/tooltip.js"></script>
-  <script type="text/javascript" src="js/options.js"></script>
-  <script type="text/javascript" src="js/test.js"></script>
-
-  <!-- program entry -->
-  <script type="text/javascript">
-    $(document).ready(function () {
-      genotet.init();
-    });
-  </script>
+  <!-- genotet -->
+  <link type="text/css" rel="stylesheet" href="dist/genotet.css"/>
+  <script type="text/javascript" src="dist/genotet.js"></script>
 </head>
 <body oncontextmenu="return false;">
   <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -115,7 +61,7 @@
             <li><a id="option-2">TBD 2</a></li>
           </ul>
         </li>
-        <li><a href="help.html" id="help" target="_blank">Help</a></li>
+        <li><a href="doc.html" id="doc" target="_blank">Documentation</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right">

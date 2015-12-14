@@ -1,7 +1,9 @@
 Genotet
 =======
 
-Genotet: An Interactive Web-based Visual Exploration Framework to Support Validation of Gene Regulatory Networks
+[![Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg)](https://travis-ci.org/ViDA-NYU/genotet)
+
+An Interactive Web-based Visual Exploration Framework to Support Validation of Gene Regulatory Networks
 
 
 Installation:
