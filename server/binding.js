@@ -323,7 +323,7 @@ module.exports = {
     var buf = utils.readFileToBuf(segfile);
     if (buf == null) {  // no segtree file, build the tree
       var nodes = [];
-      segtree.buildSegmentTree(nodes, segs, buf);
+      segtree.buildSegmentTree(nodes, segs);
       cache.nodes = nodes;
       console.log('SegmentTree constructed');
 
@@ -334,6 +334,7 @@ module.exports = {
       }
       var fd = fs.openSync(segfile, 'w');
       fs.writeSync(fd, buf, 0, offset, 0);
+      fs.closeSync(fd);
       console.log('SegmentTree written');
     } else {
       var num = buf.readInt32LE(0);

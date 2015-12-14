@@ -29,6 +29,13 @@ module.exports = {
    */
   uploadFile: function(desc, file, prefix, bigWigToWigAddr) {
     var source = fs.createReadStream(file.path);
+    if (fs.existsSync(prefix + desc.name)) {
+      console.log('wiggle file already exists');
+      return {
+        success: false,
+        reason: 'wiggle file already exists for current name'
+      }
+    }
     var dest = fs.createWriteStream(prefix + desc.name);
     source.pipe(dest);
     source
@@ -41,7 +48,11 @@ module.exports = {
         }
       }.bind(this))
       .on('err', function(err){
-        // TODO(jiaming)
+        console.log(err);
+        return {
+          success: false,
+          reason: 'error copying file'
+        }
       });
 
     // write down the network name and description
@@ -89,7 +100,6 @@ module.exports = {
         var xl = parseInt(linePart[1]);
         var xr = parseInt(linePart[2]);
         var val = parseFloat(linePart[3]);
-        //console.log(seg);
         if (!seg.hasOwnProperty(linePart[0])) {
           seg[linePart[0]] = [];
         }
@@ -112,21 +122,20 @@ module.exports = {
       // console.log('start log it');
       // if the folder already exists, then delete it
       var folder = prefix + bwFile + '_chr';
-      var stats = fs.lstatSync(folder);
-      if (stats.isDirectory()) {
+      if (fs.existsSync(folder)) {
         fs.rmdirSync(folder);
         console.log('Wiggle file ' + bwFile + ' is replaced.');
       }
-      mkdirp(folder);
+      fs.mkdirSync(folder);
 
       for (var chr in seg) {
         var bcwigFile = folder + '/' + bwFile + '_' + chr + '.bcwig';
-        var fd = fs.openSync(bcwigFile, 'w');
+        var bcwigBuf = new Buffer(8 * seg[chr].length);
         for (var i = 0; i < seg[chr].length; i++) {
-          var bcwigBuf = new Buffer(8 * seg[chr].length);
           bcwigBuf.writeInt32LE(seg[chr][i].x, i * 4);
           bcwigBuf.writeFloatLE(seg[chr][i].val, i * 4 + 4);
         }
+        var fd = fs.openSync(bcwigFile, 'w');
         fs.writeSync(fd, bcwigBuf, 0, 8 * seg[chr].length, 0);
         fs.closeSync(fd);
       }
@@ -137,9 +146,9 @@ module.exports = {
         var segFile = folder + '/' + bwFile + '_' + chr + '.seg';
         var nodes = [];
         segtree.buildSegmentTree(nodes, seg[chr]);
-        var segBuf = new Buffer(4 + 4 * nodes.length);
-          segBuf.writeInt32LE(nodes.length, 0);
-        for (var i = 0, offset = 4; i < nodes.length; i++, offset += 2) {
+        var segBuf = new Buffer(4 + nodes.length * 4);
+        segBuf.writeInt32LE(nodes.length, 0);
+        for (var i = 0, offset = 4; i < nodes.length; i++, offset += 4) {
           segBuf.writeFloatLE(nodes[i], offset);
         }
         var fd = fs.openSync(segFile, 'w');
@@ -147,6 +156,7 @@ module.exports = {
         fs.closeSync(fd);
       }
 
+      console.log('Wiggle file separate done.')
     });
 
   },
