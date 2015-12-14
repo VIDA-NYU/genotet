@@ -1,0 +1,35 @@
+{
+  "name": "genotet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "genotet.js",
+  "dependencies": {
+    "bower": "^1.5.2"
+  },
+  "devDependencies": {
+    "del": "^2.2.0",
+    "google-closure-compiler": "^20151015.0.0",
+    "gulp": "^3.9.0",
+    "gulp-closure-compiler": "^0.4.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-csslint": "^0.2.0",
+    "gulp-flatten": "^0.2.0",
+    "gulp-gjslint": "^0.1.5",
+    "gulp-qunit": "^1.3.0",
+    "gulp-sass": "^2.1.1",
+    "merge-stream": "^1.0.0"
+  },
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ViDA-NYU/genotet.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ViDA-NYU/genotet/issues"
+  },
+  "homepage": "https://github.com/ViDA-NYU/genotet#readme"
+}
