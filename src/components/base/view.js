@@ -6,7 +6,7 @@
 
 /**
  * The base View class. Each component view shall inherit this class.
- * @param viewName Name of the view.
+ * @param {string} viewName Name of the view.
  * @constructor
  */
 genotet.View = function(viewName) {
@@ -52,7 +52,7 @@ genotet.View = function(viewName) {
  * HTML template of the view.
  * @protected {string}
  */
-genotet.View.prototype.template = 'components/base/view.html';
+genotet.View.prototype.template = 'dist/html/view.html';
 
 /** @const {number} */
 genotet.View.prototype.MIN_WIDTH = 10;
@@ -125,6 +125,7 @@ genotet.View.prototype.init = function() {
 /**
  * Sets the view name. If null, return the current view name.
  * @param {?string} name View name.
+ * @return {?string}
  */
 genotet.View.prototype.name = function(name) {
   if (!name) {
@@ -136,6 +137,7 @@ genotet.View.prototype.name = function(name) {
 /**
  * Sets the header text of the view. If null, return the current header.
  * @param {?string} headerText View header text.
+ * @return {?string}
  */
 genotet.View.prototype.headerText = function(headerText) {
   if (!headerText) {
@@ -148,7 +150,7 @@ genotet.View.prototype.headerText = function(headerText) {
 
 /**
  * Makes the view appear focused.
- * @param {?string} flag of sending signal.
+ * @param {?string} sendSignal Flag of sending signal.
  */
 genotet.View.prototype.focus = function(sendSignal) {
   this.container.addClass('focused');

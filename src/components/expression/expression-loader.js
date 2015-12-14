@@ -28,7 +28,8 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
  * @param {string} conditionRegex Regex for experiment condition selection.
  * @override
  */
-genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex, conditionRegex) {
+genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
+                                                   conditionRegex) {
   this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
 };
 
@@ -40,7 +41,8 @@ genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex, condit
  * @param {string} conditionRegex Regex for experiment condition selection.
  * @private
  */
-genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName, geneRegex, conditionRegex) {
+genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
+    geneRegex, conditionRegex) {
   this.signal('loadStart');
   var params = {
     type: 'read-expression',
@@ -68,9 +70,11 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName, 
  * Updates the genes in the current expression.
  * @param {string} method Update method, either 'set' or 'add'.
  * @param {string} matrixName Matrix name of the expression.
- * @param {string} regex Regex that selects the genes or conditions to be updated.
+ * @param {string} regex Regex that selects the genes or conditions to be
+ *     updated.
  */
-genotet.ExpressionLoader.prototype.update = function(method, matrixName, regex) {
+genotet.ExpressionLoader.prototype.update = function(method, matrixName,
+                                                     regex) {
   var geneRegex = this.data.matrix.geneRegex;
   var conditionRegex = this.data.matrix.conditionRegex;
   regex = regex.toUpperCase();

@@ -52,7 +52,7 @@ genotet.dialog.organism_ = function() {
     modal.find('.btn-organism').removeClass('active')
       .click(function() {
         genotet.data.organism = $(this).attr('id');
-        modal.find('.btn-organism').removeClass('active')
+        modal.find('.btn-organism').removeClass('active');
         $(this).addClass('active');
       });
     modal.find('#' + genotet.data.organism).addClass('active');
@@ -94,21 +94,22 @@ genotet.dialog.createView_ = function() {
  */
 genotet.dialog.createNetwork_ = function() {
   var modal = $('#modal');
-  modal.find('.modal-content').load('templates/create-network.html', function() {
-    modal.modal();
-    var viewName = modal.find('#view-name');
-    viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
-    modal.find('.selectpicker').selectpicker();
+  modal.find('.modal-content').load('templates/create-network.html',
+    function() {
+      modal.modal();
+      var viewName = modal.find('#view-name');
+      viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
+      modal.find('.selectpicker').selectpicker();
 
-    // Create
-    modal.find('#btn-create').click(function() {
-      var viewName = modal.find('#view-name').val();
-      genotet.viewManager.createView('network', viewName, {
-        networkName: modal.find('#network').val(),
-        geneRegex: modal.find('#geneRegex').val()
+      // Create
+      modal.find('#btn-create').click(function() {
+        var viewName = modal.find('#view-name').val();
+        genotet.viewManager.createView('network', viewName, {
+          networkName: modal.find('#network').val(),
+          geneRegex: modal.find('#geneRegex').val()
+        });
       });
     });
-  });
 };
 
 /**
@@ -117,39 +118,40 @@ genotet.dialog.createNetwork_ = function() {
  */
 genotet.dialog.createBinding_ = function() {
   var modal = $('#modal');
-  modal.find('.modal-content').load('templates/create-binding.html', function() {
-    modal.modal();
-    var viewName = modal.find('#view-name');
-    viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
+  modal.find('.modal-content').load('templates/create-binding.html',
+    function() {
+      modal.modal();
+      var viewName = modal.find('#view-name');
+      viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
 
-    var chrs = genotet.data.bindingChrs.map(function(chr, index) {
-      return {
-        id: chr,
-        text: chr
-      };
-    });
-    modal.find('#chr').select2({
-      data: chrs
-    });
-    var genes = genotet.data.bindingGenes.map(function(gene, index) {
-      return {
-        id: gene,
-        text: gene
-      };
-    });
-    modal.find('#gene').select2({
-      data: genes
-    });
+      var chrs = genotet.data.bindingChrs.map(function(chr, index) {
+        return {
+          id: chr,
+          text: chr
+        };
+      });
+      modal.find('#chr').select2({
+        data: chrs
+      });
+      var genes = genotet.data.bindingGenes.map(function(gene, index) {
+        return {
+          id: gene,
+          text: gene
+        };
+      });
+      modal.find('#gene').select2({
+        data: genes
+      });
 
-    // Create
-    modal.find('#btn-create').click(function() {
-      var viewName = modal.find('#view-name').val();
-      genotet.viewManager.createView('binding', viewName, {
-        gene: modal.find('#gene').val(),
-        chr: modal.find('#chr').val()
+      // Create
+      modal.find('#btn-create').click(function() {
+        var viewName = modal.find('#view-name').val();
+        genotet.viewManager.createView('binding', viewName, {
+          gene: modal.find('#gene').val(),
+          chr: modal.find('#chr').val()
+        });
       });
     });
-  });
 };
 
 /**
@@ -158,22 +160,23 @@ genotet.dialog.createBinding_ = function() {
  */
 genotet.dialog.createExpression_ = function() {
   var modal = $('#modal');
-  modal.find('.modal-content').load('templates/create-expression.html', function() {
-    modal.modal();
-    var viewName = modal.find('#view-name');
-    viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
-    modal.find('.selectpicker').selectpicker();
+  modal.find('.modal-content').load('templates/create-expression.html',
+    function() {
+      modal.modal();
+      var viewName = modal.find('#view-name');
+      viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
+      modal.find('.selectpicker').selectpicker();
 
-    // Create
-    modal.find('#btn-create').click(function() {
-      var viewName = modal.find('#view-name').val();
-      genotet.viewManager.createView('expression', viewName, {
-        matrixName: modal.find('#matrix').val(),
-        geneRegex: modal.find('#gene-regex').val(),
-        condRegex: modal.find('#cond-regex').val()
+      // Create
+      modal.find('#btn-create').click(function() {
+        var viewName = modal.find('#view-name').val();
+        genotet.viewManager.createView('expression', viewName, {
+          matrixName: modal.find('#matrix').val(),
+          geneRegex: modal.find('#gene-regex').val(),
+          condRegex: modal.find('#cond-regex').val()
+        });
       });
     });
-  });
 };
 
 /**

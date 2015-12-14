@@ -78,7 +78,8 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
  * @param {string} gene Gene name.
  * @param {string} chr Chromosome.
  */
-genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene, chr) {
+genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
+                                                         chr) {
   var params = {
     type: 'binding',
     gene: gene,
@@ -128,7 +129,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene, chr) 
  * @param {number} xl Range's left coordinate.
  * @param {number} xr Range's right coordinate.
  */
-genotet.BindingLoader.prototype.loadTrackDetail = function(xl ,xr) {
+genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
   this.data.detailXMin = xl;
   this.data.detailXMax = xr;
   this.data.tracks.forEach(function(track) {

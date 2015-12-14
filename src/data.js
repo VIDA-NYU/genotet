@@ -55,14 +55,14 @@ genotet.data.redBlueScale = ['#ab1e1e', 'gray', '#1e6eab'];
  * Color scale from black to red to yellow.
  * @type {!d3.scale}
  */
-genotet.data.redYellowScale = ["black", "red", "yellow"];
+genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 
 /**
  * Initializes Data properties.
  */
 genotet.data.init = function() {
   for (var i = 0; i < 19; i++) {
-    this.bindingChrs.push((i + 1).toString());
+    genotet.data.bindingChrs.push((i + 1).toString());
   }
-  this.bindingChrs = this.bindingChrs.concat(['M', 'X', 'Y']);
+  genotet.data.bindingChrs = genotet.data.bindingChrs.concat(['M', 'X', 'Y']);
 };

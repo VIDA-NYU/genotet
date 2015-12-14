@@ -35,7 +35,7 @@ genotet.BindingPanel = function(data) {
 genotet.utils.inherit(genotet.BindingPanel, genotet.ViewPanel);
 
 /** @inheritDoc */
-genotet.BindingPanel.prototype.template = 'components/binding/binding-panel.html';
+genotet.BindingPanel.prototype.template = 'dist/html/binding-panel.html';
 
 /** @inheritDoc */
 genotet.BindingPanel.prototype.panel = function(container) {
@@ -142,7 +142,7 @@ genotet.BindingPanel.prototype.updateChr = function(chr) {
  * @private
  */
 genotet.BindingPanel.prototype.initChrs_ = function() {
-  var chrs = genotet.data.bindingChrs.map(function (chr, index) {
+  var chrs = genotet.data.bindingChrs.map(function(chr, index) {
     return {
       id: chr,
       text: chr
@@ -169,7 +169,7 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
     .attr('id', 'track-' + trackIndex)
     .show();
 
-  var genes = genotet.data.bindingGenes.map(function (gene, index) {
+  var genes = genotet.data.bindingGenes.map(function(gene, index) {
     return {
       id: gene,
       text: gene

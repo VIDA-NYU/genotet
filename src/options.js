@@ -23,5 +23,5 @@ genotet.options.init = function() {
  * Toggles allow message option.
  */
 genotet.options.toggleAllowMessage = function() {
-  this.allowMessage = !this.allowMessage;
+  genotet.options.allowMessage = !genotet.options.allowMessage;
 };

@@ -10,7 +10,8 @@ var Welcome = {
     });
     $('body').append('<div id="welcome" title="Welcome to GENOTET"></div>');
 
-    $('#welcome').append('<p>You may read the help document, load the preset layout, or start a new session.</p>');
+    $('#welcome').append('<p>You may read the help document, load the preset
+    layout, or start a new session.</p>');
     $('#welcome').dialog({
       close: function() {
         $('#block').remove();

@@ -28,13 +28,13 @@ genotet.tooltip.DEFAULT_OFFSET_ = 5;
  * Initializes the tooltip. Gets the tooltip container.
  */
 genotet.tooltip.init = function() {
-  this.container_ = $('#tooltip').hide();
+  genotet.tooltip.container_ = $('#tooltip').hide();
 
   // Set up mouse tracker.
   $(window).mousemove(function(event) {
-    this.mouseX_ = event.pageX;
-    this.mouseY_ = event.pageY;
-  }.bind(this));
+    genotet.tooltip.mouseX_ = event.pageX;
+    genotet.tooltip.mouseY_ = event.pageY;
+  });
 };
 
 /**
@@ -45,25 +45,25 @@ genotet.tooltip.init = function() {
  * @param {number=} opt_y Y coordinate of the tooltip.
  * @return {!jQuery} Tooltip container.
  */
-genotet.tooltip.new = function(opt_x, opt_y) {
-  var x = opt_x == null ? this.mouseX_ : opt_x;
-  var y = opt_y == null ? this.mouseY_ : opt_y;
-  x += this.DEFAULT_OFFSET_;
-  y += this.DEFAULT_OFFSET_;
+genotet.tooltip.create = function(opt_x, opt_y) {
+  var x = opt_x == null ? genotet.tooltip.mouseX_ : opt_x;
+  var y = opt_y == null ? genotet.tooltip.mouseY_ : opt_y;
+  x += genotet.tooltip.DEFAULT_OFFSET_;
+  y += genotet.tooltip.DEFAULT_OFFSET_;
   // Clear previous content.
-  this.hideAll();
+  genotet.tooltip.hideAll();
 
-  this.container_.css({
+  genotet.tooltip.container_.css({
     left: x,
     top: y
   });
-  return this.container_.show();
+  return genotet.tooltip.container_.show();
 };
 
 /**
  * Hides all tooltips.
  */
 genotet.tooltip.hideAll = function() {
-  this.container_.children('*').remove();
-  this.container_.hide();
+  genotet.tooltip.container_.children('*').remove();
+  genotet.tooltip.container_.hide();
 };

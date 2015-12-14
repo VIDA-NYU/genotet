@@ -73,7 +73,7 @@ genotet.NetworkRenderer = function(container, data) {
   /** @private {number} */
   this.zoomScale_ = 1.0;
   /** @private {genotet.NetworkRenderer.MouseState} */
-  this.mouseState_ = this.MouseState.NONE;
+  this.mouseState_ = genotet.NetworkRenderer.MouseState.NONE;
 };
 
 genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
@@ -82,7 +82,7 @@ genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
  * State of mouse interaction.
  * @enum {number}
  */
-genotet.NetworkRenderer.prototype.MouseState = {
+genotet.NetworkRenderer.MouseState = {
   NONE: 0,
   SELECT: 1,
   ZOOM: 2
@@ -92,7 +92,7 @@ genotet.NetworkRenderer.prototype.MouseState = {
  * Scaling extent for D3 zoom.
  * @const {!Array<number>}
  */
-genotet.NetworkRenderer.prototype.ZOOM_EXTENT = [.03125, 8];
+genotet.NetworkRenderer.ZOOM_EXTENT = [.03125, 8];
 
 /** @const {number} */
 genotet.NetworkRenderer.prototype.NODE_LABEL_SIZE = 14;
@@ -118,7 +118,7 @@ genotet.NetworkRenderer.prototype.init = function() {
 
   /** @private {d3.zoom} */
   this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(this.ZOOM_EXTENT)
+    .scaleExtent(genotet.NetworkRenderer.ZOOM_EXTENT)
     .on('zoom', this.zoomHandler_.bind(this));
   this.canvas.call(this.zoom_);
 };
@@ -224,9 +224,10 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
 /**
  * Checks whether the data has been loaded.
  * @private
+ * @return {boolean}
  */
 genotet.NetworkRenderer.prototype.dataReady_ = function() {
-  return this.data.nodes;
+  return this.data.nodes != null;
 };
 
 
@@ -525,5 +526,5 @@ genotet.NetworkRenderer.prototype.selectEdge = function(edge) {
   this.svgEdges_.selectAll('g')
     .classed('active', function(edge) {
       return edge.id == idSelected;
-    }.bind(this))
+    }.bind(this));
 };

@@ -89,9 +89,9 @@ genotet.BindingRenderer.prototype.STRAND_VERTICAL_SIZE = 3;
 genotet.BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
 
 /** @const {!Array<number>} */
-genotet.BindingRenderer.prototype.ZOOM_EXTENT = [1, 65536];
+genotet.BindingRenderer.ZOOM_EXTENT = [1, 65536];
 /** @const {number} */
-genotet.BindingRenderer.prototype.ZOOM_INTERVAL = 500;
+genotet.BindingRenderer.ZOOM_INTERVAL = 500;
 
 /**
  * Initializes the BindingRenderer properties.
@@ -101,7 +101,7 @@ genotet.BindingRenderer.prototype.init = function() {
 
   // Set up the detailed histogram zoom.
   this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(this.ZOOM_EXTENT)
+    .scaleExtent(genotet.BindingRenderer.ZOOM_EXTENT)
     .on('zoom', this.zoomHandler_.bind(this))
     .on('zoomend', this.zoomEndHandler_.bind(this));
   this.detailHandle_.call(this.zoom_);
@@ -179,7 +179,7 @@ genotet.BindingRenderer.prototype.initLayout = function() {
    * @private {!d3.selection}
    */
   this.svgOverview_ = this.canvas.append('g')
-    .classed('overviews', true)
+    .classed('overviews', true);
   /**
    * SVG group for the detailed binding tracks.
    * @private {!d3.selection}
@@ -351,7 +351,8 @@ genotet.BindingRenderer.prototype.drawDetails_ = function() {
  * @param {!d3.scale} xScale xScale applied for the histogram.
  * @private
  */
-genotet.BindingRenderer.prototype.drawHistogram_ = function(svg, track, xScale) {
+genotet.BindingRenderer.prototype.drawHistogram_ = function(svg, track,
+                                                            xScale) {
   if (!track.values.length) {
     // Avoid rendering empty data.
     svg.select('.histogram').remove();
@@ -411,6 +412,7 @@ genotet.BindingRenderer.prototype.drawOverviewRange_ = function(opt_range) {
 
 /**
  * Renders the exons below the binding tracks.
+ * @private
  */
 genotet.BindingRenderer.prototype.drawExons_ = function() {
   if (!this.data.options.showExons) {
@@ -579,15 +581,17 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
  * @private
  */
 genotet.BindingRenderer.prototype.drawBed_ = function() {
+  // TODO(liana): Check bed visual encoding and implement this.
+  /*
   if (!this.data.options.showBed) {
-    // this.bedContent_.style('display', 'none');
+    this.bedContent_.style('display', '');
   }
-  // this.bedContent_.style('display', '');
-  // TODO(bowen): Check bed visual encoding and implement this.
+  */
 };
 
 /**
  * Re-computes the detail track height.
+ * @private
  */
 genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
   var numTracks = this.data.tracks.length;
@@ -670,7 +674,7 @@ genotet.BindingRenderer.prototype.zoomHandler_ = function() {
   });
 
   this.drawDetails_();
-  this.drawExons_()
+  this.drawExons_();
 };
 
 /**
@@ -679,7 +683,8 @@ genotet.BindingRenderer.prototype.zoomHandler_ = function() {
  */
 genotet.BindingRenderer.prototype.zoomEndHandler_ = function() {
   clearTimeout(this.zoomTimer_);
-  this.zoomTimer_ = setTimeout(this.zoomDetail_.bind(this), this.ZOOM_INTERVAL);
+  this.zoomTimer_ = setTimeout(this.zoomDetail_.bind(this),
+    genotet.BindingRenderer.ZOOM_INTERVAL);
 };
 
 /**
@@ -689,7 +694,8 @@ genotet.BindingRenderer.prototype.zoomEndHandler_ = function() {
  * @return {!Array<number>} The detail range.
  * @private
  */
-genotet.BindingRenderer.prototype.screenRangeToBindingCoordinates_ = function(opt_range) {
+genotet.BindingRenderer.prototype.screenRangeToBindingCoordinates_ = function(
+  opt_range) {
   var range = opt_range ? opt_range : [0, this.canvasWidth_];
   var invert = this.xScaleZoom_.invert;
   return [invert(range[0]), invert(range[1])];
@@ -722,13 +728,15 @@ genotet.BindingRenderer.prototype.zoomTransform = function(range) {
   this.zoom_
     .scale(scale)
     .translate(translate);
-  this.detailContent_.attr('transform', genotet.utils.getTransform(translate, [scale, 1]));
+  this.detailContent_.attr('transform', genotet.utils.getTransform(translate,
+    [scale, 1]));
 };
 
 /**
  * Checks whether the data has been loaded.
  * @private
+ * @return {boolean}
  */
 genotet.BindingRenderer.prototype.dataReady_ = function() {
-  return this.data.tracks.length;
+  return this.data.tracks.length > 0;
 };

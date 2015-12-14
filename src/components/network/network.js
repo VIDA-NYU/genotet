@@ -36,7 +36,7 @@ genotet.NetworkView = function(viewName, params) {
 
   // Set up rendering update.
   $(this.panel).on('genotet.update', function(event, data) {
-    switch(data.type) {
+    switch (data.type) {
       case 'label':
         this.renderer.update();
         break;

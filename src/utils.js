@@ -20,13 +20,13 @@ genotet.utils.RANGE_TOLERANCE = .001;
 
 /**
  * Vector type of arbitrary length.
- * @typedef {!Array<number>} Vector
+ * @typedef {Array<number>} Vector
  */
 genotet.utils.Vector;
 
 /**
  * Vector type of length 2.
- * @typedef {!Array<number>} Vector2
+ * @typedef {Array<number>} Vector2
  */
 genotet.utils.Vector2;
 
@@ -47,10 +47,11 @@ genotet.utils.sign = function(x) {
  * Checks whether two ranges intersect.
  * @param {!Array<number>} range1 The first range.
  * @param {!Array<number>} range2 The second range.
+ * @return {boolean}
  */
 genotet.utils.rangeIntersect = function(range1, range2) {
-  return range1[0] < range2[1] - this.RANGE_TOLERANCE &&
-      range1[1] > range2[0] + this.RANGE_TOLERANCE;
+  return range1[0] < range2[1] - genotet.utils.RANGE_TOLERANCE &&
+      range1[1] > range2[0] + genotet.utils.RANGE_TOLERANCE;
 };
 
 /**
@@ -66,8 +67,8 @@ genotet.utils.rectIntersect = function(rect1, rect2) {
   var xMax = Math.min(rect1.x + rect1.w, rect2.x + rect2.w);
   var yMin = Math.max(rect1.y, rect2.y);
   var yMax = Math.min(rect1.y + rect1.h, rect2.y + rect2.h);
-  return xMin < xMax - this.PIXEL_TOLERANCE &&
-      yMin < yMax - this.PIXEL_TOLERANCE;
+  return xMin < xMax - genotet.utils.PIXEL_TOLERANCE &&
+      yMin < yMax - genotet.utils.PIXEL_TOLERANCE;
 };
 
 /**
@@ -77,10 +78,10 @@ genotet.utils.rectIntersect = function(rect1, rect2) {
  * @return {boolean} Whether the rectangle is inside the screen window.
  */
 genotet.utils.rectInsideWindow = function(rect) {
-  return rect.x >= -this.PIXEL_TOLERANCE &&
-      rect.x + rect.w <= $(window).width() + this.PIXEL_TOLERANCE &&
-      rect.y >= -this.PIXEL_TOLERANCE &&
-      rect.y + rect.h <= $(window).height() + this.PIXEL_TOLERANCE;
+  return rect.x >= -genotet.utils.PIXEL_TOLERANCE &&
+      rect.x + rect.w <= $(window).width() + genotet.utils.PIXEL_TOLERANCE &&
+      rect.y >= -genotet.utils.PIXEL_TOLERANCE &&
+      rect.y + rect.h <= $(window).height() + genotet.utils.PIXEL_TOLERANCE;
 };
 
 /**
@@ -106,37 +107,49 @@ genotet.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
 
 /**
  * Gets the middle point of two 2D points.
- * @param {Vector2} p1 Point 1.
- * @param {Vector2} p2 Point 2.
- * @return {Vector2} The middle point.
+ * @param {!visflow.utils.Vector2} p1 Point 1.
+ * @param {!visflow.utils.Vector2} p2 Point 2.
+ * @return {!visflow.utils.Vector2} The middle point.
  */
 genotet.utils.middlePoint = function(p1, p2) {
   return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
 };
 
 /**
+ * Normalizes a vector.
+ * @param {!visflow.utils.Vector2} p
+ * @return {!visflow.utils.Vector2}
+ */
+genotet.utils.normalizeVector = function(p) {
+  var len = genotet.utils.vectorLength(p);
+  return genotet.utils.multiplyVector(p, 1 / len);
+};
+
+
+/**
  * Gets the mirrored point of p, with respect to the line (lp1, lp2).
  * The distance of the mirrored point will be k times of the distance
  * from p to (lp1, lp2).
- * @param {Vector2} p Point to be mirrored.
- * @param {Vector2} lp1 Point on the line.
- * @param {Vector2} lp2 Another point on the line.
- * @return {Vector2} Mirrored point.
+ * @param {!visflow.utils.Vector2} p Point to be mirrored.
+ * @param {!visflow.utils.Vector2} lp1 Point on the line.
+ * @param {!visflow.utils.Vector2} lp2 Another point on the line.
+ * @return {!visflow.utils.Vector2} Mirrored point.
  */
-genotet.utils.mirrorPoint = function(p, lp1, lp2, opt_k) {
-  var lineVector = this.normalizeVector(this.subtractVector(lp2, lp1));
-  var projectedOffset = this.dotVector(
-      this.subtractVector(p, lp1), lineVector);
-  var d = this.multiplyVector(lineVector, projectedOffset);
-  var m = this.addVector(lp1, d);
-  var offset = this.subtractVector(m, p);
-  return this.addVector(m, offset);
+genotet.utils.mirrorPoint = function(p, lp1, lp2) {
+  var lineVector = genotet.utils.normalizeVector(
+    genotet.utils.subtractVector(lp2, lp1));
+  var projectedOffset = genotet.utils.dotVector(
+    genotet.utils.subtractVector(p, lp1), lineVector);
+  var d = genotet.utils.multiplyVector(lineVector, projectedOffset);
+  var m = genotet.utils.addVector(lp1, d);
+  var offset = genotet.utils.subtractVector(m, p);
+  return genotet.utils.addVector(m, offset);
 };
 
 /**
  * Gets the dot product of two 2D vectors.
- * @param {Vector2} p1 Vector 1.
- * @param {Vector2} p2 Vector 2.
+ * @param {!visflow.utils.Vector2} p1 Vector 1.
+ * @param {!visflow.utils.Vector2} p2 Vector 2.
  * @return {number} The dot product.
  */
 genotet.utils.dotVector = function(p1, p2) {
@@ -145,24 +158,17 @@ genotet.utils.dotVector = function(p1, p2) {
 
 /**
  * Rotates a vector by 90 degrees counter-clockwise.
- * @param {Vector2} p Input vector.
+ * @param {!visflow.utils.Vector2} p Input vector.
+ * @return {!visflow.utils.Vector2}
  */
 genotet.utils.perpendicularVector = function(p) {
   return [p[1], -p[0]];
 };
 
 /**
- * Normalize a vector.
- * @param {Vector2} p
- */
-genotet.utils.normalizeVector = function(p) {
-  var len = this.vectorLength(p);
-  return this.multiplyVector(p, 1 / len);
-};
-
-/**
  * Gets the length of a vector.
- * @param {Vector2} p Input vector.
+ * @param {!visflow.utils.Vector2} p Input vector.
+ * @return {number}
  */
 genotet.utils.vectorLength = function(p) {
   return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
@@ -170,17 +176,19 @@ genotet.utils.vectorLength = function(p) {
 
 /**
  * Compute the distance between two 2D points
- * @param {Vector2} p1 Point 1.
- * @param {Vector2} p2 Point 2.
+ * @param {!visflow.utils.Vector2} p1 Point 1.
+ * @param {!visflow.utils.Vector2} p2 Point 2.
+ * @return {number}
  */
 genotet.utils.vectorDistance = function(p1, p2) {
-  return this.vectorLength(this.subtractVector(p1, p2));
+  return genotet.utils.vectorLength(genotet.utils.subtractVector(p1, p2));
 };
 
 /**
  * Adds two 2D vectors.
- * @param {Vector2} p1 Vector 1.
- * @param {Vector2} p2 Vector 2.
+ * @param {!visflow.utils.Vector2} p1 Vector 1.
+ * @param {!visflow.utils.Vector2} p2 Vector 2.
+ * @return {!visflow.utils.Vector2}
  */
 genotet.utils.addVector = function(p1, p2) {
   return [p1[0] + p2[0], p1[1] + p2[1]];
@@ -188,8 +196,9 @@ genotet.utils.addVector = function(p1, p2) {
 
 /**
  * Subtracts a 2D vector from another.
- * @param {Vector2} p1 Vector 1.
- * @param {Vector2} p2 Vector 2.
+ * @param {!visflow.utils.Vector2} p1 Vector 1.
+ * @param {!visflow.utils.Vector2} p2 Vector 2.
+ * @return {!visflow.utils.Vector2}
  */
 genotet.utils.subtractVector = function(p1, p2) {
   return [p1[0] - p2[0], p1[1] - p2[1]];
@@ -197,8 +206,9 @@ genotet.utils.subtractVector = function(p1, p2) {
 
 /**
  * Multiply a 2D vector by a constant.
- * @param {Vector2} p Input vector.
+ * @param {!visflow.utils.Vector2} p Input vector.
  * @param {number} k Input constant.
+ * @return {!visflow.utils.Vector2}
  */
 genotet.utils.multiplyVector = function(p, k) {
   return [p[0] * k, p[1] * k];
@@ -210,7 +220,7 @@ genotet.utils.multiplyVector = function(p, k) {
  */
 genotet.utils.randomColor = function() {
   var colors = d3.scale.category20().range();
-  var index  = Math.floor(Math.random() * colors.length);
+  var index = Math.floor(Math.random() * colors.length);
   return colors[index];
 };
 
@@ -248,7 +258,6 @@ genotet.utils.encodeSpecialChar = function(s) {
  * @param {!Array<*>} arr Array.
  * @param {number} i Element index.
  * @param {number} j Element index.
- * @return {!Array<number>}
  */
 genotet.utils.swap = function(arr, i, j) {
   var tmp = arr[i];

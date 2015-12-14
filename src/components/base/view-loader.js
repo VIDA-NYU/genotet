@@ -47,7 +47,7 @@ genotet.ViewLoader.prototype.update = function() {};
  * @param {Object=} opt_data Data object to be sent via the event.
  */
 genotet.ViewLoader.prototype.signal = function(eventType, opt_data) {
-  switch(eventType) {
+  switch (eventType) {
     case 'loadStart':
       this.loadCounter++;
       this.signal('loading');

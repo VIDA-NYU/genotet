@@ -38,7 +38,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
     data: edges,
     columnDefs: [
       {
-        render: function (added) {
+        render: function(added) {
           return added ? '&#10004;' : '';
         },
         targets: 3

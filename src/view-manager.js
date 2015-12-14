@@ -49,7 +49,7 @@ genotet.viewManager.createView = function(type, viewName, params) {
     genotet.error('empty view name');
     return;
   }
-  if (viewName in this.views) {
+  if (viewName in genotet.viewManager.views) {
     genotet.error('duplicate view name');
     return;
   }
@@ -58,7 +58,7 @@ genotet.viewManager.createView = function(type, viewName, params) {
   }
 
   var newView;
-  switch(type) {
+  switch (type) {
     case 'network':
       newView = new genotet.NetworkView(viewName, params);
       break;
@@ -72,7 +72,7 @@ genotet.viewManager.createView = function(type, viewName, params) {
       genotet.error('unknown view type');
       return;
   }
-  this.views[viewName] = newView;
+  genotet.viewManager.views[viewName] = newView;
   var panelContainer = genotet.panelManager.addPanel(newView);
   newView.createPanel(panelContainer);
 };
@@ -82,12 +82,12 @@ genotet.viewManager.createView = function(type, viewName, params) {
  * @param {View} view
  */
 genotet.viewManager.closeView = function(view) {
-  if (!(view.name() in this.views)) {
+  if (!(view.name() in genotet.viewManager.views)) {
     genotet.error('view does not exist, cannot delete');
     return;
   }
   // Remove the view reference.
-  delete this.views[view.name()];
+  delete genotet.viewManager.views[view.name()];
   genotet.panelManager.removePanel(view.name());
 };
 
@@ -95,7 +95,7 @@ genotet.viewManager.closeView = function(view) {
  * Blurs all the views.
  */
 genotet.viewManager.blurAllViews = function() {
-  $.each(this.views, function(name, view) {
+  $.each(genotet.viewManager.views, function(name, view) {
     view.blur();
   });
 };
@@ -103,11 +103,11 @@ genotet.viewManager.blurAllViews = function() {
 /**
  * Closes all views.
  */
-genotet.viewManager.closeAllViews = function () {
-  $.each(this.views, function(name, view) {
+genotet.viewManager.closeAllViews = function() {
+  $.each(genotet.viewManager.views, function(name, view) {
     view.close();
   });
-  this.views = {};
+  genotet.viewManager.views = {};
   genotet.panelManager.closeAllPanels();
 };
 
@@ -122,8 +122,8 @@ genotet.viewManager.findPosition = function(newView) {
   var newRect = newView.rect();
   var hasOtherViews = false;
   var candidateRects = [];
-  for (var name in this.views) {
-    var view = this.views[name];
+  for (var name in genotet.viewManager.views) {
+    var view = genotet.viewManager.views[name];
     if (view == newView) {
       // Skip the new view itself.
       continue;
@@ -147,15 +147,15 @@ genotet.viewManager.findPosition = function(newView) {
   candidateRects.sort(function(r1, r2) {
     return genotet.utils.sign(r1.y - r2.y) || genotet.utils.sign(r1.x - r2.x);
   });
-  for(var i = 0; i < candidateRects.length; i++) {
+  for (var i = 0; i < candidateRects.length; i++) {
     var rect = candidateRects[i];
     if (!genotet.utils.rectInsideWindow(rect)) {
       // Make sure that the rect is inside the screen window.
       continue;
     }
     var ok = true;
-    for (var name2 in this.views) {
-      var view2 = this.views[name2]
+    for (var name2 in genotet.viewManager.views) {
+      var view2 = genotet.viewManager.views[name2];
       if (view2 == newView) {
         // Skip the new view itself.
         continue;
@@ -197,7 +197,7 @@ genotet.viewManager.findPosition = function(newView) {
 genotet.viewManager.nextSuffixName = function(defaultName) {
   for (var i = 1;; i++) {
     var name = i == 1 ? defaultName : defaultName + ' ' + i;
-    if (!(name in this.views)) {
+    if (!(name in genotet.viewManager.views)) {
       return name;
     }
   }

@@ -28,7 +28,7 @@ genotet.ViewPanel = function(data) {
  * Panel template.
  * @protected {string}
  */
-genotet.ViewPanel.prototype.template = 'components/base/view-panel.html';
+genotet.ViewPanel.prototype.template = 'dist/html/view-panel.html';
 
 /**
  * Displays a control panel in the given container.

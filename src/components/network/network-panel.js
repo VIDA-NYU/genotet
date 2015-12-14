@@ -23,8 +23,7 @@ genotet.NetworkPanel = function(data) {
 genotet.utils.inherit(genotet.NetworkPanel, genotet.ViewPanel);
 
 /** @inheritDoc */
-genotet.NetworkPanel.prototype.template =
-    'components/network/network-panel.html';
+genotet.NetworkPanel.prototype.template = 'dist/html/network-panel.html';
 
 /** @const {string} */
 genotet.NetworkPanel.prototype.SUBTIWIKI_URL =
@@ -63,7 +62,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
       var input = this.container_.find('#genes input');
       var geneRegex = input.val();
       if (geneRegex == '') {
-        genotet.warning('missing input gene selection')
+        genotet.warning('missing input gene selection');
         return;
       }
       input.val('');
@@ -177,7 +176,7 @@ genotet.NetworkPanel.prototype.displayEdgeInfo = function(edge) {
  * @param {!Object} node Node being hovered.
  */
 genotet.NetworkPanel.prototype.tooltipNode = function(node) {
-  var tooltip = genotet.tooltip.new();
+  var tooltip = genotet.tooltip.create();
   this.setNodeInfo_(node, tooltip);
   // Tooltip cannot be interacted with, thus link is not shown.
   tooltip.find('#subtiwiki, .close').remove();
@@ -188,7 +187,7 @@ genotet.NetworkPanel.prototype.tooltipNode = function(node) {
  * @param {!Object} edge Edge being hovered.
  */
 genotet.NetworkPanel.prototype.tooltipEdge = function(edge) {
-  var tooltip = genotet.tooltip.new();
+  var tooltip = genotet.tooltip.create();
   this.setEdgeInfo_(edge, tooltip);
   tooltip.find('.close').remove();
 };

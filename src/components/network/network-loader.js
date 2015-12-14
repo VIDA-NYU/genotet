@@ -31,7 +31,8 @@ genotet.NetworkLoader.prototype.load = function(networkName, geneRegex) {
  * @param {string} geneRegex Regex that selects the gene set.
  * @private
  */
-genotet.NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) {
+genotet.NetworkLoader.prototype.loadNetwork_ = function(networkName,
+                                                        geneRegex) {
   this.signal('loadStart');
   var params = {
     type: 'network',
@@ -57,7 +58,7 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(networkName, geneRegex) 
  */
 genotet.NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
   var regex = this.data.geneRegex;
-  switch(method) {
+  switch (method) {
     case 'set':
       // Totally replace the regex.
       regex = geneRegex;
@@ -90,7 +91,7 @@ genotet.NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
   } catch (e) {
     genotet.error('invalid gene regex', geneRegex);
     return;
-  };
+  }
   this.data.nodes = _(this.data.nodes).filter(function(node) {
     return !node.id.match(regex);
   });
@@ -107,6 +108,7 @@ genotet.NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
  * removal, unlike gene addition, it is hard to incrementally modify the regex.
  * This function sets the gene regex to a verbose concatenation of the gene
  * ids. This is only called in removeGenes_().
+ * @private
  */
 genotet.NetworkLoader.prototype.updateGeneRegex_ = function() {
   var regex = '';
@@ -143,7 +145,6 @@ LoaderGraph.prototype.loadComb = function(net, exp) {
     data: {
       args: 'type=comb&net=' + net + '&exp=' + exp
     },
-    error: function(xhr, status, err) { loader.error('cannot load combinatorial regulated genes\n' + status + '\n' + err); },
     success: function(result) {
       var data = JSON.parse(result, Utils.parse);
         if (data.length == 0) {
@@ -158,5 +159,4 @@ LoaderGraph.prototype.loadComb = function(net, exp) {
     }
   });
 };
-
 */
