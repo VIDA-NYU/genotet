@@ -84,7 +84,7 @@ genotet.panelManager.activatePanel_ = function(viewID) {
 
 /**
  * Creates a panel with the given name.
- * @param {!visflow.View} view Name of the view.
+ * @param {!genotet.View} view Name of the view.
  * @return {!jQuery}
  */
 genotet.panelManager.addPanel = function(view) {

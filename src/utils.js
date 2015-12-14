@@ -107,9 +107,9 @@ genotet.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
 
 /**
  * Gets the middle point of two 2D points.
- * @param {!visflow.utils.Vector2} p1 Point 1.
- * @param {!visflow.utils.Vector2} p2 Point 2.
- * @return {!visflow.utils.Vector2} The middle point.
+ * @param {!genotet.utils.Vector2} p1 Point 1.
+ * @param {!genotet.utils.Vector2} p2 Point 2.
+ * @return {!genotet.utils.Vector2} The middle point.
  */
 genotet.utils.middlePoint = function(p1, p2) {
   return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
@@ -117,8 +117,8 @@ genotet.utils.middlePoint = function(p1, p2) {
 
 /**
  * Normalizes a vector.
- * @param {!visflow.utils.Vector2} p
- * @return {!visflow.utils.Vector2}
+ * @param {!genotet.utils.Vector2} p
+ * @return {!genotet.utils.Vector2}
  */
 genotet.utils.normalizeVector = function(p) {
   var len = genotet.utils.vectorLength(p);
@@ -130,10 +130,10 @@ genotet.utils.normalizeVector = function(p) {
  * Gets the mirrored point of p, with respect to the line (lp1, lp2).
  * The distance of the mirrored point will be k times of the distance
  * from p to (lp1, lp2).
- * @param {!visflow.utils.Vector2} p Point to be mirrored.
- * @param {!visflow.utils.Vector2} lp1 Point on the line.
- * @param {!visflow.utils.Vector2} lp2 Another point on the line.
- * @return {!visflow.utils.Vector2} Mirrored point.
+ * @param {!genotet.utils.Vector2} p Point to be mirrored.
+ * @param {!genotet.utils.Vector2} lp1 Point on the line.
+ * @param {!genotet.utils.Vector2} lp2 Another point on the line.
+ * @return {!genotet.utils.Vector2} Mirrored point.
  */
 genotet.utils.mirrorPoint = function(p, lp1, lp2) {
   var lineVector = genotet.utils.normalizeVector(
@@ -148,8 +148,8 @@ genotet.utils.mirrorPoint = function(p, lp1, lp2) {
 
 /**
  * Gets the dot product of two 2D vectors.
- * @param {!visflow.utils.Vector2} p1 Vector 1.
- * @param {!visflow.utils.Vector2} p2 Vector 2.
+ * @param {!genotet.utils.Vector2} p1 Vector 1.
+ * @param {!genotet.utils.Vector2} p2 Vector 2.
  * @return {number} The dot product.
  */
 genotet.utils.dotVector = function(p1, p2) {
@@ -158,8 +158,8 @@ genotet.utils.dotVector = function(p1, p2) {
 
 /**
  * Rotates a vector by 90 degrees counter-clockwise.
- * @param {!visflow.utils.Vector2} p Input vector.
- * @return {!visflow.utils.Vector2}
+ * @param {!genotet.utils.Vector2} p Input vector.
+ * @return {!genotet.utils.Vector2}
  */
 genotet.utils.perpendicularVector = function(p) {
   return [p[1], -p[0]];
@@ -167,7 +167,7 @@ genotet.utils.perpendicularVector = function(p) {
 
 /**
  * Gets the length of a vector.
- * @param {!visflow.utils.Vector2} p Input vector.
+ * @param {!genotet.utils.Vector2} p Input vector.
  * @return {number}
  */
 genotet.utils.vectorLength = function(p) {
@@ -176,8 +176,8 @@ genotet.utils.vectorLength = function(p) {
 
 /**
  * Compute the distance between two 2D points
- * @param {!visflow.utils.Vector2} p1 Point 1.
- * @param {!visflow.utils.Vector2} p2 Point 2.
+ * @param {!genotet.utils.Vector2} p1 Point 1.
+ * @param {!genotet.utils.Vector2} p2 Point 2.
  * @return {number}
  */
 genotet.utils.vectorDistance = function(p1, p2) {
@@ -186,9 +186,9 @@ genotet.utils.vectorDistance = function(p1, p2) {
 
 /**
  * Adds two 2D vectors.
- * @param {!visflow.utils.Vector2} p1 Vector 1.
- * @param {!visflow.utils.Vector2} p2 Vector 2.
- * @return {!visflow.utils.Vector2}
+ * @param {!genotet.utils.Vector2} p1 Vector 1.
+ * @param {!genotet.utils.Vector2} p2 Vector 2.
+ * @return {!genotet.utils.Vector2}
  */
 genotet.utils.addVector = function(p1, p2) {
   return [p1[0] + p2[0], p1[1] + p2[1]];
@@ -196,9 +196,9 @@ genotet.utils.addVector = function(p1, p2) {
 
 /**
  * Subtracts a 2D vector from another.
- * @param {!visflow.utils.Vector2} p1 Vector 1.
- * @param {!visflow.utils.Vector2} p2 Vector 2.
- * @return {!visflow.utils.Vector2}
+ * @param {!genotet.utils.Vector2} p1 Vector 1.
+ * @param {!genotet.utils.Vector2} p2 Vector 2.
+ * @return {!genotet.utils.Vector2}
  */
 genotet.utils.subtractVector = function(p1, p2) {
   return [p1[0] - p2[0], p1[1] - p2[1]];
@@ -206,9 +206,9 @@ genotet.utils.subtractVector = function(p1, p2) {
 
 /**
  * Multiply a 2D vector by a constant.
- * @param {!visflow.utils.Vector2} p Input vector.
+ * @param {!genotet.utils.Vector2} p Input vector.
  * @param {number} k Input constant.
- * @return {!visflow.utils.Vector2}
+ * @return {!genotet.utils.Vector2}
  */
 genotet.utils.multiplyVector = function(p, k) {
   return [p[0] * k, p[1] * k];

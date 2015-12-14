@@ -9,6 +9,7 @@ var utils = require('./utils');
 var fs = require('fs');
 var rl = require('readline');
 
+/** @const */
 module.exports = {
   /**
    * Reads the entire network data from the buffer.
@@ -77,6 +78,7 @@ module.exports = {
    *     weightMax: number,
    *     weightMin: number
    *   }} The network data JS object.
+   * @this {network}
    */
   getNet: function(file, geneRegex, fileType) {
     console.log(file, geneRegex);
@@ -129,9 +131,9 @@ module.exports = {
       }
     }
     console.log('return',
-      nodes.length + '/'+ result.numNodes,
+      nodes.length + '/' + result.numNodes,
       'nodes and',
-      edges.length + '/'+ result.numEdges,
+      edges.length + '/' + result.numEdges,
       'edges'
     );
 
@@ -149,6 +151,7 @@ module.exports = {
    * @param {string} file Network file name.
    * @param {string} gene Gene name of which to get the incident edges.
    * @return {!Array} Incident edges.
+   * @this {network}
    */
   getIncidentEdges: function(file, gene) {
     var buf = utils.readFileToBuf(file);
@@ -172,6 +175,7 @@ module.exports = {
    * @param {string} file Network file name.
    * @param {string} exp Regex selecting the regulated targets.
    * @return {!Array} The combined regulators.
+   * @this {network}
    */
   getComb: function(file, exp) {
     console.log(file, exp);
@@ -226,7 +230,7 @@ module.exports = {
       if (!stat.isDirectory) {
         if (files[i].indexOf('.txt') != -1) {
           var fname = files[i].substr(0, files[i].length - 4);
-          var description = "";
+          var description = '';
           var fd = fs.openSync(folder + files[i]);
           fs.readSync(fd, description);
           ret.push({

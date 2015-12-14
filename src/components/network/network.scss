@@ -1,0 +1,40 @@
+.view.network {
+  .nodes {
+    * {
+      stroke: black;
+      stroke-width: 2px;
+      &.active {
+        stroke: orange;
+      }
+      &:hover {
+        stroke-width: 4px;
+      }
+    }
+  }
+  .edges {
+    path {
+      &.edge {
+        fill: none;
+        stroke-width: 2px;
+      }
+      &.arrow {
+        stroke-width: 2px;
+      }
+    }
+
+    g {
+      &:hover path {
+        stroke-width: 4px;
+      }
+
+      &.active {
+        path {
+          stroke: orange;
+          &.arrow {
+            fill: orange;
+          }
+        }
+      }
+    }
+  }
+}

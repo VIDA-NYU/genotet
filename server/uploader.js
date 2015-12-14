@@ -13,8 +13,8 @@ var mkdirp = require('mkdirp');
 var utils = require('./utils.js');
 var segtree = require('./segtree.js');
 
+/** @const */
 module.exports = {
-
   /**
    * Uploads a file or a directory to server.
    * @param {{
@@ -26,6 +26,7 @@ module.exports = {
    * @param {string} prefix The destination folder to upload the file to.
    * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
    * @return {Object} Success or not as a JS Object.
+   * @this {uploader}
    */
   uploadFile: function(desc, file, prefix, bigWigToWigAddr) {
     var source = fs.createReadStream(file.path);
@@ -40,12 +41,12 @@ module.exports = {
           this.bedSort(prefix, desc.name);
         }
       }.bind(this))
-      .on('err', function(err){
+      .on('err', function(err) {
         // TODO(jiaming)
       });
 
     // write down the network name and description
-    var fd = fs.openSync(prefix + desc.name + ".txt", 'w');
+    var fd = fs.openSync(prefix + desc.name + '.txt', 'w');
     fs.writeSync(fd, desc.description);
     fs.closeSync(fd);
 
@@ -175,20 +176,21 @@ module.exports = {
         chrStart: parseInt(parts[1]),
         chrEnd: parseInt(parts[2]),
         name: parts[3]
-      })
+      });
     });
     lines.on('close', function() {
       console.log('writing bed data...');
       var folder = prefix + bedFile + '_chr';
-      fs.mkdirSync(folder)
+      fs.mkdirSync(folder);
       for (var chr in data) {
         data[chr].sort(function(a, b) {
           return a.chrStart - b.chrStart;
         });
-        var chrFileName = folder + '/' + bedFile + "_" + chr;
+        var chrFileName = folder + '/' + bedFile + '_' + chr;
         var fd = fs.openSync(chrFileName, 'w');
         for (var i = 0; i < data[chr].length; i++) {
-          fs.writeSync(fd, data[chr][i].chrStart + '\t' + data[chr][i].chrEnd + '\n');
+          fs.writeSync(fd, data[chr][i].chrStart + '\t' + data[chr][i].chrEnd +
+            '\n');
         }
         fs.closeSync(fd);
       }

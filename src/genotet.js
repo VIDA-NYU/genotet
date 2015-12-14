@@ -4,6 +4,11 @@
 
 'use strict';
 
+// System entry.
+$(document).ready(function() {
+  genotet.init();
+});
+
 /** @const */
 var genotet = {};
 
