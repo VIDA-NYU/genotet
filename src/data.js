@@ -11,13 +11,15 @@ genotet.data = {};
  * Data queries are sent to this address via http and received via jsonp.
  * @type {string}
  */
-genotet.data.serverURL = 'http://localhost:3000/genotet';
+genotet.data.serverURL = window.location.protocol +
+  window.location.hostname + ':3000/genotet';
 
 /**
  * Data are uploaded to this URL by posting multipart form data.
  * @type {string}
  */
-genotet.data.uploadURL = 'http://localhost:3000/genotet/upload';
+genotet.data.uploadURL = window.location.protocol +
+  window.location.hostname + ':3000/genotet/upload';
 
 /**
  * Genes with binding data available in the Genotet system.

@@ -10,7 +10,7 @@
  * @constructor
  */
 genotet.ExpressionPanel = function(data) {
-  this.base.constructor.call(this, data);
+  genotet.ExpressionPanel.base.constructor.call(this, data);
 
   // Set the view options.
   _(this.data.options).extend({
@@ -34,11 +34,6 @@ genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
 
 /** @inheritDoc */
 genotet.ExpressionPanel.prototype.template = 'dist/html/expression-panel.html';
-
-/** @inheritDoc */
-genotet.ExpressionPanel.prototype.panel = function(container) {
-  this.base.panel.call(this, container);
-};
 
 /** @inheritDoc */
 genotet.ExpressionPanel.prototype.dataLoaded = function() {

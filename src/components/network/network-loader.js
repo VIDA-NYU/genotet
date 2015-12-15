@@ -10,7 +10,7 @@
  * @constructor
  */
 genotet.NetworkLoader = function(data) {
-  this.base.constructor.call(this, data);
+  genotet.NetworkLoader.base.constructor.call(this, data);
 };
 
 genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);

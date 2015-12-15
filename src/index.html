@@ -30,8 +30,18 @@
   <!-- genotet -->
   <link type="text/css" rel="stylesheet" href="dist/genotet.css"/>
   <script type="text/javascript" src="dist/genotet.js"></script>
+
 </head>
 <body oncontextmenu="return false;">
+  <!-- build:test -->
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script type="text/javascript" src="bower_components/qunit/qunit/qunit.js"></script>
+  <link rel="stylesheet" href="bower_components/qunit/qunit/qunit.css"/>
+  <link rel="stylesheet" href="test/test.css"/>
+  <script type="text/javascript" src="dist/genotet-test.js"></script>
+  <!-- endbuild -->
+
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">

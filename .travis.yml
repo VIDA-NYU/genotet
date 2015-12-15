@@ -4,6 +4,13 @@ node_js:
 
 before_script:
   - npm install -g gulp
-script: gulp
-sudo: false
+  - npm install -g jasmine-node
+  - bower install
+script:
+  - gulp
+  - ./setup.sh
+  - node server/server.js --config=test/config
+  - gulp test
+  - jasmine-node test/jasmine-node/
 
+sudo: false

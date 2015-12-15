@@ -1,0 +1,5 @@
+bindingPath = dist/data/wiggle/
+networkPath = dist/data/network/
+expressionPath = dist/data/expression/
+uploadPath = dist/data/upload/
+bigWigToWigPath = test/
