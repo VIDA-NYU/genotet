@@ -51,12 +51,14 @@ gulp.task('clean', function() {
 gulp.task('lint-frontend', ['clean'], function() {
   return gulp.src(paths.src)
     .pipe(gjslint())
-    .pipe(gjslint.reporter('console'), {fail: true});
+    .pipe(gjslint.reporter('console'))
+    .pipe(gjslint.reporter('fail'));
 });
 gulp.task('lint-server', ['clean'], function() {
   return gulp.src(paths.server)
     .pipe(gjslint())
-    .pipe(gjslint.reporter('console'), {fail: true});
+    .pipe(gjslint.reporter('console'))
+    .pipe(gjslint.reporter('fail'));
 });
 gulp.task('lint', ['lint-frontend', 'lint-server']);
 
