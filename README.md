@@ -1,7 +1,11 @@
 Genotet
 =======
 
-[![Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg)](https://travis-ci.org/ViDA-NYU/genotet)
+**Master Build Status**
+[![Master Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg?branch=master)](https://travis-ci.org/ViDA-NYU/genotet)
+
+**Development Build Status**
+[![Development Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg?branch=refactor)](https://travis-ci.org/ViDA-NYU/genotet)
 
 An Interactive Web-based Visual Exploration Framework to Support Validation of Gene Regulatory Networks
 
