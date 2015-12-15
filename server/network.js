@@ -9,6 +9,7 @@ var utils = require('./utils');
 var fs = require('fs');
 var rl = require('readline');
 
+/** @const */
 module.exports = {
   /**
    * Reads the entire network data from the buffer.
@@ -77,6 +78,7 @@ module.exports = {
    *     weightMax: number,
    *     weightMin: number
    *   }} The network data JS object.
+   * @this {network}
    */
   getNet: function(file, geneRegex, fileType) {
     console.log(file, geneRegex);
@@ -129,9 +131,9 @@ module.exports = {
       }
     }
     console.log('return',
-      nodes.length + '/'+ result.numNodes,
+      nodes.length + '/' + result.numNodes,
       'nodes and',
-      edges.length + '/'+ result.numEdges,
+      edges.length + '/' + result.numEdges,
       'edges'
     );
 
@@ -149,6 +151,7 @@ module.exports = {
    * @param {string} file Network file name.
    * @param {string} gene Gene name of which to get the incident edges.
    * @return {!Array} Incident edges.
+   * @this {network}
    */
   getIncidentEdges: function(file, gene) {
     var result = this.readNetwork(file);
@@ -168,6 +171,7 @@ module.exports = {
    * @param {string} file Network file name.
    * @param {string} exp Regex selecting the regulated targets.
    * @return {!Array} The combined regulators.
+   * @this {network}
    */
   getComb: function(file, exp) {
     console.log(file, exp);
@@ -217,21 +221,17 @@ module.exports = {
     var folder = networkAddr;
     var ret = [];
     var files = fs.readdirSync(folder);
-    for (var i = 0; i < files.length; i++) {
-      var stat = fs.lstatSync(folder + files[i]);
-      if (!stat.isDirectory) {
-        if (files[i].indexOf('.txt') != -1) {
-          var fname = files[i].substr(0, files[i].length - 4);
-          var description = "";
-          var fd = fs.openSync(folder + files[i]);
-          fs.readSync(fd, description);
-          ret.push({
-            networkName: fname,
-            description: description.toString()
-          });
-        }
+    files.forEach(function(file){
+      if (file.indexOf('.txt') != -1) {
+        var fname = file.substr(0, file.length - 4);
+        var fd = fs.openSync(folder + file, 'r');
+        var description = fs.readFileSync(fd, 'utf8');
+        ret.push({
+          networkName: fname,
+          description: description.toString()
+        });
       }
-    }
+    });
     return ret;
   },
 

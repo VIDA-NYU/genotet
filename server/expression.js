@@ -9,6 +9,7 @@ var utils = require('./utils');
 var fs = require('fs');
 var rl = require('readline');
 
+/** @const */
 module.exports = {
   /**
    * Reads the expression matrix data from the buffer.
@@ -88,10 +89,15 @@ module.exports = {
     var result = readTFAmat(buf);
     name = name.toLowerCase();
     for (var i = 0; i < result.rownames.length; i++) {
-      if (result.rownames[i].toLowerCase() == name) { name = result.rownames[i]; break; }
+      if (result.rownames[i].toLowerCase() == name) {
+        name = result.rownames[i];
+        break;
+      }
     }
     var values = [];
-    for (var j = 0; j < result.numcols; j++) values.push(result.values[i * result.numcols + j]);
+    for (var j = 0; j < result.numcols; j++) {
+      values.push(result.values[i * result.numcols + j]);
+    }
     console.log('returning tfa line', name);
     var data = {'name': name, 'values': values};
     return data;
@@ -103,16 +109,17 @@ module.exports = {
    * @param {string} fileTFA File name of the TFA matrix.
    * @param {string} name Name of the gene to be profiled.
    * @return {{
-   *     name: string,
-   *     values: !Array<number>,
-   *     tfaValues: !Array<number>
-   *   }} Gene expression profile as a JS object.
+   *   name: string,
+   *   values: !Array<number>,
+   *   tfaValues: !Array<number>
+   * }} Gene expression profile as a JS object.
+   * @this {expression}
    */
   getExpmatLine: function(fileExp, fileTFA, name) {
     var bufExp = utils.readFileToBuf(fileExp);
     var bufTFA = null;
     if (fileTFA != null) {
-      bufTFA = utils.readFileToBuf(fileTFA)
+      bufTFA = utils.readFileToBuf(fileTFA);
     }
 
     if (bufExp == null) {
@@ -161,7 +168,7 @@ module.exports = {
       name: name,
       values: values,
       tfaValues: tfaValues
-    }
+    };
   },
 
   /**
@@ -170,20 +177,25 @@ module.exports = {
    * @param {string} exprows Regex selecting the genes.
    * @param {string} expcols Regex selecting the experiment conditions.
    * @return {{
-   *     values: !Array<!Array<number>>,
-   *     valueMin: number,
-   *     valueMax: number,
-   *     allValueMin: number,
-   *     allValueMax: number,
-   *     geneNames: !Array<string>,
-   *     conditionNames: !Array<string>
-   *   }}
+   *   values: !Array<!Array<number>>,
+   *   valueMin: number,
+   *   valueMax: number,
+   *   allValueMin: number,
+   *   allValueMax: number,
+   *   geneNames: !Array<string>,
+   *   conditionNames: !Array<string>
+   * }}
+   * @this {expression}
    */
   getExpmat: function(file, exprows, expcols) {
     console.log(file);
 
     var buf = utils.readFileToBuf(file);
-    if (buf == null) { res.send('[]'); console.error('cannot read file', file); return; }
+    if (buf == null) {
+      res.send('[]');
+      console.error('cannot read file', file);
+      return;
+    }
     var result = this.readExpmat(buf);
 
     var expr = null, expc = null;
@@ -237,33 +249,30 @@ module.exports = {
       allValueMax: result.max,
       geneNames: selrownames,
       conditionNames: selcolnames
-    }
+    };
   },
 
   /**
    * List all the expression matrix files in the server
-   * @param {string} expmatAddr Folder of the expression matrix file in the server
+   * @param {string} expmatAddr Folder of the expression matrix file in the
+   *     server.
    * @return {Array} array of object of each expression matrix file
    */
   listMatrix: function(expmatAddr) {
     var folder = expmatAddr;
     var ret = [];
     var files = fs.readdirSync(folder);
-    for (var i = 0; i < files.length; i++) {
-      var stat = fs.lstatSync(folder + files[i]);
-      if (!stat.isDirectory) {
-        if (files[i].indexOf('.txt') != -1) {
-          var fname = files[i].substr(0, files[i].length - 4);
-          var description;
-          var fd = fs.openSync(folder + files[i]);
-          fs.readSync(fd, description);
-          ret.push({
-            matrixName: fname,
-            description: description.toString()
-          });
-        }
+    files.forEach(function(file){
+      if (file.indexOf('.txt') != -1) {
+        var fname = file.substr(0, file.length - 4);
+        var fd = fs.openSync(folder + file, 'r');
+        var description = fs.readFileSync(fd, 'utf8');
+        ret.push({
+          matrixName: fname,
+          description: description.toString()
+        });
       }
-    }
+    });
     return ret;
   },
 

@@ -65,7 +65,7 @@ function config() {
   for (var i = 0; i < tokens.length; i += 3) {
     var variable = tokens[i];
     var value = tokens[i + 2];
-    switch(variable) {
+    switch (variable) {
       case 'bindingPath':
         wigglePath = value;
         break;
@@ -151,7 +151,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   console.log('POST upload');
 
   var prefix;
-  switch(req.body.type) {
+  switch (req.body.type) {
     case 'network':
       prefix = networkPath;
       break;
@@ -180,7 +180,7 @@ app.get('/genotet', function(req, res) {
   var data;
   console.log('GET', type);
 
-  switch(type) {
+  switch (type) {
     // Network data queries
     case 'network':
       var networkName = req.query.networkName.toLowerCase(),
@@ -256,7 +256,7 @@ app.get('/genotet', function(req, res) {
       expcols = expcols == '' ? 'a^' : expcols;
       data = expression.getExpmat(file, exprows, expcols);
       break;
-    case 'expression-profile':
+    case 'expressio-profile':
       var mat = req.query.mat;
       var name = req.query.name;
       var fileExp = expressionFile[mat], fileTfa = tfamatFile[mat];
@@ -264,7 +264,7 @@ app.get('/genotet', function(req, res) {
       data = expression.getExpmatLine(fileExp, fileTfa, name);
       break;
     case 'list-matrix':
-      data = expression.listMatrix(expmatPath);
+      data = expression.listMatrix(expressionPath);
       break;
     case 'read-expression':
       var file = expressionPath + req.query.matrixName;
