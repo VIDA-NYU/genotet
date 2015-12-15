@@ -13,8 +13,8 @@ var mkdirp = require('mkdirp');
 var utils = require('./utils.js');
 var segtree = require('./segtree.js');
 
+/** @const */
 module.exports = {
-
   /**
    * Uploads a file or a directory to server.
    * @param {{
@@ -26,6 +26,7 @@ module.exports = {
    * @param {string} prefix The destination folder to upload the file to.
    * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
    * @return {Object} Success or not as a JS Object.
+   * @this {uploader}
    */
   uploadFile: function(desc, file, prefix, bigWigToWigAddr) {
     var source = fs.createReadStream(file.path);
@@ -56,7 +57,7 @@ module.exports = {
       });
 
     // write down the network name and description
-    var fd = fs.openSync(prefix + desc.name + ".txt", 'w');
+    var fd = fs.openSync(prefix + desc.name + '.txt', 'w');
     fs.writeSync(fd, desc.description);
     fs.closeSync(fd);
 
@@ -93,6 +94,7 @@ module.exports = {
       terminal: false
     });
     var lastxr = -1;
+    var lastChrXr = {}, lastValue = {};
     lines.on('line', function(line) {
       if (line.indexOf('#') == -1) {
         var linePart = line.split(RegExp(/\s+/));
@@ -100,24 +102,32 @@ module.exports = {
         var xl = parseInt(linePart[1]);
         var xr = parseInt(linePart[2]);
         var val = parseFloat(linePart[3]);
+        lastChrXr[chName] = xr;
+        lastValue[chName] = val;
         if (!seg.hasOwnProperty(linePart[0])) {
           seg[linePart[0]] = [];
         }
         if (xl != lastxr && lastxr > -1) {
           seg[chName].push({
             x: lastxr,
-            val: 0
+            value: 0.0
           });
         }
         seg[chName].push({
           x: xl,
-          val: val
+          value: val
         });
         lastxr = xr;
       }
     });
 
     lines.on('close', function() {
+      for (var chr in lastChrXr) {
+        seg[chr].push({
+          x: lastChrXr[chr],
+          value: lastValue[chr]
+        });
+      }
       // write to *.bcwig file
       // console.log('start log it');
       // if the folder already exists, then delete it
@@ -133,7 +143,7 @@ module.exports = {
         var bcwigBuf = new Buffer(8 * seg[chr].length);
         for (var i = 0; i < seg[chr].length; i++) {
           bcwigBuf.writeInt32LE(seg[chr][i].x, i * 4);
-          bcwigBuf.writeFloatLE(seg[chr][i].val, i * 4 + 4);
+          bcwigBuf.writeFloatLE(seg[chr][i].value, i * 4 + 4);
         }
         var fd = fs.openSync(bcwigFile, 'w');
         fs.writeSync(fd, bcwigBuf, 0, 8 * seg[chr].length, 0);
@@ -185,20 +195,21 @@ module.exports = {
         chrStart: parseInt(parts[1]),
         chrEnd: parseInt(parts[2]),
         name: parts[3]
-      })
+      });
     });
     lines.on('close', function() {
       console.log('writing bed data...');
       var folder = prefix + bedFile + '_chr';
-      fs.mkdirSync(folder)
+      fs.mkdirSync(folder);
       for (var chr in data) {
         data[chr].sort(function(a, b) {
           return a.chrStart - b.chrStart;
         });
-        var chrFileName = folder + '/' + bedFile + "_" + chr;
+        var chrFileName = folder + '/' + bedFile + '_' + chr;
         var fd = fs.openSync(chrFileName, 'w');
         for (var i = 0; i < data[chr].length; i++) {
-          fs.writeSync(fd, data[chr][i].chrStart + '\t' + data[chr][i].chrEnd + '\n');
+          fs.writeSync(fd, data[chr][i].chrStart + '\t' + data[chr][i].chrEnd +
+            '\n');
         }
         fs.closeSync(fd);
       }

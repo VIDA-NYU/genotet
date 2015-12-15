@@ -1,0 +1,47 @@
+.view.binding {
+  .overviews path {
+    fill: #666;
+  }
+
+  .details path {
+    fill: #222;
+  }
+
+  .exons {
+    rect,
+    path {
+      fill: #031c51;
+      stroke: none;
+    }
+    line {
+      stroke: #031c51;
+      stroke-width: 1;
+    }
+    text {
+      font-size: 11px;
+      text-anchor: middle;
+    }
+  }
+
+  .zoom-handle {
+    fill: white;
+    opacity: 0.0;
+    width: 100%;
+  }
+
+  line.baseline {
+    stroke: #aaa;
+    stroke-width: 1px;
+    opacity: 0.5;
+  }
+
+  .label {
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  .overviews rect.range {
+    fill: #031c51;
+    opacity: 0.25;
+  }
+}

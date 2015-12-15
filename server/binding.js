@@ -31,6 +31,7 @@ var bindingCache = {
   cache: {}
 };
 
+/** @const */
 module.exports = {
   /**
    * Reads the exon data from the buffer.
@@ -79,6 +80,7 @@ module.exports = {
    * @param {string} file File name of the exon data.
    * @param {string} chr Chromosome.
    * @return {!Array} Exons info.
+   * @this {binding}
    */
   getExons: function(file, chr) {
     var buf = utils.readFileToBuf(file);
@@ -98,10 +100,15 @@ module.exports = {
   /**
    * Adjusts the exons data so that they adapt to rendering requirements.
    * @param {!Array<Object>} exons Exons data.
+   * @return {!Array<{
+   *   cdsStart: number,
+   *   cdsEnd: number,
+   *   txRanges: !Array<!{start: number, end: number}>
+   * }>} Array of exon info.
    */
   formatExons: function(exons) {
     exons.forEach(function(exon) {
-      // Adjust exon0Start to cdsStart, exonNEnd to cdsEnd
+      // Adjust exon_0_Start to cdsStart, exon_n_End to cdsEnd
       var txRanges = [];  // Half height
       var exRanges = [];  // Actual exons to be drawn (full height)
       var cdsStart = exon.cdsStart;
@@ -175,12 +182,14 @@ module.exports = {
    * @param {number} x1 Left coordinate.
    * @param {number} x2 Right coordinate.
    * @return {!Array<{x: number, value: number}>} Binding data as histogram.
+   * @this {binding}
    */
   getBinding: function(file, x1, x2) {
     console.log(file, x1, x2);
     var cache = this.loadHistogram(file);
-    if (cache == null)
+    if (cache == null) {
       return console.error('cache load error'), [];
+    }
 
     var xl, xr;
     if (x1 != null && x2 != null) {
@@ -240,6 +249,7 @@ module.exports = {
    * @param {string} file File name of binding data to be searched within.
    * @param {string} name Name of the exon.
    * @return {!Object} Search result.
+   * @this {binding}
    */
   searchExon: function(file, name) {
     var buf = utils.readFileToBuf(file);
@@ -253,15 +263,15 @@ module.exports = {
     for (var i = 0; i < result.length; i++) {
       if (result[i].name2.toLowerCase() == name) {
         return {
-          success : true,
-          chr : result[i].chr,
-          txStart : result[i].txStart,
-          txEnd : result[i].txEnd
+          success: true,
+          chr: result[i].chr,
+          txStart: result[i].txStart,
+          txEnd: result[i].txEnd
         };
       }
     }
     return {
-      'success': false
+      success: false
     };
   },
 
