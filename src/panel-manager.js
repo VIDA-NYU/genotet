@@ -9,14 +9,6 @@ genotet.panelManager = {};
 genotet.panelManager.COLLAPSED_WIDTH = 32;
 /** @const {number} */
 genotet.panelManager.TRANSITION_TIME = 300;
-/** @const {number} */
-genotet.panelManager.TOGGLE_BTN_HEIGHT = 50;
-/** @const {number} */
-genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE = 20;
-/** @const {number} */
-genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE = 73;
-/** @const {number} */
-genotet.panelManager.TAB_HEIGHT_DIFFERENCE = 2;
 
 /**
  * Whether the panel is toggled on.
@@ -110,12 +102,8 @@ genotet.panelManager.addPanel = function(view) {
     .appendTo('.tab-content');
   $(view).on('genotet.focus', function() {
     var clickedViewID = view.viewID_;
-    this.activatePanel_(clickedViewID);
-  }.bind(this));
-  this.adjustTabHeight();
-
-  // Adjust tab height.
-  $(window).resize(this.adjustTabHeight.bind(this));
+    genotet.panelManager.activatePanel_(clickedViewID);
+  });
 
   // Remove the click event handler to avoid multiple executions.
   $('.sideways li a').off().click(function(event) {
@@ -154,7 +142,6 @@ genotet.panelManager.removePanel = function(viewName) {
   var activated = tab.hasClass('active');
   tab.remove();
   panel.remove();
-  this.adjustTabHeight();
   if (activated) {
     $('.sideways li').last()
       .find('a')
@@ -183,30 +170,4 @@ genotet.panelManager.closeAllPanels = function() {
     .attr('id', 'panel-view-init')
     .appendTo(tabContent);
   $('#side-panel').css('display', 'none');
-};
-
-/**
- * Adjust tab height.
- */
-genotet.panelManager.adjustTabHeight = function(e) {
-  var tabSelector = $('.sideways');
-  var tabCount = tabSelector.find('li').length - 1;
-  var tabHeight =  tabSelector.find('li:nth-child(2) a').outerWidth();
-  var tabContentHeight = $('.tab-content').outerHeight();
-  var newTabHeight = Math.floor(
-    (tabContentHeight -  this.TAB_HEIGHT_DIFFERENCE - this.TOGGLE_BTN_HEIGHT) / tabCount - 1
-  );
-  tabSelector
-    .find('li')
-    .css('margin-bottom', (
-      newTabHeight - this.TAB_MARGIN_BOTTOM_DIFFERENCE) + 'px'
-    );
-  tabSelector
-    .find('li:nth-child(2) a')
-    .css('margin-top', (
-      newTabHeight - this.TAB_MARGIN_TOP_DIFFERENCE) + 'px'
-    );
-  tabSelector
-    .find('li a')
-    .css('width', newTabHeight + 'px');
 };

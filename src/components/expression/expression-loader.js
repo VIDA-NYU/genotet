@@ -15,7 +15,6 @@ genotet.ExpressionLoader = function(data) {
 
   _(this.data).extend({
     matrix: null,
-    clickedCell: null,
     profiles: []
   });
 };
@@ -94,7 +93,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
       // Remove the regex.
       geneRegex = '';
       this.data.matrix.geneNames.forEach(function(geneName) {
-        if (!geneName.toUpperCase().match(regex)) {
+        if (!geneName.match(regex)) {
           geneRegex += geneName + '|';
         }
       });
@@ -114,7 +113,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
       // Remove the regex.
       conditionRegex = '';
       this.data.matrix.conditionNames.forEach(function(conditionName) {
-        if (!conditionName.toUpperCase().match(regex)) {
+        if (!conditionName.match(regex)) {
           conditionRegex += conditionName + '|';
         }
       });
