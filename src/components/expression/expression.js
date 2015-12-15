@@ -73,8 +73,10 @@ genotet.ExpressionView = function(viewName, params) {
     }.bind(this))
     .on('genotet.cellClick', function(event, cell) {
       this.renderer.highlightLabelsForClickedCell_(cell);
-      this.panel.displayCellInfo_(cell.geneName, cell.conditionName,
-        cell.value);
+      this.panel.displayCellInfo_(cell.geneName, cell.conditionName, cell.value);
+    }.bind(this))
+    .on('genotet.cellUnclick', function(event) {
+      this.panel.hideCellInfo_();
     }.bind(this));
 
   // Path hover in expression.
@@ -90,8 +92,10 @@ genotet.ExpressionView = function(viewName, params) {
     }.bind(this))
     .on('genotet.pathClick', function(event, profile) {
       this.renderer.highlightLabelsForClickedProfile_(profile);
-      this.panel.displayPathInfo_(profile.geneName, profile.hoverConditionName,
-        profile.hoverValue);
+      this.panel.displayPathInfo_(profile.geneName, profile.hoverConditionName, profile.hoverValue);
+    }.bind(this))
+    .on('genotet.pathUnclick', function(event) {
+      this.panel.hidePathInfo_();
     }.bind(this));
 
   // Update expression panel.
