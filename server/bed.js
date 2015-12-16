@@ -6,6 +6,7 @@
 
 var fs = require('fs');
 
+/** @const */
 module.exports = {
   /**
    * Reads a separated bed file for one chromosome.
@@ -28,7 +29,7 @@ module.exports = {
         chrStart: xLeft,
         chrEnd: xRight,
         label: parts[2]
-      })
+      });
     });
     return data;
   }

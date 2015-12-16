@@ -19,6 +19,7 @@
     "bootstrap-select": "~1.7.4",
     "bootstrap-switch": "~3.3.2",
     "bootstrap-vertical-tabs": "~1.2.1",
+    "closure-compiler": "~0.2.12",
     "d3": "~3.5.6",
     "datatables": "DataTables#~1.10.10",
     "jquery": "~2.1.4",

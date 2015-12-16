@@ -1,0 +1,51 @@
+.view.expression {
+  .profiles {
+    stroke-width: 1.5;
+    .highlighted {
+      stroke: orange;
+      stroke-width: 3;
+    }
+  }
+
+  .axis {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+
+    &.x .tick {
+      display: none;
+    }
+
+    .tick text {
+      fill: #000;
+      stroke: none;
+    }
+  }
+
+  .gene-label {
+    text-anchor: end;
+    &.highlighted {
+      fill: red;
+    }
+    &.click-highlighted {
+      fill: red;
+      stroke: red;
+    }
+  }
+  .condition-label {
+    text-anchor: right;
+    &.highlighted {
+      fill: red;
+    }
+    &.click-highlighted {
+      fill: red;
+      stroke: red;
+    }
+  }
+}
+
+.gradient-rect {
+  rx: 10;
+  ry: 10;
+}
