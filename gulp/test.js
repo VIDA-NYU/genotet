@@ -2,7 +2,6 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
 var qunit = require('gulp-qunit');
-var jasmineNode = require('gulp-jasmine-node');
 
 var paths = require('./paths.js');
 
@@ -16,11 +15,6 @@ gulp.task('concat-qunit-tests', function(cb) {
 gulp.task('copy-testdata', function() {
   return gulp.src(paths.testData)
     .pipe(gulp.dest(paths.dist + 'data'));
-});
-
-gulp.task('jasmine-node-test', function(cb) {
-  return gulp.src(paths.jasmineNodeTests)
-    .pipe(jasmineNode());
 });
 
 gulp.task('qunit-test', [
@@ -38,4 +32,4 @@ gulp.task('qunit-test', [
 });
 
 // Run the tests.
-gulp.task('run-test', ['jasmine-node-test', 'qunit-test']);
+gulp.task('run-test', ['qunit-test']);

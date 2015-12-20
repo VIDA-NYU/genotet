@@ -2,15 +2,23 @@ language: node_js
 node_js:
   - "4.1"
 
+sudo: required
+dist: trusty
+
 before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libicu52 libjpeg8 libfontconfig libwebp5
   - npm install -g gulp
   - npm install -g jasmine-node
   - bower install
+  - cd server
+  - npm install
+  - cd ..
+
 script:
   - gulp
-  - ./setup.sh
-  - node server/server.js --config=test/config
+  - bash setup.sh
+  - node server/server.js --config=test/config &
   - gulp test
+  - gulp clean
   - jasmine-node test/jasmine-node/
-
-sudo: false

@@ -21,5 +21,20 @@ frisby.create('upload network')
       'content-length': form.getLengthSync()
     }
   })
-  .expectStatus(201)
+  .expectStatus(200)
+  .afterJSON(function(json) {
+    describe('verify response', function() {
+      it('contains success field', function() {
+        expect(json.success).toBe(true);
+      });
+    });
+    /*
+    frisby.create('verify network file')
+      .get(serverURL, {
+
+      })
+      .expectJSON
+      .toss();
+    */
+  })
   .toss();
