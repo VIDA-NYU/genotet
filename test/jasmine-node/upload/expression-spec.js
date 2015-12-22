@@ -5,20 +5,20 @@ var chain = require('../chain.js');
 var data = require('../data.js');
 
 var dataInfo = {
-  name: 'network-1',
-  description: 'the first network',
-  fileName: 'network-1.tsv'
+  name: 'expression-1',
+  description: 'the first expression',
+  fileName: 'expression-1.tsv'
 };
 
 var tests = [
   {
-    name: 'upload network',
+    name: 'upload expression',
     action: function(frisby) {
       var form = new FormData();
-      form.append('type', 'network');
+      form.append('type', 'expression');
       form.append('name', dataInfo.name);
       form.append('description', dataInfo.description);
-      var fileInfo = data.getFile('network', dataInfo.fileName);
+      var fileInfo = data.getFile('expression', dataInfo.fileName);
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size
       });
@@ -41,18 +41,18 @@ var tests = [
     }
   },
   {
-    name: 'list network',
+    name: 'list expression',
     action: function(frisby) {
       frisby
-        .get(server.queryURL({type: 'list-network'}))
+        .get(server.queryURL({type: 'list-expression'}))
         .expectStatus(200);
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('listed network', function() {
+      it('listed expression', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
-          networkName: dataInfo.name,
+          matrixName: dataInfo.name,
           fileName: dataInfo.fileName,
           description: dataInfo.description
         });
@@ -60,35 +60,32 @@ var tests = [
     }
   },
   {
-    name: 'query network',
+    name: 'query expression',
     action: function(frisby) {
       frisby
         .get(server.queryURL({
-          type: 'network',
-          networkName: 'network-1',
-          geneRegex: 'a|c|e'
+          type: 'expression',
+          matrixName: 'expression-1',
+          geneRegex: 'a|b',
+          conditionRegex: '1|2'
         }))
         .expectStatus(200);
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('nodes', function() {
-        expect(data.nodes).toEqual([
-          {id: 'a', label: 'a', isTF: true},
-          {id: 'c', label: 'c', isTF: true},
-          {id: 'e', label: 'e', isTF: false}
-        ]);
+      it('gene names', function() {
+        expect(data.geneNames).toEqual(['a', 'b']);
       });
-      it('edges', function() {
-        expect(data.edges).toEqual([
-          {id: 'a,c', source: 'a', target: 'c', weight: [2, 3, 0]},
-          {id: 'c,e', source: 'c', target: 'e', weight: [4, 1, 0]}
-        ]);
+      it('condition names', function() {
+        expect(data.conditionNames).toEqual(['cond1', 'cond2']);
       });
-      it('weights', function() {
-        expect(data.valueNames).toEqual(['attr1', 'attr2', 'attr3']);
-        expect(data.weightMax).toBe(4);
-        expect(data.weightMin).toBe(1);
+      console.log(data);
+      it('values', function() {
+        expect(data.values).toEqual([[1, 2], [4, 5]]);
+        expect(data.valueMin).toBe(1);
+        expect(data.valueMax).toBe(5);
+        expect(data.allValueMin).toBe(-1);
+        expect(data.allValueMax).toBe(9);
       });
     }
   }

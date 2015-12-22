@@ -296,21 +296,17 @@ module.exports = {
       return console.error('cannot read file', file), null;
     }
 
-    var n = buf.length / 8;
     var offset = 0;
     var segs = [];
-
-    for (var i = 0; i < n; i++) {
+    for (var i = 0; i < buf.length / 8; i++) {
       var x = buf.readInt32LE(offset),
           val = buf.readFloatLE(offset + 4);
       segs.push({
-        'x' : x,
-        'value' : val
+        x: x,
+        value: val
       });
-      offset += 8;
-      // 1 int, 1 float
+      offset += 8; // 1 int, 1 float
     }
-
     console.log('read complete, cache size', bindingCache.list.length);
 
     if (bindingCache.list.length == cacheSize) {

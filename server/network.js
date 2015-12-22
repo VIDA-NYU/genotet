@@ -257,7 +257,7 @@ module.exports = {
     for (var lineNum in lines) {
       var line = lines[lineNum];
       if (!validFile) continue;
-      var parts = line.split(/[\t\s]+/);
+      var parts = line.split(/[\t\s\r]+/);
       if (parts.length < 3) {
         validFile = false;
         continue;
