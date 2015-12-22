@@ -57,7 +57,7 @@ QUnit.test('visibility', function(assert) {
       },
       check: function() {
         assert.notOk($('#side-panel').is(':hidden'),
-          'show when view is created');
+          'shown when view is created');
       }
     },
     {
