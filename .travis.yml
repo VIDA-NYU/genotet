@@ -18,7 +18,7 @@ before_script:
 script:
   - gulp
   - bash setup.sh
-  - node server/server.js --config=test/config &
+  - nohup node server/server.js --config=test/config &
   - gulp test
   - gulp clean
   - jasmine-node test/jasmine-node/

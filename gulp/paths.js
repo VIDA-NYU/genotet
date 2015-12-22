@@ -10,7 +10,11 @@ module.exports = {
     'src/components/**/*.js',
     'src/*.js'
   ],
+  dev: [
+    'dev/***.js'
+  ],
   qunitTests: [
+    'test/qunit/index.js',
     'test/qunit/**/*.js'
   ],
   jasmineNodeTests: [

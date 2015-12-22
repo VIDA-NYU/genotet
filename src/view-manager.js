@@ -16,6 +16,8 @@ genotet.viewManager.views = {};
  * Initializes the view manager.
  */
 genotet.viewManager.init = function() {
+  genotet.viewManager.views = {};
+
   var resizeMain = function() {
     $('#main').css({
       width: $(window).width() - genotet.panelManager.COLLAPSED_WIDTH,

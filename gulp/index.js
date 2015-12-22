@@ -5,20 +5,29 @@ var htmlReplace = require('gulp-html-replace');
 
 var paths = require('./paths.js');
 
-var generateIndex = function(testing) {
+var generateIndex = function(params) {
   var index = gulp.src(paths.index);
-  if (!testing) {
-    index = index.pipe(htmlReplace({
-      test: ''
-    }));
-  }
+  index = index.pipe(htmlReplace(params, {
+    keepUnassigned: true
+  }));
   return index.pipe(gulp.dest('.'));
 };
 
 gulp.task('index', function() {
-  return generateIndex(false);
+  return generateIndex({
+    dev: '',
+    test: ''
+  });
 });
 
 gulp.task('index-test', function() {
-  return generateIndex(true);
+  return generateIndex({
+    dev: ''
+  });
+});
+
+gulp.task('index-dev', function() {
+  return generateIndex({
+    test: ''
+  });
 });

@@ -6,9 +6,18 @@ var paths = require('./paths.js');
 
 gulp.task('concat-src', function(cb) {
   return gulp.src(paths.src)
-    .pipe(concat('genotet.js')
-      .on('error', function(err) {
-        cb(err);
-      }))
-    .pipe(gulp.dest(paths.dist));
+    .pipe(concat('genotet.js'))
+    .pipe(gulp.dest(paths.dist))
+    .on('error', function(err) {
+      cb(err);
+    });
+});
+
+gulp.task('concat-src-dev', function(cb) {
+  return gulp.src(paths.dev)
+    .pipe(concat('genotet-dev.js'))
+    .pipe(gulp.dest(paths.dist))
+    .on('error', function(err) {
+      cb(err);
+    });
 });
