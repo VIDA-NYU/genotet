@@ -29,7 +29,6 @@ genotet.View = function(viewName) {
   /** @private {boolean} */
   this.sendSignal_ = true;
 
-  /** @protected {!jQuery} */
   this.container = $('<div></div>')
     .addClass('view')
     .load(this.template, function() {

@@ -13,7 +13,7 @@
  * @constructor
  */
 genotet.NetworkView = function(viewName, params) {
-  this.base.constructor.call(this, viewName);
+  genotet.NetworkView.base.constructor.call(this, viewName);
 
   this.container.addClass('network');
 

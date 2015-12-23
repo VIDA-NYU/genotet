@@ -13,7 +13,7 @@
  * @constructor
  */
 genotet.BindingView = function(viewName, params) {
-  this.base.constructor.call(this, viewName);
+  genotet.BindingView.base.constructor.call(this, viewName);
 
   this.container.addClass('binding');
 

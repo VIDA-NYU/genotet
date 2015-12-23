@@ -273,5 +273,5 @@ genotet.utils.swap = function(arr, i, j) {
 genotet.utils.inherit = function(child, base) {
   child.prototype = Object.create(base.prototype);
   child.prototype.constructor = child;
-  child.prototype.base = base.prototype;
+  child.base = base.prototype;
 };

@@ -41,7 +41,7 @@ genotet.menu.init = function() {
 
   // Help document.
   $('#doc').click(function() {
-    window.open('help.html');
+    window.open('doc.html');
   });
 
   // Organism selection.
