@@ -22,20 +22,14 @@ var tests = [
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size
       });
-      frisby
-        .post(server.uploadURL, form, {
-          headers: {
-            'content-type': 'multipart/form-data; boundary=' +
-            form.getBoundary(),
-            'content-length': form.getLengthSync()
-          }
-        })
+      server
+        .postForm(frisby, form)
         .expectStatus(200);
       return form;
     },
     check: function(body) {
       var json = JSON.parse(body);
-      it('contains success field', function() {
+      it('upload response is success', function() {
         expect(json.success).toBe(true);
       });
     }
@@ -49,7 +43,7 @@ var tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('listed expression', function() {
+      it('listed expression data', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
           matrixName: dataInfo.name,
@@ -65,7 +59,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'expression',
-          matrixName: 'expression-1',
+          matrixName: dataInfo.name,
           geneRegex: 'a|b',
           conditionRegex: '1|2'
         }))
@@ -79,9 +73,10 @@ var tests = [
       it('condition names', function() {
         expect(data.conditionNames).toEqual(['cond1', 'cond2']);
       });
-      console.log(data);
       it('values', function() {
         expect(data.values).toEqual([[1, 2], [4, 5]]);
+      });
+      it('min/max values', function() {
         expect(data.valueMin).toBe(1);
         expect(data.valueMax).toBe(5);
         expect(data.allValueMin).toBe(-1);

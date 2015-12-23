@@ -19,5 +19,23 @@ module.exports = {
    */
   queryURL: function(params) {
     return this.url + '?' + querystring.stringify(params);
+  },
+
+  /**
+   * Posts a file via multi-part form to the server.
+   * @param {!Frisby} frisby
+   * @param {!FormData} form
+   * @return {!Frisby}
+   * @this {server}
+   */
+  postForm: function(frisby, form) {
+    frisby.post(this.uploadURL, form, {
+      headers: {
+        'content-type': 'multipart/form-data; boundary=' +
+        form.getBoundary(),
+        'content-length': form.getLengthSync()
+      }
+    });
+    return frisby;
   }
 };

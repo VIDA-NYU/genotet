@@ -22,20 +22,14 @@ var tests = [
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size
       });
-      frisby
-        .post(server.uploadURL, form, {
-          headers: {
-            'content-type': 'multipart/form-data; boundary=' +
-            form.getBoundary(),
-            'content-length': form.getLengthSync()
-          }
-        })
+      server
+        .postForm(frisby, form)
         .expectStatus(200);
       return form;
     },
     check: function(body) {
       var json = JSON.parse(body);
-      it('contains success field', function() {
+      it('upload response is success', function() {
         expect(json.success).toBe(true);
       });
     }
@@ -49,7 +43,7 @@ var tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('listed network', function() {
+      it('listed network data', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
           networkName: dataInfo.name,
@@ -65,7 +59,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'network',
-          networkName: 'network-1',
+          networkName: dataInfo.name,
           geneRegex: 'a|c|e'
         }))
         .expectStatus(200);
