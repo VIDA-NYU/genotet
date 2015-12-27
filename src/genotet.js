@@ -37,7 +37,7 @@ genotet.warning = function() {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.warn(msg);
   if (genotet.options.allowMessage) {
-    $('#warning').text(msg).parent().slideDown();
+    $('.sys-warning').text(msg).parent().slideDown();
   }
 };
 
@@ -48,7 +48,7 @@ genotet.error = function() {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.error(msg);
   if (genotet.options.allowMessage) {
-    $('#error').text(msg).parent().slideDown();
+    $('.sys-error').text(msg).parent().slideDown();
   }
 };
 
@@ -59,6 +59,6 @@ genotet.success = function() {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.info(msg);
   if (genotet.options.allowMessage) {
-    $('#success').text(msg).parent().slideDown();
+    $('.sys-success').text(msg).parent().slideDown();
   }
 };

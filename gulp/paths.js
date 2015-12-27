@@ -26,12 +26,11 @@ module.exports = {
   server: [
     'server/*.js'
   ],
-  css: [
-    'src/**/*.css',
+  scss: [
     'src/**/*.scss',
     '!src/css/doc.scss'
   ],
-  docCSS: [
+  docScss: [
     'src/css/doc.scss'
   ],
   html: [

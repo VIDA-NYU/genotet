@@ -1,46 +1,65 @@
+$orange: #ffa500;
+$red: #f00;
+$black: #000;
+$gray: #ccc;
+
 .view.expression {
   .profiles {
     stroke-width: 1.5;
+
     .highlighted {
-      stroke: orange;
+      stroke: $orange;
       stroke-width: 3;
     }
   }
 
   .axis {
     fill: none;
-    stroke: #000;
-    stroke-width: 1;
     shape-rendering: crispEdges;
+    stroke: $black;
+    stroke-width: 1;
 
     &.x .tick {
       display: none;
     }
 
-    .tick text {
-      fill: #000;
+    text {
+      fill: $black;
       stroke: none;
     }
   }
 
   .gene-label {
     text-anchor: end;
+
     &.highlighted {
-      fill: red;
+      fill: $red;
     }
+
     &.click-highlighted {
-      fill: red;
-      stroke: red;
+      fill: $red;
+      stroke: $red;
     }
   }
+
   .condition-label {
     text-anchor: right;
+
     &.highlighted {
-      fill: red;
+      fill: $red;
     }
+
     &.click-highlighted {
-      fill: red;
-      stroke: red;
+      fill: $red;
+      stroke: $red;
     }
+  }
+}
+
+#side-panel .expression {
+  .box {
+    border: 1px solid $gray;
+    border-radius: 4px;
+    padding: 10px;
   }
 }

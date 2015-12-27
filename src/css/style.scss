@@ -8,80 +8,43 @@ body {
 }
 
 #main {
-  position: absolute;
   padding: 0;
+  position: absolute;
   top: 30px;
 }
 
 .alert {
+  margin: 29px 0 0;
   padding: 5px 15px;
-  margin: 29px 0px 0px 0px;
 }
 
-#error,
-#warning,
-#success {
+.sys-error,
+.sys-warning,
+.sys-success {
   text-align: center;
-}
-
-.hint {
-  display: table-cell;
-  font-size: 15px;
-  color: #F0F0F0;
-  font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-  text-align: center;
-  background-color: rgba(0,0,0,0.25);
-  vertical-align: middle;
-}
-
-
-.viewshadow {
-  -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-}
-
-.renderdiv {
-  background-color: #F0F0F0;
-  border: 2px solid #5a5460;
-  -webkit-box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
-}
-
-.block {
-  background-color: #000000;
-  opacity: 0.5;
-  z-index: 100;
-  position: absolute;
-  left: 0px;
-  top: 0px;
-}
-
-.uibar-text-bold {
-  margin-left: 5px;
-  margin-right: 5px;
-  front-weight: 900;
 }
 
 .bold {
   font-weight: bold;
 }
 
-.navbar-nav > li > a, .navbar-brand {
-  padding-top: 4px !important;
-  padding-bottom: 0 !important;
-  height: 28px;
+.navbar-nav > li > a,
+.navbar-brand {
   font-size: 1em;
+  height: 28px;
+  padding-bottom: 0;
+  padding-top: 4px;
 }
 
 .navbar {
-  min-height: 28px !important;
+  min-height: 28px;
   z-index: 0;
 }
 
 .navbar-fixed-top {
   z-index: 101;
-}
 
-.navbar-fixed-top a:hover {
-  cursor: pointer;
+  a:hover {
+    cursor: pointer;
+  }
 }

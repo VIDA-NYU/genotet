@@ -1,22 +1,37 @@
+$gray: #aaa;
+$white: #fff;
+$exon-blue: #031c51;
+$overview-fill: #666;
+$details-fill: #222;
+
 .view.binding {
-  .overviews path {
-    fill: #666;
+  .overviews {
+    path {
+      fill: $overview-fill;
+    }
+
+    rect.range {
+      fill: $exon-blue;
+      opacity: .25;
+    }
   }
 
   .details path {
-    fill: #222;
+    fill: $details-fill;
   }
 
   .exons {
     rect,
     path {
-      fill: #031c51;
+      fill: $exon-blue;
       stroke: none;
     }
+
     line {
-      stroke: #031c51;
+      stroke: $exon-blue;
       stroke-width: 1;
     }
+
     text {
       font-size: 11px;
       text-anchor: middle;
@@ -24,24 +39,36 @@
   }
 
   .zoom-handle {
-    fill: white;
-    opacity: 0.0;
+    fill: $white;
+    opacity: .0;
     width: 100%;
   }
 
-  line.baseline {
-    stroke: #aaa;
+  .baseline {
+    opacity: .5;
+    stroke: $gray;
     stroke-width: 1px;
-    opacity: 0.5;
   }
 
   .label {
-    text-anchor: middle;
     pointer-events: none;
+    text-anchor: middle;
+  }
+}
+
+#side-panel .binding {
+  .add-track {
+    margin-top: 5px;
+    width: 100%;
   }
 
-  .overviews rect.range {
-    fill: #031c51;
-    opacity: 0.25;
+  .track-gene {
+    margin-top: 3px;
+
+    button {
+      background-image: none;
+      border: 0;
+      box-shadow: none;
+    }
   }
 }
