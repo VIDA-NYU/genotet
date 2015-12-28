@@ -119,7 +119,8 @@ genotet.dialog.createNetwork_ = function() {
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(network) {
-            modal.find('.selectpicker').append('<option>' + network.networkName + '</option>');
+            modal.find('.selectpicker')
+              .append('<option>' + network.networkName + '</option>');
           });
           modal.find('.selectpicker').selectpicker('refresh');
         }.bind(this), 'jsonp')
@@ -206,7 +207,8 @@ genotet.dialog.createExpression_ = function() {
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(matrix) {
-            modal.find('.selectpicker').append('<option>' + matrix.matrixName + '</option>');
+            modal.find('.selectpicker')
+              .append('<option>' + matrix.matrixName + '</option>');
           });
           modal.find('.selectpicker').selectpicker('refresh');
         }.bind(this), 'jsonp')
