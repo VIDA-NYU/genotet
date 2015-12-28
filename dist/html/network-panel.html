@@ -1,0 +1,93 @@
+<div class="panel network">
+  <div id="network" class="panel-section">
+    <div class="item-title">Network</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="genes" class="panel-section">
+    <div class="item-title">Genes</div>
+    <input class="form-control">
+    <div class="sub-buttons">
+      <button id="set" class="btn btn-default btn-xs glyphicon glyphicon-refresh" title="set genes"></button>
+      <button id="add" class="btn btn-default btn-xs glyphicon glyphicon-plus" title="add genes"></button>
+      <button id="remove" class="btn btn-default btn-xs glyphicon glyphicon-minus" title="remove genes"></button>
+    </div>
+  </div>
+  <div id="combined-regulation" class="panel-section">
+    <div class="item-title">Combined Regulations</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <!--
+  title="Add/remove/select genes in the network. Usage: [add/rm/sel] regexp |regexp. If no action is specified, default behavior is sel."
+  title="Add nodes into the graph that are regulated by selected genes. Usage: regexp"
+  -->
+  <div class="panel-section switches">
+    <table>
+      <colgroup>
+        <col>
+        <col width="70px">
+      </colgroup>
+      <tbody>
+      <tr>
+        <td>Gene Labels</td>
+        <td><input type="checkbox" id="gene-labels" title="show gene labels" checked></td>
+      </tr>
+      <tr>
+        <td>TF-TF Edges</td>
+        <td><input type="checkbox" id="tf-tf" title="show edges between TFs" checked></td>
+      </tr>
+      <tr>
+        <td>TF-nonTF Edges</td>
+        <td><input type="checkbox" id="tf-nontf" title="show edges from TFs to targets" checked></td>
+      </tr>
+      <!--
+      <tr>
+        <td>Force</td>
+        <td><input type="checkbox" id="force" title="apply graph layout forces"></td>
+      </tr>
+      -->
+      </tbody>
+    </table>
+  </div>
+  <div id="node-info" class="panel-section box" style="display: none;">
+  </div>
+  <div id="edge-info" class="panel-section box" style="display: none;">
+  </div>
+  <div id="edge-list" class="panel-section">
+  </div>
+  <div id="edge-list-template" style="display: none;">
+    <table class="table table-striped table-bordered" width="100%">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div id="node-info-template" style="display: none;">
+    <button type="button" class="close">&times;</button>
+    <div id="name">
+      <label>Gene</label>
+      <span></span>
+    </div>
+    <div id="is-tf">
+      Transcription Factor
+    </div>
+    <div id="subtiwiki">
+      <a target="_blank">subtiwiki</a>
+    </div>
+  </div>
+  <div id="edge-info-template" style="display: none;">
+    <button type="button" class="close">&times;</button>
+    <div id="source">
+      <label>Source</label>
+      <span></span>
+    </div>
+    <div id="target">
+      <label>Target</label>
+      <span></span>
+    </div>
+    <div id="weight">
+      <label>Weight</label>
+      <span></span>
+    </div>
+  </div>
+</div>

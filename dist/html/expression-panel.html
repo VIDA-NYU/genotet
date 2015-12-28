@@ -1,0 +1,97 @@
+<div class="panel expression">
+  <div id="matrix" class="panel-section">
+    <div class="item-title">Matrix</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="profile" class="panel-section">
+    <div class="item-title">Add Gene Profiles</div>
+    <select></select>
+  </div>
+  <div id="genes" class="panel-section">
+    <div class="item-title">Genes</div>
+    <!--<button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>-->
+    <!--<input class="form-control input-with-update">-->
+    <input class="form-control">
+    <div class="sub-buttons">
+      <button id="setGene" class="btn btn-default btn-xs glyphicon glyphicon-refresh" title="set genes"></button>
+      <button id="addGene" class="btn btn-default btn-xs glyphicon glyphicon-plus" title="add genes"></button>
+      <button id="removeGene" class="btn btn-default btn-xs glyphicon glyphicon-minus" title="remove genes"></button>
+    </div>
+  </div>
+  <div id="conditions" class="panel-section">
+    <div class="item-title">Experiment Conditions</div>
+    <!--<button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>-->
+    <!--<input class="form-control input-with-update">-->
+    <input class="form-control">
+    <div class="sub-buttons">
+      <button id="setCondition" class="btn btn-default btn-xs glyphicon glyphicon-refresh" title="set conditions"></button>
+      <button id="addCondition" class="btn btn-default btn-xs glyphicon glyphicon-plus" title="add conditions"></button>
+      <button id="removeCondition" class="btn btn-default btn-xs glyphicon glyphicon-minus" title="remove conditions"></button>
+    </div>
+  </div>
+  <div class="panel-section switches">
+    <table>
+      <colgroup>
+        <col>
+        <col width="70px">
+      </colgroup>
+      <tbody>
+      <tr>
+        <td>Gene Labels</td>
+        <td><input type="checkbox" id="label-genes" title="show gene (row) labels" checked></td>
+      </tr>
+      <tr>
+        <td>Condition Labels</td>
+        <td><input type="checkbox" id="label-conditions" title="show experiment condition (condition) labels"></td>
+      </tr>
+      <tr>
+        <td>Gene Profiles</td>
+        <td><input type="checkbox" id="show-profiles" title="show gene profiles (line charts)" checked></td>
+      </tr>
+      <tr>
+        <td>TFA Profiles</td>
+        <td><input type="checkbox" id="show-gradient" title="show TFA profiles (line charts)" checked></td>
+      </tr>
+      <tr>
+        <td>Auto-Scale Gradient</td>
+        <td><input type="checkbox" id="auto-scale" title="auto adjust gradient scale of heatmap" checked></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="cell-info" class="panel-section box" style="display: none;">
+  </div>
+  <div id="cell-info-template" style="display: none;">
+    <button type="button" class="close">&times;</button>
+    <div id="gene">
+      <label>Gene</label>
+      <span></span>
+    </div>
+    <div id="condition">
+      <label>Condition</label>
+      <span></span>
+    </div>
+    <div id="value">
+      <label>Value</label>
+      <span></span>
+    </div>
+  </div>
+  <div id="profile-info" class="panel-section box" style="display: none;">
+  </div>
+  <div id="profile-info-template" style="display: none;">
+    <button type="button" class="close">&times;</button>
+    <div id="genePath">
+      <label>Gene</label>
+      <span></span>
+    </div>
+    <div id="conditionPath">
+      <label>Condition</label>
+      <span></span>
+    </div>
+    <div id="profileValue">
+      <label>Value</label>
+      <span></span>
+    </div>
+  </div>
+</div>
