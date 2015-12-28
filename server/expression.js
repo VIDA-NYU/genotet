@@ -262,7 +262,7 @@ module.exports = {
     var folder = expmatAddr;
     var ret = [];
     var files = fs.readdirSync(folder);
-    files.forEach(function(file){
+    files.forEach(function(file) {
       if (file.indexOf('.txt') != -1) {
         var fname = file.substr(0, file.length - 4);
         var fd = fs.openSync(folder + file, 'r');

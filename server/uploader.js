@@ -35,7 +35,7 @@ module.exports = {
       return {
         success: false,
         reason: 'wiggle file already exists for current name'
-      }
+      };
     }
     var dest = fs.createWriteStream(prefix + desc.name);
     source.pipe(dest);
@@ -48,12 +48,12 @@ module.exports = {
           this.bedSort(prefix, desc.name);
         }
       }.bind(this))
-      .on('err', function(err){
+      .on('err', function(err) {
         console.log(err);
         return {
           success: false,
           reason: 'error copying file'
-        }
+        };
       });
 
     // write down the network name and description
@@ -150,7 +150,6 @@ module.exports = {
         fs.closeSync(fd);
       }
 
-
       // build segment tree and save
       for (var chr in seg) {
         var segFile = folder + '/' + bwFile + '_' + chr + '.seg';
@@ -166,7 +165,7 @@ module.exports = {
         fs.closeSync(fd);
       }
 
-      console.log('Wiggle file separate done.')
+      console.log('Wiggle file separate done.');
     });
 
   },
