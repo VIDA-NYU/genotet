@@ -1,5 +1,0 @@
-regulator target attr1 attr2 attr3
-a b 1 2 0
-a c 2 3 0
-a d 3 -1 0
-c e 4 1 0
