@@ -10,7 +10,7 @@
  * @constructor
  */
 genotet.BindingPanel = function(data) {
-  this.base.constructor.call(this, data);
+  genotet.BindingPanel.base.constructor.call(this, data);
 
   // Set the view options.
   _(this.data.options).extend({
@@ -36,11 +36,6 @@ genotet.utils.inherit(genotet.BindingPanel, genotet.ViewPanel);
 
 /** @inheritDoc */
 genotet.BindingPanel.prototype.template = 'dist/html/binding-panel.html';
-
-/** @inheritDoc */
-genotet.BindingPanel.prototype.panel = function(container) {
-  this.base.panel.call(this, container);
-};
 
 /** @inheritDoc */
 genotet.BindingPanel.prototype.initPanel = function() {

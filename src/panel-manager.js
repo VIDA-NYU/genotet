@@ -26,6 +26,8 @@ genotet.panelManager.container_ = null;
  * Initializes the side panel.
  */
 genotet.panelManager.init = function() {
+  genotet.panelManager.showPanel_ = true;
+
   genotet.panelManager.container_ = $('#side-panel');
   genotet.panelManager.container_.children('#btn-toggle').click(function() {
     genotet.panelManager.togglePanel_();

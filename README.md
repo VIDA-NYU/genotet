@@ -1,37 +1,54 @@
 Genotet
 =======
 
-[![Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg)](https://travis-ci.org/ViDA-NYU/genotet)
+**Master Build Status**
+[![Master Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg?branch=master)](https://travis-ci.org/ViDA-NYU/genotet)
+
+**Development Build Status**
+[![Development Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg?branch=refactor)](https://travis-ci.org/ViDA-NYU/genotet)
 
 An Interactive Web-based Visual Exploration Framework to Support Validation of Gene Regulatory Networks
 
 
 Installation:
 
-- Install node.js on your machine.
+- Install [node.js](https://nodejs.org/en/) and [JRE](http://www.java.com/) on your machine.
 - Put the genotet folder to your server web directory, or your localhost web directory (e.g. xampp).
+- Install required packages for the web pages.
+    ```bash
+    # at genotet/
+    npm install
+    bower install
+    ```
+
 - Install required packages in the server folder.
 
-    ```
+    ```bash
+    # at genotet/
     cd server
+    # now at genotet/server
     npm install
     ```
 
-- Modify server/server.js to locate the data at correct directories.
-- Run the server code.
+- Create and edit a server configuration file to set the data paths. The file shall be located at _genotet/server/config_.
+
+    ```
+    networkPath = .../genotet_data/network/
+    bindingPath = .../genotet_data/binding/
+    expressionPath = .../genotet_data/expression/
+    bigWigToWigPath = .../genotet_data/
+    uploadPath = .../genotet_data/upload/
+    bedPath = .../genotet_data/bed/
+    ```
+
+- Run the setup script.
+
+    ```
+    ./setup.sh
+    ```
+
+- Run the server.
 
     ```
     node server/server.js
     ```
-
-
-
-A configuration file is needed to set the data paths. The file shall be located at _server/config_.
-```
-networkPath = .../genotet_data/network/
-bindingPath = .../genotet_data/binding/
-expressionPath = .../genotet_data/expression/
-bigWigToWigPath = .../genotet_data/
-uploadPath = .../genotet_data/upload/
-bedPath = .../genotet_data/bed/
-```

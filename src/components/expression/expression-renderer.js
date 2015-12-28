@@ -12,7 +12,7 @@
  * @constructor
  */
 genotet.ExpressionRenderer = function(container, data) {
-  this.base.constructor.call(this, container, data);
+  genotet.ExpressionRenderer.base.constructor.call(this, container, data);
 
   /**
    * Gene profile data. Each element corresponds to one gene profile line.
@@ -170,7 +170,7 @@ genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_MARGIN = 40;
 
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.init = function() {
-  this.base.init.call(this);
+  genotet.ExpressionRenderer.base.init.call(this);
 };
 
 /** @inheritDoc */
@@ -721,6 +721,6 @@ genotet.ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
 
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.resize = function() {
-  this.base.resize.call(this);
+  genotet.ExpressionRenderer.base.resize.call(this);
   this.render();
 };

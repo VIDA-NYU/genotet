@@ -12,7 +12,7 @@
  * @constructor
  */
 genotet.NetworkRenderer = function(container, data) {
-  this.base.constructor.call(this, container, data);
+  genotet.NetworkRenderer.base.constructor.call(this, container, data);
 
   /**
    * Filter settings.
@@ -114,7 +114,7 @@ genotet.NetworkRenderer.prototype.EDGE_CURVE_SHIFT = 0.1;
 
 /** @inheritDoc */
 genotet.NetworkRenderer.prototype.init = function() {
-  this.base.init.call(this);
+  genotet.NetworkRenderer.base.init.call(this);
 
   /** @private {d3.zoom} */
   this.zoom_ = d3.behavior.zoom()
@@ -200,7 +200,7 @@ genotet.NetworkRenderer.prototype.dataLoaded = function() {
  * @override
  */
 genotet.NetworkRenderer.prototype.resize = function() {
-  this.base.resize.call(this);
+  genotet.NetworkRenderer.base.resize.call(this);
   this.render();
 };
 

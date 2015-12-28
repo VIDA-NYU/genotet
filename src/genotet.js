@@ -25,7 +25,9 @@ genotet.init = function() {
   genotet.options.init();
   genotet.tooltip.init();
 
-  genotet.test.run();
+  if (genotet.test) {
+    genotet.test.run();
+  }
 };
 
 /**

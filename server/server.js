@@ -54,12 +54,31 @@ var uploadPath;
  * @type {string}
  */
 var bedPath;
+/**
+ * Path of config file.
+ * @type {string}
+ */
+var configPath = 'server/config';
+
+// Parse command arguments.
+process.argv.forEach(function(token, index) {
+  var tokens = token.split(['=']);
+  var arg = tokens.length >= 1 ? tokens[0] : '';
+  var val = tokens.length >= 2 ? tokens[1] : '';
+  switch (arg) {
+    case '--config':
+      if (val) {
+        configPath = val;
+      }
+      break;
+  }
+});
 
 /**
  * Reads the configuration file and gets the file paths.
  */
 function config() {
-  var tokens = fs.readFileSync('server/config')
+  var tokens = fs.readFileSync(configPath)
     .toString()
     .split(RegExp(/\s+/));
   for (var i = 0; i < tokens.length; i += 3) {
@@ -94,31 +113,6 @@ var upload = multer({
   dest: uploadPath
 });
 
-/**
- * Mapping from expression matrix names to their binding data track names.
- * @type {!Object<string>}
- */
-var genecodes = {};
-/**
- * Path of the name code file that maps gene names to binding data track names.
- * @type {string}
- */
-var codeFile = wigglePath + 'namecode';
-/**
- * Reads the genes' name codes and stores the mapping in genecodes.
- */
-function readCodes() {
-  var tokens = fs.readFileSync(codeFile)
-    .toString()
-    .split(RegExp(/\s+/));
-  for (var i = 0; i < tokens.length; i += 2) {
-    var gene = tokens[i].toLowerCase();
-    var code = tokens[i + 1];
-    genecodes[gene] = code;
-  }
-}
-// Read the name code file.
-readCodes();
 
 /**
  * Path of the exon info file.

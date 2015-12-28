@@ -11,7 +11,7 @@
  * @constructor
  */
 genotet.ExpressionLoader = function(data) {
-  this.base.constructor.call(this, data);
+  genotet.ExpressionLoader.base.constructor.call(this, data);
 
   _(this.data).extend({
     matrix: null,

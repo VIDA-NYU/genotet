@@ -12,7 +12,7 @@
  * @constructor
  */
 genotet.BindingRenderer = function(container, data) {
-  this.base.constructor.call(this, container, data);
+  genotet.BindingRenderer.base.constructor.call(this, container, data);
 
   /**
    * Height of a single detail binding track. This is re-computed upon
@@ -97,7 +97,7 @@ genotet.BindingRenderer.ZOOM_INTERVAL = 500;
  * Initializes the BindingRenderer properties.
  */
 genotet.BindingRenderer.prototype.init = function() {
-  this.base.init.call(this);
+  genotet.BindingRenderer.base.init.call(this);
 
   // Set up the detailed histogram zoom.
   this.zoom_ = d3.behavior.zoom()
@@ -607,7 +607,7 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
  * Handles resize event.
  */
 genotet.BindingRenderer.prototype.resize = function() {
-  this.base.resize.call(this);
+  genotet.BindingRenderer.base.resize.call(this);
   this.updateZoomHandles_();
   if (!this.dataReady_()) {
     return;

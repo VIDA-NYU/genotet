@@ -297,7 +297,7 @@ module.exports = {
     try {
       expGene = RegExp(geneRegex, 'i');
       expCondition = RegExp(conditionRegex, 'i');
-    }catch (e) {
+    } catch (e) {
       console.log('incorrect regular expression');
       expGene = expCondition = 'a^';
     }
