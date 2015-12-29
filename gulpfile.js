@@ -12,9 +12,10 @@ gulp.task('watch', function() {
   gulp.watch([
     'index.html',
     paths.src,
+    paths.scss,
     paths.server,
     paths.html
-  ], ['default']);
+  ], ['dev']);
 });
 
 // Test task.

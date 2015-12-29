@@ -3,6 +3,7 @@ QUnit.module('panel');
 QUnit.test('tabs', function(assert) {
   genotet.qunit.init();
   assert.expect(3);
+  var sideways = $('#side-panel .sideways');
   genotet.qunit.chain(assert, [
     {
       action: function() {
@@ -12,7 +13,7 @@ QUnit.test('tabs', function(assert) {
         });
       },
       check: function() {
-        var numTabs = $('#side-panel .sideways > li')
+        var numTabs = sideways.children('li')
           .not('#panel-tab-init').length;
         assert.equal(numTabs, 1, 'show 1 tab');
       }
@@ -25,7 +26,7 @@ QUnit.test('tabs', function(assert) {
         });
       },
       check: function() {
-        var numTabs = $('#side-panel .sideways > li')
+        var numTabs = sideways.children('li')
           .not('#panel-tab-init').length;
         assert.equal(numTabs, 2, 'show 2 tabs');
       }
@@ -35,7 +36,7 @@ QUnit.test('tabs', function(assert) {
         genotet.viewManager.closeView(genotet.viewManager.views['Network 1']);
       },
       check: function() {
-        var numTabs = $('#side-panel .sideways > li')
+        var numTabs = sideways.children('li')
           .not('#panel-tab-init').length;
         assert.equal(numTabs, 1, 'show 1 tab after closing 1');
       }
@@ -46,7 +47,8 @@ QUnit.test('tabs', function(assert) {
 QUnit.test('visibility', function(assert) {
   genotet.qunit.init();
   assert.expect(3);
-  assert.ok($('#side-panel').is(':hidden'), 'hidden when no view is created');
+  var sidePanel = $('#side-panel');
+  assert.ok(sidePanel.is(':hidden'), 'hidden when no view is created');
   genotet.qunit.chain(assert, [
     {
       action: function() {
@@ -56,8 +58,7 @@ QUnit.test('visibility', function(assert) {
         });
       },
       check: function() {
-        assert.notOk($('#side-panel').is(':hidden'),
-          'shown when view is created');
+        assert.notOk(sidePanel.is(':hidden'), 'shown when view is created');
       }
     },
     {
@@ -65,8 +66,7 @@ QUnit.test('visibility', function(assert) {
         genotet.viewManager.closeView(genotet.viewManager.views['Network 1']);
       },
       check: function() {
-        assert.ok($('#side-panel').is(':hidden'),
-          'hidden when all views are closed');
+        assert.ok(sidePanel.is(':hidden'), 'hidden when all views are closed');
       }
     }
   ]);

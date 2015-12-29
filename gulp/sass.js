@@ -3,11 +3,12 @@ var gulp = require('gulp');
 var sass = require('gulp-sass');
 var flatten = require('gulp-flatten');
 var concat = require('gulp-concat');
+var autoprefixer = require('gulp-autoprefixer');
 
 var paths = require('./paths.js');
 
 var runSass = function(cb, compressed) {
-  return gulp.src(paths.css)
+  return gulp.src(paths.scss)
     .pipe(concat('genotet.scss')
       .on('error', function(err) {
         cb(err);
@@ -19,6 +20,7 @@ var runSass = function(cb, compressed) {
     .pipe(sass({
       outputStyle: compressed ? 'compressed' : ''
     }).on('error', sass.logError))
+    .pipe(autoprefixer())
     .pipe(gulp.dest(paths.dist));
 };
 
