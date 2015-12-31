@@ -27,7 +27,6 @@
     "underscore": "~1.8.3"
   },
   "devDependencies": {
-    "qunit": "~1.20.0",
-    "closure-compiler": "~0.2.12"
+    "qunit": "~1.20.0"
   }
 }

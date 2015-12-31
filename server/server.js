@@ -242,6 +242,9 @@ app.get('/genotet', function(req, res) {
       break;
 
     // Expression matrix data queries
+    /*
+    // TODO(jiaming): either remove old expression entry, or uniformly use
+    // fileType to distinguish processing method.
     case 'expression':
       var file = expressionFile[req.query.matrixName];
       var exprows = req.query.geneRegex;
@@ -250,6 +253,7 @@ app.get('/genotet', function(req, res) {
       expcols = expcols == '' ? 'a^' : expcols;
       data = expression.getExpmat(file, exprows, expcols);
       break;
+    */
     case 'expression-profile':
       var mat = req.query.mat;
       var name = req.query.name;
@@ -260,7 +264,7 @@ app.get('/genotet', function(req, res) {
     case 'list-matrix':
       data = expression.listMatrix(expressionPath);
       break;
-    case 'read-expression':
+    case 'expression':
       var file = expressionPath + req.query.matrixName;
       var geneRegex = req.query.geneRegex;
       var conditionRegex = req.query.conditionRegex;

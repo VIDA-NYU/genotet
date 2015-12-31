@@ -303,7 +303,7 @@ module.exports = {
     }
     var lines = fs.readFileSync(expressionFile).toString().split('\n');
     lines.forEach(function(line) {
-      var parts = line.split('\t');
+      var parts = line.split(/[\t\s\r]+/);
       if (isFirstCol) {
         // first column contains the conditions
         isFirstCol = false;
@@ -332,8 +332,7 @@ module.exports = {
             allValueMax = Math.max(allValueMax, value);
           }
           values.push(tmpLine);
-        }
-        else {
+        } else {
           for (var i = 1; i < parts.length; i++) {
             var value = parseFloat(parts[i]);
             allValueMin = Math.min(allValueMin, value);

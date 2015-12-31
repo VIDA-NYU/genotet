@@ -22,3 +22,6 @@ script:
   - gulp test
   - gulp clean
   - jasmine-node test/jasmine-node/
+
+after_script:
+  - cat nohup.out
