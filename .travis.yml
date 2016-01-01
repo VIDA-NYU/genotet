@@ -10,7 +10,6 @@ before_script:
   - sudo apt-get install -y libicu52 libjpeg8 libfontconfig libwebp5
   - npm install -g gulp
   - npm install -g jasmine-node
-  - bower install
   - cd server
   - npm install
   - cd ..
@@ -24,3 +23,6 @@ script:
   - gulp test
   - gulp clean
   - jasmine-node test/jasmine-node/
+
+after_script:
+  - cat nohup.out

@@ -1,7 +1,7 @@
 {
   "name": "genotet",
   "version": "1.0.0",
-  "description": "Genotet\r =======",
+  "description": "Genotet",
   "main": "genotet.js",
   "dependencies": {
     "bower": "^1.5.2"
@@ -31,7 +31,10 @@
     "run-sequence": "^1.1.5"
   },
   "scripts": {
-    "test": "gulp test"
+    "postinstall": "bower install",
+    "prestart": "npm install",
+    "start": "node server/server.js",
+    "test": "gulp test && jasmine-node test/jasmine-node"
   },
   "repository": {
     "type": "git",
