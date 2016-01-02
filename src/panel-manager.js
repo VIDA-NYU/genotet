@@ -32,6 +32,7 @@ genotet.panelManager.container_ = null;
 
 /**
  * Initializes the side panel.
+ * @this {genotet.panelManager}
  */
 genotet.panelManager.init = function() {
   genotet.panelManager.container_ = $('#side-panel');
@@ -43,6 +44,7 @@ genotet.panelManager.init = function() {
       genotet.panelManager.togglePanel_();
     }
   });
+  $(window).resize(this.adjustTabHeight.bind(this));
 };
 
 /**
@@ -94,7 +96,7 @@ genotet.panelManager.activatePanel_ = function(viewID) {
  * Creates a panel with the given name.
  * @param {!genotet.View} view Name of the view.
  * @return {!jQuery}
- * @this
+ * @this {genotet.panelManager}
  */
 genotet.panelManager.addPanel = function(view) {
   var viewID = view.viewID_;
@@ -113,10 +115,9 @@ genotet.panelManager.addPanel = function(view) {
     var clickedViewID = view.viewID_;
     this.activatePanel_(clickedViewID);
   }.bind(this));
-  this.adjustTabHeight();
 
   // Adjust tab height.
-  $(window).resize(this.adjustTabHeight.bind(this));
+  this.adjustTabHeight();
 
   // Remove the click event handler to avoid multiple executions.
   $('.sideways li a').off().click(function(event) {
@@ -147,7 +148,7 @@ genotet.panelManager.addPanel = function(view) {
 /**
  * Closes the given panel.
  * @param {string} viewName Name of the view.
- * @this
+ * @this {genotet.panelManager}
  */
 genotet.panelManager.removePanel = function(viewName) {
   var viewID = viewName.replace(/\s/g, '-');
@@ -189,7 +190,7 @@ genotet.panelManager.closeAllPanels = function() {
 
 /**
  * Adjust tab height.
- * @this
+ * @this {genotet.panelManager}
  */
 genotet.panelManager.adjustTabHeight = function() {
   var tabSelector = $('.sideways');
