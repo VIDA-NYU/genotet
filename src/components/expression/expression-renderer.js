@@ -144,6 +144,12 @@ genotet.ExpressionRenderer.prototype.LABEL_MARGIN = 10;
 genotet.ExpressionRenderer.prototype.LABEL_DIFFERENCE = 10;
 
 /** @const {number} */
+genotet.ExpressionRenderer.prototype.HEATMAP_LEGEND_MARGIN = 1;
+
+/** @const {number} */
+genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_MARGIN = 1;
+
+/** @const {number} */
 genotet.ExpressionRenderer.prototype.TEXT_HEIGHT = 14.5;
 
 /** @const {number} */
@@ -516,10 +522,7 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
   var gradientContent = this.svgHeatmapGradient_.append('defs')
     .append('linearGradient')
     .attr('id', 'gradient-content')
-    .attr('x1', '0%')
-    .attr('y1', '0%')
     .attr('x2', '100%')
-    .attr('y2', '0%')
     .attr('spreadMethod', 'pad');
   gradientContent.append('stop')
     .attr('offset', '0%')
@@ -541,16 +544,18 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
     ]))
     .attr('width', gradientWidth)
     .attr('height', gradientHeight)
+    .attr('rx', 10)
+    .attr('ry', 10)
     .style('fill', 'url(#gradient-content)');
   this.svgHeatmapGradient_.append('text')
-    .attr('x', marginLeft - 1)
+    .attr('x', marginLeft - this.HEATMAP_GRADIENT_MARGIN)
     .attr('y',
       this.heatmapGradientMargins_.TOP +
       gradientHeight / 2 + this.TEXT_HEIGHT / 3)
     .text(scaleMin)
     .style('text-anchor', 'end');
   this.svgHeatmapGradient_.append('text')
-    .attr('x', marginLeft + gradientWidth + 1)
+    .attr('x', marginLeft + gradientWidth + this.HEATMAP_GRADIENT_MARGIN)
     .attr(
       'y',
       this.heatmapGradientMargins_.TOP +
@@ -578,7 +583,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   }
 
   var heatmapData = this.data.matrix;
-  this.svgProfile_.selectAll('g').remove();
+  this.svgProfile_.selectAll('*').remove();
   this.svgProfile_.attr('width', this.canvasWidth_);
 
   var legend = this.svgProfile_.append('g')
@@ -671,7 +676,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     legend.append('text')
       .text(profile.geneName)
       .attr('transform', genotet.utils.getTransform([
-        legendHeight + 1,
+        legendHeight + this.HEATMAP_LEGEND_MARGIN,
         legendHeight / 2 + this.TEXT_HEIGHT / 3
       ]))
       .attr('x', legendWidth);
