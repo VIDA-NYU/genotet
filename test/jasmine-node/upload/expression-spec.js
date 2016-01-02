@@ -17,6 +17,7 @@ var tests = [
       var form = new FormData();
       form.append('type', 'expression');
       form.append('name', dataInfo.name);
+      form.append('fileName', dataInfo.fileName);
       form.append('description', dataInfo.description);
       var fileInfo = data.getFile('expression', dataInfo.fileName);
       form.append('file', fileInfo.stream, {
@@ -38,7 +39,7 @@ var tests = [
     name: 'list expression',
     action: function(frisby) {
       frisby
-        .get(server.queryURL({type: 'list-expression'}))
+        .get(server.queryURL({type: 'list-matrix'}))
         .expectStatus(200);
     },
     check: function(body) {

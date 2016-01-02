@@ -217,18 +217,27 @@ module.exports = {
    * @param {string} networkAddr Folder of the network in the server
    * @return {Array} array of object of each network file
    */
-  listNetwork: function(networkAddr) {
-    var folder = networkAddr;
+  listNetwork: function(networkPath) {
+    var folder = networkPath;
     var ret = [];
     var files = fs.readdirSync(folder);
     files.forEach(function(file) {
       if (file.indexOf('.txt') != -1) {
         var fname = file.substr(0, file.length - 4);
         var fd = fs.openSync(folder + file, 'r');
-        var description = fs.readFileSync(fd, 'utf8');
+        var content = fs.readFileSync(fd, 'utf8').toString().split('\n');
+        var networkName = content[0];
+        var description = '';
+        for (var i = 1; i < content.length; i++) {
+          description += content[i];
+          if (i != content.length - 1) {
+            description += '\n';
+          }
+        }
         ret.push({
-          networkName: fname,
-          description: description.toString()
+          fileName: fname,
+          networkName: networkName,
+          description: description
         });
       }
     });

@@ -254,22 +254,31 @@ module.exports = {
 
   /**
    * List all the expression matrix files in the server
-   * @param {string} expmatAddr Folder of the expression matrix file in the
+   * @param {string} expressionPath Folder of the expression matrix file in the
    *     server.
    * @return {Array} array of object of each expression matrix file
    */
-  listMatrix: function(expmatAddr) {
-    var folder = expmatAddr;
+  listMatrix: function(expressionPath) {
+    var folder = expressionPath;
     var ret = [];
     var files = fs.readdirSync(folder);
     files.forEach(function(file) {
       if (file.indexOf('.txt') != -1) {
         var fname = file.substr(0, file.length - 4);
         var fd = fs.openSync(folder + file, 'r');
-        var description = fs.readFileSync(fd, 'utf8');
+        var content = fs.readFileSync(fd, 'utf8').toString().split('\n');
+        var matrixName = content[0];
+        var description = '';
+        for (var i = 1; i < content.length; i++) {
+          description += content[i];
+          if (i != content.length - 1) {
+            description += '\n';
+          }
+        }
         ret.push({
-          matrixName: fname,
-          description: description.toString()
+          matrixName: matrixName,
+          fileName: fname,
+          description: description
         });
       }
     });

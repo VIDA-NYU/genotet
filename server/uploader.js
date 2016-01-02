@@ -30,7 +30,7 @@ module.exports = {
    */
   uploadFile: function(desc, file, prefix, bigWigToWigAddr) {
     var source = fs.createReadStream(file.path);
-    if (fs.existsSync(prefix + desc.name)) {
+    if (fs.existsSync(prefix + desc.fileName)) {
       console.log('wiggle file already exists');
       return {
         success: false,

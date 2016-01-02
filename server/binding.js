@@ -359,18 +359,27 @@ module.exports = {
    * @param {string} wiggleAddr Folder of the wiggle file in the server.
    * @return {Array} Array of object of each wiggle file.
    */
-  listBindingGenes: function(wiggleAddr) {
-    var folder = wiggleAddr;
+  listBindingGenes: function(wigglePath) {
+    var folder = wigglePath;
     var ret = [];
     var files = fs.readdirSync(folder);
     files.forEach(function(file) {
       if (file.indexOf('.txt') != -1) {
         var fname = file.substr(0, file.length - 4);
         var fd = fs.openSync(folder + file, 'r');
-        var description = fs.readFileSync(fd, 'utf8');
+        var content = fs.readFileSync(fd, 'utf8').toString().split('\n');
+        var gene = content[0];
+        var description = '';
+        for (var i = 1; i < content.length; i++) {
+          description += content[i];
+          if (i != content.length - 1) {
+            description += '\n';
+          }
+        }
         ret.push({
-          bindingName: fname,
-          description: description.toString()
+          fileName: fname,
+          gene: gene,
+          description: description
         });
       }
     });
