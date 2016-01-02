@@ -4,7 +4,6 @@
 
 'use strict';
 
-var path;
 var fs = require('fs');
 var child = require('child_process');
 var rl = require('readline');
@@ -20,6 +19,7 @@ module.exports = {
    * @param {{
    *   type: string,
    *   name: string,
+   *   fileName: string,
    *   description: string
    * }} desc File description.
    * @param {Object} file File object received from multer.
@@ -34,30 +34,32 @@ module.exports = {
       console.log('wiggle file already exists');
       return {
         success: false,
-        reason: 'wiggle file already exists for current name'
+        message: 'wiggle file already exists for current name'
       };
     }
-    var dest = fs.createWriteStream(prefix + desc.name);
+    var dest = fs.createWriteStream(prefix + desc.fileName);
     source.pipe(dest);
     source
       .on('end', function() {
         fs.unlink(file.path);
         if (desc.type == 'binding') {
-          this.bigWigToBCWig(prefix, desc.name, bigWigToWigAddr);
+          this.bigWigToBCWig(prefix, desc.fileName, bigWigToWigAddr);
         } else if (desc.type == 'bed') {
-          this.bedSort(prefix, desc.name);
+          this.bedSort(prefix, desc.fileName);
         }
+        console.log('data uploaded');
       }.bind(this))
       .on('err', function(err) {
         console.log(err);
         return {
           success: false,
-          reason: 'error copying file'
+          message: 'error copying file'
         };
       });
 
     // write down the network name and description
-    var fd = fs.openSync(prefix + desc.name + '.txt', 'w');
+    var fd = fs.openSync(prefix + desc.fileName + '.txt', 'w');
+    fs.writeSync(fd, desc.name + '\n');
     fs.writeSync(fd, desc.description);
     fs.closeSync(fd);
 

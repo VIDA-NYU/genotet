@@ -239,7 +239,8 @@ genotet.dialog.upload_ = function() {
       modal.find('.selectpicker').selectpicker();
 
       var file = modal.find('#file');
-      var fileName = modal.find('#data-name');
+      var fileName = modal.find('#file-name');
+      var dataName = modal.find('#data-name');
 
       var btnUpload = modal.find('#btn-upload').prop('disabled', true);
       var btnFile = modal.find('#btn-file');
@@ -253,7 +254,7 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return fileName.val() && file.val();
+        return fileName.val() && file.val() && dataName.val();
       };
 
       file.change(function(event) {
@@ -268,7 +269,8 @@ genotet.dialog.upload_ = function() {
       btnUpload.click(function() {
         var formData = new FormData();
         formData.append('type', modal.find('#type').val());
-        formData.append('name', fileName.val());
+        formData.append('name', dataName.val());
+        formData.append('fileName', fileName.val());
         formData.append('description', modal.find('#description').val());
         formData.append('file', file[0].files[0]);
 

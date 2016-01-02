@@ -17,6 +17,7 @@ var tests = [
       var form = new FormData();
       form.append('type', 'bed');
       form.append('name', dataInfo.name);
+      form.append('fileName', dataInfo.fileName);
       form.append('description', dataInfo.description);
       var fileInfo = data.getFile('bed', dataInfo.fileName);
       form.append('file', fileInfo.stream, {

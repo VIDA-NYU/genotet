@@ -278,6 +278,9 @@ app.get('/genotet', function(req, res) {
       var dir = bedPath + file + '_chr/' + file + '_' + chr;
       data = bed.readBed(dir, req.query.xl, req.query.xr);
       break;
+    case 'list-bed':
+      data = bed.listBed(bedPath);
+      break;
 
     // Undefined type, error
     default:

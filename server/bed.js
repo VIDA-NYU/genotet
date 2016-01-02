@@ -32,5 +32,37 @@ module.exports = {
       });
     });
     return data;
+  },
+
+  /**
+   * Get list of bed data
+   * @param {string} bedPath Path to the bed data
+   * @return {Array} Contains the name and description of bed data
+   */
+  listBed: function(bedPath) {
+    var folder = bedPath;
+    var ret = [];
+    var files = fs.readdirSync(folder);
+    files.forEach(function(file) {
+      if (file.indexOf('.txt') != -1) {
+        var fname = file.substr(0, file.length - 4);
+        var fd = fs.openSync(folder + file, 'r');
+        var content = fs.readFileSync(fd, 'utf8').toString().split('\n');
+        var bedName = content[0];
+        var description = '';
+        for (var i = 1; i < content.length; i++) {
+          description += content[i];
+          if (i != content.length - 1) {
+            description += '\n';
+          }
+        }
+        ret.push({
+          bedName: bedName,
+          fileName: fname,
+          description: description
+        });
+      }
+    });
+    return ret;
   }
 };
