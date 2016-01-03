@@ -18,7 +18,6 @@ Installation:
     ```bash
     # at genotet/
     npm install
-    bower install
     ```
 
 - Install required packages in the server folder.
@@ -44,7 +43,7 @@ Installation:
 - Run the setup script.
 
     ```
-    ./setup.sh
+    bash setup.sh
     ```
 
 - Run the server.

@@ -10,14 +10,15 @@ before_script:
   - sudo apt-get install -y libicu52 libjpeg8 libfontconfig libwebp5
   - npm install -g gulp
   - npm install -g jasmine-node
-  - bower install
   - cd server
   - npm install
   - cd ..
+  - rvm 2.2.3
+  - gem install scss_lint
+  - bash setup.sh
 
 script:
   - gulp
-  - bash setup.sh
   - nohup node server/server.js --config=test/config &
   - gulp test
   - gulp clean

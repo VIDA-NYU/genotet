@@ -143,7 +143,7 @@ genotet.View.prototype.headerText = function(headerText) {
     return this.headerText_;
   }
   this.headerText_ = headerText;
-  this.container.find('#header-text')
+  this.container.find('.header-text')
     .text(this.headerText_);
 };
 

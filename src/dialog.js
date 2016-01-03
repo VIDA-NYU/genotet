@@ -59,7 +59,7 @@ genotet.dialog.create = function(type) {
  * @private
  */
 genotet.dialog.organism_ = function() {
-  var modal = $('#modal');
+  var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.organism,
     function() {
       modal.modal();
@@ -78,7 +78,7 @@ genotet.dialog.organism_ = function() {
  * @private
  */
 genotet.dialog.createView_ = function() {
-  var modal = $('#modal');
+  var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.view, function() {
     modal.modal();
     modal.find('.selectpicker').selectpicker();
@@ -107,7 +107,7 @@ genotet.dialog.createView_ = function() {
  * @private
  */
 genotet.dialog.createNetwork_ = function() {
-  var modal = $('#modal');
+  var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.network,
     function() {
       modal.modal();
@@ -144,7 +144,7 @@ genotet.dialog.createNetwork_ = function() {
  * @private
  */
 genotet.dialog.createBinding_ = function() {
-  var modal = $('#modal');
+  var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.binding,
     function() {
       modal.modal();
@@ -195,7 +195,7 @@ genotet.dialog.createBinding_ = function() {
  * @private
  */
 genotet.dialog.createExpression_ = function() {
-  var modal = $('#modal');
+  var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.expression,
     function() {
       modal.modal();
@@ -232,7 +232,7 @@ genotet.dialog.createExpression_ = function() {
  * @private
  */
 genotet.dialog.upload_ = function() {
-  var modal = $('#modal');
+  var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.upload,
     function() {
       modal.modal();

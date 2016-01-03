@@ -31,7 +31,6 @@ var Welcome = {
         }
       }
     });
-    $('#welcome').addClass('viewshadow');
   },
 
   close: function() {

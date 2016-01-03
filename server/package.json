@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "genotet-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Genotet back-end server",
   "main": "server.js",
   "dependencies": {
     "express": "^4.9.5",
@@ -10,10 +10,6 @@
     "shelljs": "^0.5.3"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
   "author": "",
   "license": "Apache-2.0"
 }
