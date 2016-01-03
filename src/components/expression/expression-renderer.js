@@ -625,7 +625,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   }
 
   var heatmapData = this.data.matrix;
-  //this.svgProfile_.selectAll('*').remove();
   this.svgProfile_.attr('width', this.canvasWidth_);
 
   this.svgLegend_
@@ -691,74 +690,102 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .y(yScale)
     .interpolate('linear');
 
-  this.svgLegend_.selectAll('rect').remove();
-  this.svgLegend_.selectAll('text').remove();
-  this.profileContent_.selectAll('path').remove();
+  var legendRect = this.svgLegend_.selectAll('rect')
+    .data(this.data.profiles);
+  legendRect.enter().append('rect');
+  legendRect
+    .attr('height', legendHeight)
+    .attr('width', legendHeight)
+    .attr('x', function(profile, i) {
+      return i * (legendHeight +
+        profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
+    }.bind(this))
+    .style('fill', function(profile) {
+      return this.COLOR_CATEGORY[genotet.utils.hashString(profile.geneName) %
+      this.COLOR_CATEGORY_SIZE];
+    }.bind(this));
+  legendRect.exit().remove();
 
-  this.data.profiles.forEach(function(profile, i) {
-    var pathColor = this.COLOR_CATEGORY[genotet.utils.hashString(
-      heatmapData.geneNames[profile.row]
-    ) % this.COLOR_CATEGORY_SIZE];
-    this.data.profiles[i].color = pathColor;
-    var legendWidth = i * (legendHeight +
-      profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
-    this.svgLegend_.append('rect')
-      .attr('height', legendHeight)
-      .attr('width', legendHeight)
-      .attr('x', legendWidth)
-      .style('fill', pathColor);
-    this.svgLegend_.append('text')
-      .text(profile.geneName)
-      .attr('transform', genotet.utils.getTransform([
-        legendHeight + this.HEATMAP_LEGEND_MARGIN,
-        legendHeight / 2 + this.TEXT_HEIGHT / 2
-      ]))
-      .attr('x', legendWidth);
-    this.profileContent_.append('path')
-      .classed('profile', true)
-      .attr('d', line(heatmapData.values[profile.row]))
-      .attr('transform', genotet.utils.getTransform([
-        this.heatmapWidth_ / (heatmapData.conditionNames.length * 2),
-        0
-      ]))
-      .attr('stroke', pathColor)
-      .attr('fill', 'none')
-      .on('mousemove', function() {
-        var conditionIndex = Math.floor(
-          xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5
-        );
-        var value = heatmapData.values[profile.row][conditionIndex];
-        _(this.data.profiles[i]).extend({
-          container_: d3.event.target,
-          hoverColumn: conditionIndex,
-          hoverConditionName: heatmapData.conditionNames[conditionIndex],
-          hoverValue: value
-        });
-        this.signal('pathHover', this.data.profiles[i]);
-      }.bind(this))
-      .on('mouseout', function() {
-        this.data.profiles[i].container_ = d3.event.target;
-        this.signal('pathUnhover', this.data.profiles[i]);
-      }.bind(this))
-      .on('click', function() {
-        var conditionIndex = Math.floor(
-          xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
-        var value = heatmapData.values[geneIndex][conditionIndex];
-        _(this.data.profiles[i]).extend({
-          container_: d3.event.target,
-          hoverColumn: conditionIndex,
-          hoverConditionName: heatmapData.conditionNames[conditionIndex],
-          hoverValue: value
-        });
-        this.signal('pathClick', this.data.profiles[i]);
-      }.bind(this));
-    if (this.data.profiles[i].clicked) {
-      this.highlightLabelsForClickedProfile_(this.data.profiles[i]);
-    } else {
-      this.unhighlightLabelsForClickedProfile_();
-      this.signal('pathUnclick');
-    }
-  }, this);
+  var legendText = this.svgLegend_.selectAll('text')
+    .data(this.data.profiles);
+  legendText.enter().append('text');
+  legendText
+    .text(function(profile) {
+      return profile.geneName;
+    })
+    .attr('transform', genotet.utils.getTransform([
+      legendHeight + this.HEATMAP_LEGEND_MARGIN,
+      legendHeight / 2 + this.TEXT_HEIGHT / 2
+    ]))
+    .attr('x', function(profile, i) {
+      return i * (legendHeight +
+        profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
+    }.bind(this));
+  legendText.exit().remove();
+
+  var profilePath = this.profileContent_.selectAll('path')
+    .data(this.data.profiles);
+  profilePath.enter().append('path');
+  profilePath
+    .classed('profile', true)
+    .attr('d', function(profile) {
+      return line(heatmapData.values[profile.row]);
+    })
+    .attr('transform', genotet.utils.getTransform([
+      this.heatmapWidth_ / (heatmapData.conditionNames.length * 2),
+      0
+    ]))
+    .attr('stroke', function(profile, i) {
+      var pathColor = this.COLOR_CATEGORY[genotet.utils.hashString(
+        profile.geneName) % this.COLOR_CATEGORY_SIZE];
+      this.data.profiles[i].color = pathColor;
+      return pathColor;
+    }.bind(this))
+    .attr('fill', 'none')
+    .on('mousemove', function(profile, i) {
+      var conditionIndex = Math.floor(
+        xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5
+      );
+      var value = heatmapData.values[profile.row][conditionIndex];
+      _(this.data.profiles[i]).extend({
+        container_: d3.event.target,
+        hoverColumn: conditionIndex,
+        hoverConditionName: heatmapData.conditionNames[conditionIndex],
+        hoverValue: value
+      });
+      this.signal('pathHover', this.data.profiles[i]);
+    }.bind(this))
+    .on('mouseout', function(profile, i) {
+      this.data.profiles[i].container_ = d3.event.target;
+      this.signal('pathUnhover', this.data.profiles[i]);
+    }.bind(this))
+    .on('click', function(profile, i) {
+      var conditionIndex = Math.floor(
+        xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
+      var value = heatmapData.values[geneIndex][conditionIndex];
+      _(this.data.profiles[i]).extend({
+        container_: d3.event.target,
+        hoverColumn: conditionIndex,
+        hoverConditionName: heatmapData.conditionNames[conditionIndex],
+        hoverValue: value,
+        clicked: true
+      });
+      this.signal('pathClick', this.data.profiles[i]);
+    }.bind(this));
+  profilePath.exit().remove();
+
+  if (this.data.profiles.length == 0) {
+    this.unhighlightLabelsForClickedProfile_();
+  } else {
+    this.data.profiles.forEach(function(profile) {
+      if (profile.clicked) {
+        this.highlightLabelsForClickedProfile_(profile);
+      } else {
+        this.unhighlightLabelsForClickedProfile_();
+        this.signal('pathUnclick');
+      }
+    }, this);
+  }
 };
 
 /**
