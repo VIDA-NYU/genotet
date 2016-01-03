@@ -210,6 +210,45 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
    */
   this.svgHeatmapGradient_ = this.svgHeatmap_.append('g')
     .classed('heatmap-gradient', true);
+
+  /**
+   * SVG defs for the heatmap gradient.
+   * @private {!d3.selection}
+   */
+  this.gradientContent_ = this.svgHeatmapGradient_.append('defs')
+    .append('linearGradient')
+    .attr('id', 'gradient-content')
+    .attr('x2', '100%')
+    .attr('spreadMethod', 'pad');
+  this.gradientContent_.append('stop')
+    .attr('offset', '0%')
+    .attr('stop-color', genotet.data.redYellowScale[0])
+    .attr('stop-opacity', 1);
+  this.gradientContent_.append('stop')
+    .attr('offset', '50%')
+    .attr('stop-color', genotet.data.redYellowScale[1])
+    .attr('stop-opacity', 1);
+  this.gradientContent_.append('stop')
+    .attr('offset', '100%')
+    .attr('stop-color', genotet.data.redYellowScale[2])
+    .attr('stop-opacity', 1);
+
+  /**
+   * SVG rect for the heatmap gradient.
+   * @private {!d3.selection}
+   */
+  this.gradientRect_ = this.svgHeatmapGradient_.append('rect')
+    .classed('gradient-rect', true)
+    .style('fill', 'url(#gradient-content)');
+
+  /**
+   * SVG text for the heatmap gradient.
+   * @private {!d3.selection}
+   */
+  this.svgHeatmapGradient_.append('text')
+    .classed('gradient-text-left', true);
+  this.svgHeatmapGradient_.append('text')
+    .classed('gradient-text-right', true);
 };
 
 /** @inheritDoc */
@@ -479,7 +518,6 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
-  this.svgHeatmapGradient_.selectAll('*').remove();
   var heatmapData = this.data.matrix;
   var scaleMin = 0;
   var scaleMax = 0;
@@ -519,25 +557,7 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
     this.heatmapGradientMargins_.TOP -
     this.heatmapGradientMargins_.BOTTOM;
   var gradientWidth = this.heatmapWidth_ - marginLeft - marginRight;
-  var gradientContent = this.svgHeatmapGradient_.append('defs')
-    .append('linearGradient')
-    .attr('id', 'gradient-content')
-    .attr('x2', '100%')
-    .attr('spreadMethod', 'pad');
-  gradientContent.append('stop')
-    .attr('offset', '0%')
-    .attr('stop-color', genotet.data.redYellowScale[0])
-    .attr('stop-opacity', 1);
-  gradientContent.append('stop')
-    .attr('offset', '50%')
-    .attr('stop-color', genotet.data.redYellowScale[1])
-    .attr('stop-opacity', 1);
-  gradientContent.append('stop')
-    .attr('offset', '100%')
-    .attr('stop-color', genotet.data.redYellowScale[2])
-    .attr('stop-opacity', 1);
-  this.svgHeatmapGradient_.append('rect')
-    .classed('gradient-rect', true)
+  this.gradientRect_
     .attr('transform', genotet.utils.getTransform([
       marginLeft,
       this.heatmapGradientMargins_.TOP
@@ -545,16 +565,15 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
     .attr('width', gradientWidth)
     .attr('height', gradientHeight)
     .attr('rx', 10)
-    .attr('ry', 10)
-    .style('fill', 'url(#gradient-content)');
-  this.svgHeatmapGradient_.append('text')
+    .attr('ry', 10);
+  d3.select('.gradient-text-left')
     .attr('x', marginLeft - this.HEATMAP_GRADIENT_MARGIN)
     .attr('y',
       this.heatmapGradientMargins_.TOP +
       gradientHeight / 2 + this.TEXT_HEIGHT / 3)
     .text(scaleMin)
     .style('text-anchor', 'end');
-  this.svgHeatmapGradient_.append('text')
+  d3.select('.gradient-text-right')
     .attr('x', marginLeft + gradientWidth + this.HEATMAP_GRADIENT_MARGIN)
     .attr(
       'y',
@@ -761,7 +780,7 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile_ = function(geneIndex) {
 
 /**
  * Highlights the hover cell for the heatmap.
- * @param {*} cell TODO(liana): fill the type.
+ * @param {!Object} cell
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell) {
@@ -778,7 +797,7 @@ genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell) {
 
 /**
  * Unhighlights the hover cell for the heatmap.
- * @param {*} cell TODO(liana): fill the type.
+ * @param {!Object} cell
  * @private
  */
 genotet.ExpressionRenderer.prototype.unhighlightHoverCell_ = function(cell) {
@@ -790,7 +809,7 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverCell_ = function(cell) {
 
 /**
  * Highlights the hover profile for the gene profile.
- * @param {*} profile TODO(liana): fill the type.
+ * @param {!Object} profile
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
@@ -807,7 +826,7 @@ genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
 
 /**
  * Unhover profile for the gene profile.
- * @param {*} profile TODO(liana): fill the type.
+ * @param {!Object} profile
  * @private
  */
 genotet.ExpressionRenderer.prototype.unhighlightHoverPath_ = function(profile) {
@@ -819,7 +838,7 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverPath_ = function(profile) {
 
 /**
  * Highlights the labels of clicked cell for the heatmap.
- * @param {*} cell TODO(liana): fill the type.
+ * @param {!Object} cell
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightLabelsForClickedCell_ = function(
