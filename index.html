@@ -30,6 +30,7 @@
   <!-- genotet -->
   <link type="text/css" rel="stylesheet" href="dist/genotet.css"/>
   <script type="text/javascript" src="dist/genotet.js"></script>
+  <script type="text/javascript" src="dist/genotet-dev.js"></script>
   
 </head>
 <body>
@@ -86,29 +87,29 @@
       <div class="row">
         <div class="alert alert-success" style="display:none">
           <button type="button" class="close">&times;</button>
-          <div id="success">Success info displayed here</div>
+          <div class="sys-success">Success info displayed here</div>
         </div>
         <div class="alert alert-warning" style="display:none">
           <button type="button" class="close">&times;</button>
-          <div id="warning">Warning displayed here</div>
+          <div class="sys-warning">Warning displayed here</div>
         </div>
         <div class="alert alert-danger" style="display:none">
           <button type="button" class="close">&times;</button>
-          <div id="error">Error displayed here</div>
+          <div class="sys-error">Error displayed here</div>
         </div>
       </div>
     </div>
-    <div id="modal" class="modal fade">
+    <div id="dialog" class="modal fade">
       <div class="modal-dialog">
         <div class="modal-content">
         </div>
       </div>
     </div>
     <div id="side-panel" class="active" style="display: none;">
-      <button id="btn-toggle" class="btn btn-default btn-toggle">
-        <span id="icon-button" class="glyphicon glyphicon-chevron-right"></span>
+      <button class="btn-toggle btn btn-default btn-toggle">
+        <span class="icon-button glyphicon glyphicon-chevron-right"></span>
       </button>
-      <div id="tabs">
+      <div class="tabs">
         <ul class="nav nav-tabs tabs-left sideways">
           <li id="panel-tab-init"><a href="#view-init" data-toggle="tab"></a></li>
         </ul>
@@ -117,7 +118,7 @@
         <div id="panel-view-init" class="tab-pane"></div>
       </div>
     </div>
-    <div id="tooltip">
+    <div class="genotet-tooltip">
     </div>
   </div>
 </body>
