@@ -12,9 +12,8 @@ genotet.panelManager.TRANSITION_TIME_ = 300;
 /** @private @const {number} */
 genotet.panelManager.TOGGLE_BTN_HEIGHT_ = 50;
 
-/**
- * The difference between the width and other attributes of the tabs container.
- */
+
+// The difference between the width and other attributes of the tabs container.
 /** @private @const {number} */
 genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE_ = 20;
 /** @private @const {number} */

@@ -90,15 +90,7 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
  *   colorscaleValue: string
  * }
  */
-genotet.ExpressionRenderer.Cell = {
-  container_: null,
-  geneName: null,
-  conditionName: null,
-  row: 0,
-  column: 0,
-  value: 0,
-  colorscaleValue: null
-};
+genotet.ExpressionRenderer.Cell;
 
 /**
  * Profile object storing the rendering properties of expression cell.
@@ -113,16 +105,7 @@ genotet.ExpressionRenderer.Cell = {
  *   clicked: bool
  * }
  */
-genotet.ExpressionRenderer.Profile = {
-  container_: null,
-  geneName: null,
-  row: 0,
-  hoverColumn: 0,
-  hoverConditionName: null,
-  hoverValue: 0,
-  color: null,
-  clicked: false
-};
+genotet.ExpressionRenderer.Profile;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 150;
@@ -317,6 +300,12 @@ genotet.ExpressionRenderer.prototype.layout = function() {
       this.geneLabelWidth_,
       0
     ]));
+
+  this.profileContent_
+    .attr('width', this.canvasWidth_ - this.profileMargins_.left -
+      this.profileMargins_.right)
+    .attr('height', this.profileHeight_ - this.profileMargins_.top -
+      this.profileMargins_.bottom);
 };
 
 /** @inheritDoc */
@@ -677,12 +666,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
       0
     ]));
 
-  this.profileContent_
-    .attr('width', this.canvasWidth_ - this.profileMargins_.left -
-        this.profileMargins_.right)
-    .attr('height', this.profileHeight_ - this.profileMargins_.top -
-        this.profileMargins_.bottom);
-
   var line = d3.svg.line()
     .x(function(data, i) {
       return xScale(i);
@@ -702,7 +685,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     }.bind(this))
     .style('fill', function(profile) {
       return this.COLOR_CATEGORY[genotet.utils.hashString(profile.geneName) %
-      this.COLOR_CATEGORY_SIZE];
+        this.COLOR_CATEGORY_SIZE];
     }.bind(this));
   legendRect.exit().remove();
 
@@ -735,13 +718,12 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
       this.heatmapWidth_ / (heatmapData.conditionNames.length * 2),
       0
     ]))
-    .attr('stroke', function(profile, i) {
+    .style('stroke', function(profile, i) {
       var pathColor = this.COLOR_CATEGORY[genotet.utils.hashString(
         profile.geneName) % this.COLOR_CATEGORY_SIZE];
       this.data.profiles[i].color = pathColor;
       return pathColor;
     }.bind(this))
-    .attr('fill', 'none')
     .on('mousemove', function(profile, i) {
       var conditionIndex = Math.floor(
         xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5
