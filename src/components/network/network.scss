@@ -1,22 +1,30 @@
+$orange: #ffa500;
+$black: #000;
+$gray: #ccc;
+
 .view.network {
   .nodes {
     * {
-      stroke: black;
+      stroke: $black;
       stroke-width: 2px;
+
       &.active {
-        stroke: orange;
+        stroke: $orange;
       }
+
       &:hover {
         stroke-width: 4px;
       }
     }
   }
+
   .edges {
     path {
       &.edge {
         fill: none;
         stroke-width: 2px;
       }
+
       &.arrow {
         stroke-width: 2px;
       }
@@ -29,12 +37,33 @@
 
       &.active {
         path {
-          stroke: orange;
+          stroke: $orange;
+
           &.arrow {
-            fill: orange;
+            fill: $orange;
           }
         }
       }
+    }
+  }
+}
+
+#side-panel .network {
+  .box {
+    border: 1px solid $gray;
+    border-radius: 4px;
+    padding: 10px;
+
+    label {
+      margin-right: 5px;
+    }
+  }
+
+  #edge-list {
+    font-size: .9em;
+
+    .pagination > li > a {
+      padding: 6px;
     }
   }
 }

@@ -13,7 +13,7 @@
  * @constructor
  */
 genotet.ExpressionView = function(viewName, params) {
-  this.base.constructor.call(this, viewName);
+  genotet.ExpressionView.base.constructor.call(this, viewName);
 
   this.container.addClass('expression');
 

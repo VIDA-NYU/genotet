@@ -11,7 +11,7 @@
  * @constructor
  */
 genotet.BindingLoader = function(data) {
-  this.base.constructor.call(this, data);
+  genotet.BindingLoader.base.constructor.call(this, data);
 
   _(this.data).extend({
     tracks: [],

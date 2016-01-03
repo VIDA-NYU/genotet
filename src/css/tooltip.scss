@@ -1,8 +1,11 @@
+$white: #fff;
+$gray: #ccc;
+
 #tooltip {
-  position: absolute;
-  border: 1px solid #ccc;
+  background-color: $white;
+  border: 1px solid $gray;
   border-radius: 4px;
-  background-color: white;
   padding: 10px;
+  position: absolute;
   z-index: 100;
 }

@@ -39,8 +39,10 @@ genotet.panelManager.container_ = null;
  * @this {genotet.panelManager}
  */
 genotet.panelManager.init = function() {
+  genotet.panelManager.showPanel_ = true;
+
   genotet.panelManager.container_ = $('#side-panel');
-  genotet.panelManager.container_.children('#btn-toggle').click(function() {
+  genotet.panelManager.container_.children('.btn-toggle').click(function() {
     genotet.panelManager.togglePanel_();
   });
   $('.sideways').click(function() {
@@ -76,7 +78,7 @@ genotet.panelManager.togglePanel_ = function() {
   }, {
     duration: genotet.panelManager.TRANSITION_TIME_,
     complete: function() {
-      $('#icon-button')
+      $('.icon-button')
         .toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
     }
   });
@@ -176,19 +178,15 @@ genotet.panelManager.removePanel = function(viewName) {
  * Closes all panels.
  */
 genotet.panelManager.closeAllPanels = function() {
-  var sideways = $('.sideways');
-  sideways.empty();
-  $('<li><a href="#view-init" data-toggle="tab"></a></li>')
-    .attr('id', 'panel-tab-init')
-    .appendTo(sideways);
+  $('.sideways').children('li')
+    .not('#panel-tab-init')
+    .remove();
 
-  var tabContent = $('.tab-content');
-  tabContent.empty();
-  $('<div></div>')
-    .addClass('tab-pane active')
-    .attr('id', 'panel-view-init')
-    .appendTo(tabContent);
-  $('#side-panel').css('display', 'none');
+  $('.tab-content').children('div')
+    .not('#panel-view-init')
+    .remove();
+
+  $('#side-panel').hide();
 };
 
 /**

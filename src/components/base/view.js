@@ -29,7 +29,6 @@ genotet.View = function(viewName) {
   /** @private {boolean} */
   this.sendSignal_ = true;
 
-  /** @protected {!jQuery} */
   this.container = $('<div></div>')
     .addClass('view')
     .load(this.template, function() {
@@ -144,7 +143,7 @@ genotet.View.prototype.headerText = function(headerText) {
     return this.headerText_;
   }
   this.headerText_ = headerText;
-  this.container.find('#header-text')
+  this.container.find('.header-text')
     .text(this.headerText_);
 };
 

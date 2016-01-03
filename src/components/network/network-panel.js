@@ -10,7 +10,7 @@
  * @constructor
  */
 genotet.NetworkPanel = function(data) {
-  this.base.constructor.call(this, data);
+  genotet.NetworkPanel.base.constructor.call(this, data);
 
   // Set the view options.
   _(this.data.options).extend({
@@ -31,7 +31,7 @@ genotet.NetworkPanel.prototype.SUBTIWIKI_URL =
 
 /** @inheritDoc */
 genotet.NetworkPanel.prototype.panel = function(container) {
-  this.base.panel.call(this, container);
+  genotet.NetworkPanel.base.panel.call(this, container);
 };
 
 /** @inheritDoc */
