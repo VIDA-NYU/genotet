@@ -6,7 +6,7 @@
 
 /**
  * ExpressionRenderer renders the visualizations for the ExpressionView.
- * @param {!jQuery} container View container.
+ * @param {!d3.selection} container View container.
  * @param {!Object} data Data object to be written.
  * @extends {ViewRenderer}
  * @constructor
@@ -28,35 +28,6 @@ genotet.ExpressionRenderer = function(container, data) {
    * }>}
    */
   this.data.profiles;
-
-  /**
-   * Cell object storing the rendering properties of expression cell.
-   * @private {!Object}
-   */
-  this.cell_ = {
-    container_: null,
-    geneName: null,
-    conditionName: null,
-    row: 0,
-    column: 0,
-    value: 0,
-    colorscaleValue: null
-  };
-
-  /**
-   * Profile object storing the rendering properties of expression cell.
-   * @private {!Object}
-   */
-  this.profile_ = {
-    container_: null,
-    geneName: null,
-    row: 0,
-    hoverColumn: 0,
-    hoverConditionName: null,
-    hoverValue: 0,
-    color: null,
-    clicked: false
-  };
 
   /**
    * The maximum width of the horizontal gene labels.
@@ -115,6 +86,52 @@ genotet.ExpressionRenderer = function(container, data) {
 };
 
 genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
+
+/**
+ * Cell object storing the rendering properties of expression cell.
+ * @typedef {
+ *   container_: d3.selection,
+ *   geneName: string,
+ *   conditionName: string,
+ *   row: number,
+ *   column: number,
+ *   value: number,
+ *   colorscaleValue: string
+ * }
+ */
+genotet.ExpressionRenderer.Cell = {
+  container_: null,
+  geneName: null,
+  conditionName: null,
+  row: 0,
+  column: 0,
+  value: 0,
+  colorscaleValue: null
+};
+
+/**
+ * Profile object storing the rendering properties of expression cell.
+ * @typedef {
+ *   container_: d3.selection,
+ *   geneName: string,
+ *   row: number,
+ *   hoverColumn: number,
+ *   hoverConditionName: string,
+ *   hoverValue: number,
+ *   color: string,
+ *   clicked: bool
+ * }
+ */
+genotet.ExpressionRenderer.Profile = {
+  container_: null,
+  geneName: null,
+  row: 0,
+  hoverColumn: 0,
+  hoverConditionName: null,
+  hoverValue: 0,
+  color: null,
+  clicked: false
+};
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 150;
@@ -261,8 +278,7 @@ genotet.ExpressionRenderer.prototype.layout = function() {
   this.heatmapWidth_ = this.canvasWidth_;
   if (this.data.options.showGeneLabels) {
     this.heatmapWidth_ -= this.LABEL_MARGIN + this.geneLabelWidth_;
-  }
-  else if (this.data.options.showProfiles) {
+  } else if (this.data.options.showProfiles) {
     this.heatmapWidth_ -= this.DEFAULT_PROFILE_MARGIN;
   }
   this.heatmapHeight_ = this.canvasHeight_ -
@@ -353,8 +369,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var transformTop = this.profileHeight_;
   if (this.data.options.showGeneLabels) {
     transformLeft += this.LABEL_MARGIN;
-  }
-  else if (this.data.options.showProfiles) {
+  } else if (this.data.options.showProfiles) {
     transformLeft += this.DEFAULT_PROFILE_MARGIN;
   }
   if (this.data.options.showConditionLabels) {
@@ -489,8 +504,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixConditionLabels_ = function() {
   var transformLeft = this.TEXT_HEIGHT / 2 + cellWidth / 2;
   if (this.data.options.showGeneLabels) {
     transformLeft += this.LABEL_MARGIN;
-  }
-  else if (this.data.options.showProfiles) {
+  } else if (this.data.options.showProfiles) {
     transformLeft += this.DEFAULT_PROFILE_MARGIN;
   }
 
@@ -540,8 +554,7 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
   }
   if (this.data.options.showGeneLabels) {
     transformLeft += this.geneLabelWidth_ + this.LABEL_MARGIN;
-  }
-  else if (this.data.options.showProfiles) {
+  } else if (this.data.options.showProfiles) {
     transformLeft += this.DEFAULT_PROFILE_MARGIN;
   }
   if (this.data.options.showConditionLabels) {
@@ -572,10 +585,8 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
     .style('text-anchor', 'end');
   d3.select('.gradient-text-right')
     .attr('x', marginLeft + gradientWidth + this.HEATMAP_GRADIENT_MARGIN)
-    .attr(
-      'y',
-      this.HEATMAP_GRADIENT_MARGINS_.TOP +
-      gradientHeight / 2 + this.TEXT_HEIGHT / 2)
+    .attr('y', this.HEATMAP_GRADIENT_MARGINS_.TOP + gradientHeight / 2 +
+      this.TEXT_HEIGHT / 2)
     .text(scaleMax);
 };
 
@@ -777,7 +788,7 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile_ = function(geneIndex) {
 
 /**
  * Highlights the hover cell for the heatmap.
- * @param {!Object} cell
+ * @param {!genotet.ExpressionRenderer.Cell} cell
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell) {
@@ -794,7 +805,7 @@ genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell) {
 
 /**
  * Unhighlights the hover cell for the heatmap.
- * @param {!Object} cell
+ * @param {!genotet.ExpressionRenderer.Cell} cell
  * @private
  */
 genotet.ExpressionRenderer.prototype.unhighlightHoverCell_ = function(cell) {
@@ -806,7 +817,7 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverCell_ = function(cell) {
 
 /**
  * Highlights the hover profile for the gene profile.
- * @param {!Object} profile
+ * @param {!genotet.ExpressionRenderer.Profile} profile
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
@@ -823,7 +834,7 @@ genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
 
 /**
  * Unhover profile for the gene profile.
- * @param {!Object} profile
+ * @param {!genotet.ExpressionRenderer.Profile} profile
  * @private
  */
 genotet.ExpressionRenderer.prototype.unhighlightHoverPath_ = function(profile) {
@@ -835,7 +846,7 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverPath_ = function(profile) {
 
 /**
  * Highlights the labels of clicked cell for the heatmap.
- * @param {!Object} cell
+ * @param {!genotet.ExpressionRenderer.Cell} cell
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightLabelsForClickedCell_ = function(
@@ -852,7 +863,7 @@ genotet.ExpressionRenderer.prototype.highlightLabelsForClickedCell_ = function(
 
 /**
  * Unhighlights the label of the clicked cells for the heatmap.
- * @param {object} cell
+ * @param {!genotet.ExpressionRenderer.Cell} cell
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightLabelsForClickedCell_ =
@@ -885,7 +896,7 @@ genotet.ExpressionRenderer.prototype.unhighlightLabelsForClickedCell_ =
 
 /**
  * Highlights the labels of clicked profile.
- * @param {!Object} profile
+ * @param {!genotet.ExpressionRenderer.Profile} profile
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightLabelsForClickedProfile_ =
