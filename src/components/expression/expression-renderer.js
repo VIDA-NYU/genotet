@@ -243,7 +243,6 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
 
   /**
    * SVG text for the heatmap gradient.
-   * @private {!d3.selection}
    */
   this.svgHeatmapGradient_.append('text')
     .classed('gradient-text-left', true);
