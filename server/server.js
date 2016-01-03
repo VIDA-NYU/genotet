@@ -179,13 +179,9 @@ app.get('/genotet', function(req, res) {
     case 'network':
       var networkName = req.query.networkName.toLowerCase(),
         geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
-        fileType = 'text';
-        file = networkPath + networkName + '.bnet';
-      if (fileType == 'text') {
         file = networkPath + networkName;
-      }
       geneRegex = geneRegex == '' ? 'a^' : geneRegex;
-      data = network.getNet(file, geneRegex, fileType);
+      data = network.getNet(file, geneRegex);
       break;
     case 'incident-edges':
       // Edges incident to one node
@@ -273,9 +269,9 @@ app.get('/genotet', function(req, res) {
 
     // Bed data queries
     case 'bed':
-      var file = req.query.file;
+      var file = req.query.bedName;
       var chr = req.query.chr;
-      var dir = bedPath + file + '_chr/' + file + '_' + chr;
+      var dir = bedPath + file + '_chr/' + file + '_chr' + chr;
       data = bed.readBed(dir, req.query.xl, req.query.xr);
       break;
     case 'list-bed':

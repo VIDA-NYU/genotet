@@ -60,7 +60,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'bed',
-          bedName: dataInfo.name,
+          bedName: dataInfo.fileName,
           chr: '1'
         }))
         .expectStatus(200);

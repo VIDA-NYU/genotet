@@ -60,7 +60,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'network',
-          networkName: dataInfo.name,
+          networkName: dataInfo.fileName,
           geneRegex: 'a|c|e'
         }))
         .expectStatus(200);
@@ -83,7 +83,7 @@ var tests = [
       it('weights', function() {
         expect(data.valueNames).toEqual(['attr1', 'attr2', 'attr3']);
         expect(data.weightMax).toBe(4);
-        expect(data.weightMin).toBe(1);
+        expect(data.weightMin).toBe(0);
       });
     }
   }

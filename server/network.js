@@ -80,9 +80,10 @@ module.exports = {
    *   }} The network data JS object.
    * @this {network}
    */
-  getNet: function(file, geneRegex, fileType) {
+  getNet: function(file, geneRegex) {
     console.log(file, geneRegex);
     var result;
+    /*
     if (fileType == 'bin') {
       var buf = utils.readFileToBuf(file);
       if (buf == null) {
@@ -93,6 +94,8 @@ module.exports = {
     } else if (fileType == 'text') {
       result = this.readNetwork(file);
     }
+    */
+    result = this.readNetwork(file);
 
     var nodes = [], nodeKeys = {};
     var edges = [];
@@ -117,10 +120,6 @@ module.exports = {
       var s = result.edges[i].source;
       var t = result.edges[i].target;
       var w = result.edges[i].weight;
-      for (var j = 0; j < w.length; j++) {
-        wmax = Math.max(w[j], wmax);
-        wmin = Math.min(w[j], wmin);
-      }
       if (nodeKeys[s] && nodeKeys[t]) {
         edges.push({
           id: result.edges[i].id,
@@ -128,6 +127,10 @@ module.exports = {
           target: t,
           weight: w
         });
+        for (var j = 0; j < w.length; j++) {
+          wmax = Math.max(w[j], wmax);
+          wmin = Math.min(w[j], wmin);
+        }
       }
     }
     console.log('return',
@@ -251,7 +254,6 @@ module.exports = {
    */
   readNetwork: function(networkFile) {
     var validFile = true;
-    var ret = {};
     var edges = [];
     var nodes = [];
     var names = [];
@@ -259,20 +261,19 @@ module.exports = {
     var isFirst = true;
     var valueNames = [];
     var lines = fs.readFileSync(networkFile).toString().split('\n');
-    for (var lineNum in lines) {
-      var line = lines[lineNum];
-      if (!validFile) continue;
+    lines.forEach(function(line) {
+      if (!validFile) return;
       var parts = line.split(/[\t\s\r]+/);
       if (parts.length < 3) {
         validFile = false;
-        continue;
+        return;
       }
       if (isFirst) {
         isFirst = false;
         for (var i = 2; i < parts.length; i++) {
           valueNames.push(parts[i]);
         }
-        continue;
+        return;
       }
       var numbers = [];
       for (var i = 2; i < parts.length; i++) {
@@ -296,7 +297,7 @@ module.exports = {
           label: parts[1],
           isTF: false
         });
-        nodeId[parts[0]] = nodes.length - 1;
+        nodeId[parts[1]] = nodes.length - 1;
       }
       edges.push({
         id: parts[0] + ',' + parts[1],
@@ -304,14 +305,15 @@ module.exports = {
         target: parts[1],
         weight: numbers
       });
-    }
-    ret.nodes = nodes;
-    ret.edges = edges;
-    ret.names = names;
-    ret.numNodes = nodes.length;
-    ret.numEdges = edges.length;
-    ret.valueNames = valueNames;
+    });
 
-    return ret;
+    return {
+      nodes: nodes,
+      edges: edges,
+      names: names,
+      numNodes: nodes.length,
+      numEdges: edges.length,
+      valueNames: valueNames
+    };
   }
 };
