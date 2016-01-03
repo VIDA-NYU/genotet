@@ -5,8 +5,8 @@
 /** @const */
 genotet.panelManager = {};
 
-/** @private @const {number} */
-genotet.panelManager.COLLAPSED_WIDTH_ = 32;
+/** @const {number} */
+genotet.panelManager.COLLAPSED_WIDTH = 32;
 /** @private @const {number} */
 genotet.panelManager.TRANSITION_TIME_ = 300;
 /** @private @const {number} */
@@ -60,7 +60,7 @@ genotet.panelManager.init = function() {
  */
 genotet.panelManager.getWidth_ = function() {
   return genotet.panelManager.container_.find('.tab-content').outerWidth() +
-    genotet.panelManager.COLLAPSED_WIDTH_;
+    genotet.panelManager.COLLAPSED_WIDTH;
 };
 
 /**
@@ -71,10 +71,8 @@ genotet.panelManager.togglePanel_ = function() {
   genotet.panelManager.container_.toggleClass('active');
   genotet.panelManager.showPanel_ = !genotet.panelManager.showPanel_;
   var rightValue = genotet.panelManager.showPanel_ ? 0 :
-    -(genotet.panelManager.getWidth_() - genotet.panelManager.COLLAPSED_WIDTH_);
-  genotet.panelManager.container_.animate({
-    right: rightValue + 'px'
-  }, {
+    -(genotet.panelManager.getWidth_() - genotet.panelManager.COLLAPSED_WIDTH);
+  genotet.panelManager.container_.animate({right: rightValue}, {
     duration: genotet.panelManager.TRANSITION_TIME_,
     complete: function() {
       $('.icon-button')
@@ -207,12 +205,12 @@ genotet.panelManager.adjustTabHeight = function() {
   tabSelector
     .find('li')
     .css('margin-bottom', (newTabHeight -
-      genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE_) + 'px');
+      genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE_));
   tabSelector
     .find('li:nth-child(2) a')
     .css('margin-top', (newTabHeight -
-      genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE_) + 'px');
+      genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE_));
   tabSelector
     .find('li a')
-    .css('width', newTabHeight + 'px');
+    .css('width', newTabHeight);
 };

@@ -16,16 +16,7 @@ genotet.ExpressionRenderer = function(container, data) {
 
   /**
    * Gene profile data. Each element corresponds to one gene profile line.
-   * @protected {!Array<!{
-   *   container_: d3.selection,
-   *   geneName: string,
-   *   row: number,
-   *   hoverColumn: number,
-   *   hoverConditionName: string,
-   *   hoverValue: number,
-   *   color: string,
-   *   clicked: bool
-   * }>}
+   * @protected {!Array<!genotet.ExpressionRenderer.Profile>}
    */
   this.data.profiles;
 
@@ -700,7 +691,9 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .y(yScale)
     .interpolate('linear');
 
-  this.svgLegend_.selectAll('rect').data(this.data.profiles);
+  this.svgLegend_.selectAll('rect').remove();
+  this.svgLegend_.selectAll('text').remove();
+  this.profileContent_.selectAll('path').remove();
 
   this.data.profiles.forEach(function(profile, i) {
     var pathColor = this.COLOR_CATEGORY[genotet.utils.hashString(
