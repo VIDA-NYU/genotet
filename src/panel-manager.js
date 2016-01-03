@@ -206,14 +206,12 @@ genotet.panelManager.adjustTabHeight = function() {
 
   tabSelector
     .find('li')
-    .css('margin-bottom', (
-      newTabHeight - genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE_) + 'px'
-    );
+    .css('margin-bottom', (newTabHeight -
+      genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE_) + 'px');
   tabSelector
     .find('li:nth-child(2) a')
-    .css('margin-top', (
-      newTabHeight - genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE_) + 'px'
-    );
+    .css('margin-top', (newTabHeight -
+      genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE_) + 'px');
   tabSelector
     .find('li a')
     .css('width', newTabHeight + 'px');
