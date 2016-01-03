@@ -36,7 +36,6 @@ genotet.panelManager.container_ = null;
 
 /**
  * Initializes the side panel.
- * @this {genotet.panelManager}
  */
 genotet.panelManager.init = function() {
   genotet.panelManager.showPanel_ = true;
@@ -50,7 +49,7 @@ genotet.panelManager.init = function() {
       genotet.panelManager.togglePanel_();
     }
   });
-  $(window).resize(this.adjustTabHeight.bind(this));
+  $(window).resize(genotet.panelManager.adjustTabHeight);
 };
 
 /**
@@ -102,7 +101,6 @@ genotet.panelManager.activatePanel_ = function(viewID) {
  * Creates a panel with the given name.
  * @param {!genotet.View} view Name of the view.
  * @return {!jQuery}
- * @this {genotet.panelManager}
  */
 genotet.panelManager.addPanel = function(view) {
   var viewID = view.viewID_;
@@ -119,11 +117,11 @@ genotet.panelManager.addPanel = function(view) {
     .appendTo('.tab-content');
   $(view).on('genotet.focus', function() {
     var clickedViewID = view.viewID_;
-    this.activatePanel_(clickedViewID);
-  }.bind(this));
+    genotet.panelManager.activatePanel_(clickedViewID);
+  });
 
   // Adjust tab height.
-  this.adjustTabHeight();
+  genotet.panelManager.adjustTabHeight();
 
   // Remove the click event handler to avoid multiple executions.
   $('.sideways li a').off().click(function(event) {
@@ -191,7 +189,6 @@ genotet.panelManager.closeAllPanels = function() {
 
 /**
  * Adjust tab height.
- * @this {genotet.panelManager}
  */
 genotet.panelManager.adjustTabHeight = function() {
   var tabSelector = $('.sideways');
@@ -203,18 +200,19 @@ genotet.panelManager.adjustTabHeight = function() {
    * Exclude the initial invisible panel.
    */
   var newTabHeight = Math.floor((tabContentHeight -
-    this.TAB_HEIGHT_DIFFERENCE_ - this.TOGGLE_BTN_HEIGHT_) / tabCount - 1
+    genotet.panelManager.TAB_HEIGHT_DIFFERENCE_ -
+    genotet.panelManager.TOGGLE_BTN_HEIGHT_) / tabCount - 1
   );
 
   tabSelector
     .find('li')
     .css('margin-bottom', (
-      newTabHeight - this.TAB_MARGIN_BOTTOM_DIFFERENCE_) + 'px'
+      newTabHeight - genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE_) + 'px'
     );
   tabSelector
     .find('li:nth-child(2) a')
     .css('margin-top', (
-      newTabHeight - this.TAB_MARGIN_TOP_DIFFERENCE_) + 'px'
+      newTabHeight - genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE_) + 'px'
     );
   tabSelector
     .find('li a')
