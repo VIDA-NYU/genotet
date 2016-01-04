@@ -60,7 +60,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'expression',
-          matrixName: dataInfo.name,
+          fileName: dataInfo.fileName,
           geneRegex: 'a|b',
           conditionRegex: '1|2'
         }))

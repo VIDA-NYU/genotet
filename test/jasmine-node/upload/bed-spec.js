@@ -60,7 +60,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'bed',
-          bedName: dataInfo.fileName,
+          fileName: dataInfo.fileName,
           chr: '1'
         }))
         .expectStatus(200);
@@ -69,7 +69,7 @@ var tests = [
       var data = JSON.parse(body);
       it('without x xrange', function() {
         expect(data).toEqual([
-          {chromStart: 49344650, chromEnd: 49344667, label: 'label_1_1'}
+          {chrStart: 49344650, chrEnd: 49344667, label: 'label_1_1'}
         ]);
       });
     }
@@ -80,7 +80,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'bed',
-          bedName: dataInfo.name,
+          fileName: dataInfo.fileName,
           chr: '2',
           xl: 26382900,
           xr: 101662495
@@ -91,8 +91,8 @@ var tests = [
       var data = JSON.parse(body);
       it('partially intersect', function() {
         expect(data).toEqual([
-          {chromStart: 26382888, chromEnd: 26382905, label: 'label_2_2'},
-          {chromStart: 101662494, chromEnd: 101662511, label: 'label_2_1'}
+          {chrStart: 26382888, chrEnd: 26382905, label: 'label_2_2'},
+          {chrStart: 101662494, chrEnd: 101662511, label: 'label_2_1'}
         ]);
       });
     }
@@ -103,7 +103,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'bed',
-          bedName: dataInfo.name,
+          fileName: dataInfo.fileName,
           chr: '3',
           xl: 40000000,
           xr: 50000000

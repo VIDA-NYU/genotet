@@ -261,7 +261,7 @@ app.get('/genotet', function(req, res) {
       data = expression.listMatrix(expressionPath);
       break;
     case 'expression':
-      var file = expressionPath + req.query.matrixName;
+      var file = expressionPath + req.query.fileName;
       var geneRegex = req.query.geneRegex;
       var conditionRegex = req.query.conditionRegex;
       data = expression.readExpression(file, geneRegex, conditionRegex);
@@ -269,10 +269,15 @@ app.get('/genotet', function(req, res) {
 
     // Bed data queries
     case 'bed':
-      var file = req.query.bedName;
+      var file = req.query.fileName;
       var chr = req.query.chr;
       var dir = bedPath + file + '_chr/' + file + '_chr' + chr;
-      data = bed.readBed(dir, req.query.xl, req.query.xr);
+      var xl = -Infinity, xr = Infinity;
+      if (req.query.hasOwnProperty('xl')) {
+        xl = req.query.xl;
+        xr = req.query.xr;
+      }
+      data = bed.readBed(dir, xl, xr);
       break;
     case 'list-bed':
       data = bed.listBed(bedPath);

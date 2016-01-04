@@ -210,7 +210,10 @@ module.exports = {
         var fd = fs.openSync(chrFileName, 'w');
         for (var i = 0; i < data[chr].length; i++) {
           fs.writeSync(fd, data[chr][i].chrStart + '\t' + data[chr][i].chrEnd +
-            '\n');
+            '\t' + data[chr][i].name);
+          if (i < data[chr].length - 1) {
+            fs.writeSync(fd, '\n');
+          }
         }
         fs.closeSync(fd);
       }

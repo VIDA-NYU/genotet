@@ -22,7 +22,7 @@ module.exports = {
       var parts = line.split('\t');
       var xLeft = parseInt(parts[0]);
       var xRight = parseInt(parts[1]);
-      if (xLeft > xr || xRight < xl) {
+      if (xl > xRight || xr < xLeft) {
         return;
       }
       data.push({
