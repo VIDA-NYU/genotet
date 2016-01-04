@@ -131,6 +131,7 @@ genotet.panelManager.addPanel = function(view) {
     var clickedViewName = clickedViewID.replace(/\-/g, ' ');
     var clickedView = genotet.viewManager.views[clickedViewName];
     genotet.viewManager.blurAllViews();
+    genotet.viewManager.blurAllViews();
     clickedView.focus(false);
     genotet.panelManager.activatePanel_(clickedViewID);
   });
@@ -193,9 +194,7 @@ genotet.panelManager.adjustTabHeight = function() {
   var tabHeight = tabSelector.find('li:nth-child(2) a').outerWidth();
   var tabContentHeight = $('.tab-content').outerHeight();
 
-  /**
-   * Exclude the initial invisible panel.
-   */
+  // Exclude the initial invisible panel.
   var newTabHeight = Math.floor((tabContentHeight -
     genotet.panelManager.TAB_HEIGHT_DIFFERENCE_ -
     genotet.panelManager.TOGGLE_BTN_HEIGHT_) / tabCount - 1

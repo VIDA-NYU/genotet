@@ -82,6 +82,7 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
  * Cell object storing the rendering properties of expression cell.
  * @struct
  * @constructor
+ *
  */
 genotet.ExpressionRenderer.Cell = function() {
   this.container_ = null;
