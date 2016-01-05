@@ -57,14 +57,7 @@ genotet.ExpressionRenderer = function(container, data) {
    * Clicked object for heatmap cells and gene profiles.
    * @private {!genotet.ExpressionRenderer.Cell} object
    */
-  this.clickedObject_ = new genotet.ExpressionRenderer.Cell({
-    container: null,
-    geneName: null,
-    conditionName: null,
-    row: -1,
-    column: -1,
-    value: 0
-  });
+  this.clickedObject_ = new genotet.ExpressionRenderer.Cell(null);
 
   /**
    * Margins of the gene profile.
@@ -95,32 +88,62 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
  * Cell object storing the rendering properties of expression cell.
  * @struct
  * @constructor
- * @param {!Object} params
+ * @param {!{
+ * container: !d3.selection,
+ * geneName: string,
+ * conditionName: string,
+ * row: number,
+ * column: number,
+ * value: number,
+ * colorscaleValue: string
+ * }} params
+ * container: {Container of the expression cell}
+ * geneName: {Gene Name of the expression cell}
+ * conditionName: {Condition Name of the expression cell},
+ * row: {Row index of the expression cell},
+ * column: {Column index of the expression cell},
+ * value: {Value of the expression cell},
+ * colorscaleValue: {Colorscale value of the expression cell}
  */
 genotet.ExpressionRenderer.Cell = function(params) {
-  this.container = params.container;
-  this.geneName = params.geneName;
-  this.conditionName = params.conditionName;
-  this.row = params.row;
-  this.column = params.column;
-  this.value = params.value;
-  this.colorscaleValue = params.colorscaleValue;
+  this.container = params != null ? params.container : null;
+  this.geneName = params != null ? params.geneName : null;
+  this.conditionName = params != null ? params.conditionName : null;
+  this.row = params != null ? params.row : -1;
+  this.column = params != null ? params.column : -1;
+  this.value = params != null ? params.value : 0;
+  this.colorscaleValue = params != null ? params.colorscaleValue : null;
 };
 
 /**
  * Profile object storing the rendering properties of expression cell.
  * @struct
  * @constructor
- * @param {!Object} params
+ * @param {!{
+ * container: !d3.selection,
+ * geneName: string,
+ * row: number,
+ * hoverColumn: number,
+ * hoverConditionName: string,
+ * hoverValue: number,
+ * color: string
+ * }} params
+ * container: {Container of the gene profile}
+ * geneName: {Gene Name of the gene profile}
+ * row: {Row index of the gene profile},
+ * hoverColumn: {Hover column index of the gene profile},
+ * hoverConditionName: {Hover condition Name of the gene profile},
+ * hoverValue: {Hover value of the gene profile},
+ * color: {Color of the gene profile}
  */
 genotet.ExpressionRenderer.Profile = function(params) {
-  this.container = params.container;
-  this.geneName = params.geneName;
-  this.row = params.row;
-  this.hoverColumn = params.hoverColumn;
-  this.hoverConditionName = params.hoverConditionName;
-  this.hoverValue = params.hoverValue;
-  this.color = params.color;
+  this.container = params != null ? params.container : null;
+  this.geneName = params != null ? params.geneName : null;
+  this.row = params != null ? params.row : -1;
+  this.hoverColumn = params != null ? params.hoverColumn : -1;
+  this.hoverConditionName = params != null ? params.hoverConditionName : null;
+  this.hoverValue = params != null ? params.hoverValue : 0;
+  this.color = params != null ? params.color : null;
 };
 
 /** @const {number} */
@@ -293,6 +316,15 @@ genotet.ExpressionRenderer.prototype.layout = function() {
   this.profileHeight_ = this.data.options.showProfiles ?
     this.DEFAULT_PROFILE_HEIGHT : 0;
 
+  this.heatmapLayout_();
+  this.profileLayout_();
+};
+
+/**
+ * Layout of the expression heatmap.
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.heatmapLayout_ = function() {
   this.heatmapWidth_ = this.canvasWidth_;
   if (this.data.options.showGeneLabels) {
     this.heatmapWidth_ -= this.LABEL_MARGIN + this.geneLabelWidth_;
@@ -370,7 +402,13 @@ genotet.ExpressionRenderer.prototype.layout = function() {
     heatmapGradientTransformLeft,
     heatmapGradientTransformTop
   ]));
+};
 
+/**
+ * Layout of the gene profile.
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.profileLayout_ = function() {
   this.profileContent_
     .attr('width', this.canvasWidth_ - this.profileMargins_.left -
       this.profileMargins_.right)
