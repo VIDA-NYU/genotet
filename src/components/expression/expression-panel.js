@@ -24,7 +24,7 @@ genotet.ExpressionPanel = function(data) {
   });
 
   /**
-   * Select2 for selecting genes to profile.
+   * Selection of genes to profile.
    * @private {select2}
    */
   this.selectProfiles_ = null;
@@ -152,12 +152,12 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
   var geneProfiles = this.data.profiles.map(function(profile) {
     return profile.geneName;
   });
-  this.selectProfiles_ = this.container.find('#profile select').empty()
-    .select2({
-      data: genes,
-      multiple: true
-    })
-    .select2('val', geneProfiles);
+  var profile = this.container.find('#profile select').empty();
+  this.selectProfiles_ = profile.select2({
+    data: genes,
+    multiple: true
+  });
+  this.selectProfiles_.select2('val', geneProfiles);
   this.container.find('#profile .select2-container').css({
     width: '100%'
   });

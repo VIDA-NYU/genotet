@@ -23,6 +23,10 @@ module.exports = {
   testData: [
     'test/data/**/*'
   ],
+  externs: [
+    'src/externs/**/*.js',
+    'test/externs/**/*.js'
+  ],
   server: [
     'server/*.js'
   ],

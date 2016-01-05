@@ -247,13 +247,13 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
   // Store which nodes exist in the new data.
   // The nodes belong to both old and new data shall not be assigned
   // a new position.
-  var nodeIds = [];
+  var nodeIds = {};
 
   this.data.nodes.forEach(function(node) {
     if (!this.nodes_[node.id]) {
       this.nodes_[node.id] = _.extend({}, node);
     }
-    nodeIds.push(node.id);
+    nodeIds[node.id] = true;
   }, this);
   this.nodes_ = /** @type {!Object<!Object>}*/(_.pick(this.nodes_,
     function(node, id) {

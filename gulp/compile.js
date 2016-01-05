@@ -9,12 +9,11 @@ var gclExterns = 'node_modules/google-closure-compiler/contrib/externs/';
 
 var externs = [
   gclExterns + 'jquery-1.9.js',
-  gclExterns + 'underscore-1.5.2.js',
-  'src/externs/*.js'
-];
+  gclExterns + 'underscore-1.5.2.js'
+].concat(paths.externs);
 
-gulp.task('compile', function(cb) {
-  return gulp.src(paths.src)
+var compile = function(cb, src) {
+  return gulp.src(src)
     .pipe(closureCompiler({
       compilerPath: 'node_modules/google-closure-compiler/compiler.jar',
       fileName: 'genotet.js',
@@ -39,6 +38,20 @@ gulp.task('compile', function(cb) {
         'genotet.js'
       ]);
       cb(err);
-    }))
+    }));
+};
+
+gulp.task('compile', function(cb) {
+  return compile(cb, paths.src)
+    .pipe(gulp.dest(paths.dist));
+});
+
+// Virtual compilation, without any output source file.
+gulp.task('compile-dev', function(cb) {
+  return compile(cb, paths.src);
+});
+
+gulp.task('compile-test', function(cb) {
+  return compile(cb, paths.src.concat(paths.qunitTests))
     .pipe(gulp.dest(paths.dist));
 });
