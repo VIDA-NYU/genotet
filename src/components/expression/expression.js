@@ -71,33 +71,26 @@ genotet.ExpressionView = function(viewName, params) {
       this.renderer.unhighlightHoverCell_(cell);
       genotet.tooltip.hideAll();
     }.bind(this))
-    .on('genotet.cellClick', function(event, cell) {
-      this.renderer.highlightLabelsForClickedCell_(cell);
-      this.panel.displayCellInfo_(cell.geneName, cell.conditionName,
-        cell.value);
+    .on('genotet.expressionClick', function(event, object) {
+      this.renderer.highlightLabelsForClickedObject_(object);
+      this.panel.displayCellInfo_(object.geneName, object.conditionName,
+        object.value);
     }.bind(this))
-    .on('genotet.cellUnclick', function(event) {
+    .on('genotet.expressionUnclick', function(event) {
       this.panel.hideCellInfo_();
+      this.renderer.unhighlightLabelsForClickedObject_();
     }.bind(this));
 
   // Path hover in expression.
   $(this.renderer)
     .on('genotet.pathHover', function(event, profile) {
       this.renderer.highlightHoverPath_(profile);
-      this.panel.tooltipGeneProfile_(profile.geneName,
+      this.panel.tooltipHeatmap_(profile.geneName,
         profile.hoverConditionName, profile.hoverValue);
     }.bind(this))
     .on('genotet.pathUnhover', function(event, profile) {
       this.renderer.unhighlightHoverPath_(profile);
       genotet.tooltip.hideAll();
-    }.bind(this))
-    .on('genotet.pathClick', function(event, profile) {
-      this.renderer.highlightLabelsForClickedProfile_(profile);
-      this.panel.displayPathInfo_(profile.geneName, profile.hoverConditionName,
-        profile.hoverValue);
-    }.bind(this))
-    .on('genotet.pathUnclick', function(event) {
-      this.panel.hidePathInfo_();
     }.bind(this));
 
   // Update expression panel.

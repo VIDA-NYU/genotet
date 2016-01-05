@@ -15,7 +15,6 @@ genotet.ExpressionLoader = function(data) {
 
   _(this.data).extend({
     matrix: null,
-    clickedCell: null,
     profiles: []
   });
 };
