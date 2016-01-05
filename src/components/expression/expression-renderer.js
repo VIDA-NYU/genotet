@@ -86,10 +86,8 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
 
 /**
  * Cell object storing the rendering properties of expression cell.
- * @struct
- * @constructor
  * @param {!{
- *   container: !d3.selection=,
+ *   container: !d3.selection,
  *   geneName: string=,
  *   conditionName: string=,
  *   row: number=,
@@ -97,13 +95,15 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
  *   value: number=,
  *   colorscaleValue: string=
  * }} params
- *     container: {Container of the expression cell}
- *     geneName: {Gene Name of the expression cell}
- *     conditionName: {Condition Name of the expression cell},
- *     row: {Row index of the expression cell},
- *     column: {Column index of the expression cell},
- *     value: {Value of the expression cell},
- *     colorscaleValue: {Colorscale value of the expression cell}
+ *     container: Container of the selected expression cell.
+ *     geneName: Gene Name of the selected expression cell.
+ *     conditionName: Condition Name of the selected expression cell.
+ *     row: Row index of the selected expression cell.
+ *     column: Column index of the selected expression cell.
+ *     value: Value of the selected expression cell.
+ *     colorscaleValue: Color of the selected expression cell.
+ * @struct
+ * @constructor
  */
 genotet.ExpressionRenderer.Cell = function(params) {
   /** @type {!d3.selection} */
@@ -132,24 +132,24 @@ genotet.ExpressionRenderer.Cell = function(params) {
 
 /**
  * Profile object storing the rendering properties of expression cell.
- * @struct
- * @constructor
  * @param {!{
  *   container: !d3.selection,
- *   geneName: string,
- *   row: number,
- *   hoverColumn: number,
- *   hoverConditionName: string,
- *   hoverValue: number,
- *   color: string
+ *   geneName: string=,
+ *   row: number=,
+ *   hoverColumn: number=,
+ *   hoverConditionName: string=,
+ *   hoverValue: number=,
+ *   color: string=
  * }} params
- *      container: {Container of the gene profile}
- *      geneName: {Gene Name of the gene profile}
- *      row: {Row index of the gene profile},
- *      hoverColumn: {Hover column index of the gene profile},
- *      hoverConditionName: {Hover condition Name of the gene profile},
- *      hoverValue: {Hover value of the gene profile},
- *      color: {Color of the gene profile}
+ *      container: Container of the selected gene profile.
+ *      geneName: Gene Name of the selected gene profile.
+ *      row: Row index of the selected gene profile.
+ *      hoverColumn: Column index of the hover gene profile.
+ *      hoverConditionName: Condition Name of the hover gene profile.
+ *      hoverValue: Value of the hover gene profile.
+ *      color: Color of the selected gene profile.
+ * @struct
+ * @constructor
  */
 genotet.ExpressionRenderer.Profile = function(params) {
   /** @type {!d3.selection} */
