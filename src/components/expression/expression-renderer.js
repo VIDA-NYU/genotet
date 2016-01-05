@@ -54,6 +54,19 @@ genotet.ExpressionRenderer = function(container, data) {
   this.heatmapHeight_ = 0;
 
   /**
+   * Clicked object for heatmap cells and gene profiles.
+   * @private {!genotet.ExpressionRenderer.Cell} object
+   */
+  this.clickedObject_ = new genotet.ExpressionRenderer.Cell({
+    container: null,
+    geneName: null,
+    conditionName: null,
+    row: -1,
+    column: -1,
+    value: 0
+  });
+
+  /**
    * Margins of the gene profile.
    * @private {!Object<number>}
    */
@@ -74,12 +87,6 @@ genotet.ExpressionRenderer = function(container, data) {
     BOTTOM: 5,
     LEFT: 40
   };
-
-  /**
-   * Clicked object for heatmap cells and gene profiles.
-   * @private {!genotet.ExpressionRenderer.Cell} object
-   */
-  this.clickedObject_ = new genotet.ExpressionRenderer.Cell();
 };
 
 genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
@@ -88,30 +95,32 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
  * Cell object storing the rendering properties of expression cell.
  * @struct
  * @constructor
+ * @param {!Object} params
  */
-genotet.ExpressionRenderer.Cell = function() {
-  this.container_ = null;
-  this.geneName = null;
-  this.conditionName = null;
-  this.row = -1;
-  this.column = -1;
-  this.value = 0;
-  this.colorscaleValue = null;
+genotet.ExpressionRenderer.Cell = function(params) {
+  this.container = params.container;
+  this.geneName = params.geneName;
+  this.conditionName = params.conditionName;
+  this.row = params.row;
+  this.column = params.column;
+  this.value = params.value;
+  this.colorscaleValue = params.colorscaleValue;
 };
 
 /**
  * Profile object storing the rendering properties of expression cell.
  * @struct
  * @constructor
+ * @param {!Object} params
  */
-genotet.ExpressionRenderer.Profile = function() {
-  this.container_ = null;
-  this.geneName = null;
-  this.row = -1;
-  this.hoverColumn = -1;
-  this.hoverConditionName = null;
-  this.hoverValue = 0;
-  this.color = null;
+genotet.ExpressionRenderer.Profile = function(params) {
+  this.container = params.container;
+  this.geneName = params.geneName;
+  this.row = params.row;
+  this.hoverColumn = params.hoverColumn;
+  this.hoverConditionName = params.hoverConditionName;
+  this.hoverValue = params.hoverValue;
+  this.color = params.color;
 };
 
 /** @const {number} */
@@ -375,6 +384,11 @@ genotet.ExpressionRenderer.prototype.layout = function() {
       this.profileMargins_.left = this.geneLabelWidth_ + this.LABEL_MARGIN;
     }
   }
+  this.svgLegend_
+    .attr('transform', genotet.utils.getTransform([
+      this.profileMargins_.left,
+      this.DEFAULT_PROFILE_LEGEND_MARGIN
+    ]));
   this.svgProfileXAxis_
     .attr('transform', genotet.utils.getTransform([
       0,
@@ -483,9 +497,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     .style('fill', colorScale)
     .on('mouseover', function(value, i, j) {
       var hoverCell = d3.event.target;
-      var cell = new genotet.ExpressionRenderer.Cell();
-      _(cell).extend({
-        container_: hoverCell,
+      var cell = new genotet.ExpressionRenderer.Cell({
+        container: hoverCell,
         geneName: heatmapData.geneNames[j],
         conditionName: heatmapData.conditionNames[i],
         row: j,
@@ -496,9 +509,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     }.bind(this))
     .on('mouseout', function(value) {
       var hoverCell = d3.event.target;
-      var cell = new genotet.ExpressionRenderer.Cell();
-      _(cell).extend({
-        container_: hoverCell,
+      var cell = new genotet.ExpressionRenderer.Cell({
+        container: hoverCell,
         colorscaleValue: colorScale(value)
       });
       this.signal('cellUnhover', cell);
@@ -506,7 +518,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     .on('click', function(value, i, j) {
       var hoverCell = d3.event.target;
       _(this.clickedObject_).extend({
-        container_: hoverCell,
+        container: hoverCell,
         geneName: heatmapData.geneNames[j],
         conditionName: heatmapData.conditionNames[i],
         row: j,
@@ -636,11 +648,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   var heatmapData = this.data.matrix;
   this.svgProfile_.attr('width', this.canvasWidth_);
 
-  this.svgLegend_
-    .attr('transform', genotet.utils.getTransform([
-      this.profileMargins_.left,
-      this.DEFAULT_PROFILE_LEGEND_MARGIN
-    ]));
   var legendHeight = this.DEFAULT_PROFILE_LEGEND_HEIGHT -
     this.DEFAULT_PROFILE_LEGEND_MARGIN;
 
@@ -728,7 +735,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
       );
       var value = heatmapData.values[profile.row][conditionIndex];
       _(this.data.profiles[i]).extend({
-        container_: d3.event.target,
+        container: d3.event.target,
         hoverColumn: conditionIndex,
         hoverConditionName: heatmapData.conditionNames[conditionIndex],
         hoverValue: value
@@ -736,7 +743,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
       this.signal('pathHover', this.data.profiles[i]);
     }.bind(this))
     .on('mouseout', function(profile, i) {
-      this.data.profiles[i].container_ = d3.event.target;
+      this.data.profiles[i].container = d3.event.target;
       this.signal('pathUnhover', this.data.profiles[i]);
     }.bind(this))
     .on('click', function(profile, i) {
@@ -746,7 +753,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
         this.data.profiles[i].geneName);
       var value = heatmapData.values[geneIndex][conditionIndex];
       _(this.clickedObject_).extend({
-        container_: d3.event.target,
+        container: d3.event.target,
         geneName: heatmapData.geneNames[geneIndex],
         conditionName: heatmapData.conditionNames[conditionIndex],
         row: geneIndex,
@@ -765,8 +772,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.addGeneProfile_ = function(geneIndex) {
-  var profile = new genotet.ExpressionRenderer.Profile();
-  _(profile).extend({
+  var profile = new genotet.ExpressionRenderer.Profile({
     geneName: this.data.matrix.geneNames[geneIndex],
     row: geneIndex
   });
@@ -797,7 +803,7 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile_ = function(geneIndex) {
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell) {
-  var cellSelection = d3.select(cell.container_);
+  var cellSelection = d3.select(cell.container);
   cellSelection.style('stroke', 'white');
   this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
     return cell.row == i;
@@ -814,7 +820,7 @@ genotet.ExpressionRenderer.prototype.highlightHoverCell_ = function(cell) {
  * @private
  */
 genotet.ExpressionRenderer.prototype.unhighlightHoverCell_ = function(cell) {
-  var cellSelection = d3.select(cell.container_);
+  var cellSelection = d3.select(cell.container);
   cellSelection.style('stroke', cell.colorscaleValue);
   this.svgGeneLabels_.selectAll('text').classed('highlighted', false);
   this.svgConditionLabels_.selectAll('text').classed('highlighted', false);
@@ -826,7 +832,7 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverCell_ = function(cell) {
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
-  var pathSelection = d3.select(profile.container_);
+  var pathSelection = d3.select(profile.container);
   pathSelection.classed('highlighted', true);
   this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
     return profile.row == i;
@@ -843,7 +849,7 @@ genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
  * @private
  */
 genotet.ExpressionRenderer.prototype.unhighlightHoverPath_ = function(profile) {
-  var pathSelection = d3.select(profile.container_);
+  var pathSelection = d3.select(profile.container);
   pathSelection.classed('highlighted', false);
   this.svgGeneLabels_.selectAll('text').classed('highlighted', false);
   this.svgConditionLabels_.selectAll('text').classed('highlighted', false);
