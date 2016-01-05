@@ -11,7 +11,7 @@ module.exports = {
     'src/*.js'
   ],
   dev: [
-    'dev/***.js'
+    'dev/**/*.js'
   ],
   qunitTests: [
     'test/qunit/index.js',
@@ -22,6 +22,10 @@ module.exports = {
   ],
   testData: [
     'test/data/**/*'
+  ],
+  externs: [
+    'src/externs/**/*.js',
+    'test/externs/**/*.js'
   ],
   server: [
     'server/*.js'

@@ -14,8 +14,17 @@ gulp.task('concat-src', function(cb) {
 });
 
 gulp.task('concat-src-dev', function(cb) {
-  return gulp.src(paths.dev)
-    .pipe(concat('genotet-dev.js'))
+  return gulp.src(paths.src.concat(paths.dev))
+    .pipe(concat('genotet.js'))
+    .pipe(gulp.dest(paths.dist))
+    .on('error', function(err) {
+      cb(err);
+    });
+});
+
+gulp.task('concat-src-test', function(cb) {
+  return gulp.src(paths.src.concat(paths.qunitTests))
+    .pipe(concat('genotet.js'))
     .pipe(gulp.dest(paths.dist))
     .on('error', function(err) {
       cb(err);

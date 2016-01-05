@@ -21,9 +21,8 @@ gulp.task('watch', function() {
 // Test task.
 gulp.task('test', function(cb) {
   runSequence(
-    'clean',
-    ['copy', 'index-test', 'sass-dev', 'concat-src'],
-    'run-test',
+    'test-dev',
+    'test-production',
     cb);
 });
 

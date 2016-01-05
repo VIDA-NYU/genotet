@@ -8,7 +8,7 @@
  * BindingRenderer renders the visualizations for the BindingView.
  * @param {!jQuery} container View container.
  * @param {!Object} data Data object to be written.
- * @extends {ViewRenderer}
+ * @extends {genotet.ViewRenderer}
  * @constructor
  */
 genotet.BindingRenderer = function(container, data) {
@@ -145,14 +145,14 @@ genotet.BindingRenderer.prototype.getBindingRanges_ = function() {
   if (this.data.overviewRangeChanged) {
     this.xScaleZoom_
       .domain([this.data.overviewXMin, this.data.overviewXMax])
-      .range([0, this.canvasWidth_]);
+      .range([0, this.canvasWidth]);
     this.zoom_.x(this.xScaleZoom_);
     this.zoomTranslate_ = [0, 0];
     this.zoomScale_ = 1;
 
     this.xScaleOverview_
       .domain([this.data.overviewXMin, this.data.overviewXMax])
-      .range([0, this.canvasWidth_]);
+      .range([0, this.canvasWidth]);
 
     this.detailContent_.attr('transform', '');
   }
@@ -176,19 +176,19 @@ genotet.BindingRenderer.prototype.initLayout = function() {
   // Create groups for the overviews, binding tracks, and exons.
   /**
    * SVG group for the binding overviews.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgOverview_ = this.canvas.append('g')
     .classed('overviews', true);
   /**
    * SVG group for the detailed binding tracks.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgDetail_ = this.canvas.append('g')
     .classed('details', true);
   /**
    * SVG group for the binding overviews.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgExons_ = this.canvas.append('g')
     .classed('exons', true);
@@ -200,20 +200,20 @@ genotet.BindingRenderer.prototype.initLayout = function() {
     .classed('content', true);
   /**
    * SVG group for the detailed binding tracks content.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.detailContent_ = this.svgDetail_.append('g')
     .classed('content', true);
   /**
    * SVG group for the exons content.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.exonsContent_ = this.svgExons_.append('g')
     .classed('content', true);
 
   /**
    * SVG rect for overview range.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.overviewRange_ = this.overviewContent_.append('rect')
     .classed('range', true);
@@ -223,19 +223,19 @@ genotet.BindingRenderer.prototype.initLayout = function() {
   // elements.
   /**
    * Handle for the overview group.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.overviewHandle_ = this.svgOverview_.append('rect')
     .classed('zoom-handle', true);
   /**
    * Handle for the detail group.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.detailHandle_ = this.svgDetail_.append('rect')
     .classed('zoom-handle', true);
   /**
    * Handle for the exons group.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.exonsHandle_ = this.svgExons_.append('rect')
     .classed('zoom-handle', true);
@@ -256,7 +256,7 @@ genotet.BindingRenderer.prototype.layout = function() {
   // Compute translate values.
   this.detailTranslateY_ = this.data.options.showOverview ?
     numTracks * this.OVERVIEW_HEIGHT : 0;
-  this.exonsTranslateY_ = this.canvasHeight_ - this.EXON_HEIGHT;
+  this.exonsTranslateY_ = this.canvasHeight - this.EXON_HEIGHT;
 
   // Translate SVG groups to place.
   this.svgDetail_.attr('transform',
@@ -295,7 +295,7 @@ genotet.BindingRenderer.prototype.layout = function() {
 
 /** @inheritDoc */
 genotet.BindingRenderer.prototype.render = function() {
-  if (!this.dataReady_()) {
+  if (!this.dataReady()) {
     return;
   }
   // Call layout to adjust the binding track positions so as to adapt to
@@ -323,7 +323,7 @@ genotet.BindingRenderer.prototype.drawOverviews_ = function() {
 
   var xScale = d3.scale.linear()
     .domain([this.data.overviewXMin, this.data.overviewXMax])
-    .range([0, this.canvasWidth_]);
+    .range([0, this.canvasWidth]);
   this.data.tracks.forEach(function(track, index) {
     var svg = this.overviewContent_.select('#track-' + index);
     this.drawHistogram_(svg, track.overview, xScale);
@@ -346,7 +346,7 @@ genotet.BindingRenderer.prototype.drawDetails_ = function() {
 
 /**
  * Renders the binding data as a histogram.
- * @param {!d3.selection} svg SVG group for the overview.
+ * @param {!d3} svg SVG group for the overview.
  * @param {!Object} track Track data.
  * @param {!d3.scale} xScale xScale applied for the histogram.
  * @private
@@ -390,7 +390,7 @@ genotet.BindingRenderer.prototype.drawHistogram_ = function(svg, track,
   svg.select('.baseline')
     .attr('transform', genotet.utils.getTransform([0, height]))
     .attr('x1', 0)
-    .attr('x2', this.canvasWidth_);
+    .attr('x2', this.canvasWidth);
 };
 
 /**
@@ -599,7 +599,7 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
     this.OVERVIEW_HEIGHT * numTracks : 0;
   var exonsHeight = this.data.options.showExons ?
     this.EXON_HEIGHT : 0;
-  var totalDetailHeight = this.canvasHeight_ - exonsHeight - overviewHeight;
+  var totalDetailHeight = this.canvasHeight - exonsHeight - overviewHeight;
   this.detailHeight_ = totalDetailHeight / (numTracks ? numTracks : 1);
 };
 
@@ -609,16 +609,16 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
 genotet.BindingRenderer.prototype.resize = function() {
   genotet.BindingRenderer.base.resize.call(this);
   this.updateZoomHandles_();
-  if (!this.dataReady_()) {
+  if (!this.dataReady()) {
     return;
   }
 
   // Update scales to the new view size.
   this.xScaleOverview_
-    .range([0, this.canvasWidth_]);
+    .range([0, this.canvasWidth]);
   this.xScaleZoom_
     .domain([this.data.overviewXMin, this.data.overviewXMax])
-    .range([0, this.canvasWidth_]);
+    .range([0, this.canvasWidth]);
   this.zoom_.x(this.xScaleZoom_);
 
   this.render();
@@ -650,7 +650,7 @@ genotet.BindingRenderer.prototype.zoomHandler_ = function() {
   var scale = d3.event.scale;
 
   // Prevent horizontal panning out of range.
-  translate[0] = Math.max(this.canvasWidth_ * (1 - scale), translate[0]);
+  translate[0] = Math.max(this.canvasWidth * (1 - scale), translate[0]);
   translate[0] = Math.min(0, translate[0]);
   // Prevent vertical panning.
   translate[1] = 0;
@@ -696,7 +696,7 @@ genotet.BindingRenderer.prototype.zoomEndHandler_ = function() {
  */
 genotet.BindingRenderer.prototype.screenRangeToBindingCoordinates_ = function(
   opt_range) {
-  var range = opt_range ? opt_range : [0, this.canvasWidth_];
+  var range = opt_range ? opt_range : [0, this.canvasWidth];
   var invert = this.xScaleZoom_.invert;
   return [invert(range[0]), invert(range[1])];
 };
@@ -732,11 +732,7 @@ genotet.BindingRenderer.prototype.zoomTransform = function(range) {
     [scale, 1]));
 };
 
-/**
- * Checks whether the data has been loaded.
- * @private
- * @return {boolean}
- */
-genotet.BindingRenderer.prototype.dataReady_ = function() {
+/** @inheritDoc */
+genotet.BindingRenderer.prototype.dataReady = function() {
   return this.data.tracks.length > 0;
 };

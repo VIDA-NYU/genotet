@@ -15,19 +15,11 @@ var generateIndex = function(params) {
 
 gulp.task('index', function() {
   return generateIndex({
-    dev: '',
-    test: ''
+    test: '',
+    test_src: ''
   });
 });
 
 gulp.task('index-test', function() {
-  return generateIndex({
-    dev: ''
-  });
-});
-
-gulp.task('index-dev', function() {
-  return generateIndex({
-    test: ''
-  });
+  return generateIndex({});
 });

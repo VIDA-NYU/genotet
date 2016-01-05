@@ -65,7 +65,7 @@ genotet.dialog.organism_ = function() {
       modal.modal();
       modal.find('.btn-organism').removeClass('active')
         .click(function() {
-          genotet.data.organism = $(this).attr('id');
+          genotet.data.organism = /** @type {string} */($(this).attr('id'));
           modal.find('.btn-organism').removeClass('active');
           $(this).addClass('active');
         });
@@ -83,7 +83,7 @@ genotet.dialog.createView_ = function() {
     modal.modal();
     modal.find('.selectpicker').selectpicker();
     modal.find('#btn-next').click(function() {
-      var type = modal.find('#type').val();
+      var type = /** @type {string} */(modal.find('#type').val());
       switch (type) {
       case 'network':
         genotet.dialog.create('create-network');
@@ -112,12 +112,13 @@ genotet.dialog.createNetwork_ = function() {
     function() {
       modal.modal();
       var viewName = modal.find('#view-name');
-      viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
+      viewName.val(genotet.viewManager.nextSuffixName(
+        /** @type {string} */(viewName.val())));
       modal.find('.selectpicker').selectpicker();
 
       // Create
       modal.find('#btn-create').click(function() {
-        var viewName = modal.find('#view-name').val();
+        var viewName = /** @type {string} */(modal.find('#view-name').val());
         genotet.viewManager.createView('network', viewName, {
           networkName: modal.find('#network').val(),
           geneRegex: modal.find('#geneRegex').val()
@@ -136,7 +137,8 @@ genotet.dialog.createBinding_ = function() {
     function() {
       modal.modal();
       var viewName = modal.find('#view-name');
-      viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
+      viewName.val(genotet.viewManager.nextSuffixName(
+        /** @type {string} */(viewName.val())));
 
       var chrs = genotet.data.bindingChrs.map(function(chr, index) {
         return {
@@ -159,7 +161,7 @@ genotet.dialog.createBinding_ = function() {
 
       // Create
       modal.find('#btn-create').click(function() {
-        var viewName = modal.find('#view-name').val();
+        var viewName = /** @type {string} */(modal.find('#view-name').val());
         genotet.viewManager.createView('binding', viewName, {
           gene: modal.find('#gene').val(),
           chr: modal.find('#chr').val()
@@ -178,12 +180,13 @@ genotet.dialog.createExpression_ = function() {
     function() {
       modal.modal();
       var viewName = modal.find('#view-name');
-      viewName.val(genotet.viewManager.nextSuffixName(viewName.val()));
+      viewName.val(genotet.viewManager.nextSuffixName(
+        /** @type {string} */(viewName.val())));
       modal.find('.selectpicker').selectpicker();
 
       // Create
       modal.find('#btn-create').click(function() {
-        var viewName = modal.find('#view-name').val();
+        var viewName = /** @type {string} */(modal.find('#view-name').val());
         genotet.viewManager.createView('expression', viewName, {
           matrixName: modal.find('#matrix').val(),
           geneRegex: modal.find('#gene-regex').val(),
@@ -233,9 +236,12 @@ genotet.dialog.upload_ = function() {
 
       btnUpload.click(function() {
         var formData = new FormData();
-        formData.append('type', modal.find('#type').val());
-        formData.append('name', fileName.val());
-        formData.append('description', modal.find('#description').val());
+        formData.append('type',
+          /** @type {string} */(modal.find('#type').val()));
+        formData.append('name',
+          /** @type {string} */(fileName.val()));
+        formData.append('description',
+          /** @type {string} */(modal.find('#description').val()));
         formData.append('file', file[0].files[0]);
 
         $.ajax({

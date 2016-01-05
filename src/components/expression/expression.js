@@ -5,25 +5,42 @@
 'use strict';
 
 /**
+ * @typedef {{
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>,
+ *   allValueMax: number,
+ *   allValueMin: number,
+ *   valueMin: number,
+ *   valueMax: number
+ * }}
+ */
+genotet.ExpressionMatrix;
+
+/**
  * View extends the base View class, and renders the expression matrix
  * associated with the regulatory Expression.
  * @param {string} viewName Name of the view.
  * @param {!Object} params Additional parameters.
- * @extends {View}
+ * @extends {genotet.View}
  * @constructor
  */
 genotet.ExpressionView = function(viewName, params) {
   genotet.ExpressionView.base.constructor.call(this, viewName);
 
+  /**
+   * @protected {genotet.ExpressionMatrix}
+   */
+  this.data.matrix;
+
   this.container.addClass('expression');
 
-  /** @protected {ExpressionLoader} */
+  /** @protected {!genotet.ExpressionLoader} */
   this.loader = new genotet.ExpressionLoader(this.data);
 
-  /** @protected {ExpressionPanel} */
+  /** @protected {!genotet.ExpressionPanel} */
   this.panel = new genotet.ExpressionPanel(this.data);
 
-  /** @protected {ExpressionRenderer} */
+  /** @protected {!genotet.ExpressionRenderer} */
   this.renderer = new genotet.ExpressionRenderer(this.container, this.data);
 
   // Set up data loading callbacks.
@@ -55,41 +72,41 @@ genotet.ExpressionView = function(viewName, params) {
       }
     }.bind(this))
     .on('genotet.addGeneProfile', function(event, geneIndex) {
-      this.renderer.addGeneProfile_(geneIndex);
+      this.renderer.addGeneProfile(geneIndex);
     }.bind(this))
     .on('genotet.removeGeneProfile', function(event, geneIndex) {
-      this.renderer.removeGeneProfile_(geneIndex);
+      this.renderer.removeGeneProfile(geneIndex);
     }.bind(this));
 
   // Cell hover in expression.
   $(this.renderer)
     .on('genotet.cellHover', function(event, cell) {
-      this.renderer.highlightHoverCell_(cell);
-      this.panel.tooltipHeatmap_(cell.geneName, cell.conditionName, cell.value);
+      this.renderer.highlightHoverCell(cell);
+      this.panel.tooltipHeatmap(cell.geneName, cell.conditionName, cell.value);
     }.bind(this))
     .on('genotet.cellUnhover', function(event, cell) {
-      this.renderer.unhighlightHoverCell_(cell);
+      this.renderer.unhighlightHoverCell(cell);
       genotet.tooltip.hideAll();
     }.bind(this))
     .on('genotet.expressionClick', function(event, object) {
-      this.renderer.highlightLabelsForClickedObject_(object);
-      this.panel.displayCellInfo_(object.geneName, object.conditionName,
+      this.renderer.highlightLabelsForClickedObject(object);
+      this.panel.displayCellInfo(object.geneName, object.conditionName,
         object.value);
     }.bind(this))
     .on('genotet.expressionUnclick', function(event) {
-      this.panel.hideCellInfo_();
-      this.renderer.unhighlightLabelsForClickedObject_();
+      this.panel.hideCellInfo();
+      this.renderer.unhighlightLabelsForClickedObject();
     }.bind(this));
 
   // Path hover in expression.
   $(this.renderer)
     .on('genotet.pathHover', function(event, profile) {
-      this.renderer.highlightHoverPath_(profile);
-      this.panel.tooltipHeatmap_(profile.geneName,
+      this.renderer.highlightHoverPath(profile);
+      this.panel.tooltipHeatmap(profile.geneName,
         profile.hoverConditionName, profile.hoverValue);
     }.bind(this))
     .on('genotet.pathUnhover', function(event, profile) {
-      this.renderer.unhighlightHoverPath_(profile);
+      this.renderer.unhighlightHoverPath(profile);
       genotet.tooltip.hideAll();
     }.bind(this));
 

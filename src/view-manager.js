@@ -81,7 +81,7 @@ genotet.viewManager.createView = function(type, viewName, params) {
 
 /**
  * Closes the given view.
- * @param {View} view
+ * @param {!genotet.View} view
  */
 genotet.viewManager.closeView = function(view) {
   if (!(view.name() in genotet.viewManager.views)) {
@@ -117,8 +117,8 @@ genotet.viewManager.closeAllViews = function() {
  * Finds a position for a newly created view.
  * The function attempts to put the new view to the right or bottom of some
  * existing view.
- * @param {View} newView The newly created view.
- * @return {{left: number, top: number}}
+ * @param {genotet.View} newView The newly created view.
+ * @return {!{left: number, top: number}}
  */
 genotet.viewManager.findPosition = function(newView) {
   var newRect = newView.rect();
@@ -194,7 +194,7 @@ genotet.viewManager.findPosition = function(newView) {
  * created view. When the number is 1, the number is omitted. Otherwise,
  * the number is appended to the default name, e.g. 'Network 2'.
  * @param {string} defaultName Default name of the view.
- * @return {number} Available suffix.
+ * @return {string} Available suffix.
  */
 genotet.viewManager.nextSuffixName = function(defaultName) {
   for (var i = 1;; i++) {
