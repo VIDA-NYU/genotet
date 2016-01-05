@@ -1,5 +1,6 @@
 // Compile the sources using closure-compiler.
 var gulp = require('gulp');
+var del = require('del');
 var closureCompiler = require('gulp-closure-compiler');
 
 var paths = require('./paths.js');
@@ -34,7 +35,9 @@ gulp.task('compile', function(cb) {
         output_wrapper: '(function(){%output%}).call(window);'
       }
     }).on('error', function(err) {
-      console.log(err);
+      del([
+        'genotet.js'
+      ]);
       cb(err);
     }))
     .pipe(gulp.dest(paths.dist));

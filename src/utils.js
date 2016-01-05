@@ -87,7 +87,7 @@ genotet.utils.rectInsideWindow = function(rect) {
 /**
  * Combines translate and scale into a CSS transform string.
  * @param {genotet.utils.Vector2=} opt_translate Zoom translate.
- * @param {number=} opt_scale Zoom scale.
+ * @param {(number|!Array<number>)=} opt_scale Zoom scale.
  * @param {number=} opt_rotate Rotation degree.
  * @return {string} CSS string of the transform.
  */

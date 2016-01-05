@@ -37,7 +37,7 @@ genotet.init = function() {
 
 /**
  * Displays a user visible warning message at the top of the screen.
- * @param {...string} var_msgs
+ * @param {...*} var_msgs
  */
 genotet.warning = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
@@ -49,7 +49,7 @@ genotet.warning = function(var_msgs) {
 
 /**
  * Displays a user visible error message at the top of the screen.
- * @param {...string} var_msgs
+ * @param {...*} var_msgs
  */
 genotet.error = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
@@ -61,7 +61,7 @@ genotet.error = function(var_msgs) {
 
 /**
  * Displays a user visible success message at the top of the screen.
- * @param {...string} var_msgs
+ * @param {...*} var_msgs
  */
 genotet.success = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');

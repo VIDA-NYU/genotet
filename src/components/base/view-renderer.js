@@ -131,8 +131,8 @@ genotet.ViewRenderer.prototype.hideFailure = function() {
 /**
  * Triggers a jQuery event on the renderer.
  * @param {string} eventType Type of event.
- * @param {Object} data Data object to be sent via the event.
+ * @param {Object=} opt_data Data to be sent via the event.
  */
-genotet.ViewRenderer.prototype.signal = function(eventType, data) {
-  $(this).trigger('genotet.' + eventType, [data]);
+genotet.ViewRenderer.prototype.signal = function(eventType, opt_data) {
+  $(this).trigger('genotet.' + eventType, [opt_data]);
 };

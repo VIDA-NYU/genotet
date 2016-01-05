@@ -5,6 +5,40 @@
 'use strict';
 
 /**
+ * @typedef {{
+ *   gene: string,
+ *   overview: !Array,
+ *   detail: !Array,
+ *   xMin: number,
+ *   xMax: number
+ * }}
+ */
+genotet.bindingTrack;
+
+/**
+ * @typedef {{
+ *   name: string,
+ *   name2: string,
+ *   txStart: number,
+ *   txEnd: number,
+ *   strand: string,
+ *   txRanges: !Array<{start: number, end: number}>,
+ *   exRanges: !Array<{start: number, end: number}>
+ * }}
+ */
+genotet.Exon;
+
+/**
+ * @typedef {{
+ *   overviewXMin: number,
+ *   overviewXMax: number,
+ *   tracks: !Array<!genotet.bindingTrack>,
+ *   exons: !Array<!genotet.Exon>
+ * }}
+ */
+genotet.bindingData;
+
+/**
  * BindingView extends the base View class, and renders the binding data
  * associated with the regulatory Binding.
  * @param {string} viewName Name of the view.
@@ -14,6 +48,11 @@
  */
 genotet.BindingView = function(viewName, params) {
   genotet.BindingView.base.constructor.call(this, viewName);
+
+  /**
+   * @protected {genotet.bindingData}
+   */
+  this.data;
 
   this.container.addClass('binding');
 

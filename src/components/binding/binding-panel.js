@@ -14,7 +14,7 @@ genotet.BindingPanel = function(data) {
   genotet.BindingPanel.base.constructor.call(this, data);
 
   // Set the view options.
-  _(this.data.options).extend({
+  _.extend(this.data.options, {
     autoScale: true,
     showOverview: true,
     showBed: true,
@@ -23,12 +23,13 @@ genotet.BindingPanel = function(data) {
 
   /**
    * Select2 for genes.
-   * @private {!Array<select2>}
+   * @private {!Array<!select2>}
    */
   this.selectGenes_ = [];
 
   /**
    * Select2 for chromosome.
+   * @private {select2}
    */
   this.selectChr_;
 };
@@ -43,7 +44,7 @@ genotet.BindingPanel.prototype.initPanel = function() {
   this.initChrs_();
 
   // Initialize switches.
-  this.container_.find('.switches input').bootstrapSwitch({
+  this.container.find('.switches input').bootstrapSwitch({
     size: 'mini'
   });
 
@@ -54,7 +55,7 @@ genotet.BindingPanel.prototype.initPanel = function() {
     {selector: '#exons', type: 'exons', attribute: 'showExons'},
     {selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScale'}
   ].forEach(function(bSwitch) {
-      this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
+      this.container.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
         function(event, state) {
           this.data.options[bSwitch.attribute] = state;
           this.signal('update', {
@@ -69,15 +70,15 @@ genotet.BindingPanel.prototype.initPanel = function() {
     {selector: '#end-coordinate', type: 'end'}
   ].forEach(function(ui) {
       var update = function() {
-        var coordinate = +this.container_.find(ui.selector + ' input').val();
+        var coordinate = +this.container.find(ui.selector + ' input').val();
         this.signal('coordinate', {
           type: ui.type,
           coordinate: coordinate
         });
       }.bind(this);
-      this.container_.find(ui.selector + ' button')
+      this.container.find(ui.selector + ' button')
         .click(update);
-      this.container_.find(ui.selector + ' input')
+      this.container.find(ui.selector + ' input')
         .on('keypress', function(event) {
           if (event.which == genotet.utils.keyCodes.ENTER) {
             update();
@@ -93,14 +94,14 @@ genotet.BindingPanel.prototype.initPanel = function() {
 
   // Locus search
   var findLocus = function() {
-    var gene = this.container_.find('#locus input').val();
+    var gene = this.container.find('#locus input').val();
     this.signal('locus', gene);
   }.bind(this);
-  this.container_.find('#locus button')
+  this.container.find('#locus button')
     .click(function() {
       findLocus();
     });
-  this.container_.find('#locus input')
+  this.container.find('#locus input')
     .on('keypress', function(event) {
       if (event.which == genotet.utils.keyCodes.ENTER) {
         findLocus();
@@ -108,7 +109,7 @@ genotet.BindingPanel.prototype.initPanel = function() {
     });
 
   // Add track
-  this.container_.find('#genes #add').click(function() {
+  this.container.find('#genes #add').click(function() {
     this.signal('addTrack');
   }.bind(this));
 };
@@ -119,8 +120,8 @@ genotet.BindingPanel.prototype.initPanel = function() {
  * @param {number} end End coordinate.
  */
 genotet.BindingPanel.prototype.updateCoordinates = function(start, end) {
-  this.container_.find('#start-coordinate input').val(parseInt(start));
-  this.container_.find('#end-coordinate input').val(parseInt(end));
+  this.container.find('#start-coordinate input').val('' + parseInt(start, 10));
+  this.container.find('#end-coordinate input').val('' + parseInt(end, 10));
 };
 
 /**
@@ -144,7 +145,7 @@ genotet.BindingPanel.prototype.initChrs_ = function() {
       text: chr
     };
   });
-  var section = this.container_.find('#chr');
+  var section = this.container.find('#chr');
   this.selectChr_ = section.children('select').select2({
     data: chrs
   });
@@ -159,7 +160,7 @@ genotet.BindingPanel.prototype.initChrs_ = function() {
  */
 genotet.BindingPanel.prototype.addTrack_ = function() {
   var trackIndex = this.data.tracks.length - 1;
-  var ui = this.container_.find('#genes #tracks');
+  var ui = this.container.find('#genes #tracks');
   var uiTrack = ui.find('#track-template').clone()
     .appendTo(ui)
     .attr('id', 'track-' + trackIndex)
@@ -184,7 +185,7 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
 
   // Removal button
   uiTrack.find('#remove').click(
-      this.signal.bind(this, 'removeTrack', trackIndex));
+    this.signal.bind(this, 'removeTrack', trackIndex));
 
   // Set gene
   select.on('select2:select', function(event) {
@@ -201,22 +202,22 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
  */
 genotet.BindingPanel.prototype.updateTracks = function() {
   var numTracks = this.data.tracks.length;
-  var uiTracks = this.container_.find('#genes .track-gene');
+  var uiTracks = this.container.find('#genes .track-gene');
   if (uiTracks.length > numTracks) {
     // Track has been removed.
     for (var index = uiTracks.length - 1; index >= numTracks; index--) {
-      this.container_.find('#genes #track-' + index).remove();
+      this.container.find('#genes #track-' + index).remove();
     }
   }
 
   this.data.tracks.forEach(function(track, index) {
-    var ui = this.container_.find('#genes #track-' + index);
+    var ui = this.container.find('#genes #track-' + index);
     if (!ui.length) {
       this.addTrack_();
       ui = $('#gene #track-' + index);
     }
     this.selectGenes_[index].val(track.gene).trigger('change');
   }, this);
-  this.container_.find('#genes .glyphicon-remove')
+  this.container.find('#genes .glyphicon-remove')
     .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };

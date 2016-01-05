@@ -39,13 +39,14 @@ genotet.ViewLoader.prototype.load = function() {};
 
 /**
  * Updates the data for the view.
+ * @interface
  */
 genotet.ViewLoader.prototype.update = function() {};
 
 /**
  * Triggers a jQuery event to the data loader.
  * @param {string} eventType Type of event.
- * @param {Object=} opt_data Data object to be sent via the event.
+ * @param {*=} opt_data Data to be sent via the event.
  */
 genotet.ViewLoader.prototype.signal = function(eventType, opt_data) {
   switch (eventType) {

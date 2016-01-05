@@ -13,7 +13,7 @@
 genotet.ExpressionLoader = function(data) {
   genotet.ExpressionLoader.base.constructor.call(this, data);
 
-  _(this.data).extend({
+  _.extend(this.data, {
     matrix: null,
     profiles: []
   });
@@ -53,7 +53,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 
   $.get(genotet.data.serverURL, params, function(data) {
       // Store the last applied data selectors.
-      _(data).extend({
+      _.extend(data, {
         matrixname: matrixName,
         geneRegex: geneRegex,
         conditionRegex: conditionRegex
