@@ -16,8 +16,8 @@ genotet.test.run = function() {
 
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
     matrixName: 'expressionMatrix',
-    geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
-    condRegex: 'SL134.*'
+    geneRegex: 'sig.*',
+    condRegex: 'SigH.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     gene: 'SL3037_SL3036',

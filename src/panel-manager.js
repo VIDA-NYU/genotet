@@ -7,8 +7,19 @@ genotet.panelManager = {};
 
 /** @const {number} */
 genotet.panelManager.COLLAPSED_WIDTH = 32;
-/** @const {number} */
-genotet.panelManager.TRANSITION_TIME = 300;
+/** @private @const {number} */
+genotet.panelManager.TRANSITION_TIME_ = 300;
+/** @private @const {number} */
+genotet.panelManager.TOGGLE_BTN_HEIGHT_ = 50;
+
+
+// The difference between the width and other attributes of the tabs container.
+/** @private @const {number} */
+genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE_ = 20;
+/** @private @const {number} */
+genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE_ = 73;
+/** @private @const {number} */
+genotet.panelManager.TAB_HEIGHT_DIFFERENCE_ = 2;
 
 /**
  * Whether the panel is toggled on.
@@ -37,6 +48,7 @@ genotet.panelManager.init = function() {
       genotet.panelManager.togglePanel_();
     }
   });
+  $(window).resize(genotet.panelManager.adjustTabHeight);
 };
 
 /**
@@ -59,10 +71,8 @@ genotet.panelManager.togglePanel_ = function() {
   genotet.panelManager.showPanel_ = !genotet.panelManager.showPanel_;
   var rightValue = genotet.panelManager.showPanel_ ? 0 :
     -(genotet.panelManager.getWidth_() - genotet.panelManager.COLLAPSED_WIDTH);
-  genotet.panelManager.container_.animate({
-    right: rightValue + 'px'
-  }, {
-    duration: genotet.panelManager.TRANSITION_TIME,
+  genotet.panelManager.container_.animate({right: rightValue}, {
+    duration: genotet.panelManager.TRANSITION_TIME_,
     complete: function() {
       $('.icon-button')
         .toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
@@ -107,6 +117,9 @@ genotet.panelManager.addPanel = function(view) {
     genotet.panelManager.activatePanel_(clickedViewID);
   });
 
+  // Adjust tab height.
+  genotet.panelManager.adjustTabHeight();
+
   // Remove the click event handler to avoid multiple executions.
   $('.sideways li a').off().click(function(event) {
     event.stopPropagation();
@@ -117,6 +130,7 @@ genotet.panelManager.addPanel = function(view) {
     var clickedViewID = clickedTabID.replace('panel-tab-', '');
     var clickedViewName = clickedViewID.replace(/\-/g, ' ');
     var clickedView = genotet.viewManager.views[clickedViewName];
+    genotet.viewManager.blurAllViews();
     genotet.viewManager.blurAllViews();
     clickedView.focus(false);
     genotet.panelManager.activatePanel_(clickedViewID);
@@ -144,6 +158,7 @@ genotet.panelManager.removePanel = function(viewName) {
   var activated = tab.hasClass('active');
   tab.remove();
   panel.remove();
+  genotet.panelManager.adjustTabHeight();
   if (activated) {
     $('.sideways li').last()
       .find('a')
@@ -168,4 +183,32 @@ genotet.panelManager.closeAllPanels = function() {
     .remove();
 
   $('#side-panel').hide();
+};
+
+/**
+ * Adjust tab height.
+ */
+genotet.panelManager.adjustTabHeight = function() {
+  var tabSelector = $('.sideways');
+  var tabCount = tabSelector.find('li').length - 1;
+  var tabHeight = tabSelector.find('li:nth-child(2) a').outerWidth();
+  var tabContentHeight = $('.tab-content').outerHeight();
+
+  // Exclude the initial invisible panel.
+  var newTabHeight = Math.floor((tabContentHeight -
+    genotet.panelManager.TAB_HEIGHT_DIFFERENCE_ -
+    genotet.panelManager.TOGGLE_BTN_HEIGHT_) / tabCount - 1
+  );
+
+  tabSelector
+    .find('li')
+    .css('margin-bottom', (newTabHeight -
+      genotet.panelManager.TAB_MARGIN_BOTTOM_DIFFERENCE_));
+  tabSelector
+    .find('li:nth-child(2) a')
+    .css('margin-top', (newTabHeight -
+      genotet.panelManager.TAB_MARGIN_TOP_DIFFERENCE_));
+  tabSelector
+    .find('li a')
+    .css('width', newTabHeight);
 };

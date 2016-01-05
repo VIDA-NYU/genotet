@@ -266,6 +266,26 @@ genotet.utils.swap = function(arr, i, j) {
 };
 
 /**
+ * Converts an array of string or object with string keys to a set
+ * with the strings as keys. The values will be set to all true.
+ * @param {!Array<string>|!Object<*>} collection
+ * @return {!Object<boolean>}
+ */
+genotet.utils.keySet = function(collection) {
+  var obj = {};
+  if (collection instanceof Array) {
+    collection.forEach(function(element) {
+      obj[element] = true;
+    });
+  } else {
+    for (var key in collection) {
+      obj[key] = true;
+    }
+  }
+  return obj;
+};
+
+/**
  * Makes 'child' class inherit 'base' class.
  * @param {*} child
  * @param {*} base
