@@ -57,7 +57,7 @@ genotet.ExpressionRenderer = function(container, data) {
    * Clicked object for heatmap cells and gene profiles.
    * @private {!genotet.ExpressionRenderer.Cell} object
    */
-  this.clickedObject_ = new genotet.ExpressionRenderer.Cell(null);
+  this.clickedObject_ = new genotet.ExpressionRenderer.Cell({});
 
   /**
    * Margins of the gene profile.
@@ -89,30 +89,45 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
  * @struct
  * @constructor
  * @param {!{
- * container: !d3.selection,
- * geneName: string,
- * conditionName: string,
- * row: number,
- * column: number,
- * value: number,
- * colorscaleValue: string
+ *   container: !d3.selection=,
+ *   geneName: string=,
+ *   conditionName: string=,
+ *   row: number=,
+ *   column: number=,
+ *   value: number=,
+ *   colorscaleValue: string=
  * }} params
- * container: {Container of the expression cell}
- * geneName: {Gene Name of the expression cell}
- * conditionName: {Condition Name of the expression cell},
- * row: {Row index of the expression cell},
- * column: {Column index of the expression cell},
- * value: {Value of the expression cell},
- * colorscaleValue: {Colorscale value of the expression cell}
+ *     container: {Container of the expression cell}
+ *     geneName: {Gene Name of the expression cell}
+ *     conditionName: {Condition Name of the expression cell},
+ *     row: {Row index of the expression cell},
+ *     column: {Column index of the expression cell},
+ *     value: {Value of the expression cell},
+ *     colorscaleValue: {Colorscale value of the expression cell}
  */
 genotet.ExpressionRenderer.Cell = function(params) {
-  this.container = params != null ? params.container : null;
-  this.geneName = params != null ? params.geneName : null;
-  this.conditionName = params != null ? params.conditionName : null;
-  this.row = params != null ? params.row : -1;
-  this.column = params != null ? params.column : -1;
-  this.value = params != null ? params.value : 0;
-  this.colorscaleValue = params != null ? params.colorscaleValue : null;
+  /** @type {!d3.selection} */
+  this.container = params.container != null ? params.container : null;
+
+  /** @type {string} */
+  this.geneName = params.geneName != null ? params.geneName : null;
+
+  /** @type {string} */
+  this.conditionName = params.conditionName != null ?
+    params.conditionName : null;
+
+  /** @type {number} */
+  this.row = params.row != null ? params.row : -1;
+
+  /** @type {number} */
+  this.column = params.column != null ? params.column : -1;
+
+  /** @type {number} */
+  this.value = params.value != null ? params.value : 0;
+
+  /** @type {string} */
+  this.colorscaleValue = params.colorscaleValue != null ?
+    params.colorscaleValue : null;
 };
 
 /**
@@ -120,30 +135,44 @@ genotet.ExpressionRenderer.Cell = function(params) {
  * @struct
  * @constructor
  * @param {!{
- * container: !d3.selection,
- * geneName: string,
- * row: number,
- * hoverColumn: number,
- * hoverConditionName: string,
- * hoverValue: number,
- * color: string
+ *   container: !d3.selection,
+ *   geneName: string,
+ *   row: number,
+ *   hoverColumn: number,
+ *   hoverConditionName: string,
+ *   hoverValue: number,
+ *   color: string
  * }} params
- * container: {Container of the gene profile}
- * geneName: {Gene Name of the gene profile}
- * row: {Row index of the gene profile},
- * hoverColumn: {Hover column index of the gene profile},
- * hoverConditionName: {Hover condition Name of the gene profile},
- * hoverValue: {Hover value of the gene profile},
- * color: {Color of the gene profile}
+ *      container: {Container of the gene profile}
+ *      geneName: {Gene Name of the gene profile}
+ *      row: {Row index of the gene profile},
+ *      hoverColumn: {Hover column index of the gene profile},
+ *      hoverConditionName: {Hover condition Name of the gene profile},
+ *      hoverValue: {Hover value of the gene profile},
+ *      color: {Color of the gene profile}
  */
 genotet.ExpressionRenderer.Profile = function(params) {
-  this.container = params != null ? params.container : null;
-  this.geneName = params != null ? params.geneName : null;
-  this.row = params != null ? params.row : -1;
-  this.hoverColumn = params != null ? params.hoverColumn : -1;
-  this.hoverConditionName = params != null ? params.hoverConditionName : null;
-  this.hoverValue = params != null ? params.hoverValue : 0;
-  this.color = params != null ? params.color : null;
+  /** @type {!d3.selection} */
+  this.container = params.container != null ? params.container : null;
+
+  /** @type {string} */
+  this.geneName = params.geneName != null ? params.geneName : null;
+
+  /** @type {number} */
+  this.row = params.row != null ? params.row : -1;
+
+  /** @type {number} */
+  this.hoverColumn = params.hoverColumn != null ? params.hoverColumn : -1;
+
+  /** @type {string} */
+  this.hoverConditionName = params.hoverConditionName != null ?
+    params.hoverConditionName : null;
+
+  /** @type {number} */
+  this.hoverValue = params.hoverValue != null ? params.hoverValue : 0;
+
+  /** @type {string} */
+  this.color = params.color != null ? params.color : null;
 };
 
 /** @const {number} */
