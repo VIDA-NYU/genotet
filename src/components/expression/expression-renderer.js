@@ -77,16 +77,9 @@ genotet.ExpressionRenderer = function(container, data) {
 
   /**
    * Clicked object for heatmap cells and gene profiles.
-   * @private {!Object}
+   * @private {!genotet.ExpressionRenderer.Cell} object
    */
-  this.clickedObject_ = {
-    container_: null,
-    geneName: null,
-    conditionName: null,
-    row: -1,
-    column: -1,
-    value: 0
-  };
+  this.clickedObject_ = new genotet.ExpressionRenderer.Cell();
 };
 
 genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
@@ -95,7 +88,6 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
  * Cell object storing the rendering properties of expression cell.
  * @struct
  * @constructor
- *
  */
 genotet.ExpressionRenderer.Cell = function() {
   this.container_ = null;
@@ -120,7 +112,6 @@ genotet.ExpressionRenderer.Profile = function() {
   this.hoverConditionName = null;
   this.hoverValue = 0;
   this.color = null;
-  this.clicked = false;
 };
 
 /** @const {number} */
@@ -366,16 +357,34 @@ genotet.ExpressionRenderer.prototype.layout = function() {
     heatmapGradientTransformTop += this.conditionLabelHeight_ +
       this.LABEL_MARGIN + this.LABEL_DIFFERENCE;
   }
-  this.svgHeatmapGradient_
-    .attr('transform',
-      genotet.utils.getTransform([heatmapGradientTransformLeft,
-        heatmapGradientTransformTop]));
+  this.svgHeatmapGradient_.attr('transform', genotet.utils.getTransform([
+    heatmapGradientTransformLeft,
+    heatmapGradientTransformTop
+  ]));
 
   this.profileContent_
     .attr('width', this.canvasWidth_ - this.profileMargins_.left -
       this.profileMargins_.right)
     .attr('height', this.profileHeight_ - this.profileMargins_.top -
       this.profileMargins_.bottom);
+
+  if (this.data.options.showProfiles) {
+    if (!this.data.options.showGeneLabels) {
+      this.profileMargins_.left = this.DEFAULT_PROFILE_MARGIN;
+    } else {
+      this.profileMargins_.left = this.geneLabelWidth_ + this.LABEL_MARGIN;
+    }
+  }
+  this.svgProfileXAxis_
+    .attr('transform', genotet.utils.getTransform([
+      0,
+      this.profileHeight_ - this.profileMargins_.bottom
+    ]));
+  this.svgProfileYAxis_
+    .attr('transform', genotet.utils.getTransform([
+      this.profileMargins_.left,
+      0
+    ]));
 };
 
 /** @inheritDoc */
@@ -621,11 +630,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     this.svgProfile_.selectAll('*').attr('display', 'none');
     return;
   } else {
-    if (!this.data.options.showGeneLabels) {
-      this.profileMargins_.left = this.DEFAULT_PROFILE_MARGIN;
-    } else {
-      this.profileMargins_.left = this.geneLabelWidth_ + this.LABEL_MARGIN;
-    }
     this.svgProfile_.selectAll('*').attr('display', 'inline');
   }
 
@@ -657,16 +661,8 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .scale(xScale).orient('bottom');
   var yAxis = d3.svg.axis()
     .scale(yScale).orient('left');
-  this.svgProfileXAxis_.call(xAxis)
-    .attr('transform', genotet.utils.getTransform([
-      0,
-      this.profileHeight_ - this.profileMargins_.bottom
-    ]));
-  this.svgProfileYAxis_.call(yAxis)
-    .attr('transform', genotet.utils.getTransform([
-      this.profileMargins_.left,
-      0
-    ]));
+  this.svgProfileXAxis_.call(xAxis);
+  this.svgProfileYAxis_.call(yAxis);
 
   var line = d3.svg.line()
     .x(function(data, i) {
@@ -855,7 +851,7 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverPath_ = function(profile) {
 
 /**
  * Unhighlights the label of the clicked cells for the heatmap.
- * @param {!Object} object
+ * @param {!genotet.ExpressionRenderer.Cell} object
  * @private
  */
 genotet.ExpressionRenderer.prototype.highlightLabelsForClickedObject_ =

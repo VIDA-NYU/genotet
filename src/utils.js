@@ -270,9 +270,8 @@ genotet.utils.swap = function(arr, i, j) {
  * with the strings as keys. The values will be set to all true.
  * @param {!Array<string>|!Object<*>} collection
  * @return {!Object<boolean>}
- * @private
  */
-genotet.utils.keySet_ = function(collection) {
+genotet.utils.keySet = function(collection) {
   var obj = {};
   if (collection instanceof Array) {
     collection.forEach(function(element) {
