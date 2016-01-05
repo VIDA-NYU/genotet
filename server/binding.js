@@ -14,7 +14,7 @@ var segtree = require('./segtree');
  * @const {number}
  */
 // TODO(bowen): User number of pixels on the screen.
-var numSamples = 1000;
+//var numSamples = 1000;
 
 /**
  * Binging data cache, maximum size 4.
@@ -184,7 +184,7 @@ module.exports = {
    * @return {!Array<{x: number, value: number}>} Binding data as histogram.
    * @this {binding}
    */
-  getBinding: function(file, x1, x2) {
+  getBinding: function(file, x1, x2, numSamples) {
     console.log(file, x1, x2);
     var cache = this.loadHistogram(file);
     if (cache == null) {
@@ -217,7 +217,7 @@ module.exports = {
     // segment tree for RMQ.
     for (var i = 0; i < n; i++) {
       // [inclusive, exclusive) range
-      var l = xl + i / n * span, r = xl + (i + 1) / n * span - 0.1;
+      var l = xl + i / (n - 1) * span, r = xl + (i + 1) / (n - 1) * span - 0.1;
       var li = utils.binarySearch(cache.segs, l);
       var ri = utils.binarySearch(cache.segs, r);
       if (li == -1 && ri != -1)
@@ -241,6 +241,7 @@ module.exports = {
       hist.valueMax = Math.max(hist.valueMax, val);
     }
     console.log('returning', n, 'samples of', xl, xr);
+    console.log(hist);
     return hist;
   },
 
@@ -298,6 +299,7 @@ module.exports = {
 
     var offset = 0;
     var segs = [];
+    console.log(buf.length);
     for (var i = 0; i < buf.length / 8; i++) {
       var x = buf.readInt32LE(offset),
           val = buf.readFloatLE(offset + 4);
@@ -308,6 +310,7 @@ module.exports = {
       offset += 8; // 1 int, 1 float
     }
     console.log('read complete, cache size', bindingCache.list.length);
+    console.log(segs);
 
     if (bindingCache.list.length == cacheSize) {
       console.log('cache full, discarded head element');
@@ -356,7 +359,7 @@ module.exports = {
 
   /**
    * Lists all the wiggle files in the server.
-   * @param {string} wiggleAddr Folder of the wiggle file in the server.
+   * @param {string} wigglePath Folder of the wiggle file in the server.
    * @return {Array} Array of object of each wiggle file.
    */
   listBindingGenes: function(wigglePath) {
@@ -384,5 +387,18 @@ module.exports = {
       }
     });
     return ret;
+  },
+
+  /**
+   * Get gene name for a specific binding file
+   * @param {string} wigglePath Path to the wiggle folder
+   * @param {string} fileName File name of the wiggle file
+   * @return {string} the gene name
+   */
+  getGene: function(wigglePath, fileName) {
+    var fd = fs.openSync(wigglePath + fileName + '.txt', 'r');
+    var content = fs.readFileSync(fd, 'utf-8').toString().split('\n');
+    var gene = content[0];
+    return gene;
   }
 };

@@ -226,11 +226,12 @@ app.get('/genotet', function(req, res) {
       var xl = req.query.xl,
         xr = req.query.xr,
         chr = req.query.chr,
-        gene = utils.decodeSpecialChar(req.query.gene);
-      var file = wigglePath + gene + '_chr/' + gene + '_chr' + chr + '.bcwig';
+        fileName = req.query.fileName;
+      var file = wigglePath + fileName + '_chr/' + fileName + '_chr' + chr +
+        '.bcwig';
 
-      data = binding.getBinding(file, xl, xr);
-      data.gene = gene;
+      data = binding.getBinding(file, xl, xr, req.query.numSamples);
+      data.gene = binding.getGene(wigglePath, fileName);
       data.chr = chr;
       break;
     case 'list-binding':

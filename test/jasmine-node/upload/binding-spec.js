@@ -64,8 +64,9 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'binding',
-          gene: dataInfo.name,
-          chr: '1'
+          fileName: dataInfo.fileName,
+          chr: '1',
+          numSamples: 6
         }))
         .expectStatus(200);
     },
@@ -99,10 +100,11 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'binding',
-          gene: dataInfo.name,
+          fileName: dataInfo.fileName,
           chr: '3',
           xl: 3000080,
-          xr: 3000100
+          xr: 3000100,
+          numSamples: 6
         }))
         .expectStatus(200);
     },

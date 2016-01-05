@@ -95,7 +95,6 @@ module.exports = {
       input: fs.createReadStream(prefix + wigFileName),
       terminal: false
     });
-    var lastxr = -1;
     var lastChrXr = {}, lastValue = {};
     lines.on('line', function(line) {
       if (line.indexOf('#') == -1) {
@@ -104,14 +103,12 @@ module.exports = {
         var xl = parseInt(linePart[1]);
         var xr = parseInt(linePart[2]);
         var val = parseFloat(linePart[3]);
-        lastChrXr[chName] = xr;
-        lastValue[chName] = val;
         if (!seg.hasOwnProperty(linePart[0])) {
           seg[linePart[0]] = [];
         }
-        if (xl != lastxr && lastxr > -1) {
+        if (xl != lastChrXr[chName] && lastChrXr[chName] > -1) {
           seg[chName].push({
-            x: lastxr,
+            x: lastChrXr[chName],
             value: 0.0
           });
         }
@@ -119,7 +116,8 @@ module.exports = {
           x: xl,
           value: val
         });
-        lastxr = xr;
+        lastChrXr[chName] = xr;
+        lastValue[chName] = val;
       }
     });
 
@@ -144,8 +142,8 @@ module.exports = {
         var bcwigFile = folder + '/' + bwFile + '_' + chr + '.bcwig';
         var bcwigBuf = new Buffer(8 * seg[chr].length);
         for (var i = 0; i < seg[chr].length; i++) {
-          bcwigBuf.writeInt32LE(seg[chr][i].x, i * 4);
-          bcwigBuf.writeFloatLE(seg[chr][i].value, i * 4 + 4);
+          bcwigBuf.writeInt32LE(seg[chr][i].x, i * 8);
+          bcwigBuf.writeFloatLE(seg[chr][i].value, i * 8 + 4);
         }
         var fd = fs.openSync(bcwigFile, 'w');
         fs.writeSync(fd, bcwigBuf, 0, 8 * seg[chr].length, 0);
@@ -165,6 +163,7 @@ module.exports = {
         var fd = fs.openSync(segFile, 'w');
         fs.writeSync(fd, segBuf, 0, offset, 0);
         fs.closeSync(fd);
+
       }
 
       console.log('Wiggle file separate done.');
