@@ -7,6 +7,7 @@
 /**
  * ExpressionPanel manages the UI control panel of the expression matrix.
  * @param {!Object} data Data object of the view.
+ * @extends {genotet.ViewPanel}
  * @constructor
  */
 genotet.ExpressionPanel = function(data) {

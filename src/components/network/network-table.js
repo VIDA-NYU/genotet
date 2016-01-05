@@ -23,8 +23,8 @@ genotet.NetworkTable = function(data) {
  *   target: string,
  *   weight: number,
  *   added: boolean
- *       Whether the edge has been added to the network
  * }>} edges List of edges.
+ *   added: Whether the edge has been added to the network
  */
 genotet.NetworkTable.prototype.create = function(table, edges) {
   var edgeIds = {};
@@ -54,5 +54,6 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
     pageLength: 5,
     pagingType: 'full'
   });
-  table.closest('#edge-list').css('width', table.width());
+  table.closest('#edge-list').css('width',
+    /** @type {number} */(table.width()));
 };

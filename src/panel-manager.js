@@ -90,7 +90,7 @@ genotet.panelManager.activatePanel_ = function(viewID) {
  * @return {!jQuery}
  */
 genotet.panelManager.addPanel = function(view) {
-  var viewID = view.viewID_;
+  var viewID = view.id();
   var tabID = 'panel-tab-' + viewID;
   var tabContentID = 'panel-view-' + viewID;
   $('#panel-tab-init').clone()
@@ -103,7 +103,7 @@ genotet.panelManager.addPanel = function(view) {
     .attr('id', tabContentID)
     .appendTo('.tab-content');
   $(view).on('genotet.focus', function() {
-    var clickedViewID = view.viewID_;
+    var clickedViewID = view.id();
     genotet.panelManager.activatePanel_(clickedViewID);
   });
 

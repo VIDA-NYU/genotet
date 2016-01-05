@@ -7,6 +7,7 @@
 /**
  * BindingPanel manages the UI control panel of the genome browser.
  * @param {!Object} data Data object of the view.
+ * @extends {genotet.ViewPanel}
  * @constructor
  */
 genotet.BindingPanel = function(data) {

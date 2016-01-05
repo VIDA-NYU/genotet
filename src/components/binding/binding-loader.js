@@ -7,13 +7,13 @@
 /**
  * BindingLoader loads the binding data for the BindingView.
  * @param {!Object} data Data object to be written.
- * @extends {ViewLoader}
+ * @extends {genotet.ViewLoader}
  * @constructor
  */
 genotet.BindingLoader = function(data) {
   genotet.BindingLoader.base.constructor.call(this, data);
 
-  _(this.data).extend({
+  _.extend(this.data, {
     tracks: [],
     exons: []
   });
@@ -27,7 +27,7 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 /**
  * Loads the binding data for a given gene and chromosome.
  * @param {string} gene Name of the gene.
- * @param {chr} chr ID of the chromosome.
+ * @param {string} chr ID of the chromosome.
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */

@@ -8,7 +8,7 @@
  * ExpressionRenderer renders the visualizations for the ExpressionView.
  * @param {!jQuery} container View container.
  * @param {!Object} data Data object to be written.
- * @extends {ViewRenderer}
+ * @extends {genotet.ViewRenderer}
  * @constructor
  */
 genotet.ExpressionRenderer = function(container, data) {
@@ -177,7 +177,7 @@ genotet.ExpressionRenderer.prototype.init = function() {
 genotet.ExpressionRenderer.prototype.initLayout = function() {
   /**
    * SVG group for profile plot (line charts).
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgProfile_ = this.canvas.append('g')
     .classed('profiles', true)
@@ -185,28 +185,28 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
 
   /**
    * SVG group for the heatmap plot.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgHeatmap_ = this.canvas.append('g')
     .classed('heatmap', true);
 
   /**
    * SVG group for the heatmap itself.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgHeatmapContent_ = this.svgHeatmap_.append('g')
     .classed('content', true);
 
   /**
    * SVG group for the heatmap gene (row) labels.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgGeneLabels_ = this.svgHeatmap_.append('g')
     .classed('gene-labels', true);
 
   /**
    * SVG group for the heatmap condition (column) labels.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgConditionLabels_ = this.svgHeatmap_.append('g')
     .classed('condition-labels', true);
@@ -223,11 +223,11 @@ genotet.ExpressionRenderer.prototype.layout = function() {
   this.svgHeatmap_
     .attr('transform', genotet.utils.getTransform([0, 0]));
 
-  this.heatmapWidth_ = this.canvasWidth_ - this.geneLabelWidth_;
+  this.heatmapWidth_ = this.canvasWidth - this.geneLabelWidth_;
   if (this.data.options.showGeneLabels) {
     this.heatmapWidth_ -= this.LABEL_MARGIN_;
   }
-  this.heatmapHeight_ = this.canvasHeight_ - this.profileHeight_ -
+  this.heatmapHeight_ = this.canvasHeight - this.profileHeight_ -
     this.conditionLabelHeight_;
   if (this.data.options.showConditionLabels) {
     this.heatmapHeight_ -= this.LABEL_MARGIN_;
@@ -250,18 +250,14 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   this.render();
 };
 
-/**
- * Checks whether the data is ready.
- * @return {boolean}
- * @private
- */
-genotet.ExpressionRenderer.prototype.dataReady_ = function() {
+/** @inheritDoc */
+genotet.ExpressionRenderer.prototype.dataReady = function() {
   return this.data.matrix;
 };
 
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.render = function() {
-  if (!this.dataReady_()) {
+  if (!this.dataReady()) {
     return;
   }
   // First layout out the SVG groups based on the current visibility
@@ -472,11 +468,11 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
 
   var heatmapData = this.data.matrix;
   this.svgProfile_.selectAll('g').remove();
-  this.svgProfile_.attr('width', this.canvasWidth_);
+  this.svgProfile_.attr('width', this.canvasWidth);
 
   var xScale = d3.scale.linear().range([
     this.PROFILE_MARGINS_.LEFT,
-    this.canvasWidth_ - this.PROFILE_MARGINS_.RIGHT
+    this.canvasWidth - this.PROFILE_MARGINS_.RIGHT
   ]).domain([0, heatmapData.conditionNames.length]);
   var yScale = d3.scale.linear().range([
     this.profileHeight_ - this.PROFILE_MARGINS_.BOTTOM,
@@ -503,7 +499,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   var profileContent = this.svgProfile_.append('g')
     .attr(
       'width',
-      this.canvasWidth_ - this.PROFILE_MARGINS_.LEFT -
+      this.canvasWidth - this.PROFILE_MARGINS_.LEFT -
         this.PROFILE_MARGINS_.RIGHT
     )
     .attr(

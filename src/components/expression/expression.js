@@ -9,7 +9,7 @@
  * associated with the regulatory Expression.
  * @param {string} viewName Name of the view.
  * @param {!Object} params Additional parameters.
- * @extends {View}
+ * @extends {genotet.View}
  * @constructor
  */
 genotet.ExpressionView = function(viewName, params) {
@@ -17,13 +17,13 @@ genotet.ExpressionView = function(viewName, params) {
 
   this.container.addClass('expression');
 
-  /** @protected {ExpressionLoader} */
+  /** @protected {genotet.ExpressionLoader} */
   this.loader = new genotet.ExpressionLoader(this.data);
 
-  /** @protected {ExpressionPanel} */
+  /** @protected {genotet.ExpressionPanel} */
   this.panel = new genotet.ExpressionPanel(this.data);
 
-  /** @protected {ExpressionRenderer} */
+  /** @protected {genotet.ExpressionRenderer} */
   this.renderer = new genotet.ExpressionRenderer(this.container, this.data);
 
   // Set up data loading callbacks.

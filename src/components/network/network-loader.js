@@ -7,6 +7,7 @@
 /**
  * NetworkLoader loads the gene regulatory network data.
  * @param {!Object} data Data object to be written.
+ * @extends {genotet.ViewLoader}
  * @constructor
  */
 genotet.NetworkLoader = function(data) {
@@ -41,11 +42,11 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(networkName,
   };
   $.get(genotet.data.serverURL, params, function(data) {
     // Store the last applied networkName and geneRegex.
-    _(data).extend({
+    _.extend(data, {
       networkName: networkName,
       geneRegex: geneRegex
     });
-    _(this.data).extend(data);
+    _.extend(this.data, data);
     this.signal('loadComplete');
   }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load network', params));
@@ -92,10 +93,10 @@ genotet.NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
     genotet.error('invalid gene regex', geneRegex);
     return;
   }
-  this.data.nodes = _(this.data.nodes).filter(function(node) {
+  this.data.nodes = _.filter(this.data.nodes, function(node) {
     return !node.id.match(regex);
   });
-  this.data.edges = _(this.data.edges).filter(function(edge) {
+  this.data.edges = _.filter(this.data.edges, function(edge) {
     return !edge.source.match(regex) && !edge.target.match(regex);
   });
 

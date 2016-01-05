@@ -19,9 +19,9 @@ genotet.ViewPanel = function(data) {
 
   /**
    * Panel container, assigned when panel() is called.
-   * @private {jQuery}
+   * @protected {jQuery}
    */
-  this.container_;
+  this.container;
 };
 
 /**
@@ -35,12 +35,12 @@ genotet.ViewPanel.prototype.template = 'dist/html/view-panel.html';
  * @param {!jQuery} container Panel container.
  */
 genotet.ViewPanel.prototype.create = function(container) {
-  this.container_ = container;
+  this.container = container;
 
-  this.container_.load(this.template, function() {
-      this.initPanel();
-      $(this).trigger('genotet.panelReady');
-    }.bind(this));
+  this.container.load(this.template, function() {
+    this.initPanel();
+    $(this).trigger('genotet.panelReady');
+  }.bind(this));
 };
 
 /**

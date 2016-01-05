@@ -33,6 +33,7 @@ genotet.ViewLoader.prototype.init = function() {};
 
 /**
  * Loads the data for the view.
+ * @interface
  */
 genotet.ViewLoader.prototype.load = function() {};
 

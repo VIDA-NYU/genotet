@@ -9,7 +9,7 @@
  * associated with the regulatory Binding.
  * @param {string} viewName Name of the view.
  * @param {!Object} params Additional parameters.
- * @extends {View}
+ * @extends {genotet.View}
  * @constructor
  */
 genotet.BindingView = function(viewName, params) {
@@ -17,13 +17,13 @@ genotet.BindingView = function(viewName, params) {
 
   this.container.addClass('binding');
 
-  /** @protected {BindingLoader} */
+  /** @protected {genotet.BindingLoader} */
   this.loader = new genotet.BindingLoader(this.data);
 
-  /** @protected {BindingPanel} */
+  /** @protected {genotet.BindingPanel} */
   this.panel = new genotet.BindingPanel(this.data);
 
-  /** @protected {BindingRenderer} */
+  /** @protected {genotet.BindingRenderer} */
   this.renderer = new genotet.BindingRenderer(this.container, this.data);
 
   // Set up data loading callbacks.

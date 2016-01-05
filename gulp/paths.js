@@ -11,7 +11,7 @@ module.exports = {
     'src/*.js'
   ],
   dev: [
-    'dev/***.js'
+    'dev/**/*.js'
   ],
   qunitTests: [
     'test/qunit/index.js',

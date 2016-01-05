@@ -47,13 +47,13 @@ genotet.data.organism = 'th17';
 
 /**
  * Color scale from red to blue.
- * @type {!d3.scale}
+ * @type {!Array<string>}
  */
 genotet.data.redBlueScale = ['#ab1e1e', 'gray', '#1e6eab'];
 
 /**
  * Color scale from black to red to yellow.
- * @type {!d3.scale}
+ * @type {!Array<string>}
  */
 genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 

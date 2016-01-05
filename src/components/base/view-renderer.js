@@ -26,15 +26,15 @@ genotet.ViewRenderer = function(container, data) {
 
   /**
    * D3 selection of the view canvas.
-   * @protected {?d3.selection}
+   * @protected {d3}
    */
   this.canvas;
 
   // Size of the canvas, automatically updated by the resize handler.
-  /** @private {number} */
-  this.canvasWidth_;
-  /** @private {number} */
-  this.canvasHeight_;
+  /** @protected {number} */
+  this.canvasWidth;
+  /** @protected {number} */
+  this.canvasHeight;
 
   /**
    * View data object is shared between the view, loader and renderer.
@@ -48,7 +48,8 @@ genotet.ViewRenderer = function(container, data) {
  * Initializes the view renderer properties, e.g. the view canvas.
  */
 genotet.ViewRenderer.prototype.init = function() {
-  this.canvas = d3.selectAll(this.container.find('.canvas-svg').toArray());
+  this.canvas = d3.selectAll(/** @type {!Array<Element>} */
+    (this.container.find('.canvas-svg').toArray()));
   this.initLayout();
   this.resize();
 };
@@ -76,10 +77,9 @@ genotet.ViewRenderer.prototype.dataLoaded = function() {};
 
 /**
  * Checks if the data has been loaded.
- * @private
  * @return {boolean} If the data is ready to be plotted.
  */
-genotet.ViewRenderer.prototype.dataReady_ = function() {
+genotet.ViewRenderer.prototype.dataReady = function() {
   return false;
 };
 
@@ -87,12 +87,12 @@ genotet.ViewRenderer.prototype.dataReady_ = function() {
  * Handles the resize update of the view.
  */
 genotet.ViewRenderer.prototype.resize = function() {
-  this.canvasWidth_ = this.container.width();
-  this.canvasHeight_ = this.container.height() -
+  this.canvasWidth = /** @type {number} */(this.container.width());
+  this.canvasHeight = this.container.height() -
     this.container.find('.view-header').outerHeight();
   this.canvas
-    .attr('width', this.canvasWidth_)
-    .attr('height', this.canvasHeight_);
+    .attr('width', this.canvasWidth)
+    .attr('height', this.canvasHeight);
 };
 
 /**

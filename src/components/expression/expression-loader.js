@@ -7,7 +7,7 @@
 /**
  * ExpressionLoader loads the expression matrix data for the ExpressionView.
  * @param {!Object} data Data object to be written.
- * @extends {ViewLoader}
+ * @extends {genotet.ViewLoader}
  * @constructor
  */
 genotet.ExpressionLoader = function(data) {
