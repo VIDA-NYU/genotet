@@ -389,6 +389,20 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.dataReady_ = function() {
+  var heatmapData = this.data.matrix;
+  var i = 0;
+  var profileCount = this.data.profiles.length;
+  while (i < profileCount) {
+    var geneIndex = heatmapData.geneNames.indexOf(
+      this.data.profiles[i].geneName);
+    if (geneIndex == -1) {
+      this.data.profiles.splice(i, 1);
+      profileCount--;
+    } else {
+      this.data.profiles[i].row = geneIndex;
+      i++;
+    }
+  }
   return this.data.matrix;
 };
 
@@ -616,21 +630,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
   }
 
   var heatmapData = this.data.matrix;
-
-  var i = 0;
-  var profileCount = this.data.profiles.length;
-  while (i < profileCount) {
-    var geneIndex = heatmapData.geneNames.indexOf(
-      this.data.profiles[i].geneName);
-    if (geneIndex == -1) {
-      this.data.profiles.splice(i, 1);
-      profileCount--;
-    } else {
-      this.data.profiles[i].row = geneIndex;
-      i++;
-    }
-  }
-
   this.svgProfile_.attr('width', this.canvasWidth_);
 
   this.svgLegend_
