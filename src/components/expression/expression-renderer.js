@@ -683,7 +683,9 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         var currentRegex = {
           matrixName: heatmapData.matrixname,
           geneRegex: heatmapData.geneRegex,
-          conditionRegex: heatmapData.conditionRegex
+          conditionRegex: heatmapData.conditionRegex,
+          geneNames: heatmapData.geneNames,
+          conditionNames: heatmapData.conditionNames
         };
         this.data.zoomStack.push(currentRegex);
         this.signal('expressionZoomIn', zoomRegex);
@@ -1099,7 +1101,9 @@ genotet.ExpressionRenderer.prototype.zoomDataLoaded_ = function(params) {
   var zoomRegex = {
     matrixName: heatmapData.matrixname,
     geneRegex: '',
-    conditionRegex: ''
+    conditionRegex: '',
+    geneNames: heatmapData.geneNames,
+    conditionNames: heatmapData.conditionNames
   };
   for (var i = params.rowStart; i < params.rowEnd; i++) {
     zoomRegex.geneRegex += heatmapData.geneNames[i] + '|';
