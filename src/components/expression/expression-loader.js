@@ -16,6 +16,7 @@ genotet.ExpressionLoader = function(data) {
   _.extend(this.data, {
     matrix: null,
     profiles: [],
+    tfaProfiles: [],
     zoomStack: []
   });
 };
@@ -32,6 +33,7 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
 genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
                                                    conditionRegex) {
   this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
+  this.loadExpressionTfaProfile_('b-subtilis', 'sigA', conditionRegex);
 };
 
 /**
@@ -68,6 +70,34 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 };
 
 /**
+ * Implements the expression matrix TFA profile loading ajax call.
+ * Since the matrix may contain a large number of entries, we use POST request.
+ * @param {string} matrixName Name of the expression matrix.
+ * @param {string} geneName Name for gene selection.
+ * @param {string} conditionRegex Condition regex of the expression matrix.
+ * @private
+ */
+genotet.ExpressionLoader.prototype.loadExpressionTfaProfile_ =
+  function(matrixName, geneName, conditionRegex) {
+    var params = {
+      type: 'profile',
+      matrixName: matrixName,
+      gene: geneName,
+      conditionRegex: conditionRegex
+    };
+    $.get(genotet.data.serverURL, params, function(data) {
+        // Store the last applied data selectors.
+        this.data.tfaProfiles.push(data);
+        console.log(data);
+
+        this.signal('tfaLoadComplete');
+
+      }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
+        params));
+  };
+
+/**
  * Updates the genes in the current expression.
  * @param {string} method Update method, either 'set' or 'add'.
  * @param {string} matrixName Matrix name of the expression.
@@ -86,7 +116,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
   });
   this.data.zoomStack.push(currentRegex);
   this.data.zoomStack.forEach(function(zoomRegex) {
-    regex = regex.toUpperCase();
+    regex = regex.toLowerCase();
     switch (method) {
       case 'setGene':
         // Totally replace the regex.
@@ -102,7 +132,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
         // Remove the regex.
         zoomRegex.geneRegex = '';
         zoomRegex.geneNames.forEach(function(geneName) {
-          if (!geneName.toUpperCase().match(regex)) {
+          if (!geneName.toLowerCase().match(regex)) {
             zoomRegex.geneRegex += geneName + '|';
           }
         });
@@ -122,7 +152,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
         // Remove the regex.
         zoomRegex.conditionRegex = '';
         zoomRegex.conditionNames.forEach(function(conditionName) {
-          if (!conditionName.toUpperCase().match(regex)) {
+          if (!conditionName.toLowerCase().match(regex)) {
             zoomRegex.conditionRegex += conditionName + '|';
           }
         });

@@ -108,6 +108,7 @@ module.exports = {
    * @param {string} fileExp File name of the expression matrix.
    * @param {string} fileTFA File name of the TFA matrix.
    * @param {string} name Name of the gene to be profiled.
+   * @param {string} conditionRegex Condition regex of the expression matrix.
    * @return {{
    *   name: string,
    *   values: !Array<number>,
@@ -115,13 +116,12 @@ module.exports = {
    * }} Gene expression profile as a JS object.
    * @this {expression}
    */
-  getExpmatLine: function(fileExp, fileTFA, name) {
+  getExpmatLine: function(fileExp, fileTFA, name, conditionRegex) {
     var bufExp = utils.readFileToBuf(fileExp);
     var bufTFA = null;
     if (fileTFA != null) {
       bufTFA = utils.readFileToBuf(fileTFA);
     }
-
     if (bufExp == null) {
       return console.error('cannot read file', fileExp), [];
     }
@@ -132,7 +132,7 @@ module.exports = {
     var resultExp = this.readExpmat(bufExp);
     var resultTFA;
     if (fileTFA != null) {
-      resultTFA = readTFAmat(bufTFA);
+      resultTFA = this.readTFAmat(bufTFA);
     }
 
     for (var i = 0; i < resultExp.rownames.length; i++) {
@@ -143,30 +143,41 @@ module.exports = {
     }
     if (i == resultExp.rownames.length)
       return [];// cannot find gene
+
+    var expCondition;
+    try {
+      expCondition = RegExp(conditionRegex, 'i');
+    } catch (e) {
+      console.log('incorrect regular expression');
+    }
+    var conditionNames = [];
+    for (var i = 0; i < resultExp.colnames.length; i++) {
+      if (resultExp.colnames[i].toLowerCase().match(expCondition)) {
+        conditionNames.push(resultExp.colnames[i]);
+      }
+    }
+
     var tfaValues = [];
     if (fileTFA != null) {
       var tfai = resultTFA.rownames.indexOf(name);
       if (tfai != -1) {
         for (var j = 0; j < resultTFA.numcols; j++) {
-          var idx = resultExp.colnames.indexOf(resultTFA.colnames[j]);
-          tfaValues.push({
-            value: resultTFA.values[tfai * resultTFA.numcols + j],
-            index: idx
-          });
+          var idx = conditionNames.indexOf(resultTFA.colnames[j]);
+          if (idx != -1) {
+            tfaValues.push({
+              value: resultTFA.values[tfai * resultTFA.numcols + j],
+              index: idx
+            });
+          }
         }
         tfaValues.sort(function(a, b) {
           return a.index - b.index;
         });
       }
     }
-    var values = [];
-    for (var j = 0; j < resultExp.numcols; j++) {
-      values.push(resultExp.values[i * resultExp.numcols + j]);
-    }
     console.log('returning line', name);
     return {
       name: name,
-      values: values,
       tfaValues: tfaValues
     };
   },
@@ -288,7 +299,6 @@ module.exports = {
   readExpression: function(expressionFile, geneRegex, conditionRegex) {
     var values = [];
     var isFirstCol = true;
-    var values = [];
     var conditions = [];
     var geneNames = [];
     var conditionNames = [];

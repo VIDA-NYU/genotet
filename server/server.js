@@ -242,20 +242,14 @@ app.get('/genotet', function(req, res) {
       break;
 
     // Expression matrix data queries
-    case 'expression':
-      var file = expressionFile[req.query.matrixName];
-      var exprows = req.query.geneRegex;
-      var expcols = req.query.conditionRegex;
-      exprows = exprows == '' ? 'a^' : exprows;
-      expcols = expcols == '' ? 'a^' : expcols;
-      data = expression.getExpmat(file, exprows, expcols);
-      break;
-    case 'expression-profile':
-      var mat = req.query.mat;
-      var name = req.query.name;
-      var fileExp = expressionFile[mat], fileTfa = tfamatFile[mat];
-      name = name.toLowerCase();
-      data = expression.getExpmatLine(fileExp, fileTfa, name);
+    case 'profile':
+      var matrixName = req.query.matrixName;
+      var gene = req.query.gene;
+      var conditionRegex = req.query.conditionRegex;
+      var fileExp = expressionFile[matrixName];
+      var fileTfa = tfamatFile[matrixName];
+      gene = gene.toLowerCase();
+      data = expression.getExpmatLine(fileExp, fileTfa, gene, conditionRegex);
       break;
     case 'list-matrix':
       data = expression.listMatrix(expmatPath);
