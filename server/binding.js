@@ -88,7 +88,7 @@ binding.query.histogram = function(query, wigglePath) {
 
 /**
  * @param {!binding.query.Exons} query
- * @param {String} exonFile
+ * @param {string} exonFile
  * @return {!Array<!binding.Exon>}
  */
 binding.query.exons = function(query, exonFile) {

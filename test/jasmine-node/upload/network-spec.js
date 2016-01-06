@@ -1,4 +1,4 @@
-var FormData = require('form-data');
+var formData = require('form-data');
 var querystring = require('querystring');
 
 var server = require('../server.js');
@@ -15,7 +15,7 @@ var tests = [
   {
     name: 'upload network',
     action: function(frisby) {
-      var form = new FormData();
+      var form = new formData();
       form.append('type', 'network');
       form.append('name', dataInfo.name);
       form.append('description', dataInfo.description);
@@ -38,7 +38,7 @@ var tests = [
       var json = JSON.parse(body);
       describe('verify network upload success', function() {
         it('contains success field', function() {
-          expect(json.success).toBe(true);
+          expect(json.error).toBeUndefined();
         });
       });
     }

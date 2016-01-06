@@ -17,6 +17,9 @@
 /**
  * @fileoverview Definitions for node's readline module. Depends on the events module.
  * @see http://nodejs.org/api/readline.html
+ *
+ * Modified for Genotet usage.
+ * @see https://github.com/ViDA-NYU/genotet
  */
 
 var events = require('events');

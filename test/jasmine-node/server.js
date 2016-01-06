@@ -2,10 +2,15 @@
  * @fileoverview Server info.
  */
 
-/** @const */
-module.exports = {
-  /** @const {string} */
-  url: 'http://localhost:3000/genotet',
-  /** @const {string} */
-  uploadURL: 'http://localhost:3000/genotet/upload'
-};
+module.exports = server;
+
+/**
+ * @constructor
+ */
+function server() {}
+
+/** @const {string} */
+server.url = 'http://localhost:3000/genotet';
+
+/** @const {string} */
+server.uploadURL = 'http://localhost:3000/genotet/upload';
