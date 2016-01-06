@@ -135,6 +135,14 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       });
     }.bind(this));
   }, this);
+
+  // Zoom out
+  this.container.find('#out').click(function() {
+    if (this.data.zoomStack.length > 0) {
+      var zoomRegex = this.data.zoomStack.pop();
+      this.signal('expressionZoomOut', zoomRegex);
+    }
+  }.bind(this));
 };
 
 /**

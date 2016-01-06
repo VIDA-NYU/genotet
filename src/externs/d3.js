@@ -59,6 +59,11 @@ d3.prototype.remove = function() {};
 d3.prototype.empty = function() {};
 
 /**
+ * @param {!d3|Function} selector
+ */
+d3.prototype.filter = function(selector) {};
+
+/**
  * @param {!Array<*>} arg
  * @param {Function=} opt_mapping
  */

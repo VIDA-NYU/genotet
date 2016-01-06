@@ -116,6 +116,11 @@ genotet.ExpressionView = function(viewName, params) {
       this.loader.load(zoomRegex.matrixName, zoomRegex.geneRegex,
         zoomRegex.conditionRegex);
     }.bind(this));
+  $(this.panel)
+    .on('genotet.expressionZoomOut', function(event, zoomRegex) {
+      this.loader.load(zoomRegex.matrixName, zoomRegex.geneRegex,
+        zoomRegex.conditionRegex);
+    }.bind(this));
 
   // Update expression panel.
   $(this.loader)

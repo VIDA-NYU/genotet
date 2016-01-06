@@ -487,6 +487,7 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
       i++;
     }
   }
+
   this.render();
   this.highlightLabelsAfterUpdateData_();
 };
@@ -679,6 +680,12 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
           columnEnd: columnEnd
         };
         var zoomRegex = this.zoomDataLoaded_(zoomParams);
+        var currentRegex = {
+          matrixName: heatmapData.matrixname,
+          geneRegex: heatmapData.geneRegex,
+          conditionRegex: heatmapData.conditionRegex
+        };
+        this.data.zoomStack.push(currentRegex);
         this.signal('expressionZoomIn', zoomRegex);
       }
       else {
@@ -1073,7 +1080,9 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
       this.clickedObject_.column = heatmapData.conditionNames.indexOf(
         this.clickedObject_.conditionName
       );
-      this.signal('expressionClick', this.clickedObject_);
+    }
+    if (this.clickedObject_.row != -1 && this.clickedObject_.column != -1) {
+        this.signal('expressionClick', this.clickedObject_);
     } else {
       this.signal('expressionUnclick');
     }
