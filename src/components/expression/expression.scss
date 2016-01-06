@@ -1,7 +1,8 @@
-$orange: #ffa500;
-$red: #f00;
+$red: #d62d20;
+$blue: #1e90ff;
 $black: #000;
 $gray: #ccc;
+$white: #fff;
 
 .view.expression {
   .profiles {
@@ -12,7 +13,6 @@ $gray: #ccc;
     }
 
     .highlighted {
-      stroke: $orange;
       stroke-width: 3;
     }
   }
@@ -31,6 +31,18 @@ $gray: #ccc;
       fill: $black;
       stroke: none;
     }
+  }
+
+  .selection {
+    fill: transparent;
+    stroke: $white;
+    stroke-dasharray: 4px;
+    stroke-opacity: .5;
+    stroke-width: 2px;
+  }
+
+  .label-selected {
+    fill: $blue;
   }
 
   .gene-label {

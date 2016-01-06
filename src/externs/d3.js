@@ -79,7 +79,7 @@ d3.prototype.classed = function(classes, val) {};
 d3.prototype.style = function(prop, opt_val) {};
 
 /**
- * @param {string} prop
+ * @param {string|!Object} prop
  * @param {(string|number)=} opt_val
  * @return {!d3|string|number|null}
  */
