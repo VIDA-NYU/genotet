@@ -14,6 +14,13 @@ gulp.task('build', function(cb) {
 gulp.task('build-dev', function(cb) {
   runSequence(
     'clean',
-    ['copy', 'index', 'sass-dev', 'concat-src-dev', 'compile-dev'],
+    [
+      'copy',
+      'index',
+      'sass-dev',
+      'concat-src-dev',
+      'compile-dev',
+      'compile-server'
+    ],
     cb);
 });

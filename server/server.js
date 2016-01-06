@@ -2,17 +2,10 @@
  * @fileoverview Server code main entry.
  */
 
-'use strict';
-
-// Include libraries.
 var express = require('express');
 var fs = require('fs');
-var util = require('util');
-var Buffer = require('buffer').Buffer;
-var constants = require('constants');
 var multer = require('multer');
 
-// Include server resources.
 var segtree = require('./segtree.js');
 var utils = require('./utils.js');
 var network = require('./network.js');
@@ -23,6 +16,20 @@ var bed = require('./bed.js');
 
 // Application
 var app = express();
+
+/**
+ * Genotet namespace.
+ * @const
+ */
+var genotet = {};
+
+/**
+ * @typedef {{
+ *   type: string,
+ *   message: string
+ * }}
+ */
+genotet.Error;
 
 /**
  * Path of wiggle files.
@@ -61,7 +68,7 @@ var bedPath;
 var configPath = 'server/config';
 
 // Parse command arguments.
-process.argv.forEach(function(token, index) {
+process.argv.forEach(function(token) {
   var tokens = token.split(['=']);
   var arg = tokens.length >= 1 ? tokens[0] : '';
   var val = tokens.length >= 2 ? tokens[1] : '';
@@ -144,7 +151,7 @@ var tfamatFile = {
 app.post('/genotet/upload', upload.single('file'), function(req, res) {
   console.log('POST upload');
 
-  var prefix;
+  var prefix = '';
   switch (req.body.type) {
     case 'network':
       prefix = networkPath;
@@ -159,126 +166,82 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
       prefix = bedPath;
       break;
   }
-  uploader.uploadFile(req.body, req.file, prefix, bigWigToWigPath);
+  var body = {
+    type: req.body.type,
+    name: req.body.name,
+    description: req.body.description
+  };
+  uploader.uploadFile(body, req.file, prefix, bigWigToWigPath);
   res.header('Access-Control-Allow-Origin', '*');
   res.jsonp({
     success: true
   });
 });
 
-/**
- * GET request handlers.
- */
+// GET request handlers.
 app.get('/genotet', function(req, res) {
-  var type = req.query.type;
+  var query = req.query;
+  var type = query.type;
   var data;
   console.log('GET', type);
-
   switch (type) {
     // Network data queries
     case 'network':
-      var networkName = req.query.networkName.toLowerCase(),
-        geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
-        fileType = 'text';
-        file = networkPath + networkName + '.bnet';
-      if (fileType == 'text') {
-        file = networkPath + networkName;
-      }
-      geneRegex = geneRegex == '' ? 'a^' : geneRegex;
-      data = network.getNet(file, geneRegex, fileType);
+      data = network.query.network(query, networkPath);
       break;
     case 'incident-edges':
-      // Edges incident to one node
-      var networkName = req.query.networkName.toLowerCase(),
-        gene = req.query.gene,
-        file = networkPath + networkName;
-      data = network.getIncidentEdges(file, gene);
+      data = network.query.incidentEdges(query, networkPath);
       break;
     case 'combined-regulation':
-      var networkName = req.query.networkName,
-        geneRegex = utils.decodeSpecialChar(req.query.geneRegex),
-        file = networkPath + networkName + '.bnet';
-      data = network.getComb(file, geneRegex);
-      break;
-    case 'list-network':
-      data = network.listNetwork(networkPath);
-      break;
-    case 'read-net':
-      var networkName = req.query.networkName;
-      var file = networkPath + networkName;
-      var geneRegex = req.query.geneRegex;
-      var result = network.readNetwork(file, geneRegex);
-      if (result.success) {
-        data = result.data;
-      } else {
-        data = null;
-        console.log('network data invalid');
-      }
+      data = network.query.combinedRegulation(query, networkPath);
       break;
 
     // Binding data queries
+    case 'binding':
+      data = binding.query.histogram(query, wigglePath);
+      break;
     case 'exons':
-      var chr = req.query.chr;
-      data = binding.getExons(exonFile, chr);
+      data = binding.query.exons(query, exonFile);
       break;
     case 'locus':
-      var gene = req.query.gene.toLowerCase();
-      data = binding.searchExon(exonFile, gene);
-      break;
-    case 'binding':
-      // Binding data query [xl, xr], return # samples.
-      var xl = req.query.xl,
-        xr = req.query.xr,
-        chr = req.query.chr,
-        gene = utils.decodeSpecialChar(req.query.gene);
-      var file = wigglePath + gene + '_chr/' + gene + '_chr' + chr + '.bcwig';
-
-      data = binding.getBinding(file, xl, xr);
-      data.gene = gene;
-      data.chr = chr;
-      break;
-    case 'list-binding':
-      data = binding.listBindingGenes(wigglePath);
+      data = binding.query.locus(query, exonFile);
       break;
 
-    // Expression matrix data queries
     case 'expression':
-      var file = expressionFile[req.query.matrixName];
-      var exprows = req.query.geneRegex;
-      var expcols = req.query.conditionRegex;
-      exprows = exprows == '' ? 'a^' : exprows;
-      expcols = expcols == '' ? 'a^' : expcols;
-      data = expression.getExpmat(file, exprows, expcols);
+      data = expression.query.matrix(query, expressionPath);
       break;
     case 'expression-profile':
-      var mat = req.query.mat;
-      var name = req.query.name;
-      var fileExp = expressionFile[mat], fileTfa = tfamatFile[mat];
-      name = name.toLowerCase();
-      data = expression.getExpmatLine(fileExp, fileTfa, name);
-      break;
-    case 'list-matrix':
-      data = expression.listMatrix(expmatPath);
-      break;
-    case 'read-expression':
-      var file = expressionPath + req.query.matrixName;
-      var geneRegex = req.query.geneRegex;
-      var conditionRegex = req.query.conditionRegex;
-      data = expression.readExpression(file, geneRegex, conditionRegex);
+      data = expression.query.profile(query, expressionFile, tfamatFile);
       break;
 
     // Bed data queries
     case 'bed':
-      var file = req.query.file;
-      var chr = req.query.chr;
-      var dir = bedPath + file + '_chr/' + file + '_' + chr;
-      data = bed.readBed(dir, req.query.xl, req.query.xr);
+      data = bed.query.motifs(query);
+      break;
+
+    // Data listing
+    case 'list-network':
+      data = network.query.list(networkPath);
+      break;
+    case 'list-binding':
+      data = binding.query.list(wigglePath);
+      break;
+    case 'list-expression':
+      data = expression.query.list(expressionPath);
+      break;
+    case 'list-bed':
+      data = bed.query.list(bedPath);
       break;
 
     // Undefined type, error
     default:
-      console.error('invalid argument');
-      data = '';
+      console.error('invalid query type');
+      data = {
+        error: {
+          type: 'query',
+          message: 'invalid query type'
+        }
+      };
   }
   res.jsonp(data);
 });

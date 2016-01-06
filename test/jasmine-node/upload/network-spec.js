@@ -72,5 +72,3 @@ var tests = [
 ];
 
 chain.test(tests);
-
-

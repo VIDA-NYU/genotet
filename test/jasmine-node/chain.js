@@ -8,10 +8,10 @@ var frisby = require('frisby');
 module.exports = {
   /**
    * Runs the frisby requests one by one and performs the tests.
-   * @param {!Array<{
+   * @param {!Array<!{
    *   name: string,
-   *   action: function(!frisby),
-   *   check: function
+   *   action: function(!Frisby),
+   *   check: Function
    * }>} tests
    */
   test: function(tests) {
