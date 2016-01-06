@@ -601,6 +601,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var cellWidth = this.cellWidth;
   var cellHeight = this.cellHeight;
   var columnStart, columnEnd, rowStart, rowEnd;
+  var selected = false;
 
   var zoomSelection = this.svgHeatmapContent_
     .on('mousedown', function() {
@@ -649,12 +650,12 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         d3.selectAll('.cell-selected').classed('cell-selected', false);
         d3.selectAll('.label-selected').classed('label-selected', false);
 
-        columnStart = Math.floor(selectedRange.x / cellWidth);
-        columnEnd = Math.floor((selectedRange.x + selectedRange.width) /
-          cellWidth);
         rowStart = Math.floor(selectedRange.y / cellHeight);
         rowEnd = Math.floor((selectedRange.y + selectedRange.height) /
           cellHeight);
+        columnStart = Math.floor(selectedRange.x / cellWidth);
+        columnEnd = Math.floor((selectedRange.x + selectedRange.width) /
+          cellWidth);
         for (var i = rowStart; i <= rowEnd; i++) {
           d3.select('.gene-labels text:nth-of-type(' + (i + 1) + ')')
             .classed('label-selected', true);
@@ -663,13 +664,43 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
           d3.select('.condition-labels text:nth-of-type(' + (i + 1) + ')')
             .classed('label-selected', true);
         }
+        selected = true;
       }
     })
     .on('mouseup', function() {
       zoomSelection.select('rect.selection').remove();
       d3.selectAll('.gene-label').classed('label-selected', false);
       d3.selectAll('.condition-label').classed('label-selected', false);
-    });
+      if (selected) {
+        var zoomParams = {
+          rowStart: rowStart,
+          rowEnd: rowEnd,
+          columnStart: columnStart,
+          columnEnd: columnEnd
+        };
+        var zoomRegex = this.zoomDataLoaded_(zoomParams);
+        this.signal('expressionZoomIn', zoomRegex);
+      }
+      else {
+        var row, column, selectedValue;
+        var cellSelection = d3.selectAll('.cell').filter(function(value, i) {
+          var mousePosition = d3.mouse(this);
+          row = Math.floor(mousePosition[1] / cellHeight);
+          column = Math.floor(mousePosition[0] / cellWidth);
+          selectedValue = value;
+          return i == row * heatmapData.geneNames.length + column;
+        }).node();
+        _.extend(this.clickedObject_, {
+          container: cellSelection,
+          geneName: heatmapData.geneNames[row],
+          conditionName: heatmapData.conditionNames[column],
+          row: row,
+          column: column,
+          value: selectedValue
+        });
+        this.signal('expressionClick', this.clickedObject_);
+      }
+    }.bind(this));
 };
 
 /**
@@ -1047,6 +1078,30 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
       this.signal('expressionUnclick');
     }
   };
+
+/**
+ * Load expression matrix data after zoom in and out the heatmap.
+ * @param {!Object} params Parameters for expression zoom in.
+ * @return {!Object} zoomRegex Parameters for data load.
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.zoomDataLoaded_ = function(params) {
+  var heatmapData = this.data.matrix;
+  var zoomRegex = {
+    matrixName: heatmapData.matrixname,
+    geneRegex: '',
+    conditionRegex: ''
+  };
+  for (var i = params.rowStart; i < params.rowEnd; i++) {
+    zoomRegex.geneRegex += heatmapData.geneNames[i] + '|';
+  }
+  zoomRegex.geneRegex += heatmapData.geneNames[params.rowEnd];
+  for (var i = params.columnStart; i < params.columnEnd; i++) {
+    zoomRegex.conditionRegex += heatmapData.conditionNames[i] + '|';
+  }
+  zoomRegex.conditionRegex += heatmapData.conditionNames[params.columnEnd];
+  return zoomRegex;
+};
 
 /**
  * Computes the horizontal and vertical label sizes for the heatmap.

@@ -110,6 +110,13 @@ genotet.ExpressionView = function(viewName, params) {
       genotet.tooltip.hideAll();
     }.bind(this));
 
+  // Zoom in and out in expression.
+  $(this.renderer)
+    .on('genotet.expressionZoomIn', function(event, zoomRegex) {
+      this.loader.load(zoomRegex.matrixName, zoomRegex.geneRegex,
+        zoomRegex.conditionRegex);
+    }.bind(this));
+
   // Update expression panel.
   $(this.loader)
     .on('genotet.updatePanel', function(event) {
