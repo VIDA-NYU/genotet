@@ -178,6 +178,42 @@ genotet.ExpressionRenderer.Profile = function(params) {
   this.color = params.color != null ? params.color : null;
 };
 
+/**
+ * Zoom status object storing the status of expression matrix.
+ * @param {!{
+ *   matrixName: (?string|undefined),
+ *   geneRegex: (?string|undefined),
+ *   conditionRegex: (?string|undefined),
+ *   geneNames: (?string|undefined),
+ *   conditionNames: (?string|undefined)
+ * }} params
+ *     matrixName: Matrix name of the expression.
+ *     geneRegex: Regex for gene selection.
+ *     conditionRegex: Regex for experiment condition selection.
+ *     geneNames: Gene names for gene selection.
+ *     conditionNames: Condition names for experiment condition selection.
+ * @struct
+ * @constructor
+ */
+genotet.ExpressionRenderer.ZoomStatus = function(params) {
+  /** @type {?string} */
+  this.matrixName = params.matrixName != null ? params.matrixName : null;
+
+  /** @type {?string} */
+  this.geneRegex = params.geneRegex != null ? params.geneRegex : '';
+
+  /** @type {?string} */
+  this.conditionRegex = params.conditionRegex != null ?
+    params.conditionRegex : '';
+
+  /** @type {?string} */
+  this.geneNames = params.geneNames != null ? params.geneNames : null;
+
+  /** @type {?string} */
+  this.conditionNames = params.conditionNames != null ?
+    params.conditionNames : null;
+};
+
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 150;
 
@@ -680,13 +716,13 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
           columnEnd: columnEnd
         };
         var zoomRegex = this.zoomDataLoaded_(zoomParams);
-        var currentRegex = {
+        var currentRegex = new genotet.ExpressionRenderer.ZoomStatus({
           matrixName: heatmapData.matrixname,
           geneRegex: heatmapData.geneRegex,
           conditionRegex: heatmapData.conditionRegex,
           geneNames: heatmapData.geneNames,
           conditionNames: heatmapData.conditionNames
-        };
+        });
         this.data.zoomStack.push(currentRegex);
         this.signal('expressionZoomIn', zoomRegex);
       }
@@ -1098,13 +1134,12 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
  */
 genotet.ExpressionRenderer.prototype.zoomDataLoaded_ = function(params) {
   var heatmapData = this.data.matrix;
-  var zoomRegex = {
+  var zoomRegex = new genotet.ExpressionRenderer.ZoomStatus({
     matrixName: heatmapData.matrixname,
-    geneRegex: '',
-    conditionRegex: '',
     geneNames: heatmapData.geneNames,
     conditionNames: heatmapData.conditionNames
-  };
+  });
+
   for (var i = params.rowStart; i < params.rowEnd; i++) {
     zoomRegex.geneRegex += heatmapData.geneNames[i] + '|';
   }

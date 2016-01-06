@@ -77,13 +77,13 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 genotet.ExpressionLoader.prototype.update = function(method, matrixName,
                                                      regex) {
   var heatmapData = this.data.matrix;
-  var currentRegex = {
+  var currentRegex = new genotet.ExpressionRenderer.ZoomStatus({
     matrixName: heatmapData.matrixname,
     geneRegex: heatmapData.geneRegex,
     conditionRegex: heatmapData.conditionRegex,
     geneNames: heatmapData.geneNames,
     conditionNames: heatmapData.conditionNames
-  };
+  });
   this.data.zoomStack.push(currentRegex);
   this.data.zoomStack.forEach(function(zoomRegex) {
     regex = regex.toUpperCase();
