@@ -872,12 +872,12 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         });
         this.signal('expressionClick', this.clickedObject_);
       }
-    }.bind(this))
-    .on('mouseleave', function() {
-      zoomSelection.select('rect.selection').remove();
-      d3.selectAll('.gene-label').classed('label-selected', false);
-      d3.selectAll('.condition-label').classed('label-selected', false);
-    });
+    }.bind(this));
+    //.on('mouseleave', function() {
+    //  zoomSelection.select('rect.selection').remove();
+    //  d3.selectAll('.gene-label').classed('label-selected', false);
+    //  d3.selectAll('.condition-label').classed('label-selected', false);
+    //});
 };
 
 /**

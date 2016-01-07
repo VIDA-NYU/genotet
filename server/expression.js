@@ -271,6 +271,9 @@ expression.getExpmatLine_ = function(fileExp, fileTFA, geneRegex,
         var idx = conditionNames.indexOf(resultTFA.colnames[j]);
         if (idx != -1) {
           var tfaValue = resultTFA.values[tfai * resultTFA.numcols + j];
+          if (!tfaValue) {
+            break;
+          }
           tfaValues.push({
             value: tfaValue,
             index: idx
