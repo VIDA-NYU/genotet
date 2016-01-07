@@ -17,6 +17,17 @@
 genotet.ExpressionMatrix;
 
 /**
+ * @typedef {{
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>,
+ *   tfaValues: !Array<!Object>,
+ *   valueMin: number,
+ *   valueMax: number
+ * }}
+ */
+genotet.ExpressionTfaData;
+
+/**
  * View extends the base View class, and renders the expression matrix
  * associated with the regulatory Expression.
  * @param {string} viewName Name of the view.
@@ -47,10 +58,6 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
   }.bind(this));
-  $(this.loader)
-    .on('genotet.tfaLoadComplete', function(event) {
-      this.renderer.drawTfaProfiles();
-    }.bind(this));
 
   // Set up rendering update.
   $(this.panel)

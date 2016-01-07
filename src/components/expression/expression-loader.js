@@ -34,7 +34,7 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
 genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
                                                    conditionRegex) {
   this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
-  this.loadExpressionTfaProfile_('b-subtilis', geneRegex, conditionRegex);
+  //this.loadExpressionTfaProfile_('b-subtilis', geneRegex, conditionRegex);
 };
 
 /**
@@ -64,38 +64,24 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     });
 
     this.data.matrix = data;
-
-    this.signal('loadComplete');
   }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load expression matrix', params));
-};
 
-/**
- * Implements the expression matrix TFA profile loading ajax call.
- * Since the matrix may contain a large number of entries, we use GET request.
- * @param {string} matrixName Name of the expression matrix.
- * @param {string} geneRegex Gene regex for gene selection.
- * @param {string} conditionRegex Condition regex of the expression matrix.
- * @private
- */
-genotet.ExpressionLoader.prototype.loadExpressionTfaProfile_ =
-  function(matrixName, geneRegex, conditionRegex) {
-    var params = {
-      type: 'profile',
-      matrixName: matrixName,
-      geneRegex: geneRegex,
-      conditionRegex: conditionRegex
-    };
-    $.get(genotet.data.serverURL, params, function(data) {
+  var tfaParams = {
+    type: 'profile',
+    matrixName: 'b-subtilis',
+    geneRegex: geneRegex,
+    conditionRegex: conditionRegex
+  };
+  $.get(genotet.data.serverURL, tfaParams, function(data) {
       // Store the last applied data selectors.
-      console.log(data);
       this.data.tfaData = data;
 
-      this.signal('tfaLoadComplete');
+      this.signal('loadComplete');
     }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
-        params));
-  };
+    .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
+      params));
+};
 
 /**
  * Updates the genes in the current expression.

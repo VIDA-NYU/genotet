@@ -19,7 +19,7 @@ genotet.ExpressionRenderer = function(container, data) {
 
   /**
    * TFA data. Each element corresponds to one gene profile line.
-   * @protected {!Array<!Object>}
+   * @protected {genotet.ExpressionTfaData}
    */
   this.data.tfaData;
 
@@ -153,7 +153,7 @@ genotet.ExpressionRenderer.Cell = function(params) {
  *   row: (?number|undefined),
  *   hoverColumn: (?number|undefined),
  *   hoverConditionName: (?string|undefined),
- *   hoverValue: (?number|undefined),
+ *   hoverValue: (?number|?string|undefined),
  *   color: (?string|undefined)
  * }} params
  *      container: Container of the selected gene profile.
@@ -183,7 +183,7 @@ genotet.ExpressionRenderer.Profile = function(params) {
   this.hoverConditionName = params.hoverConditionName != null ?
     params.hoverConditionName : null;
 
-  /** @type {number} */
+  /** @type {?number|?string} */
   this.hoverValue = params.hoverValue != null ? params.hoverValue : 0;
 
   /** @type {?string} */
@@ -622,6 +622,7 @@ genotet.ExpressionRenderer.prototype.render = function() {
  */
 genotet.ExpressionRenderer.prototype.drawProfiles_ = function() {
   this.drawGeneProfiles_();
+  this.drawTfaProfiles_();
 };
 
 /**
@@ -787,6 +788,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       d3.selectAll('.gene-label').classed('label-selected', false);
       d3.selectAll('.condition-label').classed('label-selected', false);
       if (selected) {
+        selected = false;
         var zoomParams = {
           rowStart: rowStart,
           rowEnd: rowEnd,
@@ -1062,8 +1064,9 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
 
 /**
  * Renders the TFA profiles for the selected genes as line charts.
+ * @private
  */
-genotet.ExpressionRenderer.prototype.drawTfaProfiles = function() {
+genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
   // TODO(liana): Connected with panel.
   //if (!this.data.options.showProfiles) {
   //  this.svgProfile_.selectAll('*').attr('display', 'none');
@@ -1119,40 +1122,54 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles = function() {
         tfaProfile.geneName) % this.COLOR_CATEGORY_SIZE];
       this.data.tfaProfiles[i].color = pathColor;
       return pathColor;
+    }.bind(this))
+    .on('mousemove', function(tfaProfile, i) {
+      var geneIndex = tfaData.geneNames.indexOf(tfaProfile.geneName);
+      var conditionIndex = Math.floor(
+        xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5
+      );
+      var hoverConditionData = tfaData.tfaValues[geneIndex]
+        .filter(function(tfaValues) {
+          return tfaValues.index == conditionIndex;
+        });
+      var tfaValue = 'None';
+      if (hoverConditionData[0]) {
+        tfaValue = hoverConditionData[0].value;
+      }
+      _.extend(this.data.tfaProfiles[i], {
+        container: d3.event.target,
+        hoverColumn: conditionIndex,
+        hoverConditionName: heatmapData.conditionNames[conditionIndex],
+        hoverValue: tfaValue
+      });
+      this.signal('pathHover', this.data.tfaProfiles[i]);
+    }.bind(this))
+    .on('mouseout', function(tfaProfile, i) {
+      this.data.tfaProfiles[i].container = d3.event.target;
+      this.signal('pathUnhover', this.data.tfaProfiles[i]);
+    }.bind(this))
+    .on('click', function(tfaProfile, i) {
+      var conditionIndex = Math.floor(
+        xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
+      var geneIndex = tfaData.geneNames.indexOf(tfaProfile.geneName);
+      var hoverConditionData = tfaData.tfaValues[geneIndex]
+        .filter(function(tfaValues) {
+          return tfaValues.index == conditionIndex;
+        });
+      var tfaValue = 'None';
+      if (hoverConditionData[0]) {
+        tfaValue = hoverConditionData[0].value;
+      }
+      _.extend(this.clickedObject_, {
+        container: d3.event.target,
+        geneName: tfaProfile.geneName,
+        conditionName: heatmapData.conditionNames[conditionIndex],
+        row: heatmapData.geneNames.indexOf(tfaProfile.geneName),
+        column: conditionIndex,
+        value: tfaValue
+      });
+      this.signal('expressionClick', this.clickedObject_);
     }.bind(this));
-    //.on('mousemove', function(profile, i) {
-    //  var conditionIndex = Math.floor(
-    //    xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5
-    //  );
-    //  var value = heatmapData.values[profile.row][conditionIndex];
-    //  _.extend(this.data.profiles[i], {
-    //    container: d3.event.target,
-    //    hoverColumn: conditionIndex,
-    //    hoverConditionName: heatmapData.conditionNames[conditionIndex],
-    //    hoverValue: value
-    //  });
-    //  this.signal('pathHover', this.data.profiles[i]);
-    //}.bind(this))
-    //.on('mouseout', function(profile, i) {
-    //  this.data.profiles[i].container = d3.event.target;
-    //  this.signal('pathUnhover', this.data.profiles[i]);
-    //}.bind(this))
-    //.on('click', function(profile, i) {
-    //  var conditionIndex = Math.floor(
-    //    xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
-    //  var geneIndex = heatmapData.geneNames.indexOf(
-    //    this.data.profiles[i].geneName);
-    //  var value = heatmapData.values[geneIndex][conditionIndex];
-    //  _.extend(this.clickedObject_, {
-    //    container: d3.event.target,
-    //    geneName: heatmapData.geneNames[geneIndex],
-    //    conditionName: heatmapData.conditionNames[conditionIndex],
-    //    row: geneIndex,
-    //    column: conditionIndex,
-    //    value: value
-    //  });
-    //  this.signal('expressionClick', this.clickedObject_);
-    //}.bind(this));
   profilePath.exit().remove();
 };
 
@@ -1195,7 +1212,7 @@ genotet.ExpressionRenderer.prototype.addTfaProfile = function(geneName) {
     row: this.data.matrix.geneNames.indexOf(geneName)
   });
   this.data.tfaProfiles.push(tfaProfile);
-  this.drawTfaProfiles();
+  this.drawTfaProfiles_();
 };
 
 /**
@@ -1211,7 +1228,7 @@ genotet.ExpressionRenderer.prototype.removeTfaProfile = function(geneName) {
     }
   }
   this.data.tfaProfiles.splice(index, 1);
-  this.drawTfaProfiles();
+  this.drawTfaProfiles_();
 };
 
 /**

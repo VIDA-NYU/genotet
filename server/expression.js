@@ -189,8 +189,8 @@ module.exports = {
       geneNames: geneNames,
       conditionNames: conditionNames,
       tfaValues: allTfaValues,
-      valueMax: valueMax,
-      valueMin: valueMin
+      valueMin: valueMin,
+      valueMax: valueMax
     };
   },
 
