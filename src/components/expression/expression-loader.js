@@ -34,7 +34,6 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
 genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
                                                    conditionRegex) {
   this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
-  //this.loadExpressionTfaProfile_('b-subtilis', geneRegex, conditionRegex);
 };
 
 /**
@@ -47,7 +46,6 @@ genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
  */
 genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     geneRegex, conditionRegex) {
-  this.signal('loadStart');
   var params = {
     type: 'read-expression',
     matrixName: matrixName,
@@ -63,6 +61,16 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
       conditionRegex: conditionRegex
     });
 
+    if (data.geneNames.length == 0) {
+      genotet.warning('input gene not found');
+      return;
+    }
+    if (data.conditionNames.length == 0) {
+      genotet.warning('input condition not found');
+      return;
+    }
+
+    this.signal('loadStart');
     this.data.matrix = data;
   }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load expression matrix', params));
@@ -74,11 +82,14 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     conditionRegex: conditionRegex
   };
   $.get(genotet.data.serverURL, tfaParams, function(data) {
-      // Store the last applied data selectors.
-      this.data.tfaData = data;
+    // Store the last applied data selectors.
+    this.data.tfaData = data;
+    if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
+      return;
+    }
 
-      this.signal('loadComplete');
-    }.bind(this), 'jsonp')
+    this.signal('loadComplete');
+  }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
       params));
 };

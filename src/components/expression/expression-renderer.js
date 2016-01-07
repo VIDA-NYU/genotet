@@ -54,14 +54,14 @@ genotet.ExpressionRenderer = function(container, data) {
    * This value will be zero when profiles are not shown.
    * @private {number}
    */
-  this.profileHeight_ = this.DEFAULT_PROFILE_HEIGHT;
+  this.profileHeight_ = 0;
 
   /**
    * Height of the TFA profile plot.
    * This value will be zero when profiles are not shown.
    * @private {number}
    */
-  this.tfaProfileHeight_ = this.DEFAULT_PROFILE_HEIGHT;
+  this.tfaProfileHeight_ = 0;
 
   /**
    * Width of the heatmap.
@@ -234,7 +234,11 @@ genotet.ExpressionRenderer.ZoomStatus = function(params) {
 };
 
 /** @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT = 75;
+genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT_PERCENTAGE = 0.2;
+
+/** @const {number} */
+genotet.ExpressionRenderer.prototype.DEFAULT_TFA_PROFILE_HEIGHT_PERCENTAGE =
+  0.2;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_HEIGHT = 25;
@@ -290,8 +294,7 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
    * @private {!d3}
    */
   this.svgProfile_ = this.canvas.append('g')
-    .classed('profiles', true)
-    .classed('height', this.DEFAULT_PROFILE_HEIGHT);
+    .classed('profiles', true);
 
   /**
    * SVG group for profile legend.
@@ -326,8 +329,7 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
    * @private {!d3}
    */
   this.svgTfaProfile_ = this.canvas.append('g')
-    .classed('profiles', true)
-    .classed('height', this.DEFAULT_PROFILE_HEIGHT);
+    .classed('profiles', true);
 
   /**
    * SVG group for TFA profile x axis.
@@ -430,9 +432,9 @@ genotet.ExpressionRenderer.prototype.layout = function() {
   this.getHeatmapLabelSizes_();
   // Compute the shifting sizes.
   this.profileHeight_ = this.data.options.showProfiles ?
-    this.DEFAULT_PROFILE_HEIGHT : 0;
+  this.canvasHeight * this.DEFAULT_PROFILE_HEIGHT_PERCENTAGE : 0;
   this.tfaProfileHeight_ = this.data.options.showTfaProfiles ?
-    this.DEFAULT_PROFILE_HEIGHT : 0;
+  this.canvasHeight * this.DEFAULT_TFA_PROFILE_HEIGHT_PERCENTAGE : 0;
 
   this.heatmapLayout_();
   this.profileLayout_();
@@ -560,6 +562,8 @@ genotet.ExpressionRenderer.prototype.heatmapLayout_ = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.profileLayout_ = function() {
+  this.svgProfile_.attr('height', this.profileHeight_);
+  this.svgTfaProfile_.attr('height', this.tfaProfileHeight_);
   this.profileContent_
     .attr('width', this.canvasWidth - this.profileMargins_.left -
       this.profileMargins_.right)
@@ -868,7 +872,12 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         });
         this.signal('expressionClick', this.clickedObject_);
       }
-    }.bind(this));
+    }.bind(this))
+    .on('mouseleave', function() {
+      zoomSelection.select('rect.selection').remove();
+      d3.selectAll('.gene-label').classed('label-selected', false);
+      d3.selectAll('.condition-label').classed('label-selected', false);
+    });
 };
 
 /**
