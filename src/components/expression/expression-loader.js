@@ -45,7 +45,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     geneRegex, conditionRegex) {
   this.signal('loadStart');
   var params = {
-    type: 'read-expression',
+    type: 'expression',
     matrixName: matrixName,
     geneRegex: geneRegex,
     conditionRegex: conditionRegex

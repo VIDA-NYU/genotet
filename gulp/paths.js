@@ -15,9 +15,11 @@ module.exports = {
   ],
   qunitTests: [
     'test/qunit/index.js',
+    '!test/qunit/externs/*.js',
     'test/qunit/**/*.js'
   ],
   jasmineNodeTests: [
+    '!test/jasmine-node/externs/*.js',
     'test/jasmine-node/**/*.js'
   ],
   testData: [
@@ -25,14 +27,20 @@ module.exports = {
   ],
   externs: [
     'src/externs/**/*.js',
-    'test/externs/**/*.js'
+    'test/qunit/externs/*.js'
+  ],
+  serverExterns: [
+    'server/externs/*.js'
+  ],
+  jasmineNodeExterns: [
+    'test/jasmine-node/externs/*.js'
   ],
   server: [
     'server/*.js'
   ],
   scss: [
-    'src/**/*.scss',
-    '!src/css/doc.scss'
+    '!src/css/doc.scss',
+    'src/**/*.scss'
   ],
   docScss: [
     'src/css/doc.scss'

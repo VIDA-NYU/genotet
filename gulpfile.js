@@ -31,3 +31,12 @@ gulp.task('dev', ['lint', 'build-dev']);
 
 // Default task. Build with code minification.
 gulp.task('default', ['lint', 'build']);
+
+// Do everything.
+gulp.task('all', function(cb) {
+  runSequence(
+    'clean',
+    ['lint', 'compile-all'],
+    'test',
+    cb);
+});

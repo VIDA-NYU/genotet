@@ -1,18 +1,35 @@
-// Clean dist repository.
-
+// Clean and create dist repository.
 var gulp = require('gulp');
 var del = require('del');
+var fs = require('fs');
 var paths = require('./paths.js');
+
+// Dist directory structure
+var dirs = [
+  'dist',
+  'dist/html',
+  'dist/data',
+  'dist/data/network',
+  'dist/data/wiggle',
+  'dist/data/expression',
+  'dist/data/bed',
+  'dist/data/upload'
+];
 
 gulp.task('clean', function() {
   return del([
-    paths.dist + 'data/network/*',
-    paths.dist + 'data/expression/*',
-    paths.dist + 'data/wiggle/*',
-    paths.dist + 'data/bed/*',
-    paths.dist + 'data/upload/*',
-    paths.dist + 'html/*',
-    paths.dist + '*.css',
-    paths.dist + '*.js'
+    paths.dist + '**/*'
   ]);
+});
+
+gulp.task('dist', ['clean'], function() {
+  dirs.forEach(function(dir) {
+    try {
+      fs.mkdirSync(dir);
+    } catch (err) {
+      if (err.code != 'EEXIST') {
+        throw err;
+      }
+    }
+  });
 });
