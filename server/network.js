@@ -228,7 +228,8 @@ module.exports = {
       if (file.indexOf('.txt') != -1) {
         var fname = file.substr(0, file.length - 4);
         var fd = fs.openSync(folder + file, 'r');
-        var content = fs.readFileSync(fd, 'utf8').toString().split('\n');
+        var content = fs.readFileSync(folder + file, 'utf8')
+          .toString().split('\n');
         var networkName = content[0];
         var description = '';
         for (var i = 1; i < content.length; i++) {
