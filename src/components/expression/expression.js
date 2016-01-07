@@ -47,6 +47,10 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
   }.bind(this));
+  $(this.loader)
+    .on('genotet.tfaLoadComplete', function(event) {
+      this.renderer.drawTfaProfiles();
+    }.bind(this));
 
   // Set up rendering update.
   $(this.panel)
@@ -74,8 +78,14 @@ genotet.ExpressionView = function(viewName, params) {
     .on('genotet.addGeneProfile', function(event, geneIndex) {
       this.renderer.addGeneProfile(geneIndex);
     }.bind(this))
+    .on('genotet.addTfaProfile', function(event, geneName) {
+      this.renderer.addTfaProfile(geneName);
+    }.bind(this))
     .on('genotet.removeGeneProfile', function(event, geneIndex) {
       this.renderer.removeGeneProfile(geneIndex);
+    }.bind(this))
+    .on('genotet.removeTfaProfile', function(event, geneName) {
+      this.renderer.removeTfaProfile(geneName);
     }.bind(this));
 
   // Cell hover in expression.

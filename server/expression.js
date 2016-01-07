@@ -116,7 +116,7 @@ module.exports = {
    * }} Gene expression profile as a JS object.
    * @this {expression}
    */
-  getExpmatLine: function(fileExp, fileTFA, name, conditionRegex) {
+  getExpmatLine: function(fileExp, fileTFA, geneRegex, conditionRegex) {
     var bufExp = utils.readFileToBuf(fileExp);
     var bufTFA = null;
     if (fileTFA != null) {
@@ -134,22 +134,24 @@ module.exports = {
     if (fileTFA != null) {
       resultTFA = this.readTFAmat(bufTFA);
     }
-
-    for (var i = 0; i < resultExp.rownames.length; i++) {
-      if (resultExp.rownames[i].toLowerCase() == name) {
-        name = resultExp.rownames[i];
-        break;
-      }
-    }
-    if (i == resultExp.rownames.length)
-      return [];// cannot find gene
-
-    var expCondition;
+    var expGene, expCondition;
     try {
+      expGene = RegExp(geneRegex, 'i');
       expCondition = RegExp(conditionRegex, 'i');
     } catch (e) {
       console.log('incorrect regular expression');
+      expGene = expCondition = 'a^';
     }
+
+    var geneNames = [];
+    for (var i = 0; i < resultExp.rownames.length; i++) {
+      if (resultExp.rownames[i].toLowerCase().match(expGene)) {
+        geneNames.push(resultExp.rownames[i]);
+      }
+    }
+    if (geneNames.length == 0)
+      return [];// cannot find gene
+
     var conditionNames = [];
     for (var i = 0; i < resultExp.colnames.length; i++) {
       if (resultExp.colnames[i].toLowerCase().match(expCondition)) {
@@ -157,28 +159,38 @@ module.exports = {
       }
     }
 
-    var tfaValues = [];
+    var allTfaValues = [];
+    var valueMin = Infinity;
+    var valueMax = -Infinity;
     if (fileTFA != null) {
-      var tfai = resultTFA.rownames.indexOf(name);
-      if (tfai != -1) {
+      for (var i = 0; i < geneNames.length; i++) {
+        var tfai = resultTFA.rownames.indexOf(geneNames[i]);
+        var tfaValues = [];
         for (var j = 0; j < resultTFA.numcols; j++) {
           var idx = conditionNames.indexOf(resultTFA.colnames[j]);
           if (idx != -1) {
+            var tfaValue = resultTFA.values[tfai * resultTFA.numcols + j];
             tfaValues.push({
-              value: resultTFA.values[tfai * resultTFA.numcols + j],
+              value: tfaValue,
               index: idx
             });
+            valueMin = Math.min(valueMin, tfaValue);
+            valueMax = Math.max(valueMax, tfaValue);
           }
         }
         tfaValues.sort(function(a, b) {
           return a.index - b.index;
         });
+        allTfaValues.push(tfaValues);
       }
     }
-    console.log('returning line', name);
+    console.log('returning line', geneRegex);
     return {
-      name: name,
-      tfaValues: tfaValues
+      geneNames: geneNames,
+      conditionNames: conditionNames,
+      tfaValues: allTfaValues,
+      valueMax: valueMax,
+      valueMin: valueMin
     };
   },
 

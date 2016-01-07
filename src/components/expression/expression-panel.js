@@ -93,11 +93,15 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   this.selectProfiles_
     .on('select2:select', function(event) {
       var geneIndex = event.params.data.element.index;
+      var geneName = event.params.data.text;
       this.signal('addGeneProfile', geneIndex);
+      this.signal('addTfaProfile', geneName);
     }.bind(this))
     .on('select2:unselect', function(event) {
       var geneIndex = event.params.data.element.index;
+      var geneName = event.params.data.text;
       this.signal('removeGeneProfile', geneIndex);
+      this.signal('removeTfaProfile', geneName);
     }.bind(this));
 
   // Gene update

@@ -244,12 +244,13 @@ app.get('/genotet', function(req, res) {
     // Expression matrix data queries
     case 'profile':
       var matrixName = req.query.matrixName;
-      var gene = req.query.gene;
+      var geneRegex = req.query.geneRegex;
       var conditionRegex = req.query.conditionRegex;
       var fileExp = expressionFile[matrixName];
       var fileTfa = tfamatFile[matrixName];
-      gene = gene.toLowerCase();
-      data = expression.getExpmatLine(fileExp, fileTfa, gene, conditionRegex);
+      geneRegex = geneRegex.toLowerCase();
+      data = expression.getExpmatLine(fileExp, fileTfa, geneRegex,
+        conditionRegex);
       break;
     case 'list-matrix':
       data = expression.listMatrix(expmatPath);

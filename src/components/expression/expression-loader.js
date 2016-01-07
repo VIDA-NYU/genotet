@@ -15,6 +15,7 @@ genotet.ExpressionLoader = function(data) {
 
   _.extend(this.data, {
     matrix: null,
+    tfaData: null,
     profiles: [],
     tfaProfiles: [],
     zoomStack: []
@@ -33,7 +34,7 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
 genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
                                                    conditionRegex) {
   this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
-  this.loadExpressionTfaProfile_('b-subtilis', 'sigA', conditionRegex);
+  this.loadExpressionTfaProfile_('b-subtilis', geneRegex, conditionRegex);
 };
 
 /**
@@ -55,44 +56,43 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
   };
 
   $.get(genotet.data.serverURL, params, function(data) {
-      // Store the last applied data selectors.
-      _.extend(data, {
-        matrixname: matrixName,
-        geneRegex: geneRegex,
-        conditionRegex: conditionRegex
-      });
+    // Store the last applied data selectors.
+    _.extend(data, {
+      matrixname: matrixName,
+      geneRegex: geneRegex,
+      conditionRegex: conditionRegex
+    });
 
-      this.data.matrix = data;
+    this.data.matrix = data;
 
-      this.signal('loadComplete');
-    }.bind(this), 'jsonp')
+    this.signal('loadComplete');
+  }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load expression matrix', params));
 };
 
 /**
  * Implements the expression matrix TFA profile loading ajax call.
- * Since the matrix may contain a large number of entries, we use POST request.
+ * Since the matrix may contain a large number of entries, we use GET request.
  * @param {string} matrixName Name of the expression matrix.
- * @param {string} geneName Name for gene selection.
+ * @param {string} geneRegex Gene regex for gene selection.
  * @param {string} conditionRegex Condition regex of the expression matrix.
  * @private
  */
 genotet.ExpressionLoader.prototype.loadExpressionTfaProfile_ =
-  function(matrixName, geneName, conditionRegex) {
+  function(matrixName, geneRegex, conditionRegex) {
     var params = {
       type: 'profile',
       matrixName: matrixName,
-      gene: geneName,
+      geneRegex: geneRegex,
       conditionRegex: conditionRegex
     };
     $.get(genotet.data.serverURL, params, function(data) {
-        // Store the last applied data selectors.
-        this.data.tfaProfiles.push(data);
-        console.log(data);
+      // Store the last applied data selectors.
+      console.log(data);
+      this.data.tfaData = data;
 
-        this.signal('tfaLoadComplete');
-
-      }.bind(this), 'jsonp')
+      this.signal('tfaLoadComplete');
+    }.bind(this), 'jsonp')
       .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
         params));
   };
