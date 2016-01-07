@@ -72,27 +72,39 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 
     this.signal('loadStart');
     this.data.matrix = data;
+    this.loadTfaData_(matrixName, geneRegex, conditionRegex);
   }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load expression matrix', params));
+};
 
-  var tfaParams = {
+/**
+ * Implements the TFA data loading ajax call.
+ * Since the matrix may contain a large number of entries, we use GET request.
+ * @param {string} matrixName Name of the expression matrix.
+ * @param {string} geneRegex Regex for gene selection.
+ * @param {string} conditionRegex Regex for experiment condition selection.
+ * @private
+ */
+genotet.ExpressionLoader.prototype.loadTfaData_ =
+  function(matrixName, geneRegex, conditionRegex) {
+    var tfaParams = {
     type: 'profile',
     matrixName: 'b-subtilis',
     geneRegex: geneRegex,
     conditionRegex: conditionRegex
-  };
-  $.get(genotet.data.serverURL, tfaParams, function(data) {
-    // Store the last applied data selectors.
-    this.data.tfaData = data;
-    if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
-      return;
-    }
+    };
+    $.get(genotet.data.serverURL, tfaParams, function(data) {
+        // Store the last applied data selectors.
+        this.data.tfaData = data;
+        if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
+          return;
+        }
 
-    this.signal('loadComplete');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
-      params));
-};
+        this.signal('loadComplete');
+      }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
+        tfaParams));
+  };
 
 /**
  * Updates the genes in the current expression.
