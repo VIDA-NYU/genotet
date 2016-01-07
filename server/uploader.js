@@ -140,13 +140,13 @@ module.exports = {
 
       for (var chr in seg) {
         var bcwigFile = folder + '/' + bwFile + '_' + chr + '.bcwig';
-        var bcwigBuf = new Buffer(8 * seg[chr].length);
+        var bcwigBuf = new Buffer(12 * seg[chr].length);
         for (var i = 0; i < seg[chr].length; i++) {
-          bcwigBuf.writeInt32LE(seg[chr][i].x, i * 8);
-          bcwigBuf.writeFloatLE(seg[chr][i].value, i * 8 + 4);
+          bcwigBuf.writeInt32LE(seg[chr][i].x, i * 12);
+          bcwigBuf.writeDoubleLE(seg[chr][i].value, i * 12 + 4);
         }
         var fd = fs.openSync(bcwigFile, 'w');
-        fs.writeSync(fd, bcwigBuf, 0, 8 * seg[chr].length, 0);
+        fs.writeSync(fd, bcwigBuf, 0, 12 * seg[chr].length, 0);
         fs.closeSync(fd);
       }
 
@@ -155,10 +155,10 @@ module.exports = {
         var segFile = folder + '/' + bwFile + '_' + chr + '.seg';
         var nodes = [];
         segtree.buildSegmentTree(nodes, seg[chr]);
-        var segBuf = new Buffer(4 + nodes.length * 4);
+        var segBuf = new Buffer(4 + nodes.length * 8);
         segBuf.writeInt32LE(nodes.length, 0);
-        for (var i = 0, offset = 4; i < nodes.length; i++, offset += 4) {
-          segBuf.writeFloatLE(nodes[i], offset);
+        for (var i = 0, offset = 4; i < nodes.length; i++, offset += 8) {
+          segBuf.writeDoubleLE(nodes[i], offset);
         }
         var fd = fs.openSync(segFile, 'w');
         fs.writeSync(fd, segBuf, 0, offset, 0);

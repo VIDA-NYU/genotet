@@ -241,7 +241,7 @@ module.exports = {
       hist.valueMax = Math.max(hist.valueMax, val);
     }
     console.log('returning', n, 'samples of', xl, xr);
-    console.log(hist);
+
     return hist;
   },
 
@@ -300,17 +300,16 @@ module.exports = {
     var offset = 0;
     var segs = [];
     console.log(buf.length);
-    for (var i = 0; i < buf.length / 8; i++) {
+    for (var i = 0; i < buf.length / 12; i++) {
       var x = buf.readInt32LE(offset),
-          val = buf.readFloatLE(offset + 4);
+          val = buf.readDoubleLE(offset + 4);
       segs.push({
         x: x,
         value: val
       });
-      offset += 8; // 1 int, 1 float
+      offset += 12; // 1 int, 1 double
     }
     console.log('read complete, cache size', bindingCache.list.length);
-    console.log(segs);
 
     if (bindingCache.list.length == cacheSize) {
       console.log('cache full, discarded head element');
@@ -336,10 +335,10 @@ module.exports = {
       cache.nodes = nodes;
       console.log('SegmentTree constructed');
 
-      var buf = new Buffer(4 + nodes.length * 4);
+      var buf = new Buffer(4 + nodes.length * 8);
       buf.writeInt32LE(nodes.length, 0);
-      for (var i = 0, offset = 4; i < nodes.length; i++, offset += 4) {
-        buf.writeFloatLE(nodes[i], offset);
+      for (var i = 0, offset = 4; i < nodes.length; i++, offset += 8) {
+        buf.writeDoubleLE(nodes[i], offset);
       }
       var fd = fs.openSync(segfile, 'w');
       fs.writeSync(fd, buf, 0, offset, 0);
@@ -348,8 +347,8 @@ module.exports = {
     } else {
       var num = buf.readInt32LE(0);
       var nodes = [];
-      for (var i = 0, offset = 4; i < num; i++, offset += 4) {
-        nodes.push(buf.readFloatLE(offset));
+      for (var i = 0, offset = 4; i < num; i++, offset += 8) {
+        nodes.push(buf.readDoubleLE(offset));
       }
       cache.nodes = nodes;
       console.log('SegmentTree read');

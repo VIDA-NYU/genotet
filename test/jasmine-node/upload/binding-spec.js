@@ -116,14 +116,14 @@ var tests = [
         expect(firstValue.x).toBe(3000080);
         float.equal(firstValue.value, 0.0593648);
         expect(lastValue.x).toBe(3000100);
-        float.equal(lastValue.value, 0.0379);
+        float.equal(lastValue.value, 0.11873);
       });
       it('x range', function() {
         expect(data.xMin).toBe(3000080);
         expect(data.xMax).toBe(3000100);
       });
       it('max values', function() {
-        float.equal(data.valueMax, 0.0379);
+        float.equal(data.valueMax, 0.11873);
         float.equal(data.allValueMax, 0.11873);
       });
       it('gene and chr', function() {

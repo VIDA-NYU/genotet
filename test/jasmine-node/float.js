@@ -16,7 +16,7 @@ module.exports = {
   equal: function(a, b, opt_tolerance) {
     var tolerance = opt_tolerance != null ? opt_tolerance : this.TOLERANCE_;
     expect(a).toBeGreaterThan(b - tolerance);
-    expect(a).toBeGreaterThan(b + tolerance);
+    expect(a).toBeLessThan(b + tolerance);
   }
 };
 
