@@ -19,7 +19,7 @@ genotet.ExpressionPanel = function(data) {
     showGeneLabels: true,
     showConditionLabels: true,
     showProfiles: true,
-    showGradient: false,
+    showTfaProfiles: true,
     autoScaleGradient: true
   });
 
@@ -67,13 +67,11 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       type: 'visibility',
       attribute: 'showProfiles'
     },
-    /*
     {
-      selector: '#show-gradient',
+      selector: '#show-tfa-profile',
       type: 'visibility',
-      attribute: 'showGradient'
+      attribute: 'showTfaProfiles'
     },
-    */
     {
       selector: '#auto-scale',
       type: 'auto-scale',
