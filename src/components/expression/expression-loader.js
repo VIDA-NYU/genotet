@@ -88,7 +88,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 genotet.ExpressionLoader.prototype.loadTfaData_ =
   function(matrixName, geneRegex, conditionRegex) {
     var tfaParams = {
-    type: 'profile',
+    type: 'expression-profile',
     matrixName: 'b-subtilis',
     geneRegex: geneRegex,
     conditionRegex: conditionRegex
