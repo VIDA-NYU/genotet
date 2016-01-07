@@ -20,6 +20,8 @@
     "gulp-html-replace": "^1.5.5",
     "gulp-jasmine": "^2.2.1",
     "gulp-qunit": "^1.3.0",
+    "gulp-replace": "^0.5.4",
+    "gulp-replace-task": "^0.11.0",
     "gulp-run": "^1.6.12",
     "gulp-sass": "^2.1.1",
     "gulp-scss-lint": "^0.3.8",

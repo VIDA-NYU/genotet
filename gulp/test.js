@@ -37,7 +37,7 @@ gulp.task('test-dev', function(cb) {
 gulp.task('test-production', function(cb) {
   runSequence(
     'clean',
-    ['copy', 'index-test', 'sass', 'compile-test'],
+    ['copy', 'index-test', 'sass', 'compile-qunit'],
     'run-test',
     cb);
 });
