@@ -37,12 +37,21 @@ $white: #fff;
     fill: transparent;
     stroke: $white;
     stroke-dasharray: 4px;
-    stroke-opacity: .5;
     stroke-width: 2px;
   }
 
   .label-selected {
     fill: $blue;
+  }
+
+  .cell {
+    &.highlighted {
+      stroke: $white;
+    }
+
+    &.zoom-highlighted {
+      stroke: $white;
+    }
   }
 
   .gene-label {
