@@ -733,28 +733,23 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     //.style('stroke', colorScale)
     .style('fill', colorScale)
     .on('mouseover', function(value, i, j) {
-      if (zoomSelected) {
-        return;
+      if (!zoomSelected) {
+        var hoverCell = d3.event.target;
+        var cell = new genotet.ExpressionRenderer.Cell({
+          container: hoverCell,
+          geneName: heatmapData.geneNames[j],
+          conditionName: heatmapData.conditionNames[i],
+          row: j,
+          column: i,
+          value: value
+        });
+        this.signal('cellHover', cell);
       }
-      var hoverCell = d3.event.target;
-      var cell = new genotet.ExpressionRenderer.Cell({
-        container: hoverCell,
-        geneName: heatmapData.geneNames[j],
-        conditionName: heatmapData.conditionNames[i],
-        row: j,
-        column: i,
-        value: value
-      });
-      this.signal('cellHover', cell);
     }.bind(this))
     .on('mouseout', function(value) {
-      if (zoomSelected) {
-        return;
-      }
       var hoverCell = d3.event.target;
       var cell = new genotet.ExpressionRenderer.Cell({
-        container: hoverCell,
-        colorscaleValue: colorScale(value)
+        container: hoverCell
       });
       this.signal('cellUnhover', cell);
     }.bind(this))
@@ -794,6 +789,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     .on('mousemove', function() {
       var rectSelection = zoomSelection.select('rect.selection');
       if (!rectSelection.empty()) {
+        zoomSelected = true;
         var mousePosition = d3.mouse(this);
         var selectedRange = {
           height: parseInt(rectSelection.attr('height'), 10),
@@ -849,7 +845,6 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
           return rowStart <= row && row <= rowEnd &&
             columnStart <= column && column <= columnEnd;
         }).classed('zoom-highlighted', true);
-        zoomSelected = true;
       }
     })
     .on('mouseup', function() {
@@ -857,7 +852,6 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       d3.selectAll('.gene-label').classed('label-selected', false);
       d3.selectAll('.condition-label').classed('label-selected', false);
       if (zoomSelected) {
-        zoomSelected = false;
         var zoomParams = {
           rowStart: rowStart,
           rowEnd: rowEnd,
@@ -894,6 +888,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       }
     }.bind(this))
     .on('mouseleave', function() {
+      zoomSelected = false;
       zoomSelection.select('rect.selection').remove();
       d3.selectAll('.gene-label').classed('label-selected', false);
       d3.selectAll('.condition-label').classed('label-selected', false);

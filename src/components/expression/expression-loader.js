@@ -54,26 +54,26 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
   };
 
   $.get(genotet.data.serverURL, params, function(data) {
-    // Store the last applied data selectors.
-    _.extend(data, {
-      matrixname: matrixName,
-      geneRegex: geneRegex,
-      conditionRegex: conditionRegex
-    });
+      // Store the last applied data selectors.
+      _.extend(data, {
+        matrixname: matrixName,
+        geneRegex: geneRegex,
+        conditionRegex: conditionRegex
+      });
 
-    if (data.geneNames.length == 0) {
-      genotet.warning('input gene not found');
-      return;
-    }
-    if (data.conditionNames.length == 0) {
-      genotet.warning('input condition not found');
-      return;
-    }
+      if (data.geneNames.length == 0) {
+        genotet.warning('input gene not found');
+        return;
+      }
+      if (data.conditionNames.length == 0) {
+        genotet.warning('input condition not found');
+        return;
+      }
 
-    this.signal('loadStart');
-    this.data.matrix = data;
-    this.loadTfaData_(matrixName, geneRegex, conditionRegex);
-  }.bind(this), 'jsonp')
+      this.signal('loadStart');
+      this.data.matrix = data;
+      this.loadTfaData_(matrixName, geneRegex, conditionRegex);
+    }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load expression matrix', params));
 };
 
