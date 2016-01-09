@@ -770,6 +770,13 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var cellWidth = this.cellWidth;
   var cellHeight = this.cellHeight;
   var columnStart, columnEnd, rowStart, rowEnd;
+  var zoomOutButtonSelection = d3.select('#zoom-out button');
+  if (this.data.zoomStack.length == 0) {
+    zoomOutButtonSelection.classed('disabled', true);
+  }
+  else {
+    zoomOutButtonSelection.classed('disabled', false);
+  }
 
   var zoomSelection = this.svgHeatmapContent_
     .on('mousedown', function() {

@@ -112,6 +112,11 @@ d3.prototype.append = function(tag) {};
  */
 d3.prototype.call = function(arg) {};
 
+/**
+ * @return {Element}
+ */
+d3.prototype.node = function() {};
+
 /** @const */
 d3.svg = {};
 
