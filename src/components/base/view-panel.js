@@ -19,9 +19,9 @@ genotet.ViewPanel = function(data) {
 
   /**
    * Panel container, assigned when panel() is called.
-   * @private {jQuery}
+   * @protected {jQuery}
    */
-  this.container_;
+  this.container;
 };
 
 /**
@@ -35,12 +35,12 @@ genotet.ViewPanel.prototype.template = 'dist/html/view-panel.html';
  * @param {!jQuery} container Panel container.
  */
 genotet.ViewPanel.prototype.create = function(container) {
-  this.container_ = container;
+  this.container = container;
 
-  this.container_.load(this.template, function() {
-      this.initPanel();
-      $(this).trigger('genotet.panelReady');
-    }.bind(this));
+  this.container.load(this.template, function() {
+    this.initPanel();
+    $(this).trigger('genotet.panelReady');
+  }.bind(this));
 };
 
 /**
@@ -56,8 +56,8 @@ genotet.ViewPanel.prototype.dataLoaded = function() {};
 /**
  * Triggers a jQuery event on the panel.
  * @param {string} eventType Type of event.
- * @param {Object} data Data object to be sent via the event.
+ * @param {*=} opt_data Data to be sent via the event.
  */
-genotet.ViewPanel.prototype.signal = function(eventType, data) {
-  $(this).trigger('genotet.' + eventType, [data]);
+genotet.ViewPanel.prototype.signal = function(eventType, opt_data) {
+  $(this).trigger('genotet.' + eventType, [opt_data]);
 };

@@ -8,7 +8,7 @@
  * NetworkRenderer renders the visualizations for the NetworkView.
  * @param {!jQuery} container View container.
  * @param {!Object} data Data object to be written.
- * @extends {ViewRenderer}
+ * @extends {genotet.ViewRenderer}
  * @constructor
  */
 genotet.NetworkRenderer = function(container, data) {
@@ -46,7 +46,7 @@ genotet.NetworkRenderer = function(container, data) {
 
   /**
    * D3 force for graph layout.
-   * @private {!d3.force}
+   * @private {!d3.layout.force}
    */
   this.force_ = d3.layout.force();
 
@@ -74,6 +74,14 @@ genotet.NetworkRenderer = function(container, data) {
   this.zoomScale_ = 1.0;
   /** @private {genotet.NetworkRenderer.MouseState} */
   this.mouseState_ = genotet.NetworkRenderer.MouseState.NONE;
+
+  /**
+   * @protected {{
+   *   weightMin: number,
+   *   weightMax: number
+   * }}
+   */
+  this.data;
 };
 
 genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
@@ -129,19 +137,19 @@ genotet.NetworkRenderer.prototype.initLayout = function() {
   // Groups shall be created in the reverse order of their appearing order.
   /**
    * SVG group for edges.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgEdges_ = this.canvas.append('g')
     .classed('edges render-group', true);
   /**
    * SVG group for nodes.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgNodes_ = this.canvas.append('g')
     .classed('nodes render-group', true);
   /**
    * SVG group for node labels.
-   * @private {!d3.selection}
+   * @private {!d3}
    */
   this.svgNodeLabels_ = this.canvas.append('g')
     .classed('node-labels render-group', true);
@@ -152,11 +160,11 @@ genotet.NetworkRenderer.prototype.initLayout = function() {
  * @override
  */
 genotet.NetworkRenderer.prototype.render = function() {
-  if (!this.dataReady_()) {
+  if (!this.dataReady()) {
     return;
   }
   this.force_
-    .size([this.canvasWidth_, this.canvasHeight_])
+    .size([this.canvasWidth, this.canvasHeight])
     .start();
 };
 
@@ -221,12 +229,8 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
   this.drawNetwork_();
 };
 
-/**
- * Checks whether the data has been loaded.
- * @private
- * @return {boolean}
- */
-genotet.NetworkRenderer.prototype.dataReady_ = function() {
+/** @inheritDoc */
+genotet.NetworkRenderer.prototype.dataReady = function() {
   return this.data.nodes != null;
 };
 
@@ -251,9 +255,11 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
     }
     nodeIds[node.id] = true;
   }, this);
-  this.nodes_ = _(this.nodes_).pick(function(node, id) {
-    return id in nodeIds;
-  });
+  this.nodes_ = /** @type {!Object<!Object>}*/(_.pick(this.nodes_,
+    function(node, id) {
+      return id in nodeIds;
+   })
+  );
 
   // Edges do not have position data to keep. Simply reset.
   this.edges_ = {};
@@ -486,7 +492,7 @@ genotet.NetworkRenderer.prototype.drawEdges_ = function() {
         genotet.utils.multiplyVector(dm, this.NODE_SIZE));
     var p2 = genotet.utils.addVector(p1,
         genotet.utils.multiplyVector(ds, this.EDGE_ARROW_LENGTH));
-    var p3 = genotet.utils.mirrorPoint(p2, p1, pm, 1);
+    var p3 = genotet.utils.mirrorPoint(p2, p1, pm);
     return [p1, p2, p3];
   }.bind(this);
 

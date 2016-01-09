@@ -21,9 +21,8 @@ gulp.task('watch', function() {
 // Test task.
 gulp.task('test', function(cb) {
   runSequence(
-    'clean',
-    ['copy', 'index-test', 'sass-dev', 'concat-src'],
-    'run-test',
+    'test-dev',
+    'test-production',
     cb);
 });
 
@@ -32,3 +31,12 @@ gulp.task('dev', ['lint', 'build-dev']);
 
 // Default task. Build with code minification.
 gulp.task('default', ['lint', 'build']);
+
+// Do everything.
+gulp.task('all', function(cb) {
+  runSequence(
+    'clean',
+    ['lint', 'compile-all'],
+    'test',
+    cb);
+});

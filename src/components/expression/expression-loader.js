@@ -7,13 +7,13 @@
 /**
  * ExpressionLoader loads the expression matrix data for the ExpressionView.
  * @param {!Object} data Data object to be written.
- * @extends {ViewLoader}
+ * @extends {genotet.ViewLoader}
  * @constructor
  */
 genotet.ExpressionLoader = function(data) {
   genotet.ExpressionLoader.base.constructor.call(this, data);
 
-  _(this.data).extend({
+  _.extend(this.data, {
     matrix: null,
     profiles: []
   });
@@ -45,7 +45,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     geneRegex, conditionRegex) {
   this.signal('loadStart');
   var params = {
-    type: 'read-expression',
+    type: 'expression',
     matrixName: matrixName,
     geneRegex: geneRegex,
     conditionRegex: conditionRegex
@@ -53,7 +53,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 
   $.get(genotet.data.serverURL, params, function(data) {
       // Store the last applied data selectors.
-      _(data).extend({
+      _.extend(data, {
         matrixname: matrixName,
         geneRegex: geneRegex,
         conditionRegex: conditionRegex
@@ -93,7 +93,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
       // Remove the regex.
       geneRegex = '';
       this.data.matrix.geneNames.forEach(function(geneName) {
-        if (!geneName.match(regex)) {
+        if (!geneName.toUpperCase().match(regex)) {
           geneRegex += geneName + '|';
         }
       });
@@ -113,7 +113,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
       // Remove the regex.
       conditionRegex = '';
       this.data.matrix.conditionNames.forEach(function(conditionName) {
-        if (!conditionName.match(regex)) {
+        if (!conditionName.toUpperCase().match(regex)) {
           conditionRegex += conditionName + '|';
         }
       });

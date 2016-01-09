@@ -7,27 +7,27 @@
 /**
  * ExpressionPanel manages the UI control panel of the expression matrix.
  * @param {!Object} data Data object of the view.
+ * @extends {genotet.ViewPanel}
  * @constructor
  */
 genotet.ExpressionPanel = function(data) {
   genotet.ExpressionPanel.base.constructor.call(this, data);
 
   // Set the view options.
-  _(this.data.options).extend({
-    // TODO(bowen): Check how TFA data will be used.
-    //showTFA: true,
+  _.extend(this.data.options, {
+    showTFA: true,
     showGeneLabels: true,
-    showConditionLabels: false,
+    showConditionLabels: true,
     showProfiles: true,
     showGradient: false,
     autoScaleGradient: true
   });
 
   /**
-   * Select2 for selecting genes to profile.
+   * Selection of genes to profile.
    * @private {select2}
    */
-  this.selectProfiles_;
+  this.selectProfiles_ = null;
 };
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
@@ -46,7 +46,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   this.updateGenes([]);
 
   // Initialize switches.
-  this.container_.find('.switches input').bootstrapSwitch({
+  this.container.find('.switches input').bootstrapSwitch({
     size: 'mini'
   });
 
@@ -80,7 +80,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       attribute: 'autoScaleGradient'
     }
   ].forEach(function(bSwitch) {
-    this.container_.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
+    this.container.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
       function(event, state) {
         this.data.options[bSwitch.attribute] = state;
         this.signal('update', {
@@ -102,8 +102,8 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
 
   // Gene update
   ['setGene', 'addGene', 'removeGene'].forEach(function(method) {
-    this.container_.find('#genes #' + method).click(function() {
-      var input = this.container_.find('#genes input');
+    this.container.find('#genes #' + method).click(function() {
+      var input = this.container.find('#genes input');
       var geneRegex = input.val();
       if (geneRegex == '') {
         genotet.warning('missing input gene selection');
@@ -120,8 +120,8 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
 
   // Condition update
   ['setCondition', 'addCondition', 'removeCondition'].forEach(function(method) {
-    this.container_.find('#conditions #' + method).click(function() {
-      var input = this.container_.find('#conditions input');
+    this.container.find('#conditions #' + method).click(function() {
+      var input = this.container.find('#conditions input');
       var conditionRegex = input.val();
       if (conditionRegex == '') {
         genotet.warning('missing input condition selection');
@@ -149,52 +149,55 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
       text: gene
     };
   });
-  this.selectProfiles_ = this.container_.find('#profile select').empty();
-  this.selectProfiles_.select2({
-      data: genes,
-      multiple: true
-    });
-  this.container_.find('#profile .select2-container').css({
+  var geneProfiles = this.data.profiles.map(function(profile) {
+    return profile.geneName;
+  });
+  var profile = this.container.find('#profile select').empty();
+  this.selectProfiles_ = profile.select2({
+    data: genes,
+    multiple: true
+  });
+  this.selectProfiles_.select2('val', geneProfiles);
+  this.container.find('#profile .select2-container').css({
     width: '100%'
   });
 };
 
 /**
  * Adds the cell info into a given container.
- * @param {!String} geneName Gene name of which info is to be displayed.
- * @param {!String} conditionName Condition name of which info is to be
+ * @param {string} geneName Gene name of which info is to be displayed.
+ * @param {string} conditionName Condition name of which info is to be
  *     displayed.
- * @param {!Number} value Value of which info is to be displayed.
+ * @param {number} value Value of which info is to be displayed.
  * @param {!jQuery} container Info container.
  * @private
  */
 genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName,
     conditionName, value, container) {
-  container.html(this.container_.find('#cell-info-template').html());
+  container.html(/** @type {string} */
+    (this.container.find('#cell-info-template').html()));
   container.children('#gene').children('span')
     .text(geneName);
   container.children('#condition').children('span')
     .text(conditionName);
   container.children('#value').children('span')
-    .text(value);
+    .text(value + '');
 };
 
 /**
- * Hides all info boxes.
- * @private
+ * Hides all cell info boxes.
  */
-genotet.ExpressionPanel.prototype.hideCellInfo_ = function() {
-  this.container_.find('#cell-info').slideUp();
+genotet.ExpressionPanel.prototype.hideCellInfo = function() {
+  this.container.find('#cell-info').slideUp();
 };
 
 /**
  * Displays a tooltip around cursor about a hovered cell.
- * @param {!String} geneName Gene Name being hovered.
- * @param {!String} conditionName Condition Name being hovered.
- * @param {!Number} value Value of which info is to be displayed.
- * @private
+ * @param {string} geneName Gene Name being hovered.
+ * @param {string} conditionName Condition Name being hovered.
+ * @param {number} value Value of which info is to be displayed.
  */
-genotet.ExpressionPanel.prototype.tooltipHeatmap_ = function(geneName,
+genotet.ExpressionPanel.prototype.tooltipHeatmap = function(geneName,
     conditionName, value) {
   var tooltip = genotet.tooltip.create();
   this.setCellInfo_(geneName, conditionName, value, tooltip);
@@ -203,77 +206,16 @@ genotet.ExpressionPanel.prototype.tooltipHeatmap_ = function(geneName,
 
 /**
  * Displays the info box for expression cell.
- * @param {!String} geneName Gene Name of which the info is to be displayed.
- * @param {!String} conditionName Condition Name of which the info is to be
+ * @param {string} geneName Gene Name of which the info is to be displayed.
+ * @param {string} conditionName Condition Name of which the info is to be
  *     displayed.
- * @param {!Number} value Value of which info is to be displayed.
- * @private
+ * @param {number} value Value of which info is to be displayed.
  */
-genotet.ExpressionPanel.prototype.displayCellInfo_ = function(geneName,
+genotet.ExpressionPanel.prototype.displayCellInfo = function(geneName,
     conditionName, value) {
-  var info = this.container_.find('#cell-info').hide().slideDown();
+  var info = this.container.find('#cell-info').hide().slideDown();
   this.setCellInfo_(geneName, conditionName, value, info);
   info.find('.close').click(function() {
-    this.hideCellInfo_();
-  }.bind(this));
-};
-
-/**
- * Adds the profile info into a given container.
- * @param {!String} geneName Gene name of which info is to be displayed.
- * @param {!String} conditionName Condition name of which info is to be
- *     displayed.
- * @param {!Number} value Value of which info is to be displayed.
- * @param {!jQuery} container Info container.
- * @private
- */
-genotet.ExpressionPanel.prototype.setPathInfo_ = function(geneName,
-    conditionName, value, container) {
-  container.html(this.container_.find('#profile-info-template').html());
-  container.children('#genePath').children('span')
-    .text(geneName);
-  container.children('#conditionPath').children('span')
-    .text(conditionName);
-  container.children('#profileValue').children('span')
-    .text(value);
-};
-
-/**
- * Hides all info boxes.
- * @private
- */
-genotet.ExpressionPanel.prototype.hidePathInfo_ = function() {
-  this.container_.find('#profile-info').slideUp();
-};
-
-/**
- * Displays a tooltip around cursor about a hovered profile.
- * @param {!String} geneName Gene Name being hovered.
- * @param {!String} conditionName Condition name of which info is to be
- *     displayed.
- * @param {!Number} value Value of which info is to be displayed.
- * @private
- */
-genotet.ExpressionPanel.prototype.tooltipGeneProfile_ = function(geneName,
-    conditionName, value) {
-  var tooltip = genotet.tooltip.create();
-  this.setPathInfo_(geneName, conditionName, value, tooltip);
-  tooltip.find('.close').remove();
-};
-
-/**
- * Displays the info box for expression profile.
- * @param {!String} geneName Gene Name of which the info is to be displayed.
- * @param {!String} conditionName Condition name of which info is to be
- *     displayed.
- * @param {!Number} value Value of which info is to be displayed.
- * @private
- */
-genotet.ExpressionPanel.prototype.displayPathInfo_ = function(geneName,
-    conditionName, value) {
-  var info = this.container_.find('#profile-info').hide().slideDown();
-  this.setPathInfo_(geneName, conditionName, value, info);
-  info.find('.close').click(function() {
-    this.hidePathInfo_();
+    this.hideCellInfo();
   }.bind(this));
 };

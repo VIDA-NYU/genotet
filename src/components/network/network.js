@@ -9,24 +9,38 @@
  * topology.
  * @param {string} viewName Name of the view.
  * @param {!Object} params Additional parameters.
- * @extends {View}
+ * @extends {genotet.View}
  * @constructor
  */
 genotet.NetworkView = function(viewName, params) {
   genotet.NetworkView.base.constructor.call(this, viewName);
 
+  /**
+   * @protected {!{
+   *   showLabels: boolean,
+   *   showTFToTF: boolean,
+   *   showTFToNonTF: boolean
+   * }}
+   */
+  this.data.options = {
+    showLabels: true,
+    showTFToTF: true,
+    showTFToNonTF: true
+  };
+
+
   this.container.addClass('network');
 
-  /** @protected {NetworkLoader} */
+  /** @protected {genotet.NetworkLoader} */
   this.loader = new genotet.NetworkLoader(this.data);
 
-  /** @protected {NetworkPanel} */
+  /** @protected {genotet.NetworkPanel} */
   this.panel = new genotet.NetworkPanel(this.data);
 
-  /** @protected {NetworkTable} */
+  /** @protected {genotet.NetworkTable} */
   this.table = new genotet.NetworkTable(this.data);
 
-  /** @protected {NetworkRenderer} */
+  /** @protected {genotet.NetworkRenderer} */
   this.renderer = new genotet.NetworkRenderer(this.container, this.data);
 
   // Set up data loading callbacks.

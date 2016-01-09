@@ -10,11 +10,11 @@
  * @constructor
  */
 genotet.View = function(viewName) {
-  /** @protected {ViewRenderer} */
+  /** @protected {genotet.ViewRenderer} */
   this.renderer;
-  /** @protected {ViewLoader} */
+  /** @protected {genotet.ViewLoader} */
   this.loader;
-  /** @protected {ViewPanel} */
+  /** @protected {genotet.ViewPanel} */
   this.panel;
 
   /** @private {string} */
@@ -123,14 +123,23 @@ genotet.View.prototype.init = function() {
 
 /**
  * Sets the view name. If null, return the current view name.
- * @param {?string} name View name.
- * @return {?string}
+ * @param {string=} name View name.
+ * @return {string}
  */
 genotet.View.prototype.name = function(name) {
-  if (!name) {
+  if (name == null) {
     return this.viewName_;
   }
   this.viewName_ = name;
+  return name;
+};
+
+/**
+ * Gets the view id.
+ * @return {string}
+ */
+genotet.View.prototype.id = function() {
+  return this.viewID_;
 };
 
 /**
@@ -149,7 +158,7 @@ genotet.View.prototype.headerText = function(headerText) {
 
 /**
  * Makes the view appear focused.
- * @param {?string} sendSignal Flag of sending signal.
+ * @param {boolean=} sendSignal Flag of sending signal.
  */
 genotet.View.prototype.focus = function(sendSignal) {
   this.container.addClass('focused');
@@ -214,8 +223,8 @@ genotet.View.prototype.createPanel = function(container) {
 /**
  * Triggers a jQuery event on the view.
  * @param {string} eventType Type of event.
- * @param {Object} data Data object to be sent via the event.
+ * @param {*=} opt_data Data to be sent via the event.
  */
-genotet.View.prototype.signal = function(eventType, data) {
-  $(this).trigger('genotet.' + eventType, [data]);
+genotet.View.prototype.signal = function(eventType, opt_data) {
+  $(this).trigger('genotet.' + eventType, [opt_data]);
 };

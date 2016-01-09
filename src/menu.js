@@ -35,9 +35,6 @@ genotet.menu.init = function() {
 
   // Options section.
   // TODO(bowen): Add system options.
-  $('#option-alert').click(function() {
-    genotet.options.toggleAllowAlert();
-  });
 
   // Help document.
   $('#doc').click(function() {

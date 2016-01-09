@@ -5,25 +5,64 @@
 'use strict';
 
 /**
+ * @typedef {{
+ *   gene: string,
+ *   overview: !Array,
+ *   detail: !Array,
+ *   xMin: number,
+ *   xMax: number
+ * }}
+ */
+genotet.bindingTrack;
+
+/**
+ * @typedef {{
+ *   name: string,
+ *   name2: string,
+ *   txStart: number,
+ *   txEnd: number,
+ *   strand: string,
+ *   txRanges: !Array<{start: number, end: number}>,
+ *   exRanges: !Array<{start: number, end: number}>
+ * }}
+ */
+genotet.Exon;
+
+/**
+ * @typedef {{
+ *   overviewXMin: number,
+ *   overviewXMax: number,
+ *   tracks: !Array<!genotet.bindingTrack>,
+ *   exons: !Array<!genotet.Exon>
+ * }}
+ */
+genotet.bindingData;
+
+/**
  * BindingView extends the base View class, and renders the binding data
  * associated with the regulatory Binding.
  * @param {string} viewName Name of the view.
  * @param {!Object} params Additional parameters.
- * @extends {View}
+ * @extends {genotet.View}
  * @constructor
  */
 genotet.BindingView = function(viewName, params) {
   genotet.BindingView.base.constructor.call(this, viewName);
 
+  /**
+   * @protected {genotet.bindingData}
+   */
+  this.data;
+
   this.container.addClass('binding');
 
-  /** @protected {BindingLoader} */
+  /** @protected {genotet.BindingLoader} */
   this.loader = new genotet.BindingLoader(this.data);
 
-  /** @protected {BindingPanel} */
+  /** @protected {genotet.BindingPanel} */
   this.panel = new genotet.BindingPanel(this.data);
 
-  /** @protected {BindingRenderer} */
+  /** @protected {genotet.BindingRenderer} */
   this.renderer = new genotet.BindingRenderer(this.container, this.data);
 
   // Set up data loading callbacks.

@@ -92,13 +92,27 @@ $gray: #ccc;
       display: none;
     }
 
-    li:nth-child(2) {
-      margin-top: 46.5px;
+    li:nth-child(2) a {
+      border-top-right-radius: 0;
+      margin-top: 47px;
+    }
+  }
+}
 
-      a {
-        border-top-right-radius: 0;
-        margin-top: -2px;
-      }
+.panel {
+  &.binding {
+    #genes #add {
+      margin-top: 5px;
+      width: 100%;
+    }
+
+    .track-gene {
+      margin-top: 3px;
+    }
+
+    a {
+      border-top-right-radius: 0;
+      margin-top: -2px;
     }
   }
 }

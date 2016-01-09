@@ -5,7 +5,7 @@ var runSequence = require('run-sequence');
 // Build with code minification.
 gulp.task('build', function(cb) {
   runSequence(
-    'clean',
+    'dist',
     ['copy', 'index', 'sass', 'compile'],
     cb);
 });
@@ -13,7 +13,14 @@ gulp.task('build', function(cb) {
 // Build without code minification.
 gulp.task('build-dev', function(cb) {
   runSequence(
-    'clean',
-    ['copy', 'index-dev', 'sass-dev', 'concat-src', 'concat-src-dev'],
+    'dist',
+    'compile-all',
+    'dist',
+    [
+      'copy',
+      'index',
+      'sass-dev',
+      'concat-src-dev'
+    ],
     cb);
 });

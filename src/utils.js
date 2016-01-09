@@ -86,8 +86,8 @@ genotet.utils.rectInsideWindow = function(rect) {
 
 /**
  * Combines translate and scale into a CSS transform string.
- * @param {Vector2=} opt_translate Zoom translate.
- * @param {number=} opt_scale Zoom scale.
+ * @param {genotet.utils.Vector2=} opt_translate Zoom translate.
+ * @param {(number|!Array<number>)=} opt_scale Zoom scale.
  * @param {number=} opt_rotate Rotation degree.
  * @return {string} CSS string of the transform.
  */
@@ -219,7 +219,7 @@ genotet.utils.multiplyVector = function(p, k) {
  * @return {string} Random color.
  */
 genotet.utils.randomColor = function() {
-  var colors = d3.scale.category20().range();
+  var colors = /** @type {!Array<string>} */(d3.scale.category20().range());
   var index = Math.floor(Math.random() * colors.length);
   return colors[index];
 };
@@ -227,11 +227,12 @@ genotet.utils.randomColor = function() {
 /**
  * Hashes a string.
  * @param {string} s
- * @return {number} Hash value between [0, 1000000007).
+ * @return {number} Hash value between [0, 1000000007), or -1 on error.
  */
 genotet.utils.hashString = function(s) {
   if (typeof s != 'string') {
-    return genotet.error('x is not a string to hash');
+    genotet.error('x is not a string to hash');
+    return -1;
   }
   var a = 3, p = 1000000007;
   var result = 0;
@@ -266,9 +267,29 @@ genotet.utils.swap = function(arr, i, j) {
 };
 
 /**
+ * Converts an array of string or object with string keys to a set
+ * with the strings as keys. The values will be set to all true.
+ * @param {!Array<string>|!Object<*>} collection
+ * @return {!Object<boolean>}
+ */
+genotet.utils.keySet = function(collection) {
+  var obj = {};
+  if (collection instanceof Array) {
+    collection.forEach(function(element) {
+      obj[element] = true;
+    });
+  } else {
+    for (var key in collection) {
+      obj[key] = true;
+    }
+  }
+  return obj;
+};
+
+/**
  * Makes 'child' class inherit 'base' class.
- * @param {*} child
- * @param {*} base
+ * @param {Function} child
+ * @param {Function} base
  */
 genotet.utils.inherit = function(child, base) {
   child.prototype = Object.create(base.prototype);

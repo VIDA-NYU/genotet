@@ -7,13 +7,13 @@
 /**
  * BindingLoader loads the binding data for the BindingView.
  * @param {!Object} data Data object to be written.
- * @extends {ViewLoader}
+ * @extends {genotet.ViewLoader}
  * @constructor
  */
 genotet.BindingLoader = function(data) {
   genotet.BindingLoader.base.constructor.call(this, data);
 
-  _(this.data).extend({
+  _.extend(this.data, {
     tracks: [],
     exons: []
   });
@@ -27,7 +27,7 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 /**
  * Loads the binding data for a given gene and chromosome.
  * @param {string} gene Name of the gene.
- * @param {chr} chr ID of the chromosome.
+ * @param {string} chr ID of the chromosome.
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
@@ -59,7 +59,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
       .fail(this.fail.bind(this, 'cannot load binding overview', params));
 
     // Send send query for the details.
-    _(params).extend({
+    _.extend(params, {
       xl: this.data.detailXMin,
       xr: this.data.detailXMax
     });
@@ -105,7 +105,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
 
   if (this.data.detailXMin) {
     // If we have a previously defined detail range, then keep the range.
-    _(params).extend({
+    _.extend(params, {
       xl: this.data.detailXMin,
       xr: this.data.detailXMax
     });
@@ -179,23 +179,23 @@ genotet.BindingLoader.prototype.findLocus = function(gene) {
     gene: gene
   };
   $.get(genotet.data.serverURL, params, function(res) {
-    if (!res.success) {
-      genotet.warning('gene locus not found');
-    } else {
-      var span = res.txEnd - res.txStart;
-      this.data.detailXMin = res.txStart - span * this.LOCUS_MARGIN_RATIO;
-      this.data.detailXMax = res.txEnd + span * this.LOCUS_MARGIN_RATIO;
-      if (res.chr != this.data.chr) {
-        this.data.chr = res.chr;
-        this.signal('chr', res.chr);
-        this.switchChr(res.chr);
+      if (!res.success) {
+        genotet.warning('gene locus not found');
       } else {
-        this.loadTrackDetail(this.data.detailXMin, this.data.detailXMax);
+        var span = res.txEnd - res.txStart;
+        this.data.detailXMin = res.txStart - span * this.LOCUS_MARGIN_RATIO;
+        this.data.detailXMax = res.txEnd + span * this.LOCUS_MARGIN_RATIO;
+        if (res.chr != this.data.chr) {
+          this.data.chr = res.chr;
+          this.signal('chr', res.chr);
+          this.switchChr(res.chr);
+        } else {
+          this.loadTrackDetail(this.data.detailXMin, this.data.detailXMax);
+        }
       }
-    }
-    this.signal('loadComplete');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot search for gene locus', params));
+      this.signal('loadComplete');
+    }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot search for gene locus', params));
 };
 
 /**
@@ -224,13 +224,13 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
   this.data.overviewRangeChanged = overviewXMin != this.data.overviewXMin ||
     overviewXMax != this.data.overviewXMax;
 
-  _(this.data).extend({
+  _.extend(this.data, {
     overviewXMin: overviewXMin,
     overviewXMax: overviewXMax
   });
   if (!this.data.detailXMin) {
     // If we do not have a detail range yet, then use the overview range.
-    _(this.data).extend({
+    _.extend(this.data, {
       detailXMin: overviewXMin,
       detailXMax: overviewXMax
     });

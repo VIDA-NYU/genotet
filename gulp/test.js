@@ -2,25 +2,15 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
 var qunit = require('gulp-qunit');
-
+var runSequence = require('run-sequence');
 var paths = require('./paths.js');
-
-// Concat the tests.
-gulp.task('concat-qunit-tests', function(cb) {
-  return gulp.src(paths.qunitTests)
-    .pipe(concat('genotet-test.js'))
-    .pipe(gulp.dest(paths.dist));
-});
 
 gulp.task('copy-testdata', function() {
   return gulp.src(paths.testData)
     .pipe(gulp.dest(paths.dist + 'data'));
 });
 
-gulp.task('qunit-test', [
-  'concat-qunit-tests',
-  'copy-testdata'
-], function(cb) {
+gulp.task('qunit-test', ['copy-testdata'], function(cb) {
   return gulp.src('index.html')
     .pipe(qunit({
       // phantomjs2 is required as 1.x does not have Function.prototype.bind
@@ -33,3 +23,21 @@ gulp.task('qunit-test', [
 
 // Run the tests.
 gulp.task('run-test', ['qunit-test']);
+
+// Test task for dev build, without compiler optimization.
+gulp.task('test-dev', function(cb) {
+  runSequence(
+    'clean',
+    ['copy', 'index-test', 'sass-dev', 'concat-src-test'],
+    'run-test',
+    cb);
+});
+
+// Test task for production build, with compiler optimization/
+gulp.task('test-production', function(cb) {
+  runSequence(
+    'clean',
+    ['copy', 'index-test', 'sass', 'compile-qunit'],
+    'run-test',
+    cb);
+});

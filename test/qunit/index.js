@@ -15,7 +15,7 @@ genotet.qunit.init = function() {
 /**
  * Chains the qunit async tests.
  * @param {!QUnit.assert} assert
- * @param {!Array<{action: function, check: function}>} tests
+ * @param {!Array<{action: Function, check: Function}>} tests
  */
 genotet.qunit.chain = function(assert, tests) {
   var run = function(index) {
