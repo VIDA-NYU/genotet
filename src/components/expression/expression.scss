@@ -40,10 +40,6 @@ $white: #fff;
     stroke-width: 2px;
   }
 
-  .label-selected {
-    fill: $blue;
-  }
-
   .cell {
     &.highlighted {
       stroke: $white;
@@ -65,6 +61,11 @@ $white: #fff;
       fill: $red;
       stroke: $red;
     }
+
+    &.label-selected {
+      fill: $blue;
+      stroke: none;
+    }
   }
 
   .condition-label {
@@ -77,6 +78,11 @@ $white: #fff;
     &.click-highlighted {
       fill: $red;
       stroke: $red;
+    }
+
+    &.label-selected {
+      fill: $blue;
+      stroke: none;
     }
   }
 }

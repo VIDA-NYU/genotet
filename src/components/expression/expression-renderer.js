@@ -98,9 +98,9 @@ genotet.ExpressionRenderer = function(container, data) {
    */
   this.HEATMAP_GRADIENT_MARGINS_ = {
     TOP: 5,
-    RIGHT: 40,
+    RIGHT: 5,
     BOTTOM: 5,
-    LEFT: 40
+    LEFT: 5
   };
 };
 
@@ -271,7 +271,7 @@ genotet.ExpressionRenderer.prototype.HEATMAP_LEGEND_MARGIN = 1;
 genotet.ExpressionRenderer.prototype.HEATMAP_CELL_STROKE_WIDTH = 1;
 
 /** @const {number} */
-genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_MARGIN = 1;
+genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_MARGIN = 5;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.TEXT_HEIGHT = 9.66;
@@ -730,7 +730,6 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     .attr('y', function(value, i, j) {
       return j * this.cellHeight;
     }.bind(this))
-    //.style('stroke', colorScale)
     .style('fill', colorScale)
     .on('mouseover', function(value, i, j) {
       if (!zoomSelected) {
@@ -975,10 +974,13 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
   var gradientHeight = this.DEFAULT_HEATMAP_GRADIENT_HEIGHT -
     this.HEATMAP_GRADIENT_MARGINS_.TOP -
     this.HEATMAP_GRADIENT_MARGINS_.BOTTOM;
-  var gradientWidth = this.heatmapWidth_ - marginLeft - marginRight;
+  var gradientWidth = this.heatmapWidth_ - marginLeft - marginRight -
+    this.HEATMAP_GRADIENT_MARGINS_.LEFT - this.HEATMAP_GRADIENT_MARGINS_.RIGHT -
+    this.HEATMAP_GRADIENT_MARGIN * 2;
   this.gradientRect_
     .attr('transform', genotet.utils.getTransform([
-      marginLeft,
+      marginLeft + this.HEATMAP_GRADIENT_MARGIN +
+      this.HEATMAP_GRADIENT_MARGINS_.LEFT,
       this.HEATMAP_GRADIENT_MARGINS_.TOP
     ]))
     .attr('width', gradientWidth)
@@ -986,13 +988,13 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
     .attr('rx', 10)
     .attr('ry', 10);
   d3.select('.gradient-text-left')
-    .attr('x', marginLeft - this.HEATMAP_GRADIENT_MARGIN)
+    .attr('x', this.HEATMAP_GRADIENT_MARGINS_.LEFT)
     .attr('y', this.HEATMAP_GRADIENT_MARGINS_.TOP + gradientHeight / 2 +
       this.TEXT_HEIGHT / 2)
-    .text(scaleMin)
-    .style('text-anchor', 'end');
+    .text(scaleMin);
   d3.select('.gradient-text-right')
-    .attr('x', marginLeft + gradientWidth + this.HEATMAP_GRADIENT_MARGIN)
+    .attr('x', this.heatmapWidth_ - marginRight -
+      this.HEATMAP_GRADIENT_MARGINS_.RIGHT)
     .attr('y', this.HEATMAP_GRADIENT_MARGINS_.TOP + gradientHeight / 2 +
       this.TEXT_HEIGHT / 2)
     .text(scaleMax);
@@ -1305,7 +1307,6 @@ genotet.ExpressionRenderer.prototype.removeTfaProfile = function(geneName) {
 genotet.ExpressionRenderer.prototype.highlightHoverCell = function(cell) {
   if (cell.container) {
     var cellSelection = d3.select(cell.container);
-    //cellSelection.style('stroke', 'white');
     cellSelection.classed('highlighted', true);
   }
   this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
@@ -1324,8 +1325,6 @@ genotet.ExpressionRenderer.prototype.highlightHoverCell = function(cell) {
 genotet.ExpressionRenderer.prototype.unhighlightHoverCell = function(cell) {
   if (cell.container) {
     var cellSelection = d3.select(cell.container);
-    //cellSelection
-    // .style('stroke', /** @type {string} */(cell.colorscaleValue));
     cellSelection.classed('highlighted', false);
   }
   this.svgGeneLabels_.selectAll('text').classed('highlighted', false);
