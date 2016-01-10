@@ -131,7 +131,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       var geneNames = [];
       if (this.isRegex_) {
         var geneRegex = RegExp(geneInput, 'i');
-        this.data.matrix.allGeneNames.forEach(function(geneName) {
+        this.data.matrixAll.allGeneNames.forEach(function(geneName) {
           if (geneName.match(geneRegex)) {
             geneNames.push(geneName);
           }
@@ -140,7 +140,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       else {
         var inputWords = geneInput.split(',');
         inputWords.forEach(function(word) {
-          if (this.data.matrix.allGeneNames.indexOf(word) != -1) {
+          if (this.data.matrixAll.allGeneNames.indexOf(word) != -1) {
             geneNames.push(word);
           }
         }.bind(this));
@@ -171,7 +171,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       var conditionNames = [];
       if (this.isRegex_) {
         var conditionRegex = RegExp(conditionInput, 'i');
-        this.data.matrix.allConditionNames.forEach(function(conditionName) {
+        this.data.matrixAll.allConditionNames.forEach(function(conditionName) {
           if (conditionName.match(conditionRegex)) {
             conditionNames.push(conditionName);
           }
@@ -180,7 +180,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       else {
         var inputWords = conditionInput.split(',');
         inputWords.forEach(function(word) {
-          if (this.data.matrix.allConditionNames.indexOf(word) != -1) {
+          if (this.data.matrixAll.allConditionNames.indexOf(word) != -1) {
             conditionNames.push(word);
           }
         }.bind(this));
@@ -200,8 +200,8 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   // Zoom out
   this.container.find('#out').click(function() {
     if (this.data.zoomStack.length > 0) {
-      var zoomRegex = this.data.zoomStack.pop();
-      this.signal('expressionZoomOut', zoomRegex);
+      var zoomStatus = this.data.zoomStack.pop();
+      this.signal('expressionZoomOut', zoomStatus);
     }
   }.bind(this));
 };

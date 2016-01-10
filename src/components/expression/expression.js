@@ -58,7 +58,17 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.matrixName, params.geneNames, params.conditionNames);
+    this.loader.loadExpressionMatrixAll(params.matrixName, params.dataName);
+  }.bind(this));
+
+  // Format gene and condition input to list.
+  $(this.loader).on('genotet.allMatrixDataLoaded', function() {
+    var geneNames = this.loader.formatGeneInput(params.isGeneRegex,
+      params.geneInput);
+    var conditionNames = this.loader.formatConditionInput(
+      params.isConditionRegex, params.conditionInput);
+    this.loader.load(params.matrixName, params.dataName, geneNames,
+      conditionNames);
   }.bind(this));
 
   // Set up rendering update.
@@ -132,13 +142,13 @@ genotet.ExpressionView = function(viewName, params) {
   // Zoom in and out in expression.
   $(this.renderer)
     .on('genotet.expressionZoomIn', function(event, zoomStatus) {
-      this.loader.load(zoomStatus.matrixName, zoomStatus.geneNames,
-        zoomStatus.conditionNames);
+      this.loader.load(zoomStatus.matrixName, zoomStatus.dataName,
+        zoomStatus.geneNames, zoomStatus.conditionNames);
     }.bind(this));
   $(this.panel)
     .on('genotet.expressionZoomOut', function(event, zoomStatus) {
-      this.loader.load(zoomStatus.matrixName, zoomStatus.geneNames,
-        zoomStatus.conditionNames);
+      this.loader.load(zoomStatus.matrixName, zoomStatus.dataName,
+        zoomStatus.geneNames, zoomStatus.conditionNames);
     }.bind(this));
 
   // Update expression panel.

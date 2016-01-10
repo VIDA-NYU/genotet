@@ -26,15 +26,21 @@ expression.RawMatrix;
 
 /**
  * @typedef {{
+ *   allGeneNames: !Array<string>,
+ *   allConditionNames: !Array<string>,
+ *   allValueMin: number,
+ *   allValueMax: number
+ * }}
+ */
+expression.MatrixAll;
+
+/**
+ * @typedef {{
  *   values: !Array<!Array<number>>,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
- *   allGeneNames: !Array<string>,
- *   allConditionNames: !Array<string>,
  *   valueMin: number,
- *   valueMax: number,
- *   allValueMin: number,
- *   allValueMax: number
+ *   valueMax: number
  * }}
  */
 expression.Matrix;
@@ -55,6 +61,13 @@ expression.query = {};
 
 /**
  * @typedef {{
+ *   matrixName: string
+ * }}
+ */
+expression.query.MatrixAll;
+
+/**
+ * @typedef {{
  *   matrixName: string,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>
@@ -72,6 +85,16 @@ expression.query.Matrix;
 expression.query.Profile;
 
 // Start public APIs
+/**
+ * @param {!expression.query.MatrixAll} query
+ * @param {string} expressionPath
+ * @return {?expression.MatrixAll}
+ */
+expression.query.matrixAll = function(query, expressionPath) {
+  var file = expressionPath + query.matrixName;
+  return expression.readExpressionAll_(file);
+};
+
 /**
  * @param {!expression.query.Matrix} query
  * @param {string} expressionPath
@@ -450,10 +473,46 @@ expression.readExpression_ = function(expressionFile, geneNames,
     values: sortedValues,
     geneNames: geneNames,
     conditionNames: conditionNames,
+    valueMin: valueMin,
+    valueMax: valueMax
+  };
+};
+
+/**
+ * Reads all of the expression matrix data from text file.
+ * @param {string} expressionFile Path to the expression file.
+ * @return {expression.Matrix}
+ * @private
+ */
+expression.readExpressionAll_ = function(expressionFile) {
+  var isFirstCol = true;
+  var allGeneNames = [];
+  var allConditionNames = [];
+  var allValueMax = -Infinity;
+  var allValueMin = Infinity;
+
+  var lines = fs.readFileSync(expressionFile).toString().split('\n');
+  lines.forEach(function(line) {
+    var parts = line.split('\t');
+    if (isFirstCol) {
+      // first row contains the conditions
+      isFirstCol = false;
+      for (var i = 1; i < parts.length; i++) {
+        allConditionNames.push(parts[i]);
+      }
+    } else {
+      // other rows contain a gene, and values
+      allGeneNames.push(parts[0]);
+      for (var i = 1; i < parts.length; i++) {
+        var value = parseFloat(parts[i]);
+        allValueMin = Math.min(allValueMin, value);
+        allValueMax = Math.max(allValueMax, value);
+      }
+    }
+  });
+  return {
     allGeneNames: allGeneNames,
     allConditionNames: allConditionNames,
-    valueMin: valueMin,
-    valueMax: valueMax,
     allValueMin: allValueMin,
     allValueMax: allValueMax
   };

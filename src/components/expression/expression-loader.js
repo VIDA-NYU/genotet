@@ -15,6 +15,7 @@ genotet.ExpressionLoader = function(data) {
 
   _.extend(this.data, {
     matrix: null,
+    matrixAll: null,
     tfaData: null,
     profiles: [],
     tfaProfiles: [],
@@ -27,65 +28,106 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
 /**
  * Loads the expression matrix data, with given gene and condition selectors.
  * @param {string} matrixName Name of the expression matrix.
+ * @param {string} dataName Name of the expression matrix data file.
  * @param {!Array<string>} geneNames Names for gene selection.
- * @param {!Array<string>} conditionNames Names for experiment condition selection.
+ * @param {!Array<string>} conditionNames Names for experiment condition
+ *      selection.
  * @override
  */
-genotet.ExpressionLoader.prototype.load = function(matrixName, geneNames,
-                                                   conditionNames) {
-  this.loadExpressionMatrix_(matrixName, geneNames, conditionNames);
+genotet.ExpressionLoader.prototype.load = function(matrixName, dataName,
+                                                   geneNames, conditionNames) {
+  this.loadExpressionMatrix_(matrixName, dataName, geneNames, conditionNames);
 };
 
 /**
  * Implements the expression matrix loading ajax call. Since the matrix may
- * contain a large number of entries, we use POST request.
+ * contain a large number of entries, we use GET request.
  * @param {string} matrixName Name of the expression matrix.
- * @param {!Array<string>} geneNames Names for gene selection.
- * @param {!Array<string>} conditionNames Names for experiment condition selection.
- * @private
+ * @param {string} dataName Name of the expression matrix data file.
  */
-genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName, geneNames,
-                                                                    conditionNames) {
-  var params = {
-    type: 'expression',
-    matrixName: matrixName,
-    geneNames: geneNames,
-    conditionNames: conditionNames
+genotet.ExpressionLoader.prototype.loadExpressionMatrixAll =
+  function(matrixName, dataName) {
+    var params = {
+      type: 'expression-all',
+      matrixName: matrixName
+    };
+
+    $.get(genotet.data.serverURL, params, function(data) {
+        // Store the last applied data selectors.
+        _.extend(data, {
+          matrixname: matrixName
+        });
+
+        if (data.allGeneNames.length == 0) {
+          genotet.warning('input gene not found');
+          return;
+        }
+        if (data.allConditionNames.length == 0) {
+          genotet.warning('input condition not found');
+          return;
+        }
+
+        this.data.matrixAll = data;
+        this.signal('allMatrixDataLoaded');
+      }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot load expression matrix', params));
   };
 
-  $.get(genotet.data.serverURL, params, function(data) {
-      // Store the last applied data selectors.
-      _.extend(data, {
-        matrixname: matrixName
-      });
+/**
+ * Implements the expression matrix loading ajax call. Since the matrix may
+ * contain a large number of entries, we use GET request.
+ * @param {string} matrixName Name of the expression matrix.
+ * @param {string} dataName Name of the expression matrix data file.
+ * @param {!Array<string>} geneNames Names for gene selection.
+ * @param {!Array<string>} conditionNames Names for experiment condition
+ *      selection.
+ * @private
+ */
+genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
+  function(matrixName, dataName, geneNames, conditionNames) {
+    var params = {
+      type: 'expression',
+      matrixName: matrixName,
+      geneNames: geneNames,
+      conditionNames: conditionNames
+    };
 
-      if (data.geneNames.length == 0) {
-        genotet.warning('input gene not found');
-        return;
-      }
-      if (data.conditionNames.length == 0) {
-        genotet.warning('input condition not found');
-        return;
-      }
+    $.get(genotet.data.serverURL, params, function(data) {
+        // Store the last applied data selectors.
+        _.extend(data, {
+          matrixname: matrixName,
+          dataName: 'b-subtilis'
+        });
 
-      this.signal('loadStart');
-      this.data.matrix = data;
-      console.log(data);
-      this.loadTfaData_(matrixName, geneNames, conditionNames);
-    }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot load expression matrix', params));
-};
+        if (data.geneNames.length == 0) {
+          genotet.warning('input gene not found');
+          return;
+        }
+        if (data.conditionNames.length == 0) {
+          genotet.warning('input condition not found');
+          return;
+        }
+
+        this.signal('loadStart');
+        this.data.matrix = data;
+
+        this.loadTfaData_(matrixName, dataName, geneNames, conditionNames);
+      }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, 'cannot load expression matrix', params));
+  };
 
 /**
  * Implements the TFA data loading ajax call.
  * Since the matrix may contain a large number of entries, we use GET request.
  * @param {string} matrixName Name of the expression matrix.
+ * @param {string} dataName Name of the expression matrix data file.
  * @param {!Array<string>} geneNames Names for gene selection.
- * @param {!Array<string>} conditionNames Names for experiment condition selection.
+ * @param {!Array<string>} conditionNames Names for experiment condition
+ *      selection.
  * @private
  */
-genotet.ExpressionLoader.prototype.loadTfaData_ = function(matrixName, geneNames,
-                                                           conditionNames) {
+genotet.ExpressionLoader.prototype.loadTfaData_ =
+  function(matrixName, dataName, geneNames, conditionNames) {
     var tfaParams = {
       type: 'expression-profile',
       matrixName: 'b-subtilis',
@@ -99,7 +141,6 @@ genotet.ExpressionLoader.prototype.loadTfaData_ = function(matrixName, geneNames
           return;
         }
 
-        console.log(data);
         this.signal('loadComplete');
       }.bind(this), 'jsonp')
       .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
@@ -110,14 +151,15 @@ genotet.ExpressionLoader.prototype.loadTfaData_ = function(matrixName, geneNames
  * Updates the genes in the current expression.
  * @param {string} method Update method, either 'set' or 'add'.
  * @param {string} matrixName Matrix name of the expression.
- * @param {!Array<string>} names Names that selects the genes or conditions to be
- *     updated.
+ * @param {!Array<string>} names Names that selects the genes or conditions
+ *      to be updated.
  */
 genotet.ExpressionLoader.prototype.update = function(method, matrixName,
                                                      names) {
   var heatmapData = this.data.matrix;
   var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
     matrixName: heatmapData.matrixname,
+    dataName: heatmapData.dataName,
     geneNames: heatmapData.geneNames,
     conditionNames: heatmapData.conditionNames
   });
@@ -157,16 +199,19 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
     }
   }.bind(this));
   var zoomStatus = this.data.zoomStack.pop();
-  this.load(zoomStatus.matrixName, zoomStatus.geneNames,
+  this.load(zoomStatus.matrixName, zoomStatus.dataName, zoomStatus.geneNames,
     zoomStatus.conditionNames);
 };
 
 /**
  * Remove genes or conditions from previous status in expression.
- * @param {!Array<string>} originalNames Original names from previous status in expression.
+ * @param {!Array<string>} originalNames Original names from previous zoom
+ *      status.
  * @param {!Array<string>} removeNames Names need to be removed.
+ * @private
  */
-genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames, removeNames) {
+genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames,
+                                                           removeNames) {
   removeNames.forEach(function(name) {
     var geneIndex = originalNames.indexOf(name);
     if (geneIndex != -1) {
@@ -174,3 +219,58 @@ genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames, remove
     }
   });
 };
+
+/**
+ * @param {boolean} isGeneRegex Gene input type that is regex or string.
+ * @param {string} geneInput Gene input.
+ * @return {!Array<string>} geneNames Names for gene selection.
+ */
+genotet.ExpressionLoader.prototype.formatGeneInput = function(isGeneRegex,
+                                                            geneInput) {
+  var geneNames = [];
+  if (isGeneRegex) {
+    var geneRegex = RegExp(geneInput, 'i');
+    this.data.matrixAll.allGeneNames.forEach(function(geneName) {
+      if (geneName.match(geneRegex)) {
+        geneNames.push(geneName);
+      }
+    });
+  }
+  else {
+    var inputWords = geneInput.split(',');
+    inputWords.forEach(function(word) {
+      if (this.data.matrixAll.allGeneNames.indexOf(word) != -1) {
+        geneNames.push(word);
+      }
+    }.bind(this));
+  }
+  return geneNames;
+};
+
+/**
+ * @param {boolean} isConditionRegex Gene input type that is regex or string.
+ * @param {string} conditionInput Condition input.
+ * @return {!Array<string>} conditionNames Names for experiment condition
+ *      selection.
+ */
+genotet.ExpressionLoader.prototype.formatConditionInput =
+  function(isConditionRegex, conditionInput) {
+    var conditionNames = [];
+    if (isConditionRegex) {
+      var conditionRegex = RegExp(conditionInput, 'i');
+      this.data.matrixAll.allConditionNames.forEach(function(conditionName) {
+        if (conditionName.match(conditionRegex)) {
+          conditionNames.push(conditionName);
+        }
+      });
+    }
+    else {
+      var inputWords = conditionInput.split(',');
+      inputWords.forEach(function(word) {
+        if (this.data.matrixAll.allConditionNames.indexOf(word) != -1) {
+          conditionNames.push(word);
+        }
+      }.bind(this));
+    }
+    return conditionNames;
+  };

@@ -201,10 +201,12 @@ genotet.ExpressionRenderer.Profile = function(params) {
  * Zoom status object storing the status of expression matrix.
  * @param {!{
  *   matrixName: (?string|undefined),
+ *   dataName: (?string|undefined),
  *   geneNames: (!Array<string>),
  *   conditionNames: (!Array<string>)
  * }} params
  *     matrixName: Matrix name of the expression.
+ *     dataName: Data name of the expression.
  *     geneNames: Names for gene selection.
  *     conditionNames: Names for experiment condition selection.
  * @struct
@@ -215,9 +217,12 @@ genotet.ExpressionRenderer.ZoomStatus = function(params) {
   this.matrixName = params.matrixName != null ? params.matrixName : null;
 
   /** @type {?string} */
+  this.dataName = params.dataName != null ? params.dataName : null;
+
+  /** @type {!Array<string>} */
   this.geneNames = params.geneNames != null ? params.geneNames : [];
 
-  /** @type {?string} */
+  /** @type {!Array<string>} */
   this.conditionNames = params.conditionNames != null ?
     params.conditionNames : [];
 };
@@ -694,8 +699,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
     colorScale
       .domain([
         heatmapData.allValueMin,
-        (heatmapData.allValueMin + heatmapData.allValueMax) / 2,
-        heatmapData.allValueMax
+        (this.data.matrixAll.allValueMin + this.data.matrixAll.allValueMax) / 2,
+        this.data.matrixAll.allValueMax
       ])
       .range(genotet.data.redYellowScale);
   }
@@ -959,8 +964,8 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
     scaleMin = heatmapData.valueMin;
     scaleMax = heatmapData.valueMax;
   } else {
-    scaleMin = heatmapData.allValueMin;
-    scaleMax = heatmapData.allValueMax;
+    scaleMin = this.data.matrixAll.allValueMin;
+    scaleMax = this.data.matrixAll.allValueMax;
   }
   scaleMin = scaleMin.toFixed(2);
   scaleMax = scaleMax.toFixed(2);
