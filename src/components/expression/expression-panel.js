@@ -28,6 +28,12 @@ genotet.ExpressionPanel = function(data) {
    * @private {select2}
    */
   this.selectProfiles_ = null;
+
+  /**
+   * Input type for genes and conditions update..
+   * @private {boolean}
+   */
+  this.isRegex_ = true;
 };
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
@@ -102,19 +108,50 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       this.signal('removeTfaProfile', geneName);
     }.bind(this));
 
+  // Input type update
+  this.container.find('#regex input').click(function() {
+    this.isRegex_ = true;
+  }.bind(this));
+  this.container.find('#string input').click(function() {
+    this.isRegex_ = false;
+  }.bind(this));
+  this.container.find('#regex input').trigger('click');
+
   // Gene update
   ['setGene', 'addGene', 'removeGene'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
       var input = this.container.find('#genes input');
-      var geneRegex = input.val();
-      if (geneRegex == '') {
+      var geneInput = input.val();
+      if (geneInput == '') {
         genotet.warning('missing input gene selection');
         return;
       }
       input.val('');
+
+      var geneNames = [];
+      if (this.isRegex_) {
+        var geneRegex = RegExp(geneInput, 'i');
+        this.data.matrix.allGeneNames.forEach(function(geneName) {
+          if (geneName.match(geneRegex)) {
+            geneNames.push(geneName);
+          }
+        });
+      }
+      else {
+        var inputWords = geneInput.split(',');
+        inputWords.forEach(function(word) {
+          if (this.data.matrix.allGeneNames.indexOf(word) != -1) {
+            geneNames.push(word);
+          }
+        }.bind(this));
+      }
+      if (geneNames.length == 0) {
+        genotet.warning('invalid input gene selection');
+        return;
+      }
       this.signal('update', {
         type: 'gene',
-        regex: geneRegex,
+        names: geneNames,
         method: method
       });
     }.bind(this));
@@ -124,15 +161,37 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   ['setCondition', 'addCondition', 'removeCondition'].forEach(function(method) {
     this.container.find('#conditions #' + method).click(function() {
       var input = this.container.find('#conditions input');
-      var conditionRegex = input.val();
-      if (conditionRegex == '') {
+      var conditionInput = input.val();
+      if (conditionInput == '') {
         genotet.warning('missing input condition selection');
         return;
       }
       input.val('');
+
+      var conditionNames = [];
+      if (this.isRegex_) {
+        var conditionRegex = RegExp(conditionInput, 'i');
+        this.data.matrix.allConditionNames.forEach(function(conditionName) {
+          if (conditionName.match(conditionRegex)) {
+            conditionNames.push(conditionName);
+          }
+        });
+      }
+      else {
+        var inputWords = conditionInput.split(',');
+        inputWords.forEach(function(word) {
+          if (this.data.matrix.allConditionNames.indexOf(word) != -1) {
+            conditionNames.push(word);
+          }
+        }.bind(this));
+      }
+      if (conditionNames.length == 0) {
+        genotet.warning('invalid input condition selection');
+        return;
+      }
       this.signal('update', {
         type: 'condition',
-        regex: conditionRegex,
+        names: conditionNames,
         method: method
       });
     }.bind(this));

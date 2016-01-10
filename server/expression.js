@@ -30,6 +30,7 @@ expression.RawMatrix;
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
  *   allGeneNames: !Array<string>,
+ *   allConditionNames: !Array<string>,
  *   valueMin: number,
  *   valueMax: number,
  *   allValueMin: number,
@@ -396,6 +397,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
   var isFirstCol = true;
   var conditions = [];
   var allGeneNames = [];
+  var allConditionNames = [];
   var valueMax = -Infinity;
   var valueMin = Infinity;
   var allValueMax = -Infinity;
@@ -413,6 +415,9 @@ expression.readExpression_ = function(expressionFile, geneNames,
           conditions.push(conditionIndex);
         }
       });
+      for (var i = 1; i < parts.length; i++) {
+        allConditionNames.push(parts[i]);
+      }
     } else {
       // other rows contain a gene, and values
       var geneIndex = geneNames.indexOf(parts[0]);
@@ -444,6 +449,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
     geneNames: geneNames,
     conditionNames: conditionNames,
     allGeneNames: allGeneNames,
+    allConditionNames: allConditionNames,
     valueMin: valueMin,
     valueMax: valueMax,
     allValueMin: allValueMin,
