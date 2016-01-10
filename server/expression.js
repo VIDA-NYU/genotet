@@ -29,6 +29,7 @@ expression.RawMatrix;
  *   values: !Array<!Array<number>>,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
+ *   allGeneNames: !Array<string>,
  *   valueMin: number,
  *   valueMax: number,
  *   allValueMin: number,
@@ -39,8 +40,8 @@ expression.Matrix;
 
 /**
  * @typedef {{
- *   geneNames: string,
- *   conditionNames: string,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>,
  *   tfaValues: !Array<number>,
  *   valueMin: number,
  *   valueMax: number
@@ -54,8 +55,8 @@ expression.query = {};
 /**
  * @typedef {{
  *   matrixName: string,
- *   geneRegex: string,
- *   conditionRegex: string
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
  * }}
  */
 expression.query.Matrix;
@@ -63,8 +64,8 @@ expression.query.Matrix;
 /**
  * @typedef {{
  *   matrixName: string,
- *   geneRegex: string,
- *   conditionRegex: string
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
  * }}
  */
 expression.query.Profile;
@@ -77,9 +78,9 @@ expression.query.Profile;
  */
 expression.query.matrix = function(query, expressionPath) {
   var file = expressionPath + query.matrixName;
-  var geneRegex = query.geneRegex;
-  var conditionRegex = query.conditionRegex;
-  return expression.readExpression_(file, geneRegex, conditionRegex);
+  var geneNames = query.geneNames;
+  var conditionNames = query.conditionNames;
+  return expression.readExpression_(file, geneNames, conditionNames);
 };
 
 /**
@@ -90,10 +91,10 @@ expression.query.matrix = function(query, expressionPath) {
  */
 expression.query.profile = function(query, expressionFile, tfamatFile) {
   var matrix = query.matrixName;
-  var geneRegex = query.geneRegex;
-  var conditionRegex = query.conditionRegex;
+  var geneNames = query.geneNames;
+  var conditionNames = query.conditionNames;
   var fileExp = expressionFile[matrix], fileTfa = tfamatFile[matrix];
-  return expression.getExpmatLine_(fileExp, fileTfa, geneRegex, conditionRegex);
+  return expression.getExpmatLine_(fileExp, fileTfa, geneNames, conditionNames);
 };
 
 /**
@@ -211,13 +212,13 @@ expression.getTFAmatLine_ = function(file, name) {
  * Gets the expression matrix profile of given genes and conditions.
  * @param {string} fileExp File name of the expression matrix.
  * @param {string} fileTFA File name of the TFA matrix.
- * @param {string} geneRegex Gene regex of the expression matrix.
- * @param {string} conditionRegex Condition regex of the expression matrix.
+ * @param {!Array<string>} geneNames Names of the expression matrix.
+ * @param {!Array<string>} conditionNames Names of the expression matrix.
  * @return {?expression.Profile} Gene expression profile as a JS object.
  * @private
  */
-expression.getExpmatLine_ = function(fileExp, fileTFA, geneRegex,
-                                     conditionRegex) {
+expression.getExpmatLine_ = function(fileExp, fileTFA, geneNames,
+                                     conditionNames) {
   var bufExp = utils.readFileToBuf(fileExp);
   var bufTFA = null;
   if (fileTFA != null) {
@@ -235,60 +236,36 @@ expression.getExpmatLine_ = function(fileExp, fileTFA, geneRegex,
   if (fileTFA != null) {
     resultTFA = expression.readTFAmat_(/** @type {!Buffer} */bufTFA);
   }
-  var expGene, expCondition;
-  try {
-    expGene = RegExp(geneRegex, 'i');
-    expCondition = RegExp(conditionRegex, 'i');
-  } catch (e) {
-    console.log('incorrect regular expression');
-    expGene = expCondition = 'a^';
-  }
 
-  var geneNames = [];
-  for (var i = 0; i < resultExp.rownames.length; i++) {
-    if (resultExp.rownames[i].toLowerCase().match(expGene)) {
-      geneNames.push(resultExp.rownames[i]);
-    }
-  }
   if (geneNames.length == 0)
-    return [];// cannot find gene
-
-  var conditionNames = [];
-  for (var i = 0; i < resultExp.colnames.length; i++) {
-    if (resultExp.colnames[i].toLowerCase().match(expCondition)) {
-      conditionNames.push(resultExp.colnames[i]);
-    }
-  }
+    return []; // cannot find gene
 
   var allTfaValues = [];
   var valueMin = Infinity;
   var valueMax = -Infinity;
   if (fileTFA != null) {
-    for (var i = 0; i < geneNames.length; i++) {
-      var tfai = resultTFA.rownames.indexOf(geneNames[i]);
+    geneNames.forEach(function(geneName, i) {
+      var tfai = resultTFA.rownames.indexOf(geneName);
       var tfaValues = [];
-      for (var j = 0; j < resultTFA.numcols; j++) {
-        var idx = conditionNames.indexOf(resultTFA.colnames[j]);
+      conditionNames.forEach(function(conditionName, i) {
+        var idx = resultTFA.colnames.indexOf(conditionName);
         if (idx != -1) {
-          var tfaValue = resultTFA.values[tfai * resultTFA.numcols + j];
-          if (!tfaValue) {
-            break;
-          }
+          var tfaValue = resultTFA.values[tfai * resultTFA.numcols + i];
           tfaValues.push({
             value: tfaValue,
-            index: idx
+            index: i
           });
           valueMin = Math.min(valueMin, tfaValue);
           valueMax = Math.max(valueMax, tfaValue);
         }
-      }
+      });
       tfaValues.sort(function(a, b) {
         return a.index - b.index;
       });
       allTfaValues.push(tfaValues);
-    }
+    });
   }
-  console.log('returning line', geneRegex);
+  console.log('returning line', geneNames);
   return {
     geneNames: geneNames,
     conditionNames: conditionNames,
@@ -407,78 +384,66 @@ expression.listMatrix_ = function(expmatAddr) {
 /**
  * Reads expression matrix from text file.
  * @param {string} expressionFile Path to the expression file.
- * @param {string} geneRegex Regex for gene selection.
- * @param {string} conditionRegex Regex for condition selection.
+ * @param {!Array<string>} geneNames Names for gene selection.
+ * @param {!Array<string>} conditionNames Names for condition selection.
  * @return {expression.Matrix}
  * @private
  */
-expression.readExpression_ = function(expressionFile, geneRegex,
-                                     conditionRegex) {
-  var values = [];
+expression.readExpression_ = function(expressionFile, geneNames,
+                                      conditionNames) {
+  var values = {};
+  var sortedValues = [];
   var isFirstCol = true;
   var conditions = [];
-  var geneNames = [];
-  var conditionNames = [];
+  var allGeneNames = [];
   var valueMax = -Infinity;
   var valueMin = Infinity;
   var allValueMax = -Infinity;
   var allValueMin = Infinity;
 
-  var expGene;
-  var expCondition;
-  var validCol = [];
-  try {
-    expGene = RegExp(geneRegex, 'i');
-    expCondition = RegExp(conditionRegex, 'i');
-  } catch (e) {
-    console.log('incorrect regular expression');
-    expGene = expCondition = 'a^';
-  }
   var lines = fs.readFileSync(expressionFile).toString().split('\n');
   lines.forEach(function(line) {
     var parts = line.split('\t');
     if (isFirstCol) {
-      // first column contains the conditions
+      // first row contains the conditions
       isFirstCol = false;
-      for (var i = 1; i < parts.length; i++) {
-        if (parts[i].match(expCondition)) {
-          conditions.push(i);
-          validCol.push(true);
-          conditionNames.push(parts[i]);
-        } else {
-          validCol.push(false);
+      conditionNames.forEach(function(conditionName) {
+        var conditionIndex = parts.indexOf(conditionName);
+        if (conditionIndex != -1 && conditionIndex != 0) {
+          conditions.push(conditionIndex);
         }
-      }
+      });
     } else {
-      // other columns contain a gene, and values
-      if (parts[0].match(expGene)) {
-        geneNames.push(parts[0]);
+      // other rows contain a gene, and values
+      var geneIndex = geneNames.indexOf(parts[0]);
+      if (geneIndex != -1) {
         var tmpLine = [];
-        for (var i = 1; i < parts.length; i++) {
-          var value = parseFloat(parts[i]);
-          if (validCol[i - 1]) {
-            valueMin = Math.min(valueMin, value);
-            valueMax = Math.max(valueMax, value);
-            tmpLine.push(value);
-          }
-          allValueMin = Math.min(allValueMin, value);
-          allValueMax = Math.max(allValueMax, value);
-        }
-        values.push(tmpLine);
+        conditions.forEach(function(conditionIndex) {
+          var value = parseFloat(parts[conditionIndex]);
+          valueMin = Math.min(valueMin, value);
+          valueMax = Math.max(valueMax, value);
+          tmpLine.push(value);
+        });
+        values[parts[0]] = tmpLine;
       }
-      else {
-        for (var i = 1; i < parts.length; i++) {
-          var value = parseFloat(parts[i]);
-          allValueMin = Math.min(allValueMin, value);
-          allValueMax = Math.max(allValueMax, value);
-        }
+      allGeneNames.push(parts[0]);
+      for (var i = 1; i < parts.length; i++) {
+        var value = parseFloat(parts[i]);
+        allValueMin = Math.min(allValueMin, value);
+        allValueMax = Math.max(allValueMax, value);
       }
     }
   });
+  Object.keys(values)
+    .sort()
+    .forEach(function(geneName, i) {
+      sortedValues.push(values[geneName]);
+    });
   return {
-    values: values,
+    values: sortedValues,
     geneNames: geneNames,
     conditionNames: conditionNames,
+    allGeneNames: allGeneNames,
     valueMin: valueMin,
     valueMax: valueMax,
     allValueMin: allValueMin,
