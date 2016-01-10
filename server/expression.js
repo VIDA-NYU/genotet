@@ -252,12 +252,14 @@ expression.getExpmatLine_ = function(fileExp, fileTFA, geneNames,
         var idx = resultTFA.colnames.indexOf(conditionName);
         if (idx != -1) {
           var tfaValue = resultTFA.values[tfai * resultTFA.numcols + i];
-          tfaValues.push({
-            value: tfaValue,
-            index: i
-          });
-          valueMin = Math.min(valueMin, tfaValue);
-          valueMax = Math.max(valueMax, tfaValue);
+          if (tfaValue) {
+            tfaValues.push({
+              value: tfaValue,
+              index: i
+            });
+            valueMin = Math.min(valueMin, tfaValue);
+            valueMax = Math.max(valueMax, tfaValue);
+          }
         }
       });
       tfaValues.sort(function(a, b) {

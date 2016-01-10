@@ -27,38 +27,36 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
 /**
  * Loads the expression matrix data, with given gene and condition selectors.
  * @param {string} matrixName Name of the expression matrix.
- * @param {string} geneRegex Regex for gene selection.
- * @param {string} conditionRegex Regex for experiment condition selection.
+ * @param {!Array<string>} geneNames Names for gene selection.
+ * @param {!Array<string>} conditionNames Names for experiment condition selection.
  * @override
  */
-genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
-                                                   conditionRegex) {
-  this.loadExpressionMatrix_(matrixName, geneRegex, conditionRegex);
+genotet.ExpressionLoader.prototype.load = function(matrixName, geneNames,
+                                                   conditionNames) {
+  this.loadExpressionMatrix_(matrixName, geneNames, conditionNames);
 };
 
 /**
  * Implements the expression matrix loading ajax call. Since the matrix may
  * contain a large number of entries, we use POST request.
  * @param {string} matrixName Name of the expression matrix.
- * @param {string} geneRegex Regex for gene selection.
- * @param {string} conditionRegex Regex for experiment condition selection.
+ * @param {!Array<string>} geneNames Names for gene selection.
+ * @param {!Array<string>} conditionNames Names for experiment condition selection.
  * @private
  */
-genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
-    geneRegex, conditionRegex) {
+genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName, geneNames,
+                                                                    conditionNames) {
   var params = {
     type: 'expression',
     matrixName: matrixName,
-    geneRegex: geneRegex,
-    conditionRegex: conditionRegex
+    geneNames: geneNames,
+    conditionNames: conditionNames
   };
 
   $.get(genotet.data.serverURL, params, function(data) {
       // Store the last applied data selectors.
       _.extend(data, {
-        matrixname: matrixName,
-        geneRegex: geneRegex,
-        conditionRegex: conditionRegex
+        matrixname: matrixName
       });
 
       if (data.geneNames.length == 0) {
@@ -72,7 +70,8 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
 
       this.signal('loadStart');
       this.data.matrix = data;
-      this.loadTfaData_(matrixName, geneRegex, conditionRegex);
+      console.log(data);
+      this.loadTfaData_(matrixName, geneNames, conditionNames);
     }.bind(this), 'jsonp')
     .fail(this.fail.bind(this, 'cannot load expression matrix', params));
 };
@@ -81,17 +80,17 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
  * Implements the TFA data loading ajax call.
  * Since the matrix may contain a large number of entries, we use GET request.
  * @param {string} matrixName Name of the expression matrix.
- * @param {string} geneRegex Regex for gene selection.
- * @param {string} conditionRegex Regex for experiment condition selection.
+ * @param {!Array<string>} geneNames Names for gene selection.
+ * @param {!Array<string>} conditionNames Names for experiment condition selection.
  * @private
  */
-genotet.ExpressionLoader.prototype.loadTfaData_ =
-  function(matrixName, geneRegex, conditionRegex) {
+genotet.ExpressionLoader.prototype.loadTfaData_ = function(matrixName, geneNames,
+                                                           conditionNames) {
     var tfaParams = {
-    type: 'expression-profile',
-    matrixName: 'b-subtilis',
-    geneRegex: geneRegex,
-    conditionRegex: conditionRegex
+      type: 'expression-profile',
+      matrixName: 'b-subtilis',
+      geneNames: geneNames,
+      conditionNames: conditionNames
     };
     $.get(genotet.data.serverURL, tfaParams, function(data) {
         // Store the last applied data selectors.
@@ -100,6 +99,7 @@ genotet.ExpressionLoader.prototype.loadTfaData_ =
           return;
         }
 
+        console.log(data);
         this.signal('loadComplete');
       }.bind(this), 'jsonp')
       .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
@@ -110,66 +110,67 @@ genotet.ExpressionLoader.prototype.loadTfaData_ =
  * Updates the genes in the current expression.
  * @param {string} method Update method, either 'set' or 'add'.
  * @param {string} matrixName Matrix name of the expression.
- * @param {string} regex Regex that selects the genes or conditions to be
+ * @param {!Array<string>} names Names that selects the genes or conditions to be
  *     updated.
  */
 genotet.ExpressionLoader.prototype.update = function(method, matrixName,
-                                                     regex) {
+                                                     names) {
   var heatmapData = this.data.matrix;
-  var currentRegex = new genotet.ExpressionRenderer.ZoomStatus({
+  var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
     matrixName: heatmapData.matrixname,
-    geneRegex: heatmapData.geneRegex,
-    conditionRegex: heatmapData.conditionRegex,
     geneNames: heatmapData.geneNames,
     conditionNames: heatmapData.conditionNames
   });
-  this.data.zoomStack.push(currentRegex);
-  this.data.zoomStack.forEach(function(zoomRegex) {
-    regex = regex.toLowerCase();
+  this.data.zoomStack.push(currentStatus);
+  this.data.zoomStack.forEach(function(zoomStatus) {
     switch (method) {
       case 'setGene':
-        // Totally replace the regex.
-        zoomRegex.geneRegex = regex;
+        // Totally replace the names.
+        zoomStatus.geneNames = names;
         break;
       case 'addGene':
-        // Concat the two regex's. We need to include the previously existing
-        // genes too so as to find the edges between the new genes and old
-        // ones.
-        zoomRegex.geneRegex += '|' + regex;
+        // Concat the two names.
+        this.removeNames_(zoomStatus.geneNames, names);
+        names.forEach(function(name) {
+          zoomStatus.geneNames.push(name);
+        });
         break;
       case 'removeGene':
-        // Remove the regex.
-        zoomRegex.geneRegex = '';
-        zoomRegex.geneNames.forEach(function(geneName) {
-          if (!geneName.toLowerCase().match(regex)) {
-            zoomRegex.geneRegex += geneName + '|';
-          }
-        });
-        zoomRegex.geneRegex = zoomRegex.geneRegex.slice(0, -1);
+        // Remove the names.
+        this.removeNames_(zoomStatus.geneNames, names);
         break;
       case 'setCondition':
         // Totally replace the regex.
-        zoomRegex.conditionRegex = regex;
+        zoomStatus.conditionNames = names;
         break;
       case 'addCondition':
-        // Concat the two regex's. We need to include the previously existing
-        // genes too so as to find the edges between the new genes and old
-        // ones.
-        zoomRegex.conditionRegex += '|' + regex;
+        // Concat the two names.
+        this.removeNames_(zoomStatus.conditionNames, names);
+        names.forEach(function(name) {
+          zoomStatus.conditionNames.push(name);
+        });
         break;
       case 'removeCondition':
-        // Remove the regex.
-        zoomRegex.conditionRegex = '';
-        zoomRegex.conditionNames.forEach(function(conditionName) {
-          if (!conditionName.toLowerCase().match(regex)) {
-            zoomRegex.conditionRegex += conditionName + '|';
-          }
-        });
-        zoomRegex.conditionRegex = zoomRegex.conditionRegex.slice(0, -1);
+        // Remove the names.
+        this.removeNames_(zoomStatus.conditionNames, names);
         break;
     }
   }.bind(this));
-  var zoomRegex = this.data.zoomStack.pop();
-  this.load(zoomRegex.matrixName, zoomRegex.geneRegex,
-    zoomRegex.conditionRegex);
+  var zoomStatus = this.data.zoomStack.pop();
+  this.load(zoomStatus.matrixName, zoomStatus.geneNames,
+    zoomStatus.conditionNames);
+};
+
+/**
+ * Remove genes or conditions from previous status in expression.
+ * @param {!Array<string>} originalNames Original names from previous status in expression.
+ * @param {!Array<string>} removeNames Names need to be removed.
+ */
+genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames, removeNames) {
+  removeNames.forEach(function(name) {
+    var geneIndex = originalNames.indexOf(name);
+    if (geneIndex != -1) {
+      originalNames.splice(geneIndex, 1);
+    }
+  });
 };

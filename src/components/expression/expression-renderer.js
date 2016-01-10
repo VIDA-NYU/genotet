@@ -201,16 +201,12 @@ genotet.ExpressionRenderer.Profile = function(params) {
  * Zoom status object storing the status of expression matrix.
  * @param {!{
  *   matrixName: (?string|undefined),
- *   geneRegex: (?string|undefined),
- *   conditionRegex: (?string|undefined),
- *   geneNames: (?string|undefined),
- *   conditionNames: (?string|undefined)
+ *   geneNames: (!Array<string>),
+ *   conditionNames: (!Array<string>)
  * }} params
  *     matrixName: Matrix name of the expression.
- *     geneRegex: Regex for gene selection.
- *     conditionRegex: Regex for experiment condition selection.
- *     geneNames: Gene names for gene selection.
- *     conditionNames: Condition names for experiment condition selection.
+ *     geneNames: Names for gene selection.
+ *     conditionNames: Names for experiment condition selection.
  * @struct
  * @constructor
  */
@@ -219,18 +215,11 @@ genotet.ExpressionRenderer.ZoomStatus = function(params) {
   this.matrixName = params.matrixName != null ? params.matrixName : null;
 
   /** @type {?string} */
-  this.geneRegex = params.geneRegex != null ? params.geneRegex : '';
-
-  /** @type {?string} */
-  this.conditionRegex = params.conditionRegex != null ?
-    params.conditionRegex : '';
-
-  /** @type {?string} */
-  this.geneNames = params.geneNames != null ? params.geneNames : null;
+  this.geneNames = params.geneNames != null ? params.geneNames : [];
 
   /** @type {?string} */
   this.conditionNames = params.conditionNames != null ?
-    params.conditionNames : null;
+    params.conditionNames : [];
 };
 
 /** @const {number} */
@@ -837,14 +826,14 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         columnStart = Math.floor(selectedRange.x / cellWidth);
         columnEnd = Math.floor((selectedRange.x + selectedRange.width) /
           cellWidth);
-        for (var i = rowStart; i <= rowEnd; i++) {
-          d3.select('.gene-labels text:nth-of-type(' + (i + 1) + ')')
-            .classed('label-selected', true);
-        }
-        for (var i = columnStart; i <= columnEnd; i++) {
-          d3.select('.condition-labels text:nth-of-type(' + (i + 1) + ')')
-            .classed('label-selected', true);
-        }
+        d3.selectAll('.gene-label')
+          .classed('label-selected', function(label, i) {
+          return i >= rowStart && i <= rowEnd;
+        });
+        d3.selectAll('.condition-label')
+          .classed('label-selected', function(label, i) {
+            return i >= columnStart && i <= columnEnd;
+          });
         d3.selectAll('.cell').filter(function(value, i) {
           var row = Math.floor(i / heatmapData.conditionNames.length);
           var column = i % heatmapData.conditionNames.length;
@@ -858,22 +847,24 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       d3.selectAll('.gene-label').classed('label-selected', false);
       d3.selectAll('.condition-label').classed('label-selected', false);
       if (zoomSelected) {
+        if (rowEnd - rowStart == heatmapData.geneNames.length - 1 &&
+          columnEnd - columnStart == heatmapData.conditionNames.length - 1) {
+          return;
+        }
         var zoomParams = {
           rowStart: rowStart,
           rowEnd: rowEnd,
           columnStart: columnStart,
           columnEnd: columnEnd
         };
-        var zoomRegex = this.zoomDataLoaded_(zoomParams);
-        var currentRegex = new genotet.ExpressionRenderer.ZoomStatus({
+        var zoomStatus = this.zoomDataLoaded_(zoomParams);
+        var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
           matrixName: heatmapData.matrixname,
-          geneRegex: heatmapData.geneRegex,
-          conditionRegex: heatmapData.conditionRegex,
           geneNames: heatmapData.geneNames,
           conditionNames: heatmapData.conditionNames
         });
-        this.data.zoomStack.push(currentRegex);
-        this.signal('expressionZoomIn', zoomRegex);
+        this.data.zoomStack.push(currentStatus);
+        this.signal('expressionZoomIn', zoomStatus);
       }
       else {
         var row, column, selectedValue;
@@ -1425,26 +1416,18 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
 /**
  * Load expression matrix data after zoom in and out the heatmap.
  * @param {!Object} params Parameters for expression zoom in.
- * @return {!Object} zoomRegex Parameters for data load.
+ * @return {!Object} zoomStatus Parameters for data load.
  * @private
  */
 genotet.ExpressionRenderer.prototype.zoomDataLoaded_ = function(params) {
   var heatmapData = this.data.matrix;
-  var zoomRegex = new genotet.ExpressionRenderer.ZoomStatus({
+  var zoomStatus = new genotet.ExpressionRenderer.ZoomStatus({
     matrixName: heatmapData.matrixname,
-    geneNames: heatmapData.geneNames,
-    conditionNames: heatmapData.conditionNames
+    geneNames: heatmapData.geneNames.slice(params.rowStart, params.rowEnd + 1),
+    conditionNames: heatmapData.conditionNames.slice(params.columnStart,
+      params.columnEnd + 1)
   });
-
-  for (var i = params.rowStart; i < params.rowEnd; i++) {
-    zoomRegex.geneRegex += heatmapData.geneNames[i] + '|';
-  }
-  zoomRegex.geneRegex += heatmapData.geneNames[params.rowEnd];
-  for (var i = params.columnStart; i < params.columnEnd; i++) {
-    zoomRegex.conditionRegex += heatmapData.conditionNames[i] + '|';
-  }
-  zoomRegex.conditionRegex += heatmapData.conditionNames[params.columnEnd];
-  return zoomRegex;
+  return zoomStatus;
 };
 
 /**

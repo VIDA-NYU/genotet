@@ -8,6 +8,8 @@
  * @typedef {{
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
+ *   allGeneNames: !Array<string>,
+ *   allConditionNames: !Array<string>,
  *   allValueMax: number,
  *   allValueMin: number,
  *   valueMin: number,
@@ -56,7 +58,7 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.matrixName, params.geneRegex, params.condRegex);
+    this.loader.load(params.matrixName, params.geneNames, params.conditionNames);
   }.bind(this));
 
   // Set up rendering update.
@@ -70,10 +72,10 @@ genotet.ExpressionView = function(viewName, params) {
           this.renderer.render();
           break;
         case 'gene':
-          this.loader.update(data.method, params.matrixName, data.regex);
+          this.loader.update(data.method, params.matrixName, data.names);
           break;
         case 'condition':
-          this.loader.update(data.method, params.matrixName, data.regex);
+          this.loader.update(data.method, params.matrixName, data.names);
           break;
         case 'auto-scale':
           this.renderer.render();
@@ -129,14 +131,14 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Zoom in and out in expression.
   $(this.renderer)
-    .on('genotet.expressionZoomIn', function(event, zoomRegex) {
-      this.loader.load(zoomRegex.matrixName, zoomRegex.geneRegex,
-        zoomRegex.conditionRegex);
+    .on('genotet.expressionZoomIn', function(event, zoomStatus) {
+      this.loader.load(zoomStatus.matrixName, zoomStatus.geneNames,
+        zoomStatus.conditionNames);
     }.bind(this));
   $(this.panel)
-    .on('genotet.expressionZoomOut', function(event, zoomRegex) {
-      this.loader.load(zoomRegex.matrixName, zoomRegex.geneRegex,
-        zoomRegex.conditionRegex);
+    .on('genotet.expressionZoomOut', function(event, zoomStatus) {
+      this.loader.load(zoomStatus.matrixName, zoomStatus.geneNames,
+        zoomStatus.conditionNames);
     }.bind(this));
 
   // Update expression panel.
