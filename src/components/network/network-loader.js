@@ -34,22 +34,19 @@ genotet.NetworkLoader.prototype.load = function(networkName, geneRegex) {
  */
 genotet.NetworkLoader.prototype.loadNetwork_ = function(networkName,
                                                         geneRegex) {
-  this.signal('loadStart');
   var params = {
     type: 'network',
     networkName: networkName,
     geneRegex: geneRegex
   };
-  $.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverURL, params, function(data) {
     // Store the last applied networkName and geneRegex.
     _.extend(data, {
       networkName: networkName,
       geneRegex: geneRegex
     });
     _.extend(this.data, data);
-    this.signal('loadComplete');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot load network', params));
+  }.bind(this), 'cannot load network');
 };
 
 /**
@@ -129,11 +126,10 @@ genotet.NetworkLoader.prototype.incidentEdges = function(node) {
     networkName: this.data.networkName,
     gene: node.id
   };
-  $.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverURL, params, function(data) {
     this.data.incidentEdges = data;
     this.signal('incidentEdges');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot get incident edges', params));
+  }.bind(this), 'cannot get incident edges');
 };
 
 /*

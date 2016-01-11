@@ -70,8 +70,8 @@ genotet.ViewRenderer.prototype.layout = function() {};
 genotet.ViewRenderer.prototype.render = function() {};
 
 /**
- * Handles data loadComplete event, e.g. processing the data.
- * Typically, the scene is rendered after loadComplete event is fired.
+ * Handles data loadSuccess event, e.g. processing the data.
+ * Typically, the scene is rendered after loadSuccess event is fired.
  */
 genotet.ViewRenderer.prototype.dataLoaded = function() {};
 
