@@ -104,13 +104,7 @@ bed.listBed_ = function(bedPath) {
       var content = fs.readFileSync(folder + file, 'utf8')
         .toString().split('\n');
       var bedName = content[0];
-      var description = '';
-      for (var i = 1; i < content.length; i++) {
-        description += content[i];
-        if (i != content.length - 1) {
-          description += '\n';
-        }
-      }
+      var description = content.slice(1).join('') + '\n';
       ret.push({
         bedName: bedName,
         fileName: fname,

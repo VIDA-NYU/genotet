@@ -247,7 +247,7 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
   $.get(genotet.data.serverURL, params, function(data) {
     genotet.data.bindingGenes = [];
     data.forEach(function(bindingGene) {
-      genotet.data.bindingGenes.push(bindingGene.bindingName);
+      genotet.data.bindingGenes.push(bindingGene.gene);
     });
     this.signal('track');
   }.bind(this), 'jsonp')

@@ -334,6 +334,8 @@ network.readNetwork_ = function(networkFile) {
   lines.forEach(function(line) {
     if (!validFile) return;
     var parts = line.split(/[\t\s]+/);
+    var source = parts[0];
+    var target = parts[1];
     if (parts.length < 3) {
       validFile = false;
       return;
@@ -349,30 +351,30 @@ network.readNetwork_ = function(networkFile) {
     for (var i = 2; i < parts.length; i++) {
       numbers.push(parseFloat(parts[i]));
     }
-    if (nodeId.hasOwnProperty(parts[0])) {
-      nodes[nodeId[parts[0]]].isTF = true;
+    if (nodeId.hasOwnProperty(source)) {
+      nodes[nodeId[source]].isTF = true;
     } else {
-      names.push(parts[0]);
+      names.push(source);
       nodes.push({
-        id: parts[0],
-        label: parts[0],
+        id: source,
+        label: source,
         isTF: true
       });
-      nodeId[parts[0]] = nodes.length - 1;
+      nodeId[source] = nodes.length - 1;
     }
-    if (!nodeId.hasOwnProperty(parts[1])) {
-      names.push(parts[1]);
+    if (!nodeId.hasOwnProperty(target)) {
+      names.push(target);
       nodes.push({
-        id: parts[1],
-        label: parts[1],
+        id: target,
+        label: target,
         isTF: false
       });
-      nodeId[parts[1]] = nodes.length - 1;
+      nodeId[target] = nodes.length - 1;
     }
     edges.push({
-      id: parts[0] + ',' + parts[1],
-      source: parts[0],
-      target: parts[1],
+      id: source + ',' + source,
+      source: source,
+      target: target,
       weight: numbers
     });
   });
@@ -403,17 +405,10 @@ network.listNetwork_ = function(networkPath) {
   files.forEach(function(file) {
     if (file.indexOf('.txt') != -1) {
       var fname = file.substr(0, file.length - 4);
-      var fd = fs.openSync(folder + file, 'r');
       var content = fs.readFileSync(folder + file, 'utf8')
         .toString().split('\n');
       var networkName = content[0];
-      var description = '';
-      for (var i = 1; i < content.length; i++) {
-        description += content[i];
-        if (i != content.length - 1) {
-          description += '\n';
-        }
-      }
+      var description = content.slice(1).join('') + '\n';
       ret.push({
         fileName: fname,
         networkName: networkName,

@@ -43,17 +43,19 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
       }
     })
     .on('err', function(err) {
-      // TODO(jiaming)
+      return {
+        error: {
+          type: 'upload file copying',
+          message: 'upload file copy failed'
+        }
+      };
     });
 
   // write down the network name and description
   var fd = fs.openSync(prefix + desc.name + '.txt', 'w');
   fs.writeSync(fd, desc.description);
   fs.closeSync(fd);
-
-  return {
-    success: true
-  };
+  return {};
 };
 
 /**

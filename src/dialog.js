@@ -119,11 +119,13 @@ genotet.dialog.createNetwork_ = function() {
         type: 'list-network'
       };
       $.get(genotet.data.serverURL, params, function(data) {
+          var selectpicker = modal.find('.selectpicker');
           data.forEach(function(network) {
-            modal.find('.selectpicker')
-              .append('<option>' + network.networkName + '</option>');
+            $('<option></option>')
+              .text(network.networkName)
+              .appendTo(selectpicker);
           });
-          modal.find('.selectpicker').selectpicker('refresh');
+          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get network list');
@@ -169,8 +171,8 @@ genotet.dialog.createBinding_ = function() {
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(bindingFile) {
             genes.push({
-              id: bindingFile.bindingName,
-              text: bindingFile.bindingName
+              id: bindingFile.gene,
+              text: bindingFile.gene
             });
           });
           modal.find('#gene').select2({
@@ -209,11 +211,13 @@ genotet.dialog.createExpression_ = function() {
         type: 'list-matrix'
       };
       $.get(genotet.data.serverURL, params, function(data) {
+          var selectpicker = modal.find('.selectpicker');
           data.forEach(function(matrix) {
-            modal.find('.selectpicker')
-              .append('<option>' + matrix.matrixName + '</option>');
+            $('<option></option>')
+              .text(matrix.matrixName)
+              .appendTo(selectpicker);
           });
-          modal.find('.selectpicker').selectpicker('refresh');
+          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get expression list');
