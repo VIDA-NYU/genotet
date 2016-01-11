@@ -5,13 +5,25 @@ var chain = require('../chain.js');
 var data = require('../data.js');
 var floats = require('../floats.js');
 
-var dataInfo = {
+/** @const */
+var bindingSpec = {};
+
+/**
+ * Data information for tests
+ * @type {{name: string, description: string, fileName: string}}
+ */
+bindingSpec.dataInfo = {
   name: 'wig-1',
   description: 'the first binding track',
   fileName: 'wig-1.bw'
 };
 
-var tests = [
+/**
+ * Test cases for binding queries
+ * @type {!Array<*>}
+ * @return {*}
+ */
+bindingSpec.tests = [
   // TODO(jiaming): Handle bigWigToWig processing time. The server needs to
   // somehow let the client know that the data is ready. The binding query tests
   // should be run after the wig processing is complete.
@@ -20,10 +32,10 @@ var tests = [
     action: function(frisby) {
       var form = new FormData();
       form.append('type', 'binding');
-      form.append('name', dataInfo.name);
-      form.append('fileName', dataInfo.fileName);
-      form.append('description', dataInfo.description);
-      var fileInfo = data.getFile('wiggle', dataInfo.fileName);
+      form.append('name', bindingSpec.dataInfo.name);
+      form.append('fileName', bindingSpec.dataInfo.fileName);
+      form.append('description', bindingSpec.dataInfo.description);
+      var fileInfo = data.getFile('wiggle', bindingSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size
       });
@@ -51,9 +63,9 @@ var tests = [
       it('listed binding data', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
-          gene: dataInfo.name,
-          fileName: dataInfo.fileName,
-          description: dataInfo.description
+          gene: bindingSpec.dataInfo.name,
+          fileName: bindingSpec.dataInfo.fileName,
+          description: bindingSpec.dataInfo.description
         });
       });
     }
@@ -64,7 +76,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'binding',
-          fileName: dataInfo.fileName,
+          fileName: bindingSpec.dataInfo.fileName,
           chr: '1',
           numSamples: 6
         }))
@@ -100,7 +112,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'binding',
-          fileName: dataInfo.fileName,
+          fileName: bindingSpec.dataInfo.fileName,
           chr: '3',
           xl: 3000080,
           xr: 3000100,
@@ -133,4 +145,4 @@ var tests = [
     }
   }
 ];
-chain.test(tests);
+chain.test(bindingSpec.tests);

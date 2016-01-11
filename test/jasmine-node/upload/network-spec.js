@@ -5,22 +5,34 @@ var server = require('../server.js');
 var chain = require('../chain.js');
 var data = require('../data.js');
 
-var dataInfo = {
+/** @const */
+var networkSpec = {};
+
+/**
+ * Data information of network tests
+ * @type {{name: string, description: string, fileName: string}}
+ */
+networkSpec.dataInfo = {
   name: 'network-1',
   description: 'the first network',
   fileName: 'network-1.tsv'
 };
 
-var tests = [
+/**
+ * Test cases of network queries
+ * @type {*[]}
+ * @return {*}
+ */
+networkSpec.tests = [
   {
     name: 'upload network',
     action: function(frisby) {
       var form = new formData();
       form.append('type', 'network');
-      form.append('name', dataInfo.name);
-      form.append('fileName', dataInfo.fileName);
-      form.append('description', dataInfo.description);
-      var fileInfo = data.getFile('network', dataInfo.fileName);
+      form.append('name', networkSpec.dataInfo.name);
+      form.append('fileName', networkSpec.dataInfo.fileName);
+      form.append('description', networkSpec.dataInfo.description);
+      var fileInfo = data.getFile('network', networkSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size
       });
@@ -44,7 +56,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'network',
-          fileName: dataInfo.fileName,
+          fileName: networkSpec.dataInfo.fileName,
           geneRegex: 'a|c|e'
         }))
         .expectStatus(200);
@@ -72,4 +84,4 @@ var tests = [
     }
   }
 ];
-chain.test(tests);
+chain.test(networkSpec.tests);

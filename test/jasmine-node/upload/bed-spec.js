@@ -4,22 +4,33 @@ var server = require('../server.js');
 var chain = require('../chain.js');
 var data = require('../data.js');
 
-var dataInfo = {
+/** @const */
+var bedSpec = {};
+
+/**
+ * Data information of test cases
+ * @type {{name: string, description: string, fileName: string}}
+ */
+bedSpec.dataInfo = {
   name: 'bed-1',
   description: 'the first bed track',
   fileName: 'bed-1.bed'
 };
 
-var tests = [
+/**
+ * @type {!Array<*>}
+ * @return {*}
+ */
+bedSpec.tests = [
   {
     name: 'upload bed',
     action: function(frisby) {
       var form = new FormData();
       form.append('type', 'bed');
-      form.append('name', dataInfo.name);
-      form.append('fileName', dataInfo.fileName);
-      form.append('description', dataInfo.description);
-      var fileInfo = data.getFile('bed', dataInfo.fileName);
+      form.append('name', bedSpec.dataInfo.name);
+      form.append('fileName', bedSpec.dataInfo.fileName);
+      form.append('description', bedSpec.dataInfo.description);
+      var fileInfo = data.getFile('bed', bedSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size
       });
@@ -47,9 +58,9 @@ var tests = [
       it('listed bed data', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
-          bedName: dataInfo.name,
-          fileName: dataInfo.fileName,
-          description: dataInfo.description
+          bedName: bedSpec.dataInfo.name,
+          fileName: bedSpec.dataInfo.fileName,
+          description: bedSpec.dataInfo.description
         });
       });
     }
@@ -60,7 +71,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'bed',
-          fileName: dataInfo.fileName,
+          fileName: bedSpec.dataInfo.fileName,
           chr: '1'
         }))
         .expectStatus(200);
@@ -80,7 +91,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'bed',
-          fileName: dataInfo.fileName,
+          fileName: bedSpec.dataInfo.fileName,
           chr: '2',
           xl: 26382900,
           xr: 101662495
@@ -103,7 +114,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'bed',
-          fileName: dataInfo.fileName,
+          fileName: bedSpec.dataInfo.fileName,
           chr: '3',
           xl: 40000000,
           xr: 50000000
@@ -118,4 +129,4 @@ var tests = [
     }
   }
 ];
-chain.test(tests);
+chain.test(bedSpec.tests);

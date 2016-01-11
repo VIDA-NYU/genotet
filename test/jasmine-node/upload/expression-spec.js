@@ -4,22 +4,35 @@ var server = require('../server.js');
 var chain = require('../chain.js');
 var data = require('../data.js');
 
-var dataInfo = {
+/** @const */
+var expressionSpec = {};
+
+/**
+ * Data information for expression tests
+ * @type {{name: string, description: string, fileName: string}}
+ */
+expressionSpec.dataInfo = {
   name: 'expression-1',
   description: 'the first expression',
   fileName: 'expression-1.tsv'
 };
 
-var tests = [
+/**
+ * Test cases for expression queries
+ * @type {*[]}
+ * @return {*}
+ */
+expressionSpec.tests = [
   {
     name: 'upload expression',
     action: function(frisby) {
       var form = new FormData();
       form.append('type', 'expression');
-      form.append('name', dataInfo.name);
-      form.append('fileName', dataInfo.fileName);
-      form.append('description', dataInfo.description);
-      var fileInfo = data.getFile('expression', dataInfo.fileName);
+      form.append('name', expressionSpec.dataInfo.name);
+      form.append('fileName', expressionSpec.dataInfo.fileName);
+      form.append('description', expressionSpec.dataInfo.description);
+      var fileInfo = data.getFile('expression',
+        expressionSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size
       });
@@ -47,9 +60,9 @@ var tests = [
       it('listed expression data', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
-          matrixName: dataInfo.name,
-          fileName: dataInfo.fileName,
-          description: dataInfo.description
+          matrixName: expressionSpec.dataInfo.name,
+          fileName: expressionSpec.dataInfo.fileName,
+          description: expressionSpec.dataInfo.description
         });
       });
     }
@@ -60,7 +73,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'expression',
-          fileName: dataInfo.fileName,
+          fileName: expressionSpec.dataInfo.fileName,
           geneRegex: 'a|b',
           conditionRegex: '1|2'
         }))
@@ -86,4 +99,4 @@ var tests = [
     }
   }
 ];
-chain.test(tests);
+chain.test(expressionSpec.tests);
