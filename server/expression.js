@@ -32,7 +32,7 @@ expression.RawMatrix;
  *   allValueMax: number
  * }}
  */
-expression.MatrixAll;
+expression.MatrixInfo;
 
 /**
  * @typedef {{
@@ -64,7 +64,7 @@ expression.query = {};
  *   matrixName: string
  * }}
  */
-expression.query.MatrixAll;
+expression.query.MatrixInfo;
 
 /**
  * @typedef {{
@@ -86,13 +86,13 @@ expression.query.Profile;
 
 // Start public APIs
 /**
- * @param {!expression.query.MatrixAll} query
+ * @param {!expression.query.MatrixInfo} query
  * @param {string} expressionPath
- * @return {?expression.MatrixAll}
+ * @return {expression.MatrixInfo}
  */
-expression.query.matrixAll = function(query, expressionPath) {
+expression.query.matrixInfo = function(query, expressionPath) {
   var file = expressionPath + query.matrixName;
-  return expression.readExpressionAll_(file);
+  return expression.getMatrixInfo_(file);
 };
 
 /**
@@ -418,8 +418,7 @@ expression.listMatrix_ = function(expmatAddr) {
 expression.readExpression_ = function(expressionFile, geneNames,
                                       conditionNames) {
   var values = {};
-  var sortedValues = [];
-  var isFirstCol = true;
+  var isFirstRow = true;
   var conditions = [];
   var allGeneNames = [];
   var allConditionNames = [];
@@ -431,9 +430,9 @@ expression.readExpression_ = function(expressionFile, geneNames,
   var lines = fs.readFileSync(expressionFile).toString().split('\n');
   lines.forEach(function(line) {
     var parts = line.split('\t');
-    if (isFirstCol) {
+    if (isFirstRow) {
       // first row contains the conditions
-      isFirstCol = false;
+      isFirstRow = false;
       conditionNames.forEach(function(conditionName) {
         var conditionIndex = parts.indexOf(conditionName);
         if (conditionIndex != -1 && conditionIndex != 0) {
@@ -464,10 +463,10 @@ expression.readExpression_ = function(expressionFile, geneNames,
       }
     }
   });
-  Object.keys(values)
+  var sortedValues = Object.keys(values)
     .sort()
-    .forEach(function(geneName, i) {
-      sortedValues.push(values[geneName]);
+    .map(function(geneName) {
+      return values[geneName];
     });
   return {
     values: sortedValues,
@@ -481,11 +480,11 @@ expression.readExpression_ = function(expressionFile, geneNames,
 /**
  * Reads all of the expression matrix data from text file.
  * @param {string} expressionFile Path to the expression file.
- * @return {expression.Matrix}
+ * @return {expression.MatrixInfo}
  * @private
  */
-expression.readExpressionAll_ = function(expressionFile) {
-  var isFirstCol = true;
+expression.getMatrixInfo_ = function(expressionFile) {
+  var isFirstRow = true;
   var allGeneNames = [];
   var allConditionNames = [];
   var allValueMax = -Infinity;
@@ -494,9 +493,9 @@ expression.readExpressionAll_ = function(expressionFile) {
   var lines = fs.readFileSync(expressionFile).toString().split('\n');
   lines.forEach(function(line) {
     var parts = line.split('\t');
-    if (isFirstCol) {
+    if (isFirstRow) {
       // first row contains the conditions
-      isFirstCol = false;
+      isFirstRow = false;
       for (var i = 1; i < parts.length; i++) {
         allConditionNames.push(parts[i]);
       }

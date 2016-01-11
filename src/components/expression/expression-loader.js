@@ -15,7 +15,7 @@ genotet.ExpressionLoader = function(data) {
 
   _.extend(this.data, {
     matrix: null,
-    matrixAll: null,
+    matrixInfo: null,
     tfaData: null,
     profiles: [],
     tfaProfiles: [],
@@ -45,17 +45,17 @@ genotet.ExpressionLoader.prototype.load = function(matrixName, dataName,
  * @param {string} matrixName Name of the expression matrix.
  * @param {string} dataName Name of the expression matrix data file.
  */
-genotet.ExpressionLoader.prototype.loadExpressionMatrixAll =
+genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo =
   function(matrixName, dataName) {
     var params = {
-      type: 'expression-all',
+      type: 'expression-info',
       matrixName: matrixName
     };
 
     $.get(genotet.data.serverURL, params, function(data) {
         // Store the last applied data selectors.
         _.extend(data, {
-          matrixname: matrixName
+          matrixName: matrixName
         });
 
         if (data.allGeneNames.length == 0) {
@@ -67,8 +67,8 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixAll =
           return;
         }
 
-        this.data.matrixAll = data;
-        this.signal('allMatrixDataLoaded');
+        this.data.matrixInfo = data;
+        this.signal('matrixInfoLoaded');
       }.bind(this), 'jsonp')
       .fail(this.fail.bind(this, 'cannot load expression matrix', params));
   };
@@ -95,7 +95,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
     $.get(genotet.data.serverURL, params, function(data) {
         // Store the last applied data selectors.
         _.extend(data, {
-          matrixname: matrixName,
+          matrixName: matrixName,
           dataName: 'b-subtilis'
         });
 
@@ -158,7 +158,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
                                                      names) {
   var heatmapData = this.data.matrix;
   var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
-    matrixName: heatmapData.matrixname,
+    matrixName: heatmapData.matrixName,
     dataName: heatmapData.dataName,
     geneNames: heatmapData.geneNames,
     conditionNames: heatmapData.conditionNames
@@ -219,58 +219,3 @@ genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames,
     }
   });
 };
-
-/**
- * @param {boolean} isGeneRegex Gene input type that is regex or string.
- * @param {string} geneInput Gene input.
- * @return {!Array<string>} geneNames Names for gene selection.
- */
-genotet.ExpressionLoader.prototype.formatGeneInput = function(isGeneRegex,
-                                                            geneInput) {
-  var geneNames = [];
-  if (isGeneRegex) {
-    var geneRegex = RegExp(geneInput, 'i');
-    this.data.matrixAll.allGeneNames.forEach(function(geneName) {
-      if (geneName.match(geneRegex)) {
-        geneNames.push(geneName);
-      }
-    });
-  }
-  else {
-    var inputWords = geneInput.split(',');
-    inputWords.forEach(function(word) {
-      if (this.data.matrixAll.allGeneNames.indexOf(word) != -1) {
-        geneNames.push(word);
-      }
-    }.bind(this));
-  }
-  return geneNames;
-};
-
-/**
- * @param {boolean} isConditionRegex Gene input type that is regex or string.
- * @param {string} conditionInput Condition input.
- * @return {!Array<string>} conditionNames Names for experiment condition
- *      selection.
- */
-genotet.ExpressionLoader.prototype.formatConditionInput =
-  function(isConditionRegex, conditionInput) {
-    var conditionNames = [];
-    if (isConditionRegex) {
-      var conditionRegex = RegExp(conditionInput, 'i');
-      this.data.matrixAll.allConditionNames.forEach(function(conditionName) {
-        if (conditionName.match(conditionRegex)) {
-          conditionNames.push(conditionName);
-        }
-      });
-    }
-    else {
-      var inputWords = conditionInput.split(',');
-      inputWords.forEach(function(word) {
-        if (this.data.matrixAll.allConditionNames.indexOf(word) != -1) {
-          conditionNames.push(word);
-        }
-      }.bind(this));
-    }
-    return conditionNames;
-  };

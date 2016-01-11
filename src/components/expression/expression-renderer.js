@@ -160,7 +160,7 @@ genotet.ExpressionRenderer.Cell = function(params) {
  *   row: (?number|undefined),
  *   hoverColumn: (?number|undefined),
  *   hoverConditionName: (?string|undefined),
- *   hoverValue: (?number|?string|undefined),
+ *   hoverValue: (number|string|null|undefined),
  *   color: (?string|undefined)
  * }} params
  *      container: Container of the selected gene profile.
@@ -190,7 +190,7 @@ genotet.ExpressionRenderer.Profile = function(params) {
   this.hoverConditionName = params.hoverConditionName != null ?
     params.hoverConditionName : null;
 
-  /** @type {?number|?string} */
+  /** @type {number|string|null} */
   this.hoverValue = params.hoverValue != null ? params.hoverValue : 0;
 
   /** @type {?string} */
@@ -200,7 +200,7 @@ genotet.ExpressionRenderer.Profile = function(params) {
 /**
  * Zoom status object storing the status of expression matrix.
  * @param {!{
- *   matrixName: (?string|undefined),
+ *   matrixName: (?string),
  *   dataName: (?string|undefined),
  *   geneNames: (!Array<string>),
  *   conditionNames: (!Array<string>)
@@ -698,9 +698,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   } else {
     colorScale
       .domain([
-        heatmapData.allValueMin,
-        (this.data.matrixAll.allValueMin + this.data.matrixAll.allValueMax) / 2,
-        this.data.matrixAll.allValueMax
+        heatmapData.allValueMin, (this.data.matrixInfo.allValueMin +
+        this.data.matrixInfo.allValueMax) / 2, this.data.matrixInfo.allValueMax
       ])
       .range(genotet.data.redYellowScale);
   }
@@ -767,8 +766,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var zoomOutButtonSelection = d3.select('#zoom-out button');
   if (this.data.zoomStack.length == 0) {
     zoomOutButtonSelection.classed('disabled', true);
-  }
-  else {
+  } else {
     zoomOutButtonSelection.classed('disabled', false);
   }
 
@@ -833,8 +831,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
           cellWidth);
         d3.selectAll('.gene-label')
           .classed('label-selected', function(label, i) {
-          return i >= rowStart && i <= rowEnd;
-        });
+            return i >= rowStart && i <= rowEnd;
+          });
         d3.selectAll('.condition-label')
           .classed('label-selected', function(label, i) {
             return i >= columnStart && i <= columnEnd;
@@ -864,14 +862,13 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         };
         var zoomStatus = this.zoomDataLoaded_(zoomParams);
         var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
-          matrixName: heatmapData.matrixname,
+          matrixName: heatmapData.matrixName,
           geneNames: heatmapData.geneNames,
           conditionNames: heatmapData.conditionNames
         });
         this.data.zoomStack.push(currentStatus);
         this.signal('expressionZoomIn', zoomStatus);
-      }
-      else {
+      } else {
         var row, column, selectedValue;
         var cellSelection = d3.select('.cell')
           .select('.row' + rowStart)
@@ -964,8 +961,8 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
     scaleMin = heatmapData.valueMin;
     scaleMax = heatmapData.valueMax;
   } else {
-    scaleMin = this.data.matrixAll.allValueMin;
-    scaleMax = this.data.matrixAll.allValueMax;
+    scaleMin = this.data.matrixInfo.allValueMin;
+    scaleMax = this.data.matrixInfo.allValueMax;
   }
   scaleMin = scaleMin.toFixed(2);
   scaleMax = scaleMax.toFixed(2);
@@ -1420,14 +1417,23 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
 
 /**
  * Load expression matrix data after zoom in and out the heatmap.
- * @param {!Object} params Parameters for expression zoom in.
- * @return {!Object} zoomStatus Parameters for data load.
+ * @param {!{
+ *   rowStart: (?number|undefined),
+ *   rowEnd: (?number|undefined),
+ *   columnStart: (?number|undefined),
+ *   columnEnd: (?number|undefined)
+ * }} params
+ *      rowStart: Start row of the selected cells.
+ *      rowEnd: End row of the selected cells.
+ *      columnStart: Start column of the selected cells.
+ *      columnEnd: End column of the selected cells.
+ * @return {!genotet.ExpressionRenderer.ZoomStatus} zoomStatus
  * @private
  */
 genotet.ExpressionRenderer.prototype.zoomDataLoaded_ = function(params) {
   var heatmapData = this.data.matrix;
   var zoomStatus = new genotet.ExpressionRenderer.ZoomStatus({
-    matrixName: heatmapData.matrixname,
+    matrixName: heatmapData.matrixName,
     geneNames: heatmapData.geneNames.slice(params.rowStart, params.rowEnd + 1),
     conditionNames: heatmapData.conditionNames.slice(params.columnStart,
       params.columnEnd + 1)

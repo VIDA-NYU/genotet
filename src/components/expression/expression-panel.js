@@ -121,30 +121,14 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   ['setGene', 'addGene', 'removeGene'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
       var input = this.container.find('#genes input');
-      var geneInput = input.val();
+      var geneInput = input.val().toString();
       if (geneInput == '') {
         genotet.warning('missing input gene selection');
         return;
       }
       input.val('');
 
-      var geneNames = [];
-      if (this.isRegex_) {
-        var geneRegex = RegExp(geneInput, 'i');
-        this.data.matrixAll.allGeneNames.forEach(function(geneName) {
-          if (geneName.match(geneRegex)) {
-            geneNames.push(geneName);
-          }
-        });
-      }
-      else {
-        var inputWords = geneInput.split(',');
-        inputWords.forEach(function(word) {
-          if (this.data.matrixAll.allGeneNames.indexOf(word) != -1) {
-            geneNames.push(word);
-          }
-        }.bind(this));
-      }
+      var geneNames = this.formatGeneInput(this.isRegex_, geneInput);
       if (geneNames.length == 0) {
         genotet.warning('invalid input gene selection');
         return;
@@ -161,30 +145,15 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   ['setCondition', 'addCondition', 'removeCondition'].forEach(function(method) {
     this.container.find('#conditions #' + method).click(function() {
       var input = this.container.find('#conditions input');
-      var conditionInput = input.val();
+      var conditionInput = input.val().toString();
       if (conditionInput == '') {
         genotet.warning('missing input condition selection');
         return;
       }
       input.val('');
 
-      var conditionNames = [];
-      if (this.isRegex_) {
-        var conditionRegex = RegExp(conditionInput, 'i');
-        this.data.matrixAll.allConditionNames.forEach(function(conditionName) {
-          if (conditionName.match(conditionRegex)) {
-            conditionNames.push(conditionName);
-          }
-        });
-      }
-      else {
-        var inputWords = conditionInput.split(',');
-        inputWords.forEach(function(word) {
-          if (this.data.matrixAll.allConditionNames.indexOf(word) != -1) {
-            conditionNames.push(word);
-          }
-        }.bind(this));
-      }
+      var conditionNames = this.formatConditionInput(this.isRegex_,
+        conditionInput);
       if (conditionNames.length == 0) {
         genotet.warning('invalid input condition selection');
         return;
@@ -288,3 +257,49 @@ genotet.ExpressionPanel.prototype.displayCellInfo = function(geneName,
     this.hideCellInfo();
   }.bind(this));
 };
+
+/**
+ * @param {boolean} isGeneRegex Gene input type that is regex or string.
+ * @param {string} geneInput Gene input.
+ * @return {!Array<string>} geneNames Names for gene selection.
+ */
+genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
+                                                              geneInput) {
+  var geneNames = [];
+  if (isGeneRegex) {
+    var geneRegex = RegExp(geneInput, 'i');
+    geneNames = this.data.matrixInfo.allGeneNames.filter(function(geneName) {
+      return geneName.match(geneRegex);
+    });
+  } else {
+    var inputWords = geneInput.split(',');
+    geneNames = inputWords.filter(function(word) {
+      return this.data.matrixInfo.allGeneNames.indexOf(word) != -1;
+    }.bind(this));
+  }
+  return geneNames;
+};
+
+/**
+ * @param {boolean} isConditionRegex Gene input type that is regex or string.
+ * @param {string} conditionInput Condition input.
+ * @return {!Array<string>} conditionNames Names for experiment condition
+ *      selection.
+ */
+genotet.ExpressionPanel.prototype.formatConditionInput =
+  function(isConditionRegex, conditionInput) {
+    var conditionNames = [];
+    if (isConditionRegex) {
+      var conditionRegex = RegExp(conditionInput, 'i');
+      conditionNames = this.data.matrixInfo.allConditionNames.filter(
+        function(conditionName) {
+          return conditionName.match(conditionRegex);
+        });
+    } else {
+      var inputWords = conditionInput.split(',');
+      conditionNames = inputWords.filter(function(word) {
+        return this.data.matrixInfo.allConditionNames.indexOf(word) != -1;
+      }.bind(this));
+    }
+    return conditionNames;
+  };

@@ -58,14 +58,14 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.loadExpressionMatrixAll(params.matrixName, params.dataName);
+    this.loader.loadExpressionMatrixInfo(params.matrixName, params.dataName);
   }.bind(this));
 
   // Format gene and condition input to list.
-  $(this.loader).on('genotet.allMatrixDataLoaded', function() {
-    var geneNames = this.loader.formatGeneInput(params.isGeneRegex,
+  $(this.loader).on('genotet.matrixInfoLoaded', function() {
+    var geneNames = this.panel.formatGeneInput(params.isGeneRegex,
       params.geneInput);
-    var conditionNames = this.loader.formatConditionInput(
+    var conditionNames = this.panel.formatConditionInput(
       params.isConditionRegex, params.conditionInput);
     this.loader.load(params.matrixName, params.dataName, geneNames,
       conditionNames);
