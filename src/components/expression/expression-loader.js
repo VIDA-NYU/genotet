@@ -43,15 +43,13 @@ genotet.ExpressionLoader.prototype.load = function(matrixName, geneRegex,
  */
 genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
     geneRegex, conditionRegex) {
-  this.signal('loadStart');
   var params = {
     type: 'expression',
     matrixName: matrixName,
     geneRegex: geneRegex,
     conditionRegex: conditionRegex
   };
-
-  $.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverURL, params, function(data) {
       // Store the last applied data selectors.
       _.extend(data, {
         matrixname: matrixName,
@@ -60,10 +58,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(matrixName,
       });
 
       this.data.matrix = data;
-
-      this.signal('loadComplete');
-    }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot load expression matrix', params));
+    }.bind(this), 'cannot load expression matrix');
 };
 
 /**

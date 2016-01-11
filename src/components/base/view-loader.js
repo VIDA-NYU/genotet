@@ -69,6 +69,23 @@ genotet.ViewLoader.prototype.signal = function(eventType, opt_data) {
 };
 
 /**
+ * Sends a get request to the url with given params and callback.
+ * @param {string} url URL to which the get request is sent.
+ * @param {!Object} params Query parameters of the get request.
+ * @param {function(*)} callback Callback function when the request is done.
+ * @param {string} errorMessage Error message to show when the request failed.
+ */
+genotet.ViewLoader.prototype.get = function(url, params, callback,
+                                            errorMessage) {
+  this.signal('loadStart');
+  $.get(url, params, function(data) {
+    callback(data);
+    this.signal('loadComplete');
+  }.bind(this), 'jsonp')
+    .fail(this.fail.bind(this, errorMessage, params));
+};
+
+/**
  * Triggers a fail event and pushes the error.
  * @param {string} msg Error message.
  * @param {Object} params Query parameter object.
