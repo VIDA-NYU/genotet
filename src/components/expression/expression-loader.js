@@ -17,6 +17,9 @@ genotet.ExpressionLoader = function(data) {
     matrix: null,
     matrixInfo: null,
     tfaData: null,
+    matrixGeneNameDict: null,
+    matrixConditionNameDict: null,
+    tfaGeneNameDict: null,
     profiles: [],
     tfaProfiles: [],
     zoomStack: []
@@ -58,11 +61,11 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo =
           matrixName: matrixName
         });
 
-        if (data.allGeneNames.length == 0) {
+        if (Object.keys(data.allGeneNames).length == 0) {
           genotet.warning('input gene not found');
           return;
         }
-        if (data.allConditionNames.length == 0) {
+        if (Object.keys(data.allConditionNames).length == 0) {
           genotet.warning('input condition not found');
           return;
         }
@@ -110,6 +113,16 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
 
         this.signal('loadStart');
         this.data.matrix = data;
+        var matrixGeneNameDict = {};
+        data.geneNames.forEach(function(geneName, i) {
+          matrixGeneNameDict[geneName] = i;
+        }.bind(this));
+        var matrixConditionNameDict = {};
+        data.conditionNames.forEach(function(conditionName, i) {
+          matrixConditionNameDict[conditionName] = i;
+        }.bind(this));
+        this.data.matrixGeneNameDict = matrixGeneNameDict;
+        this.data.matrixConditionNameDict = matrixConditionNameDict;
 
         this.loadTfaData_(matrixName, dataName, geneNames, conditionNames);
       }.bind(this), 'jsonp')
@@ -136,10 +149,16 @@ genotet.ExpressionLoader.prototype.loadTfaData_ =
     };
     $.get(genotet.data.serverURL, tfaParams, function(data) {
         // Store the last applied data selectors.
-        this.data.tfaData = data;
         if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
           return;
         }
+
+        var tfaGeneNameDict = {};
+        data.geneNames.forEach(function(geneName, i) {
+          tfaGeneNameDict[geneName] = i;
+        }.bind(this));
+        this.data.tfaGeneNameDict = tfaGeneNameDict;
+        this.data.tfaData = data;
 
         this.signal('loadComplete');
       }.bind(this), 'jsonp')

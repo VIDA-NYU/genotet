@@ -13,7 +13,7 @@ genotet.test = function() {
 
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
     matrixName: 'expressionMatrix',
-    dataName: 'B. Subtilis',
+    dataName: 'b-subtilis',
     isGeneRegex: true,
     isConditionRegex: true,
     geneInput: 'sig.*',

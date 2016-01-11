@@ -268,13 +268,14 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
   var geneNames = [];
   if (isGeneRegex) {
     var geneRegex = RegExp(geneInput, 'i');
-    geneNames = this.data.matrixInfo.allGeneNames.filter(function(geneName) {
-      return geneName.match(geneRegex);
-    });
+    geneNames = Object.keys(this.data.matrixInfo.allGeneNames)
+      .filter(function(geneName) {
+        return geneName.match(geneRegex);
+      });
   } else {
     var inputWords = geneInput.split(',');
     geneNames = inputWords.filter(function(word) {
-      return this.data.matrixInfo.allGeneNames.indexOf(word) != -1;
+      return typeof this.data.matrixInfo.allGeneNames[word] != 'undefined';
     }.bind(this));
   }
   return geneNames;
@@ -291,14 +292,15 @@ genotet.ExpressionPanel.prototype.formatConditionInput =
     var conditionNames = [];
     if (isConditionRegex) {
       var conditionRegex = RegExp(conditionInput, 'i');
-      conditionNames = this.data.matrixInfo.allConditionNames.filter(
-        function(conditionName) {
+      conditionNames = Object.keys(this.data.matrixInfo.allConditionNames)
+        .filter(function(conditionName) {
           return conditionName.match(conditionRegex);
         });
     } else {
       var inputWords = conditionInput.split(',');
       conditionNames = inputWords.filter(function(word) {
-        return this.data.matrixInfo.allConditionNames.indexOf(word) != -1;
+        return typeof this.data.matrixInfo.allConditionNames[word] !=
+          'undefined';
       }.bind(this));
     }
     return conditionNames;

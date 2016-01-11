@@ -613,9 +613,9 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   var i = 0;
   var profileCount = this.data.profiles.length;
   while (i < profileCount) {
-    var geneIndex = heatmapData.geneNames.indexOf(
-      this.data.profiles[i].geneName);
-    if (geneIndex == -1) {
+    var geneIndex = this.data.matrixGeneNameDict[
+      this.data.profiles[i].geneName];
+    if (typeof geneIndex == 'undefined') {
       this.data.profiles.splice(i, 1);
       profileCount--;
     } else {
@@ -627,9 +627,9 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   i = 0;
   profileCount = this.data.tfaProfiles.length;
   while (i < profileCount) {
-    var geneIndex = heatmapData.geneNames.indexOf(
-      this.data.tfaProfiles[i].geneName);
-    if (geneIndex == -1) {
+    var geneIndex = this.data.matrixGeneNameDict[
+      this.data.tfaProfiles[i].geneName];
+    if (typeof geneIndex == 'undefined') {
       this.data.tfaProfiles.splice(i, 1);
       profileCount--;
     } else {
@@ -713,7 +713,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   heatmapRects.enter().append('rect');
   heatmapRects
     .attr('class', function(value, i, j) {
-      return 'cell row' + j + ' column' + i;
+      return 'row' + j + ' column' + i;
     })
     .attr('width', this.cellWidth)
     .attr('height', this.cellHeight)
@@ -837,7 +837,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
           .classed('label-selected', function(label, i) {
             return i >= columnStart && i <= columnEnd;
           });
-        d3.selectAll('.cell').filter(function(value, i) {
+        d3.selectAll('rect:not(.selection)').filter(function(value, i) {
           var row = Math.floor(i / heatmapData.conditionNames.length);
           var column = i % heatmapData.conditionNames.length;
           return rowStart <= row && row <= rowEnd &&
@@ -1116,8 +1116,8 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .on('click', function(profile, i) {
       var conditionIndex = Math.floor(
         xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
-      var geneIndex = heatmapData.geneNames.indexOf(
-        this.data.profiles[i].geneName);
+      var geneIndex = this.data.matrixGeneNameDict[
+        this.data.profiles[i].geneName];
       var value = heatmapData.values[geneIndex][conditionIndex];
       _.extend(this.clickedObject_, {
         container: d3.event.target,
@@ -1179,7 +1179,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
   profilePath
     .classed('profile', true)
     .attr('d', function(tfaProfile) {
-      var geneIndex = tfaData.geneNames.indexOf(tfaProfile.geneName);
+      var geneIndex = this.data.tfaGeneNameDict[tfaProfile.geneName];
       return line(tfaData.tfaValues[geneIndex]);
     })
     .attr('transform', genotet.utils.getTransform([
@@ -1193,7 +1193,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
       return pathColor;
     }.bind(this))
     .on('mousemove', function(tfaProfile, i) {
-      var geneIndex = tfaData.geneNames.indexOf(tfaProfile.geneName);
+      var geneIndex = this.data.tfaGeneNameDict[tfaProfile.geneName];
       var conditionIndex = Math.floor(
         xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5
       );
@@ -1220,7 +1220,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
     .on('click', function(tfaProfile, i) {
       var conditionIndex = Math.floor(
         xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
-      var geneIndex = tfaData.geneNames.indexOf(tfaProfile.geneName);
+      var geneIndex = this.data.tfaGeneNameDict[tfaProfile.geneName];
       var hoverConditionData = tfaData.tfaValues[geneIndex]
         .filter(function(tfaValues) {
           return tfaValues.index == conditionIndex;
@@ -1233,7 +1233,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
         container: d3.event.target,
         geneName: tfaProfile.geneName,
         conditionName: heatmapData.conditionNames[conditionIndex],
-        row: heatmapData.geneNames.indexOf(tfaProfile.geneName),
+        row: this.data.tfaGeneNameDict[tfaProfile.geneName],
         column: conditionIndex,
         value: tfaValue
       });
@@ -1278,7 +1278,7 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile = function(geneIndex) {
 genotet.ExpressionRenderer.prototype.addTfaProfile = function(geneName) {
   var tfaProfile = new genotet.ExpressionRenderer.Profile({
     geneName: geneName,
-    row: this.data.matrix.geneNames.indexOf(geneName)
+    row: this.data.matrixGeneNameDict[geneName]
   });
   this.data.tfaProfiles.push(tfaProfile);
   this.drawTfaProfiles_();
@@ -1400,16 +1400,16 @@ genotet.ExpressionRenderer.prototype.unhighlightLabelsForClickedObject =
 genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
   function() {
     var heatmapData = this.data.matrix;
-    if (this.clickedObject_.row != -1 && this.clickedObject_.column != -1) {
-      this.clickedObject_.row = heatmapData.geneNames.indexOf(
-        this.clickedObject_.geneName
-      );
-      this.clickedObject_.column = heatmapData.conditionNames.indexOf(
-        this.clickedObject_.conditionName
-      );
+    if (typeof this.clickedObject_.row != 'undefined' &&
+      typeof this.clickedObject_.column != 'undefined') {
+      this.clickedObject_.row = this.data.matrixGeneNameDict[
+        this.clickedObject_.geneName];
+      this.clickedObject_.column = this.data.matrixConditionNameDict[
+        this.clickedObject_.conditionName];
     }
-    if (this.clickedObject_.row != -1 && this.clickedObject_.column != -1) {
-        this.signal('expressionClick', this.clickedObject_);
+    if (typeof this.clickedObject_.row != 'undefined' &&
+      typeof this.clickedObject_.column != 'undefined') {
+      this.signal('expressionClick', this.clickedObject_);
     } else {
       this.signal('expressionUnclick');
     }
