@@ -55,7 +55,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo =
       matrixName: matrixName
     };
 
-    $.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverURL, params, function(data) {
         // Store the last applied data selectors.
         _.extend(data, {
           matrixName: matrixName
@@ -72,8 +72,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo =
 
         this.data.matrixInfo = data;
         this.signal('matrixInfoLoaded');
-      }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot load expression matrix', params));
+      }.bind(this), 'cannot load expression matrix');
   };
 
 /**
@@ -95,7 +94,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
       conditionNames: conditionNames
     };
 
-    $.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverURL, params, function(data) {
         // Store the last applied data selectors.
         _.extend(data, {
           matrixName: matrixName,
@@ -124,8 +123,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
         this.data.matrixConditionNameDict = matrixConditionNameDict;
 
         this.loadTfaData_(matrixName, dataName, geneNames, conditionNames);
-      }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot load expression matrix', params));
+      }.bind(this), 'cannot load expression matrix');
   };
 
 /**
@@ -146,7 +144,7 @@ genotet.ExpressionLoader.prototype.loadTfaData_ =
       geneNames: geneNames,
       conditionNames: conditionNames
     };
-    $.get(genotet.data.serverURL, tfaParams, function(data) {
+    this.get(genotet.data.serverURL, tfaParams, function(data) {
         // Store the last applied data selectors.
         if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
           return;
@@ -158,9 +156,7 @@ genotet.ExpressionLoader.prototype.loadTfaData_ =
         this.data.tfaGeneNameDict = tfaGeneNameDict;
         this.data.tfaData = data;
 
-      }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
-        tfaParams));
+      }.bind(this), 'cannot load expression TFA profiles');
   };
 
 /**
