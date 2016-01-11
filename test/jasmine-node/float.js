@@ -24,7 +24,7 @@ float.TOLERANCE_ = 1E-9;
  * @this {float}
  */
 float.equal = function(a, b, opt_tolerance) {
-  var tolerance = opt_tolerance != null ? opt_tolerance : this.TOLERANCE_;
+  var tolerance = opt_tolerance != null ? opt_tolerance : float.TOLERANCE_;
   expect(a).toBeGreaterThan(b - tolerance);
   expect(a).toBeLessThan(b + tolerance);
 };
