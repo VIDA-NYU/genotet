@@ -305,8 +305,7 @@ expression.getProfile_ = function(fileExp, fileTFA, geneNames,
       allTfaValues.push(tfaValues);
     });
   }
-  var geneNameString = geneNames.join(',');
-  console.log('returning tfa line', geneNameString);
+  console.log('returning tfa line', geneNames.join(','));
   return {
     geneNames: geneNames,
     conditionNames: conditionNames,
@@ -474,8 +473,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
       values.push(tmpLine);
     }
   });
-  var geneNameString = geneNames.join(',');
-  console.log('returning line', geneNameString);
+  console.log('returning tfa line', geneNames.join(','));
   return {
     values: values,
     geneNames: geneNames,
