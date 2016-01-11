@@ -111,7 +111,6 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
           return;
         }
 
-        this.signal('loadStart');
         this.data.matrix = data;
         var matrixGeneNameDict = {};
         data.geneNames.forEach(function(geneName, i) {
@@ -159,7 +158,6 @@ genotet.ExpressionLoader.prototype.loadTfaData_ =
         this.data.tfaGeneNameDict = tfaGeneNameDict;
         this.data.tfaData = data;
 
-        this.signal('loadComplete');
       }.bind(this), 'jsonp')
       .fail(this.fail.bind(this, 'cannot load expression TFA profiles',
         tfaParams));
