@@ -169,6 +169,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   var body = {
     type: req.body.type,
     name: req.body.name,
+    fileName: req.body.fileName,
     description: req.body.description
   };
   uploader.uploadFile(body, req.file, prefix, bigWigToWigPath);

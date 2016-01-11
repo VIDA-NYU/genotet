@@ -63,23 +63,29 @@ networkSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('nodes', function() {
-        expect(data.nodes).toEqual([
-          {id: 'a', label: 'a', isTF: true},
-          {id: 'c', label: 'c', isTF: true},
-          {id: 'e', label: 'e', isTF: false}
-        ]);
+      describe('query network', function() {
+        it('nodes', function() {
+          expect(data.nodes).toEqual([
+            {id: 'a', label: 'a', isTF: true},
+            {id: 'c', label: 'c', isTF: true},
+            {id: 'e', label: 'e', isTF: false}
+          ]);
+        });
       });
-      it('edges', function() {
-        expect(data.edges).toEqual([
-          {id: 'a,c', source: 'a', target: 'c', weight: [2, 3, 0]},
-          {id: 'c,e', source: 'c', target: 'e', weight: [4, 1, 0]}
-        ]);
+      describe('query network', function() {
+        it('edges', function() {
+          expect(data.edges).toEqual([
+            {id: 'a,c', source: 'a', target: 'c', weight: [2, 3, 0]},
+            {id: 'c,e', source: 'c', target: 'e', weight: [4, 1, 0]}
+          ]);
+        });
       });
-      it('weights', function() {
-        expect(data.valueNames).toEqual(['attr1', 'attr2', 'attr3']);
-        expect(data.weightMax).toBe(4);
-        expect(data.weightMin).toBe(0);
+      describe('query network', function() {
+        it('weights', function() {
+          expect(data.valueNames).toEqual(['attr1', 'attr2', 'attr3']);
+          expect(data.weightMax).toBe(4);
+          expect(data.weightMin).toBe(0);
+        });
       });
     }
   }

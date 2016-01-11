@@ -22,6 +22,7 @@ function uploader() {}
  * @param {{
  *   type: string,
  *   name: string,
+ *   fileName: string,
  *   description: string
  * }} desc File description.
  * @param {Object} file File object received from multer.
@@ -32,15 +33,15 @@ function uploader() {}
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
   console.log('hello');
   var source = fs.createReadStream(file.path);
-  var dest = fs.createWriteStream(prefix + desc.name);
+  var dest = fs.createWriteStream(prefix + desc.fileName);
   source.pipe(dest);
   source
     .on('end', function() {
       fs.unlink(file.path);
       if (desc.type == 'binding') {
-        uploader.bigWigToBCWig(prefix, desc.name, bigWigToWigAddr);
+        uploader.bigWigToBCWig(prefix, desc.fileName, bigWigToWigAddr);
       } else if (desc.type == 'bed') {
-        uploader.bedSort(prefix, desc.name);
+        uploader.bedSort(prefix, desc.fileName);
       }
     })
     .on('err', function(err) {
@@ -53,7 +54,8 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
     });
 
   // write down the network name and description
-  var fd = fs.openSync(prefix + desc.name + '.txt', 'w');
+  var fd = fs.openSync(prefix + desc.fileName + '.txt', 'w');
+  fs.writeSync(fd, desc.name + '\n');
   fs.writeSync(fd, desc.description);
   fs.closeSync(fd);
   return {};

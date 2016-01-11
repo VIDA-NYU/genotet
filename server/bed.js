@@ -43,7 +43,7 @@ bed.query.Motifs;
 bed.query.motifs = function(query, bedPath) {
   var fileName = query.fileName;
   var chr = query.chr;
-  var dir = bedPath + fileName + '_chr/' + fileName + '_' + chr;
+  var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
   return bed.readBed_(dir, query.xl, query.xr);
 };
 
@@ -104,7 +104,7 @@ bed.listBed_ = function(bedPath) {
       var content = fs.readFileSync(folder + file, 'utf8')
         .toString().split('\n');
       var bedName = content[0];
-      var description = content.slice(1).join('') + '\n';
+      var description = content.slice(1).join('');
       ret.push({
         bedName: bedName,
         fileName: fname,

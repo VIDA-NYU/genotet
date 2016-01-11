@@ -43,8 +43,10 @@ expressionSpec.tests = [
     },
     check: function(body) {
       var json = JSON.parse(body);
-      it('upload response is success', function() {
-        expect(json.success).toBe(true);
+      describe('upload expression', function() {
+        it('upload response is success', function() {
+          expect(json.success).toBe(true);
+        });
       });
     }
   },
@@ -52,17 +54,19 @@ expressionSpec.tests = [
     name: 'list expression',
     action: function(frisby) {
       frisby
-        .get(server.queryURL({type: 'list-matrix'}))
+        .get(server.queryURL({type: 'list-expression'}))
         .expectStatus(200);
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('listed expression data', function() {
-        expect(data.length).toBe(1);
-        expect(data[0]).toEqual({
-          matrixName: expressionSpec.dataInfo.name,
-          fileName: expressionSpec.dataInfo.fileName,
-          description: expressionSpec.dataInfo.description
+      describe('list expression', function() {
+        it('listed expression data', function() {
+          expect(data.length).toBe(1);
+          expect(data[0]).toEqual({
+            matrixName: expressionSpec.dataInfo.name,
+            fileName: expressionSpec.dataInfo.fileName,
+            description: expressionSpec.dataInfo.description
+          });
         });
       });
     }
@@ -81,20 +85,28 @@ expressionSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('gene names', function() {
-        expect(data.geneNames).toEqual(['a', 'b']);
+      describe('query expression', function() {
+        it('gene names', function() {
+          expect(data.geneNames).toEqual(['a', 'b']);
+        });
       });
-      it('condition names', function() {
-        expect(data.conditionNames).toEqual(['cond1', 'cond2']);
+      describe('query expression', function() {
+        it('condition names', function() {
+          expect(data.conditionNames).toEqual(['cond1', 'cond2']);
+        });
       });
-      it('values', function() {
-        expect(data.values).toEqual([[1, 2], [4, 5]]);
+      describe('query expression', function() {
+        it('values', function() {
+          expect(data.values).toEqual([[1, 2], [4, 5]]);
+        });
       });
-      it('min/max values', function() {
-        expect(data.valueMin).toBe(1);
-        expect(data.valueMax).toBe(5);
-        expect(data.allValueMin).toBe(-1);
-        expect(data.allValueMax).toBe(9);
+      describe('query expression', function() {
+        it('min/max values', function() {
+          expect(data.valueMin).toBe(1);
+          expect(data.valueMax).toBe(5);
+          expect(data.allValueMin).toBe(-1);
+          expect(data.allValueMax).toBe(9);
+        });
       });
     }
   }

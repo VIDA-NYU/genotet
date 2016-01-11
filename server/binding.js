@@ -53,7 +53,8 @@ binding.query = {};
  *   fileName: string,
  *   chr: string,
  *   xl: (number|undefined),
- *   xr: (number|undefined)
+ *   xr: (number|undefined),
+ *   numSamples: (number|undefined)
  * }}
  */
 binding.query.Histogram;
@@ -81,7 +82,7 @@ binding.query.histogram = function(query, wigglePath) {
   var chr = query.chr;
   var file = wigglePath + fileName + '_chr/' + fileName + '_chr' + chr +
     '.bcwig';
-  var data = binding.getBinding_(file, query.xl, query.xr);
+  var data = binding.getBinding_(file, query.xl, query.xr, query.numSamples);
   data.gene = binding.getGene_(wigglePath, fileName);
   data.chr = chr;
   return data;
@@ -333,7 +334,12 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
     xr = cache.xMax;
   }
 
-  var n = numSamples;
+  var n;
+  if (numSamples == null) {
+    n = 1000;
+  } else {
+    n = numSamples;
+  }
   var span = xr - xl;
   // Used '>>' to avoid floating point result.
   var segslen = (cache.nodes.length + 1) >> 1;
@@ -491,9 +497,8 @@ binding.loadHistogram_ = function(file) {
   } else {
     var num = buf.readInt32LE(0);
     var nodes = [];
-    offset = 4;
-    for (var i = 0; i < num; i++, offset += 4) {
-      nodes.push(buf.readFloatLE(offset));
+    for (var i = 0, offset = 4; i < num; i++, offset += 8) {
+      nodes.push(buf.readDoubleLE(offset));
     }
     cache.nodes = nodes;
     console.log('SegmentTree read');
@@ -517,7 +522,7 @@ binding.listBindingGenes_ = function(wigglePath) {
       var content = fs.readFileSync(folder + file, 'utf8')
         .toString().split('\n');
       var gene = content[0];
-      var description = content.slice(1).join('') + '\n';
+      var description = content.slice(1).join('');
       ret.push({
         fileName: fname,
         gene: gene,

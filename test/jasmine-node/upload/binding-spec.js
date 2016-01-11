@@ -46,8 +46,10 @@ bindingSpec.tests = [
     },
     check: function(body) {
       var json = JSON.parse(body);
-      it('upload response is success', function() {
-        expect(json.success).toBe(true);
+      describe('upload binding', function() {
+        it('upload response is success', function() {
+          expect(json.success).toBe(true);
+        });
       });
     }
   },
@@ -60,12 +62,14 @@ bindingSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('listed binding data', function() {
-        expect(data.length).toBe(1);
-        expect(data[0]).toEqual({
-          gene: bindingSpec.dataInfo.name,
-          fileName: bindingSpec.dataInfo.fileName,
-          description: bindingSpec.dataInfo.description
+      describe('list binding', function() {
+        it('listed binding data', function() {
+          expect(data.length).toBe(1);
+          expect(data[0]).toEqual({
+            gene: bindingSpec.dataInfo.name,
+            fileName: bindingSpec.dataInfo.fileName,
+            description: bindingSpec.dataInfo.description
+          });
         });
       });
     }
@@ -84,25 +88,33 @@ bindingSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      it('data points', function() {
-        var firstValue = data.values[0];
-        var lastValue = data.values[data.values.length - 1];
-        expect(firstValue.x).toBe(2999997);
-        floats.equal(firstValue.value, 0.0593648);
-        expect(lastValue.x).toBe(3000312);
-        floats.equal(lastValue.value, 0.0593648);
+      describe('query binding chr1', function() {
+        it('data points', function() {
+          var firstValue = data.values[0];
+          var lastValue = data.values[data.values.length - 1];
+          expect(firstValue.x).toBe(2999997);
+          floats.equal(firstValue.value, 0.0593648);
+          expect(lastValue.x).toBe(3000312);
+          floats.equal(lastValue.value, 0.0593648);
+        });
       });
-      it('x range', function() {
-        expect(data.xMin).toBe(2999997);
-        expect(data.xMax).toBe(3000312);
+      describe('query binding chr1', function() {
+        it('x range', function() {
+          expect(data.xMin).toBe(2999997);
+          expect(data.xMax).toBe(3000312);
+        });
       });
-      it('max values', function() {
-        floats.equal(data.valueMax, 0.0593648);
-        floats.equal(data.allValueMax, 0.0593648);
+      describe('query binding chr1', function() {
+        it('max values', function() {
+          floats.equal(data.valueMax, 0.0593648);
+          floats.equal(data.allValueMax, 0.0593648);
+        });
       });
-      it('gene and chr', function() {
-        expect(data.gene).toBe('wig-1');
-        expect(data.chr).toBe('1');
+      describe('query binding chr1', function() {
+        it('gene and chr', function() {
+          expect(data.gene).toBe('wig-1');
+          expect(data.chr).toBe('1');
+        });
       });
     }
   },
@@ -124,23 +136,31 @@ bindingSpec.tests = [
       var data = JSON.parse(body);
       var firstValue = data.values[0];
       var lastValue = data.values[data.values.length - 1];
-      it('data points', function() {
-        expect(firstValue.x).toBe(3000080);
-        floats.equal(firstValue.value, 0.0593648);
-        expect(lastValue.x).toBe(3000100);
-        floats.equal(lastValue.value, 0.11873);
+      describe('query binding chr3', function() {
+        it('data points', function() {
+          expect(firstValue.x).toBe(3000080);
+          floats.equal(firstValue.value, 0.0593648);
+          expect(lastValue.x).toBe(3000100);
+          floats.equal(lastValue.value, 0.11873);
+        });
       });
-      it('x range', function() {
-        expect(data.xMin).toBe(3000080);
-        expect(data.xMax).toBe(3000100);
+      describe('query binding chr3', function() {
+        it('x range', function() {
+          expect(data.xMin).toBe(3000080);
+          expect(data.xMax).toBe(3000100);
+        });
       });
-      it('max values', function() {
-        floats.equal(data.valueMax, 0.11873);
-        floats.equal(data.allValueMax, 0.11873);
+      describe('query binding chr3', function() {
+        it('max values', function() {
+          floats.equal(data.valueMax, 0.11873);
+          floats.equal(data.allValueMax, 0.11873);
+        });
       });
-      it('gene and chr', function() {
-        expect(data.gene).toBe('wig-1');
-        expect(data.chr).toBe('3');
+      describe('query binding chr3', function() {
+        it('gene and chr', function() {
+          expect(data.gene).toBe('wig-1');
+          expect(data.chr).toBe('3');
+        });
       });
     }
   }

@@ -93,14 +93,14 @@ expression.query.profile = function(query, expressionFile, tfamatFile) {
 };
 
 /**
- * @param {string} expressionAddr
+ * @param {string} expressionPath
  * @return {!Array<{
  *   matrixName: string,
  *   description: string
  * }>}
  */
-expression.query.list = function(expressionAddr) {
-  return expression.listMatrix_(expressionAddr);
+expression.query.list = function(expressionPath) {
+  return expression.listMatrix_(expressionPath);
 };
 // End public APIs
 
@@ -360,11 +360,10 @@ expression.listMatrix_ = function(expressionPath) {
   files.forEach(function(file) {
     if (file.indexOf('.txt') != -1) {
       var fname = file.substr(0, file.length - 4);
-      var fd = fs.openSync(folder + file, 'r');
       var content = fs.readFileSync(folder + file, 'utf8')
         .toString().split('\n');
       var matrixName = content[0];
-      var description = content.slice(1).join('') + '\n';
+      var description = content.slice(1).join('');
       ret.push({
         matrixName: matrixName,
         fileName: fname,
@@ -407,7 +406,10 @@ expression.readExpression_ = function(expressionFile, geneRegex,
   }
   var lines = fs.readFileSync(expressionFile).toString().split('\n');
   lines.forEach(function(line) {
-    var parts = line.split('\t');
+    var parts = line.split(/[\t\s]+/);
+    if (parts.length == 0) {
+      return;
+    }
     if (isFirstCol) {
       // first column contains the conditions
       isFirstCol = false;

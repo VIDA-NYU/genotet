@@ -217,11 +217,11 @@ network.getNet_ = function(file, geneRegex) {
     var s = result.edges[i].source;
     var t = result.edges[i].target;
     var w = result.edges[i].weight;
-    for (var j = 0; j < w.length; j++) {
-      wmax = Math.max(w[j], wmax);
-      wmin = Math.min(w[j], wmin);
-    }
     if (nodeKeys[s] && nodeKeys[t]) {
+      for (var j = 0; j < w.length; j++) {
+        wmax = Math.max(w[j], wmax);
+        wmin = Math.min(w[j], wmin);
+      }
       edges.push({
         id: result.edges[i].id,
         source: s,
@@ -372,7 +372,7 @@ network.readNetwork_ = function(networkFile) {
       nodeId[target] = nodes.length - 1;
     }
     edges.push({
-      id: source + ',' + source,
+      id: source + ',' + target,
       source: source,
       target: target,
       weight: numbers
@@ -408,7 +408,7 @@ network.listNetwork_ = function(networkPath) {
       var content = fs.readFileSync(folder + file, 'utf8')
         .toString().split('\n');
       var networkName = content[0];
-      var description = content.slice(1).join('') + '\n';
+      var description = content.slice(1).join('');
       ret.push({
         fileName: fname,
         networkName: networkName,
