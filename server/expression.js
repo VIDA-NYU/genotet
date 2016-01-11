@@ -249,20 +249,22 @@ expression.getExpmatLine_ = function(fileExp, fileTFA, geneNames,
     bufTFA = utils.readFileToBuf(fileTFA);
   }
   if (bufExp == null) {
-    return console.error('cannot read file', fileExp), [];
+    console.error('cannot read file', fileExp);
+    return null;
   }
   if (fileTFA != null && bufTFA == null) {
-    return console.error('cannot read file', fileTFA), [];
+    console.error('cannot read file', fileTFA);
+    return null;
   }
 
   var resultExp = expression.readExpmat_(bufExp);
   var resultTFA;
   if (fileTFA != null) {
-    resultTFA = expression.readTFAmat_(/** @type {!Buffer} */bufTFA);
+    resultTFA = expression.readTFAmat_(/** @type {!Buffer} */(bufTFA));
   }
 
   if (geneNames.length == 0)
-    return []; // cannot find gene
+    return null; // cannot find gene
 
   var allTfaValues = [];
   var valueMin = Infinity;
@@ -417,15 +419,13 @@ expression.listMatrix_ = function(expmatAddr) {
  */
 expression.readExpression_ = function(expressionFile, geneNames,
                                       conditionNames) {
-  var values = {};
+  var values = [];
   var isFirstRow = true;
   var conditions = [];
   var allGeneNames = [];
   var allConditionNames = [];
   var valueMax = -Infinity;
   var valueMin = Infinity;
-  var allValueMax = -Infinity;
-  var allValueMin = Infinity;
 
   var lines = fs.readFileSync(expressionFile).toString().split('\n');
   lines.forEach(function(line) {
@@ -444,32 +444,25 @@ expression.readExpression_ = function(expressionFile, geneNames,
       }
     } else {
       // other rows contain a gene, and values
-      var geneIndex = geneNames.indexOf(parts[0]);
-      if (geneIndex != -1) {
-        var tmpLine = [];
-        conditions.forEach(function(conditionIndex) {
-          var value = parseFloat(parts[conditionIndex]);
-          valueMin = Math.min(valueMin, value);
-          valueMax = Math.max(valueMax, value);
-          tmpLine.push(value);
-        });
-        values[parts[0]] = tmpLine;
-      }
       allGeneNames.push(parts[0]);
-      for (var i = 1; i < parts.length; i++) {
-        var value = parseFloat(parts[i]);
-        allValueMin = Math.min(allValueMin, value);
-        allValueMax = Math.max(allValueMax, value);
-      }
     }
   });
-  var sortedValues = Object.keys(values)
-    .sort()
-    .map(function(geneName) {
-      return values[geneName];
-    });
+  geneNames.forEach(function(geneName) {
+    var geneIndex = allGeneNames.indexOf(geneName);
+    if (geneIndex != -1) {
+      var parts = lines[geneIndex + 1].split('\t');
+      var tmpLine = [];
+      conditions.forEach(function(conditionIndex) {
+        var value = parseFloat(parts[conditionIndex]);
+        valueMin = Math.min(valueMin, value);
+        valueMax = Math.max(valueMax, value);
+        tmpLine.push(value);
+      });
+      values.push(tmpLine);
+    }
+  });
   return {
-    values: sortedValues,
+    values: values,
     geneNames: geneNames,
     conditionNames: conditionNames,
     valueMin: valueMin,

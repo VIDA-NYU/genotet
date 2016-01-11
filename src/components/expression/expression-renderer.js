@@ -108,7 +108,7 @@ genotet.utils.inherit(genotet.ExpressionRenderer, genotet.ViewRenderer);
 
 /**
  * Cell object storing the rendering properties of expression cell.
- * @param {!{
+ * @param {{
  *   container: (?Element|undefined),
  *   geneName: (?string|undefined),
  *   conditionName: (?string|undefined),
@@ -154,7 +154,7 @@ genotet.ExpressionRenderer.Cell = function(params) {
 
 /**
  * Profile object storing the rendering properties of expression cell.
- * @param {!{
+ * @param {{
  *   container: (?Element|undefined),
  *   geneName: (?string|undefined),
  *   row: (?number|undefined),
@@ -199,7 +199,7 @@ genotet.ExpressionRenderer.Profile = function(params) {
 
 /**
  * Zoom status object storing the status of expression matrix.
- * @param {!{
+ * @param {{
  *   matrixName: (?string),
  *   dataName: (?string|undefined),
  *   geneNames: (!Array<string>),
@@ -1417,7 +1417,7 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
 
 /**
  * Load expression matrix data after zoom in and out the heatmap.
- * @param {!{
+ * @param {{
  *   rowStart: (?number|undefined),
  *   rowEnd: (?number|undefined),
  *   columnStart: (?number|undefined),
