@@ -13,8 +13,11 @@ genotet.test = function() {
 
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
     matrixName: 'expressionMatrix',
-    geneRegex: 'sig.*',
-    condRegex: 'SigH.*'
+    dataName: 'b-subtilis',
+    isGeneRegex: true,
+    isConditionRegex: true,
+    geneInput: 'sig.*',
+    conditionInput: 'si.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     gene: 'SL3037_SL3036',

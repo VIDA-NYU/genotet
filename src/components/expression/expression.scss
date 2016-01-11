@@ -1,7 +1,8 @@
-$orange: #ffa500;
-$red: #f00;
+$red: #d62d20;
+$blue: #1e90ff;
 $black: #000;
 $gray: #ccc;
+$white: #fff;
 
 .view.expression {
   .profiles {
@@ -12,7 +13,6 @@ $gray: #ccc;
     }
 
     .highlighted {
-      stroke: $orange;
       stroke-width: 3;
     }
   }
@@ -33,6 +33,23 @@ $gray: #ccc;
     }
   }
 
+  .selection {
+    fill: transparent;
+    stroke: $white;
+    stroke-dasharray: 4px;
+    stroke-width: 2px;
+  }
+
+  .cell {
+    &.highlighted {
+      stroke: $white;
+    }
+
+    &.zoom-highlighted {
+      stroke: $white;
+    }
+  }
+
   .gene-label {
     text-anchor: end;
 
@@ -43,6 +60,11 @@ $gray: #ccc;
     &.click-highlighted {
       fill: $red;
       stroke: $red;
+    }
+
+    &.label-selected {
+      fill: $blue;
+      stroke: none;
     }
   }
 
@@ -57,6 +79,11 @@ $gray: #ccc;
       fill: $red;
       stroke: $red;
     }
+
+    &.label-selected {
+      fill: $blue;
+      stroke: none;
+    }
   }
 }
 
@@ -65,5 +92,10 @@ $gray: #ccc;
     border: 1px solid $gray;
     border-radius: 4px;
     padding: 10px;
+  }
+
+  .zoom-out {
+    margin-top: 5px;
+    width: 100%;
   }
 }
