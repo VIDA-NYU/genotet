@@ -3,7 +3,7 @@ var FormData = require('form-data');
 var server = require('../server.js');
 var chain = require('../chain.js');
 var data = require('../data.js');
-var float = require('../float.js');
+var floats = require('../floats.js');
 
 var dataInfo = {
   name: 'wig-1',
@@ -76,17 +76,17 @@ var tests = [
         var firstValue = data.values[0];
         var lastValue = data.values[data.values.length - 1];
         expect(firstValue.x).toBe(2999997);
-        float.equal(firstValue.value, 0.0593648);
+        floats.equal(firstValue.value, 0.0593648);
         expect(lastValue.x).toBe(3000312);
-        float.equal(lastValue.value, 0.0593648);
+        floats.equal(lastValue.value, 0.0593648);
       });
       it('x range', function() {
         expect(data.xMin).toBe(2999997);
         expect(data.xMax).toBe(3000312);
       });
       it('max values', function() {
-        float.equal(data.valueMax, 0.0593648);
-        float.equal(data.allValueMax, 0.0593648);
+        floats.equal(data.valueMax, 0.0593648);
+        floats.equal(data.allValueMax, 0.0593648);
       });
       it('gene and chr', function() {
         expect(data.gene).toBe('wig-1');
@@ -114,17 +114,17 @@ var tests = [
       var lastValue = data.values[data.values.length - 1];
       it('data points', function() {
         expect(firstValue.x).toBe(3000080);
-        float.equal(firstValue.value, 0.0593648);
+        floats.equal(firstValue.value, 0.0593648);
         expect(lastValue.x).toBe(3000100);
-        float.equal(lastValue.value, 0.11873);
+        floats.equal(lastValue.value, 0.11873);
       });
       it('x range', function() {
         expect(data.xMin).toBe(3000080);
         expect(data.xMax).toBe(3000100);
       });
       it('max values', function() {
-        float.equal(data.valueMax, 0.11873);
-        float.equal(data.allValueMax, 0.11873);
+        floats.equal(data.valueMax, 0.11873);
+        floats.equal(data.allValueMax, 0.11873);
       });
       it('gene and chr', function() {
         expect(data.gene).toBe('wig-1');

@@ -2,19 +2,19 @@
  * @fileoverview Provides floating point comparison.
  */
 
-/** @type float */
-module.exports = float;
+/** @type floats */
+module.exports = floats;
 
 /**
  * @constructor
  */
-function float() {}
+function floats() {}
 
 /**
  * @const {number}
  * @private
  */
-float.TOLERANCE_ = 1E-9;
+floats.TOLERANCE_ = 1E-9;
 
 /**
  * Checks equality of two floats.
@@ -23,8 +23,8 @@ float.TOLERANCE_ = 1E-9;
  * @param {number=} opt_tolerance
  * @this {float}
  */
-float.equal = function(a, b, opt_tolerance) {
-  var tolerance = opt_tolerance != null ? opt_tolerance : float.TOLERANCE_;
+floats.equal = function(a, b, opt_tolerance) {
+  var tolerance = opt_tolerance != null ? opt_tolerance : floats.TOLERANCE_;
   expect(a).toBeGreaterThan(b - tolerance);
   expect(a).toBeLessThan(b + tolerance);
 };

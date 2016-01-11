@@ -44,7 +44,7 @@ var tests = [
       frisby
         .get(server.queryURL({
           type: 'network',
-          networkName: dataInfo.fileName,
+          fileName: dataInfo.fileName,
           geneRegex: 'a|c|e'
         }))
         .expectStatus(200);

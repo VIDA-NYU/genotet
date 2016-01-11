@@ -30,6 +30,7 @@ function uploader() {}
  * @return {Object} Success or not as a JS Object.
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
+  console.log('hello');
   var source = fs.createReadStream(file.path);
   var dest = fs.createWriteStream(prefix + desc.name);
   source.pipe(dest);
