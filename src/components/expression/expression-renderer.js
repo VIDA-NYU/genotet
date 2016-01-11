@@ -615,7 +615,7 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   while (i < profileCount) {
     var geneIndex = this.data.matrixGeneNameDict[
       this.data.profiles[i].geneName];
-    if (typeof geneIndex == 'undefined') {
+    if (this.data.profiles[i].geneName in this.data.matrixGeneNameDict) {
       this.data.profiles.splice(i, 1);
       profileCount--;
     } else {
@@ -629,7 +629,7 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   while (i < profileCount) {
     var geneIndex = this.data.matrixGeneNameDict[
       this.data.tfaProfiles[i].geneName];
-    if (typeof geneIndex == 'undefined') {
+    if (this.data.tfaProfiles[i].geneName in this.data.matrixGeneNameDict) {
       this.data.tfaProfiles.splice(i, 1);
       profileCount--;
     } else {
@@ -764,11 +764,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var cellHeight = this.cellHeight;
   var columnStart, columnEnd, rowStart, rowEnd;
   var zoomOutButtonSelection = d3.select('#zoom-out button');
-  if (this.data.zoomStack.length == 0) {
-    zoomOutButtonSelection.classed('disabled', true);
-  } else {
-    zoomOutButtonSelection.classed('disabled', false);
-  }
+  zoomOutButtonSelection.classed('disabled', this.data.zoomStack.length == 0);
 
   var zoomSelection = this.svgHeatmapContent_
     .on('mousedown', function() {
@@ -1181,7 +1177,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
     .attr('d', function(tfaProfile) {
       var geneIndex = this.data.tfaGeneNameDict[tfaProfile.geneName];
       return line(tfaData.tfaValues[geneIndex]);
-    })
+    }.bind(this))
     .attr('transform', genotet.utils.getTransform([
       this.heatmapWidth_ / (heatmapData.conditionNames.length * 2),
       this.profileHeight_
@@ -1400,15 +1396,15 @@ genotet.ExpressionRenderer.prototype.unhighlightLabelsForClickedObject =
 genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
   function() {
     var heatmapData = this.data.matrix;
-    if (typeof this.clickedObject_.row != 'undefined' &&
-      typeof this.clickedObject_.column != 'undefined') {
+    if (this.clickedObject_.geneName in this.data.matrixGeneNameDict &&
+      this.clickedObject_.conditionName in this.data.matrixConditionNameDict) {
       this.clickedObject_.row = this.data.matrixGeneNameDict[
         this.clickedObject_.geneName];
       this.clickedObject_.column = this.data.matrixConditionNameDict[
         this.clickedObject_.conditionName];
     }
-    if (typeof this.clickedObject_.row != 'undefined' &&
-      typeof this.clickedObject_.column != 'undefined') {
+    if (this.clickedObject_.geneName in this.data.matrixGeneNameDict &&
+      this.clickedObject_.conditionName in this.data.matrixConditionNameDict) {
       this.signal('expressionClick', this.clickedObject_);
     } else {
       this.signal('expressionUnclick');

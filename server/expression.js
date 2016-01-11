@@ -27,7 +27,7 @@ expression.RawMatrix;
 /**
  * @typedef {{
  *   allGeneNames: !Object<string>,
- *   allConditionNames: !Object<string>,
+ *   allConditionNames: !Array<string>,
  *   allValueMin: number,
  *   allValueMax: number
  * }}
@@ -49,7 +49,10 @@ expression.Matrix;
  * @typedef {{
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
- *   tfaValues: !Array<number>,
+ *   tfaValues: !Array<{
+ *     index: number,
+ *     value: number
+ *   }>,
  *   valueMin: number,
  *   valueMax: number
  * }}
@@ -263,8 +266,9 @@ expression.getProfile_ = function(fileExp, fileTFA, geneNames,
     resultTFA = expression.readTFAmat_(/** @type {!Buffer} */(bufTFA));
   }
 
-  if (geneNames.length == 0)
+  if (geneNames.length == 0) {
     return null; // cannot find gene
+  }
 
   var allTfaValues = [];
   var allGeneNames = {};
@@ -278,17 +282,17 @@ expression.getProfile_ = function(fileExp, fileTFA, geneNames,
     resultTFA.colnames.forEach(function(conditionName, i) {
       allConditionNames[conditionName] = i;
     });
-    geneNames.forEach(function(geneName, i) {
+    geneNames.forEach(function(geneName) {
       var tfai = allGeneNames[geneName];
       var tfaValues = [];
-      conditionNames.forEach(function(conditionName, i) {
+      conditionNames.forEach(function(conditionName, j) {
         var idx = allConditionNames[conditionName];
-        if (typeof idx != 'undefined') {
-          var tfaValue = resultTFA.values[tfai * resultTFA.numcols + i];
+        if (conditionName in allConditionNames) {
+          var tfaValue = resultTFA.values[tfai * resultTFA.numcols + j];
           if (tfaValue) {
             tfaValues.push({
               value: tfaValue,
-              index: i
+              index: j
             });
             valueMin = Math.min(valueMin, tfaValue);
             valueMax = Math.max(valueMax, tfaValue);
@@ -301,7 +305,8 @@ expression.getProfile_ = function(fileExp, fileTFA, geneNames,
       allTfaValues.push(tfaValues);
     });
   }
-  console.log('returning line', geneNames);
+  var geneNameString = geneNames.join(',');
+  console.log('returning tfa line', geneNameString);
   return {
     geneNames: geneNames,
     conditionNames: conditionNames,
@@ -446,7 +451,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
       }
       conditionNames.forEach(function(conditionName) {
         var conditionIndex = allConditionNames[conditionName];
-        if (typeof conditionIndex != 'undefined') {
+        if (conditionName in allConditionNames) {
           conditions.push(conditionIndex);
         }
       });
@@ -457,7 +462,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
   });
   geneNames.forEach(function(geneName) {
     var geneIndex = allGeneNames[geneName];
-    if (typeof geneIndex != 'undefined') {
+    if (geneName in allGeneNames) {
       var parts = lines[geneIndex].split('\t');
       var tmpLine = [];
       conditions.forEach(function(conditionIndex) {
@@ -469,6 +474,8 @@ expression.readExpression_ = function(expressionFile, geneNames,
       values.push(tmpLine);
     }
   });
+  var geneNameString = geneNames.join(',');
+  console.log('returning line', geneNameString);
   return {
     values: values,
     geneNames: geneNames,

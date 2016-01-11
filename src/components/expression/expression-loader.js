@@ -216,7 +216,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
         this.removeNames_(zoomStatus.conditionNames, names);
         break;
     }
-  }.bind(this));
+  }, this);
   var zoomStatus = this.data.zoomStack.pop();
   this.load(zoomStatus.matrixName, zoomStatus.dataName, zoomStatus.geneNames,
     zoomStatus.conditionNames);
@@ -231,9 +231,13 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
  */
 genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames,
                                                            removeNames) {
+  var namesDict = {};
+  originalNames.forEach(function(name, i) {
+    namesDict[name] = i;
+  });
   removeNames.forEach(function(name) {
-    var geneIndex = originalNames.indexOf(name);
-    if (geneIndex != -1) {
+    var geneIndex = namesDict[name];
+    if (name in namesDict) {
       originalNames.splice(geneIndex, 1);
     }
   });

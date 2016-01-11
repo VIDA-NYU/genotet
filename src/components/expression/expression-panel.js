@@ -275,7 +275,7 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
   } else {
     var inputWords = geneInput.split(',');
     geneNames = inputWords.filter(function(word) {
-      return typeof this.data.matrixInfo.allGeneNames[word] != 'undefined';
+      return word in this.data.matrixInfo.allGeneNames;
     }.bind(this));
   }
   return geneNames;
@@ -299,8 +299,7 @@ genotet.ExpressionPanel.prototype.formatConditionInput =
     } else {
       var inputWords = conditionInput.split(',');
       conditionNames = inputWords.filter(function(word) {
-        return typeof this.data.matrixInfo.allConditionNames[word] !=
-          'undefined';
+        return word in this.data.matrixInfo.allConditionNames;
       }.bind(this));
     }
     return conditionNames;
