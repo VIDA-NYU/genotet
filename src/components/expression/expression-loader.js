@@ -152,7 +152,6 @@ genotet.ExpressionLoader.prototype.loadTfaData_ =
         if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
           return;
         }
-
         var tfaGeneNameDict = {};
         data.geneNames.forEach(function(geneName, i) {
           tfaGeneNameDict[geneName] = i;

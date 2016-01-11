@@ -96,15 +96,11 @@ genotet.ExpressionView = function(viewName, params) {
     }.bind(this))
     .on('genotet.addGeneProfile', function(event, geneIndex) {
       this.renderer.addGeneProfile(geneIndex);
-    }.bind(this))
-    .on('genotet.addTfaProfile', function(event, geneName) {
-      this.renderer.addTfaProfile(geneName);
+      this.renderer.addTfaProfile(geneIndex);
     }.bind(this))
     .on('genotet.removeGeneProfile', function(event, geneIndex) {
       this.renderer.removeGeneProfile(geneIndex);
-    }.bind(this))
-    .on('genotet.removeTfaProfile', function(event, geneName) {
-      this.renderer.removeTfaProfile(geneName);
+      this.renderer.removeTfaProfile(geneIndex);
     }.bind(this));
 
   // Cell hover in expression.

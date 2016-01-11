@@ -1269,12 +1269,12 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile = function(geneIndex) {
 
 /**
  * Adds the TFA profiles for the selected genes as line charts.
- * @param {string} geneName
+ * @param {number} geneIndex
  */
-genotet.ExpressionRenderer.prototype.addTfaProfile = function(geneName) {
+genotet.ExpressionRenderer.prototype.addTfaProfile = function(geneIndex) {
   var tfaProfile = new genotet.ExpressionRenderer.Profile({
-    geneName: geneName,
-    row: this.data.matrixGeneNameDict[geneName]
+    geneName: this.data.matrix.geneNames[geneIndex],
+    row: geneIndex
   });
   this.data.tfaProfiles.push(tfaProfile);
   this.drawTfaProfiles_();
@@ -1282,12 +1282,12 @@ genotet.ExpressionRenderer.prototype.addTfaProfile = function(geneName) {
 
 /**
  * Adds the TFA profiles for the selected genes as line charts.
- * @param {string} geneName
+ * @param {number} geneIndex
  */
-genotet.ExpressionRenderer.prototype.removeTfaProfile = function(geneName) {
+genotet.ExpressionRenderer.prototype.removeTfaProfile = function(geneIndex) {
   var index = -1;
   for (var i = 0; i < this.data.tfaProfiles.length; i++) {
-    if (this.data.tfaProfiles[i].geneName == geneName) {
+    if (this.data.tfaProfiles[i].row == geneIndex) {
       index = i;
       break;
     }
