@@ -615,7 +615,7 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   while (i < profileCount) {
     var geneIndex = this.data.matrixGeneNameDict[
       this.data.profiles[i].geneName];
-    if (this.data.profiles[i].geneName in this.data.matrixGeneNameDict) {
+    if (!(this.data.profiles[i].geneName in this.data.matrixGeneNameDict)) {
       this.data.profiles.splice(i, 1);
       profileCount--;
     } else {
@@ -627,9 +627,9 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   i = 0;
   profileCount = this.data.tfaProfiles.length;
   while (i < profileCount) {
-    var geneIndex = this.data.matrixGeneNameDict[
+    var geneIndex = this.data.tfaGeneNameDict[
       this.data.tfaProfiles[i].geneName];
-    if (this.data.tfaProfiles[i].geneName in this.data.matrixGeneNameDict) {
+    if (!(this.data.tfaProfiles[i].geneName in this.data.tfaGeneNameDict)) {
       this.data.tfaProfiles.splice(i, 1);
       profileCount--;
     } else {
@@ -637,14 +637,13 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
       i++;
     }
   }
-
   this.render();
   this.highlightLabelsAfterUpdateData_();
 };
 
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.dataReady = function() {
-  return this.data.matrix != null;
+  return this.data.tfaData != null;
 };
 
 /** @inheritDoc */
