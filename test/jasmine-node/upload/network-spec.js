@@ -20,7 +20,7 @@ networkSpec.dataInfo = {
 
 /**
  * Test cases of network queries
- * @type {*[]}
+ * @type {!Array<*>}
  * @return {*}
  */
 networkSpec.tests = [

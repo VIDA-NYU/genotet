@@ -18,6 +18,7 @@ bedSpec.dataInfo = {
 };
 
 /**
+ * Test cases of bed data
  * @type {!Array<*>}
  * @return {*}
  */
@@ -25,7 +26,7 @@ bedSpec.tests = [
   {
     name: 'upload bed',
     action: function(frisby) {
-      var form = new FormData();
+      var form = new formData();
       form.append('type', 'bed');
       form.append('name', bedSpec.dataInfo.name);
       form.append('fileName', bedSpec.dataInfo.fileName);

@@ -30,9 +30,9 @@ server.queryURL = function(params) {
 
 /**
  * Posts a file via multi-part form to the server.
- * @param {!Frisby} frisby
- * @param {!FormData} form
- * @return {!Frisby}
+ * @param {!frisby} frisby
+ * @param {!formData} form
+ * @return {!frisby}
  * @this {server}
  */
 server.postForm = function(frisby, form) {

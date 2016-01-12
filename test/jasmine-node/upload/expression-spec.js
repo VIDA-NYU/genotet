@@ -19,14 +19,14 @@ expressionSpec.dataInfo = {
 
 /**
  * Test cases for expression queries
- * @type {*[]}
+ * @type {!Array<*>}
  * @return {*}
  */
 expressionSpec.tests = [
   {
     name: 'upload expression',
     action: function(frisby) {
-      var form = new FormData();
+      var form = new formData();
       form.append('type', 'expression');
       form.append('name', expressionSpec.dataInfo.name);
       form.append('fileName', expressionSpec.dataInfo.fileName);

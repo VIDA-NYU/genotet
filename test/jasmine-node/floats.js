@@ -21,7 +21,6 @@ floats.TOLERANCE_ = 1E-9;
  * @param {number} a
  * @param {number} b
  * @param {number=} opt_tolerance
- * @this {float}
  */
 floats.equal = function(a, b, opt_tolerance) {
   var tolerance = opt_tolerance != null ? opt_tolerance : floats.TOLERANCE_;

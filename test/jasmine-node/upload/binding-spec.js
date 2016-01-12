@@ -30,7 +30,7 @@ bindingSpec.tests = [
   {
     name: 'upload binding',
     action: function(frisby) {
-      var form = new FormData();
+      var form = new formData();
       form.append('type', 'binding');
       form.append('name', bindingSpec.dataInfo.name);
       form.append('fileName', bindingSpec.dataInfo.fileName);
