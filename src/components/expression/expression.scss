@@ -40,13 +40,15 @@ $white: #fff;
     stroke-width: 2px;
   }
 
-  .cell {
-    &.highlighted {
-      stroke: $white;
-    }
+  .content {
+    rect {
+      &.highlighted {
+        stroke: $white;
+      }
 
-    &.zoom-highlighted {
-      stroke: $white;
+      &.zoom-highlighted {
+        stroke: $white;
+      }
     }
   }
 
