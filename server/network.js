@@ -80,6 +80,15 @@ network.query.IncidentEdges;
  */
 network.query.CombinedRegulation;
 
+/**
+ * @typedef {{
+ *  fileName: string,
+ *  gene: string,
+ *  nodes: !Array<network.Edge>
+ * }}
+ */
+network.query.AddGene;
+
 // Start public APIs
 /**
  * @param {!network.query.Network} query
@@ -120,14 +129,27 @@ network.query.combinedRegulation = function(query, networkPath) {
 };
 
 /**
- * @param {string} networkAddr
+ * @param {!network.query.AddGene} query
+ * @param {string} networkPath
+ * @returns {!Array<!network.Edge>}
+ */
+network.query.addGene = function(query, networkPath) {
+  var fileName = query.fileName;
+  var gene = query.gene;
+  var file = networkPath + fileName;
+  var nodes = query.nodes;
+  return network.addGene_(file, gene, nodes);
+};
+
+/**
+ * @param {string} networkPath
  * @return {!Array<{
  *   networkName: string,
  *   description: string
  * }>}
  */
-network.query.list = function(networkAddr) {
-  return network.listNetwork_(networkAddr);
+network.query.list = function(networkPath) {
+  return network.listNetwork_(networkPath);
 };
 // End public APIs
 
@@ -417,4 +439,28 @@ network.listNetwork_ = function(networkPath) {
     }
   });
   return ret;
+};
+
+/**
+ * Find all edges connecting the gene to other exist genes
+ * @param {string} file Network file path
+ * @param {string} gene Gene to add to the graph
+ * @param {!Array<!network.Node>} nodes Nodes that already in the original graph
+ * @returns {!Array<!network.Edge>} Edges connecting the new gene and original graph
+ * @private
+ */
+network.addGene_ = function(file, gene, nodes) {
+  var oldNodes = {};
+  nodes.forEach(function(node) {
+    oldNodes[node.name] = true;
+  });
+  var edges = [];
+  var result = network.readNetwork_(file);
+  result.edges.forEach(function(edge) {
+    if ((edge.source == gene && edge.target in oldNodes) ||
+      (edges.source in oldNodes && edge.target == source)) {
+      edges.push(edge);
+    }
+  });
+  return edges;
 };

@@ -196,6 +196,9 @@ app.get('/genotet', function(req, res) {
     case 'combined-regulation':
       data = network.query.combinedRegulation(query, networkPath);
       break;
+    case 'add-gene':
+      data = network.query.addGene(query, networkPath);
+      break;
 
     // Binding data queries
     case 'binding':
