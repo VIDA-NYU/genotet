@@ -86,9 +86,10 @@ bedSpec.tests = [
     check: function(body) {
       var data = JSON.parse(body);
       it('without x range', function() {
-        expect(data).toEqual([
-          {chrStart: 49344650, chrEnd: 49344667, label: 'label_1_1'}
-        ]);
+        expect(data).toEqual({
+          aggregated: false,
+          motifs: [{chrStart: 49344650, chrEnd: 49344667, label: 'label_1_1'}]
+        });
       });
     }
   },
@@ -108,10 +109,12 @@ bedSpec.tests = [
     check: function(body) {
       var data = JSON.parse(body);
       it('partially intersect', function() {
-        expect(data).toEqual([
-          {chrStart: 26382888, chrEnd: 26382905, label: 'label_2_2'},
-          {chrStart: 101662494, chrEnd: 101662511, label: 'label_2_1'}
-        ]);
+        expect(data).toEqual({
+          aggregated: false,
+          motifs: [
+            {chrStart: 26382888, chrEnd: 26382905, label: 'label_2_2'},
+            {chrStart: 101662494, chrEnd: 101662511, label: 'label_2_1'}
+        ]});
       });
     }
   },
@@ -131,7 +134,10 @@ bedSpec.tests = [
     check: function(body) {
       var data = JSON.parse(body);
       it('no intersection', function() {
-        expect(data).toEqual([]);
+        expect(data).toEqual({
+          aggregated: false,
+          motifs: []
+        });
       });
     }
   }

@@ -354,7 +354,7 @@ network.readNetwork_ = function(networkFile) {
       numbers.push(parseFloat(parts[i]));
     }
     if (source in nodeId) {
-      nodes[nodeId[target]].isTF = true;
+      nodes[nodeId[source]].isTF = true;
     } else {
       names.push(source);
       nodes.push({
