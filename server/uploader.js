@@ -92,7 +92,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       var xr = parseInt(linePart[2], 10);
       var val = parseFloat(linePart[3]);
       //console.log(seg);
-      if (!seg.hasOwnProperty(linePart[0])) {
+      if (!(linePart[0] in seg)) {
         seg[linePart[0]] = [];
       }
       if (xl != lastxr && lastxr > -1) {
@@ -167,7 +167,7 @@ uploader.bedSort = function(prefix, bedFile) {
     if (parts[0].indexOf('track') != -1) {
       return;
     }
-    if (!data.hasOwnProperty(parts[0])) {
+    if (!(parts[0] in data)) {
       data[parts[0]] = [];
     }
     data[parts[0]].push({
@@ -182,13 +182,19 @@ uploader.bedSort = function(prefix, bedFile) {
     fs.mkdirSync(folder);
     for (var chr in data) {
       data[chr].sort(function(a, b) {
+        if (a.chrStart == b.chrStart) {
+          return a.chrEnd - b.chrEnd;
+        }
         return a.chrStart - b.chrStart;
       });
       var chrFileName = folder + '/' + bedFile + '_' + chr;
       var fd = fs.openSync(chrFileName, 'w');
       for (var i = 0; i < data[chr].length; i++) {
         fs.writeSync(fd, data[chr][i].chrStart + '\t' + data[chr][i].chrEnd +
-          '\n');
+          '\t' + data[chr][i].name);
+        if (i < data[chr].length - 1) {
+          fs.writeSync(fd, '\n');
+        }
       }
       fs.closeSync(fd);
     }
