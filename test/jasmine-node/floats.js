@@ -11,8 +11,7 @@ module.exports = floats;
 function floats() {}
 
 /**
- * @const {number}
- * @private
+ * @private @const {number}
  */
 floats.TOLERANCE_ = 1E-9;
 

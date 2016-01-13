@@ -191,7 +191,7 @@ network.readNet_ = function(buf) {
  * @private
  */
 network.getNet_ = function(file, geneRegex) {
-  console.log(file, geneRegex);
+  console.log('get network', file, geneRegex);
   var result = network.readNetwork_(file);
 
   var nodes = [], nodeKeys = {};
@@ -274,7 +274,7 @@ network.getIncidentEdges_ = function(file, gene) {
  * @private
  */
 network.getComb_ = function(file, exp) {
-  console.log(file, exp);
+  console.log('get combination', file, exp);
   var buf = utils.readFileToBuf(file);
   if (buf == null) {
     console.error('cannot read file', file);

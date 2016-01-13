@@ -137,7 +137,6 @@ genotet.dialog.createNetwork_ = function() {
               .text(network.networkName)
               .appendTo(selectpicker);
           });
-          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get network list');
@@ -229,7 +228,6 @@ genotet.dialog.createExpression_ = function() {
               .text(matrix.matrixName)
               .appendTo(selectpicker);
           });
-          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get expression list');

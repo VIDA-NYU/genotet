@@ -21,8 +21,6 @@ genotet.data.uploadURL;
 
 /**
  * Genes with binding data available in the Genotet system.
- * TODO(bowen): Create the array upon organism selection,
- *     retrieve gene list from server.
  * @type {!Array<string>}
  */
 genotet.data.bindingGenes = [];

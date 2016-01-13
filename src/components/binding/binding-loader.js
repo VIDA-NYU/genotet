@@ -217,7 +217,7 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
 };
 
 /**
- * Loads binding data list into genotet.data.bindingGenes
+ * Loads binding data list into genotet.data.bindingGenes.
  */
 genotet.BindingLoader.prototype.loadBindingList = function() {
   var params = {

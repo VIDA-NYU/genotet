@@ -17,6 +17,7 @@ function binding() {}
 
 /**
  * @typedef {{
+ *   numSamples: number,
  *   gene: (string|undefined),
  *   chr: (string|undefined),
  *   xMin: number,
@@ -127,11 +128,21 @@ binding.query.list = function(wigglePath) {
 
 /**
  * Number of samples created for each query.
- * @const {number}
- * @private
+ * @private @const {number}
  */
-// TODO(jiaming): User number of pixels on the screen.
 binding.DEFAULT_NUM_SAMPLES_ = 1000;
+
+/**
+ * Size of one int, one double, for binding data storage
+ * @private @const {number}
+ */
+binding.ENTRY_SIZE_ = 12;
+
+/**
+ * Size of one double, for binding file storage
+ * @private @const {number}
+ */
+binding.DOUBLE_SIZE_ = 8;
 
 /**
  * Binging data cache, maximum size 4.
@@ -344,6 +355,7 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
   // Used '>>' to avoid floating point result.
   var segslen = (cache.nodes.length + 1) >> 1;
   var hist = {
+    numSamples: n,
     xMin: xl,
     xMax: xr,
     values: [],
@@ -445,7 +457,7 @@ binding.loadHistogram_ = function(file) {
     return null;
   }
 
-  var n = buf.length / 12;
+  var n = buf.length / binding.ENTRY_SIZE_;
   var offset = 0;
   var segs = [];
 
@@ -456,7 +468,7 @@ binding.loadHistogram_ = function(file) {
       x: x,
       value: val
     });
-    offset += 12;
+    offset += binding.ENTRY_SIZE_;
     // 1 int, 1 double
   }
 
@@ -485,10 +497,10 @@ binding.loadHistogram_ = function(file) {
     segtree.buildSegmentTree(nodes, segs);
     cache.nodes = nodes;
     console.log('SegmentTree constructed');
-    buf = new Buffer(4 + nodes.length * 8);
+    buf = new Buffer(4 + nodes.length * binding.DOUBLE_SIZE_);
     buf.writeInt32LE(nodes.length, 0);
     offset = 4;
-    for (var i = 0; i < nodes.length; i++, offset += 8) {
+    for (var i = 0; i < nodes.length; i++, offset += binding.DOUBLE_SIZE_) {
       buf.writeDoubleLE(nodes[i], offset);
     }
     var fd = fs.openSync(segfile, 'w');
@@ -497,7 +509,7 @@ binding.loadHistogram_ = function(file) {
   } else {
     var num = buf.readInt32LE(0);
     var nodes = [];
-    for (var i = 0, offset = 4; i < num; i++, offset += 8) {
+    for (var i = 0, offset = 4; i < num; i++, offset += binding.DOUBLE_SIZE_) {
       nodes.push(buf.readDoubleLE(offset));
     }
     cache.nodes = nodes;
@@ -534,7 +546,7 @@ binding.listBindingGenes_ = function(wigglePath) {
 };
 
 /**
- * Get gene name for a specific binding file
+ * Gets gene name for a specific binding file
  * @param {string} wigglePath Path to the wiggle folder
  * @param {string} fileName File name of the wiggle file
  * @return {string} the gene name
