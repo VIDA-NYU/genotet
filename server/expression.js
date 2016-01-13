@@ -464,7 +464,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
   geneNames.forEach(function(geneName) {
     var geneIndex = allGeneNames[geneName];
     if (geneName in allGeneNames) {
-      var parts = lines[geneIndex].split('\t');
+      var parts = lines[geneIndex].split(/[\t\s]+/);
       var tmpLine = [];
       conditions.forEach(function(conditionIndex) {
         var value = parseFloat(parts[conditionIndex]);

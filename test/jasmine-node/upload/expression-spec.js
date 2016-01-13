@@ -93,8 +93,8 @@ expressionSpec.tests = [
         .get(server.queryURL({
           type: 'expression',
           fileName: expressionSpec.dataInfo.fileName,
-          geneRegex: 'a|b',
-          conditionRegex: '1|2'
+          geneNames: ['a', 'b'],
+          conditionNames: ['cond1', 'cond2']
         }))
         .expectStatus(200);
     },
@@ -112,8 +112,8 @@ expressionSpec.tests = [
       it('min/max values', function() {
         expect(data.valueMin).toBe(1);
         expect(data.valueMax).toBe(5);
-        expect(data.allValueMin).toBe(-1);
-        expect(data.allValueMax).toBe(9);
+        //expect(data.allValueMin).toBe(-1);
+        //expect(data.allValueMax).toBe(9);
       });
     }
   }
