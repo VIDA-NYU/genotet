@@ -64,36 +64,25 @@ expression.query = {};
 
 /**
  * @typedef {{
-<<<<<<< HEAD
- *   fileName: string,
- *   geneRegex: string,
- *   conditionRegex: string
-=======
- *   matrixName: string
+ *   fileName: string
  * }}
  */
 expression.query.MatrixInfo;
 
 /**
  * @typedef {{
- *   matrixName: string,
+ *   fileName: string,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>
->>>>>>> refactor
  * }}
  */
 expression.query.Matrix;
 
 /**
  * @typedef {{
-<<<<<<< HEAD
  *   fileName: string,
- *   gene: string
-=======
- *   matrixName: string,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>
->>>>>>> refactor
  * }}
  */
 expression.query.Profile;
@@ -105,7 +94,7 @@ expression.query.Profile;
  * @return {expression.MatrixInfo}
  */
 expression.query.matrixInfo = function(query, expressionPath) {
-  var file = expressionPath + query.matrixName;
+  var file = expressionPath + query.fileName;
   return expression.getMatrixInfo_(file);
 };
 
@@ -128,7 +117,7 @@ expression.query.matrix = function(query, expressionPath) {
  * @return {?expression.Profile}
  */
 expression.query.profile = function(query, expressionFile, tfamatFile) {
-  var matrix = query.matrixName;
+  var matrix = query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   var fileExp = expressionFile[matrix], fileTfa = tfamatFile[matrix];
