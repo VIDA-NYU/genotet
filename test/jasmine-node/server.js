@@ -19,6 +19,13 @@ server.url = 'http://localhost:3000/genotet';
 server.uploadURL = 'http://localhost:3000/genotet/upload';
 
 /**
+ * @typedef {{
+ *   error: {type: string, message: string}
+ * }}
+ */
+server.uploadResponse;
+
+/**
  * Gets a query string.
  * @param {!Object} params
  * @return {string}

@@ -9,8 +9,12 @@ var data = require('../data.js');
 var networkSpec = {};
 
 /**
- * Data information of network tests
- * @type {{name: string, description: string, fileName: string}}
+ * Data information of network tests.
+ * @type {{
+ *   name: string,
+ *   description: string,
+ *   fileName: string
+ * }}
  */
 networkSpec.dataInfo = {
   name: 'network-1',
@@ -19,13 +23,32 @@ networkSpec.dataInfo = {
 };
 
 /**
+ * @typedef {{
+ *   nodes: !Array<{
+ *     id: string,
+ *     label: string,
+ *     isTF: boolean
+ *   }>,
+ *   edges: !Array<{
+ *     id: string,
+ *     source: string,
+ *     target: string,
+ *     weight: !Array<number>
+ *   }>,
+ *   weightMin: number,
+ *   weightMax: number,
+ *   valueNames: !Array<string>
+ * }}
+ */
+networkSpec.QueryResponse;
+
+/**
  * Test cases of network queries
  * @type {!Array<{
- *  name: string,
- *  action: function(!frisby): formData,
- *  check: function(!Object)
- *  }>}
- *  @return {*}
+ *   name: string,
+ *   action: function(!frisby),
+ *   check: Function
+ * }>}
  */
 networkSpec.tests = [
   {
@@ -43,14 +66,11 @@ networkSpec.tests = [
       server
         .postForm(frisby, form)
         .expectStatus(200);
-      return form;
     },
     check: function(body) {
-      var json = JSON.parse(body);
-      describe('verify network upload success', function() {
-        it('contains success field', function() {
-          expect(json.error).toBeUndefined();
-        });
+      var data = /** @type {server.uploadResponse} */(JSON.parse(body));
+      it('without error field', function() {
+        expect(data.error).toBeUndefined();
       });
     }
   },
@@ -66,30 +86,24 @@ networkSpec.tests = [
         .expectStatus(200);
     },
     check: function(body) {
-      var data = JSON.parse(body);
-      describe('query network', function() {
-        it('nodes', function() {
-          expect(data.nodes).toEqual([
-            {id: 'a', label: 'a', isTF: true},
-            {id: 'c', label: 'c', isTF: true},
-            {id: 'e', label: 'e', isTF: false}
-          ]);
-        });
+      var data = /** @type {networkSpec.QueryResponse} */(JSON.parse(body));
+      it('nodes', function() {
+        expect(data.nodes).toEqual([
+          {id: 'a', label: 'a', isTF: true},
+          {id: 'c', label: 'c', isTF: true},
+          {id: 'e', label: 'e', isTF: false}
+        ]);
       });
-      describe('query network', function() {
-        it('edges', function() {
-          expect(data.edges).toEqual([
-            {id: 'a,c', source: 'a', target: 'c', weight: [2, 3, 0]},
-            {id: 'c,e', source: 'c', target: 'e', weight: [4, 1, 0]}
-          ]);
-        });
+      it('edges', function() {
+        expect(data.edges).toEqual([
+          {id: 'a,c', source: 'a', target: 'c', weight: [2, 3, 0]},
+          {id: 'c,e', source: 'c', target: 'e', weight: [4, 1, 0]}
+        ]);
       });
-      describe('query network', function() {
-        it('weights', function() {
-          expect(data.valueNames).toEqual(['attr1', 'attr2', 'attr3']);
-          expect(data.weightMax).toBe(4);
-          expect(data.weightMin).toBe(0);
-        });
+      it('weights', function() {
+        expect(data.valueNames).toEqual(['attr1', 'attr2', 'attr3']);
+        expect(data.weightMax).toBe(4);
+        expect(data.weightMin).toBe(0);
       });
     }
   }
