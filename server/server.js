@@ -219,7 +219,7 @@ app.get('/genotet', function(req, res) {
 
     // Bed data queries
     case 'bed':
-      data = bed.query.motifs(query);
+      data = bed.query.motifs(query, bedPath);
       break;
 
     // Data listing
