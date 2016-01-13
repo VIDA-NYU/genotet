@@ -211,6 +211,9 @@ app.get('/genotet', function(req, res) {
     case 'expression':
       data = expression.query.matrix(query, expressionPath);
       break;
+    case 'expression-info':
+      data = expression.query.matrixInfo(query, expressionPath);
+      break;
     case 'expression-profile':
       data = expression.query.profile(query, expressionFile, tfamatFile);
       break;

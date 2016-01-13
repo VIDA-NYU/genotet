@@ -44,31 +44,26 @@ genotet.BindingLoader.prototype.load = function(gene, chr, opt_track) {
  */
 genotet.BindingLoader.prototype.loadFullTracks = function() {
   this.data.tracks.forEach(function(track) {
+    // First send query for the overview (without detail range).
     var params = {
       type: 'binding',
       gene: track.gene,
       chr: this.data.chr
     };
-    // First send query for the overview (without detail range).
-    this.signal('loadStart');
-    $.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverURL, params, function(data) {
       track.overview = data;
       this.updateRanges_();
-      this.signal('loadComplete');
-    }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot load binding overview', params));
+    }.bind(this), 'cannot load binding overview');
 
     // Send send query for the details.
     _.extend(params, {
       xl: this.data.detailXMin,
       xr: this.data.detailXMax
     });
-    this.signal('loadStart');
-    $.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverURL, params, function(data) {
       track.detail = data;
-      this.signal('loadComplete');
-    }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot load binding detail', params));
+      this.updateRanges_();
+    }.bind(this), 'cannot load binding detail');
   }, this);
 };
 
@@ -85,8 +80,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
     gene: gene,
     chr: chr
   };
-  this.signal('loadStart');
-  $.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverURL, params, function(data) {
     var track = {
       gene: gene,
       overview: data,
@@ -95,13 +89,11 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
     var addTrack = trackIndex == this.data.tracks.length;
     this.data.tracks[trackIndex] = track;
     this.updateRanges_();
-    this.signal('loadComplete');
     if (addTrack) {
       // Add one more track.
       this.loadBindingList();
     }
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot load binding overview', params));
+  }.bind(this), 'cannot load binding overview');
 
   if (this.data.detailXMin) {
     // If we have a previously defined detail range, then keep the range.
@@ -109,18 +101,14 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
       xl: this.data.detailXMin,
       xr: this.data.detailXMax
     });
-    this.signal('loadStart');
-    $.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverURL, params, function(data) {
       // If a new track is created. This may be received before the track object
       // is created. Therefore create an empty object in that case.
       if (!this.data.tracks[trackIndex]) {
         this.data.tracks[trackIndex] = {};
       }
-
       this.data.tracks[trackIndex].detail = data;
-      this.signal('loadComplete');
-    }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot load binding detail', params));
+    }.bind(this), 'cannot load binding detail');
   }
 };
 
@@ -133,7 +121,6 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
   this.data.detailXMin = xl;
   this.data.detailXMax = xr;
   this.data.tracks.forEach(function(track) {
-    this.signal('loadStart');
     var params = {
       type: 'binding',
       gene: track.gene,
@@ -141,11 +128,9 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
       xl: xl,
       xr: xr
     };
-    $.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverURL, params, function(data) {
       track.detail = data;
-      this.signal('loadComplete');
-    }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot load binding detail', params));
+    }.bind(this), 'cannot load binding detail');
   }, this);
 };
 
@@ -155,16 +140,13 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
  * @private
  */
 genotet.BindingLoader.prototype.loadExons_ = function(chr) {
-  this.signal('loadStart');
   var params = {
     type: 'exons',
     chr: chr
   };
-  $.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverURL, params, function(data) {
     this.data.exons = data;
-    this.signal('loadComplete');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot load binding data', params));
+  }.bind(this), 'cannot load binding data');
 };
 
 
@@ -173,29 +155,26 @@ genotet.BindingLoader.prototype.loadExons_ = function(chr) {
  * @param {string} gene Gene name to be searched for.
  */
 genotet.BindingLoader.prototype.findLocus = function(gene) {
-  this.signal('loadStart');
   var params = {
     type: 'locus',
     gene: gene
   };
-  $.get(genotet.data.serverURL, params, function(res) {
-      if (!res.success) {
-        genotet.warning('gene locus not found');
+  this.get(genotet.data.serverURL, params, function(res) {
+    if (!res.success) {
+      genotet.warning('gene locus not found');
+    } else {
+      var span = res.txEnd - res.txStart;
+      this.data.detailXMin = res.txStart - span * this.LOCUS_MARGIN_RATIO;
+      this.data.detailXMax = res.txEnd + span * this.LOCUS_MARGIN_RATIO;
+      if (res.chr != this.data.chr) {
+        this.data.chr = res.chr;
+        this.signal('chr', res.chr);
+        this.switchChr(res.chr);
       } else {
-        var span = res.txEnd - res.txStart;
-        this.data.detailXMin = res.txStart - span * this.LOCUS_MARGIN_RATIO;
-        this.data.detailXMax = res.txEnd + span * this.LOCUS_MARGIN_RATIO;
-        if (res.chr != this.data.chr) {
-          this.data.chr = res.chr;
-          this.signal('chr', res.chr);
-          this.switchChr(res.chr);
-        } else {
-          this.loadTrackDetail(this.data.detailXMin, this.data.detailXMax);
-        }
+        this.loadTrackDetail(this.data.detailXMin, this.data.detailXMax);
       }
-      this.signal('loadComplete');
-    }.bind(this), 'jsonp')
-      .fail(this.fail.bind(this, 'cannot search for gene locus', params));
+    }
+  }.bind(this), 'cannot search for gene locus');
 };
 
 /**
