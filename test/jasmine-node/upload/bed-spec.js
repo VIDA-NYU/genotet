@@ -19,8 +19,12 @@ bedSpec.dataInfo = {
 
 /**
  * Test cases of bed data
- * @type {!Array<*>}
- * @return {*}
+ * @type {!Array<{
+ *  name: string,
+ *  action: function(!frisby): formData,
+ *  check: function(!Object)
+ *  }>}
+ *  @return {*}
  */
 bedSpec.tests = [
   {
@@ -41,6 +45,7 @@ bedSpec.tests = [
       return form;
     },
     check: function(body) {
+      /** @type {{success: boolean}}*/
       var json = JSON.parse(body);
       describe('upload bed', function() {
         it('upload response is success', function() {

@@ -20,8 +20,12 @@ bindingSpec.dataInfo = {
 
 /**
  * Test cases for binding queries
- * @type {!Array<*>}
- * @return {*}
+ * @type {!Array<{
+ *  name: string,
+ *  action: function(!frisby): formData,
+ *  check: function(!Object)
+ *  }>}
+ *  @return {*}
  */
 bindingSpec.tests = [
   // TODO(jiaming): Handle bigWigToWig processing time. The server needs to

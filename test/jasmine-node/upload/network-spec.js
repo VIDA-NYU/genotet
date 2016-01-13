@@ -20,8 +20,12 @@ networkSpec.dataInfo = {
 
 /**
  * Test cases of network queries
- * @type {!Array<*>}
- * @return {*}
+ * @type {!Array<{
+ *  name: string,
+ *  action: function(!frisby): formData,
+ *  check: function(!Object)
+ *  }>}
+ *  @return {*}
  */
 networkSpec.tests = [
   {

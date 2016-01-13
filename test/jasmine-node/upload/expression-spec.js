@@ -19,8 +19,12 @@ expressionSpec.dataInfo = {
 
 /**
  * Test cases for expression queries
- * @type {!Array<*>}
- * @return {*}
+ * @type {!Array<{
+ *  name: string,
+ *  action: function(!frisby): formData,
+ *  check: function(!Object)
+ *  }>}
+ *  @return {*}
  */
 expressionSpec.tests = [
   {
