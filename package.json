@@ -5,7 +5,6 @@
   "main": "genotet.js",
   "dependencies": {
     "bower": "^1.5.2",
-    "merge-stream": "^1.0.0"
   },
   "devDependencies": {
     "del": "^2.2.0",
