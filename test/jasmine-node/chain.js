@@ -30,7 +30,9 @@ chain.test = function(tests) {
     test.action(request);
     request
       .after(function(err, res, body) {
-        test.check(body);
+        describe(test.name, function() {
+          test.check(body);
+        });
         run(index + 1);
       })
       .toss();
