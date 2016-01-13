@@ -15,6 +15,7 @@ genotet.BindingLoader = function(data) {
 
   _.extend(this.data, {
     tracks: [],
+    bed: [],
     exons: []
   });
 };
@@ -55,7 +56,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
       this.updateRanges_();
     }.bind(this), 'cannot load binding overview');
 
-    // Send send query for the details.
+    // Send query for the details.
     _.extend(params, {
       xl: this.data.detailXMin,
       xr: this.data.detailXMax
@@ -89,6 +90,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
     var addTrack = trackIndex == this.data.tracks.length;
     this.data.tracks[trackIndex] = track;
     this.updateRanges_();
+    this.loadBed(chr, this.data.detailXMin, this.data.detailXMax);
     if (addTrack) {
       // Add one more track.
       this.signal('track');
@@ -110,6 +112,28 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
       this.data.tracks[trackIndex].detail = data;
     }.bind(this), 'cannot load binding detail');
   }
+};
+
+/**
+ * Loads the bed data of a single binding track.
+ * @param {string} bedName Name of the bed track data.
+ * @param {string} chr Chromosome.
+ * @param {number|undefined} xl Left coordinate of the query range.
+ *   If null, use the leftmost coordinate of the track.
+ * @param {number|undefined} xr Right coordinate of the query range.
+ *   If null, use the rightmost coordinate of the track.
+ */
+genotet.BindingLoader.prototype.loadBed = function(chr, xl, xr) {
+  var params = {
+    type: 'bed',
+    bedName: 'bed_data',
+    chr: chr,
+    xl: xl,
+    xr: xr
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    this.data.bed = data;
+  }.bind(this), 'cannot load binding data');
 };
 
 /**
@@ -171,6 +195,7 @@ genotet.BindingLoader.prototype.findLocus = function(gene) {
         this.signal('chr', res.chr);
         this.switchChr(res.chr);
       } else {
+        this.loadBed(this.data.chr, this.data.detailXMin, this.data.detailXMax);
         this.loadTrackDetail(this.data.detailXMin, this.data.detailXMax);
       }
     }

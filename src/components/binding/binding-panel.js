@@ -73,6 +73,7 @@ genotet.BindingPanel.prototype.initPanel = function() {
         var coordinate = +this.container.find(ui.selector + ' input').val();
         this.signal('coordinate', {
           type: ui.type,
+          chr: this.data.chr,
           coordinate: coordinate
         });
       }.bind(this);

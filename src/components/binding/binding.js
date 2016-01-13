@@ -73,6 +73,7 @@ genotet.BindingView = function(viewName, params) {
   $(this.renderer)
     .on('genotet.zoom', function(event, data) {
       this.loader.loadTrackDetail(data.xl, data.xr);
+      this.loader.loadBed(data.chr, data.xl, data.xr);
     }.bind(this))
     .on('genotet.coordinates', function(event, data) {
       this.panel.updateCoordinates(data.start, data.end);
@@ -94,6 +95,7 @@ genotet.BindingView = function(viewName, params) {
         return;
       }
       this.loader.loadTrackDetail(range[0], range[1]);
+      this.loader.loadBed(data.chr, range[0], range[1]);
       this.renderer.zoomTransform(range);
     }.bind(this))
     .on('genotet.locus', function(event, gene) {

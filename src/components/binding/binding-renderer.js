@@ -49,10 +49,21 @@ genotet.BindingRenderer = function(container, data) {
    */
   this.detailTranslateY_;
   /**
+   * Vertical translate value of the bed SVG group.
+   * @private {number}
+   */
+  this.bedTranslateY_;
+  /**
    * Vertical translate value of the exons SVG group.
    * @private {number}
    */
   this.exonsTranslateY_;
+
+  /**
+   * Positions for the bed rects.
+   * @private {!Array<!Array<number>}
+   */
+  this.bedPosition_ = [];
 
   /**
    * Timer handle for the zoom interval.
@@ -73,6 +84,13 @@ genotet.BindingRenderer.prototype.EXON_CENTER_Y = 20;
 genotet.BindingRenderer.prototype.EXON_LABEL_OFFSET = 3;
 /** @const {number} */
 genotet.BindingRenderer.prototype.OVERVIEW_HEIGHT = 25;
+/** @const {number} */
+genotet.BindingRenderer.prototype.BED_RECT_HEIGHT = 3;
+/** @const {!Object{number} */
+genotet.BindingRenderer.prototype.BED_MARGIN = {
+  TOP: 5,
+  BOTTOM: 3
+};
 
 /**
  * When there are more than this limit number of exons, we draw exons as
@@ -158,9 +176,41 @@ genotet.BindingRenderer.prototype.getBindingRanges_ = function() {
   }
 };
 
+/**
+ * Arranges the binding data bed rect positions.
+ * @private
+ */
+genotet.BindingRenderer.prototype.arrangeBedRectPositions_ = function() {
+  var lineCount = 0;
+  var rightCoordinates = [];
+  var minRight = Infinity;
+  this.bedPosition_ = [];
+  this.data.bed.forEach(function(data) {
+    if (this.bedPosition_.length == 0 || minRight >= data.chrStart) {
+      var newLine = [data];
+      this.bedPosition_.push(newLine);
+      rightCoordinates.push(data.chrEnd);
+      minRight = Math.min(minRight, data.chrEnd);
+      lineCount++;
+    } else {
+      var i = lineCount;
+      while(i > 0) {
+        if (rightCoordinates[i - 1] < data.chrStart) {
+          this.bedPosition_[i - 1].push(data);
+          rightCoordinates[i - 1] = data.chrEnd;
+          minRight = Math.min.apply(null, rightCoordinates);
+          break;
+        }
+        i--;
+      }
+    }
+  }.bind(this));
+};
+
 /** @inheritDoc */
 genotet.BindingRenderer.prototype.dataLoaded = function() {
   this.getBindingRanges_();
+  this.arrangeBedRectPositions_();
   this.render();
 
   // Initialize coordinates in the panel.
@@ -187,6 +237,12 @@ genotet.BindingRenderer.prototype.initLayout = function() {
   this.svgDetail_ = this.canvas.append('g')
     .classed('details', true);
   /**
+   * SVG group for the bed tracks.
+   * @private {!d3}
+   */
+  this.svgBed_ = this.canvas.append('g')
+    .classed('bed', true);
+  /**
    * SVG group for the binding overviews.
    * @private {!d3}
    */
@@ -203,6 +259,12 @@ genotet.BindingRenderer.prototype.initLayout = function() {
    * @private {!d3}
    */
   this.detailContent_ = this.svgDetail_.append('g')
+    .classed('content', true);
+  /**
+   * SVG group for the bed tracks content.
+   * @private {!d3}
+   */
+  this.bedContent_ = this.svgBed_.append('g')
     .classed('content', true);
   /**
    * SVG group for the exons content.
@@ -252,15 +314,20 @@ genotet.BindingRenderer.prototype.layout = function() {
   this.updateZoomHandles_();
 
   var numTracks = this.data.tracks.length;
+  var bedHeight = this.bedPosition_.length * this.BED_RECT_HEIGHT;
 
   // Compute translate values.
   this.detailTranslateY_ = this.data.options.showOverview ?
     numTracks * this.OVERVIEW_HEIGHT : 0;
+  this.bedTranslateY_ = this.data.options.showExons ?
+    this.canvasHeight - this.EXON_HEIGHT - bedHeight: this.canvasHeight - bedHeight;
   this.exonsTranslateY_ = this.canvasHeight - this.EXON_HEIGHT;
 
   // Translate SVG groups to place.
   this.svgDetail_.attr('transform',
     genotet.utils.getTransform([0, this.detailTranslateY_]));
+  this.svgBed_.attr('transform',
+    genotet.utils.getTransform([0, this.bedTranslateY_]));
   this.svgExons_.attr('transform',
     genotet.utils.getTransform([0, this.exonsTranslateY_]));
 
@@ -582,11 +649,34 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
  */
 genotet.BindingRenderer.prototype.drawBed_ = function() {
   // TODO(liana): Check bed visual encoding and implement this.
-  /*
   if (!this.data.options.showBed) {
-    this.bedContent_.style('display', '');
+    this.bedContent_.style('display', 'none');
+  } else {
+    this.bedContent_.style('display', 'inline');
   }
-  */
+  var bedData = this.bedPosition_;
+  var rangeProportion = this.canvasWidth / (this.data.detailXMax -
+    this.data.detailXMin);
+  console.log(bedData);
+  var bedRows = this.bedContent_.selectAll('g').data(bedData);
+  bedRows.enter().append('g');
+  bedRows.exit().remove();
+  var bedRects = bedRows.selectAll('rect').data(_.identity);
+  bedRects.enter().append('rect');
+  bedRects
+    .attr('width', function(data) {
+      var rectWidth = (data.chrEnd - data.chrStart) * rangeProportion;
+      return rectWidth < 3 ? 3 : rectWidth;
+    })
+    .attr('height', this.BED_RECT_HEIGHT)
+    .attr('x', function(data) {
+      return (data.chrStart - this.data.detailXMin)* rangeProportion;
+    }.bind(this))
+    .attr('y', function(data, i, j) {
+      return j * this.BED_RECT_HEIGHT;
+    }.bind(this))
+    .attr('fill', 'red');
+  bedRects.exit().remove();
 };
 
 /**
@@ -597,9 +687,11 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
   var numTracks = this.data.tracks.length;
   var overviewHeight = this.data.options.showOverview ?
     this.OVERVIEW_HEIGHT * numTracks : 0;
+  var bedHeight = this.data.options.showBed ?
+  this.bedPosition_.length * this.BED_RECT_HEIGHT : 0;
   var exonsHeight = this.data.options.showExons ?
     this.EXON_HEIGHT : 0;
-  var totalDetailHeight = this.canvasHeight - exonsHeight - overviewHeight;
+  var totalDetailHeight = this.canvasHeight - exonsHeight - bedHeight - overviewHeight;
   this.detailHeight_ = totalDetailHeight / (numTracks ? numTracks : 1);
 };
 
@@ -709,6 +801,7 @@ genotet.BindingRenderer.prototype.screenRangeToBindingCoordinates_ = function(
 genotet.BindingRenderer.prototype.zoomDetail_ = function(opt_range) {
   var range = opt_range ? opt_range : this.screenRangeToBindingCoordinates_();
   this.signal('zoom', {
+    chr: this.data.chr,
     xl: range[0],
     xr: range[1]
   });

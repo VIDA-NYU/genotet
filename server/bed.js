@@ -37,12 +37,13 @@ bed.query.Motifs;
 // Start public APIs
 /**
  * @param {!bed.query.Motifs} query
+ * @param {string} bedPath
  * @return {!Array<!bed.Motif>}
  */
-bed.query.motifs = function(query) {
+bed.query.motifs = function(query, bedPath) {
   var bedName = query.bedName;
   var chr = query.chr;
-  var dir = bedPath + bedName + '_chr/' + bedName + '_' + chr;
+  var dir = bedPath + bedName + '_chr/' + bedName + '_chr' + chr;
   return bed.readBed_(dir, query.xl, query.xr);
 };
 
@@ -73,14 +74,16 @@ bed.readBed_ = function(bedFile, xl, xr) {
     var parts = line.split('\t');
     var xLeft = parseInt(parts[0], 10);
     var xRight = parseInt(parts[1], 10);
-    if (xLeft > xr || xRight < xl) {
+    if (xl > xRight || xr < xLeft) {
       return;
     }
-    data.push({
-      chrStart: xLeft,
-      chrEnd: xRight,
-      label: parts[2]
-    });
+    if (xl < xLeft && xr > xRight) {
+      data.push({
+        chrStart: xLeft,
+        chrEnd: xRight,
+        label: parts[2]
+      });
+    }
   });
   return data;
 };
