@@ -353,8 +353,8 @@ network.readNetwork_ = function(networkFile) {
     for (var i = 2; i < parts.length; i++) {
       numbers.push(parseFloat(parts[i]));
     }
-    if (nodeId.hasOwnProperty(source)) {
-      nodes[nodeId[source]].isTF = true;
+    if (source in nodeId) {
+      nodes[nodeId[target]].isTF = true;
     } else {
       names.push(source);
       nodes.push({
@@ -364,7 +364,7 @@ network.readNetwork_ = function(networkFile) {
       });
       nodeId[source] = nodes.length - 1;
     }
-    if (!nodeId.hasOwnProperty(target)) {
+    if (!(target in nodeId)) {
       names.push(target);
       nodes.push({
         id: target,
