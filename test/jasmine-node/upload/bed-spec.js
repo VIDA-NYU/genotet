@@ -1,4 +1,4 @@
-var FormData = require('form-data');
+var formData = require('form-data');
 
 var server = require('../server.js');
 var chain = require('../chain.js');
