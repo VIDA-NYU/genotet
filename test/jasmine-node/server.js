@@ -29,7 +29,6 @@ server.uploadResponse;
  * Gets a query string.
  * @param {!Object} params
  * @return {string}
- * @this {server}
  */
 server.queryURL = function(params) {
   return server.url + '?' + querystring.stringify(params);
@@ -40,7 +39,6 @@ server.queryURL = function(params) {
  * @param {!frisby} frisby
  * @param {!formData} form
  * @return {!frisby}
- * @this {server}
  */
 server.postForm = function(frisby, form) {
   frisby.post(server.uploadURL, form, {

@@ -332,7 +332,9 @@ network.readNetwork_ = function(networkFile) {
   var valueNames = [];
   var lines = fs.readFileSync(networkFile).toString().split('\n');
   lines.forEach(function(line) {
-    if (!validFile) return;
+    if (!validFile) {
+      return;
+    }
     var parts = line.split(/[\t\s]+/);
     var source = parts[0];
     var target = parts[1];

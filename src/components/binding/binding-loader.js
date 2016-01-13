@@ -223,14 +223,11 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
   var params = {
     type: 'list-binding'
   };
-  $.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverURL, params, function(data) {
     genotet.data.bindingGenes = [];
     data.forEach(function(bindingGene) {
       genotet.data.bindingGenes.push(bindingGene.gene);
     });
     this.signal('track');
-  }.bind(this), 'jsonp')
-    .fail(function() {
-      genotet.error('failed to get binding list');
-    });
+  }.bind(this), 'cannot load binding list');
 };

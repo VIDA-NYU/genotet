@@ -128,10 +128,10 @@ binding.query.list = function(wigglePath) {
 /**
  * Number of samples created for each query.
  * @const {number}
+ * @private
  */
-
 // TODO(jiaming): User number of pixels on the screen.
-//binding.NUM_SAMPLES = 1000;
+binding.DEFAULT_NUM_SAMPLES_ = 1000;
 
 /**
  * Binging data cache, maximum size 4.
@@ -336,7 +336,7 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
 
   var n;
   if (numSamples == null) {
-    n = 1000;
+    n = binding.DEFAULT_NUM_SAMPLES_;
   } else {
     n = numSamples;
   }

@@ -22,13 +22,6 @@ bedSpec.dataInfo = {
 };
 
 /**
- * @typedef {{
- *   success: boolean
- * }}
- */
-bedSpec.UploadResponse;
-
-/**
  * Test cases of bed data
  * @type {!Array<{
  *   name: string,
