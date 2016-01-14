@@ -319,7 +319,7 @@ network.getComb_ = function(file, exp) {
 /**
  * Read network from a .tsv file.
  * @param {string} networkFile path to the .tsv network file.
- * @return {Object} data of the network.
+ * @return {!network.Network} data of the network.
  * @private
  */
 network.readNetwork_ = function(networkFile) {
@@ -392,8 +392,8 @@ network.readNetwork_ = function(networkFile) {
 };
 
 /**
- * List all the networks in the server
- * @param {string} networkPath Folder of the network in the server
+ * List all the networks in the server.
+ * @param {string} networkPath Folder of the network in the server.
  * @return {!Array<{
  *   networkName: string,
  *   description: string
