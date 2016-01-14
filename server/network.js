@@ -366,7 +366,7 @@ network.readNetwork_ = function(networkFile) {
     for (var i = 2; i < parts.length; i++) {
       numbers.push(parseFloat(parts[i]));
     }
-    if (nodeId.hasOwnProperty(parts[0])) {
+    if (parts[0] in nodeId) {
       nodes[nodeId[parts[0]]].isTF = true;
     } else {
       names.push(parts[0]);
@@ -377,7 +377,7 @@ network.readNetwork_ = function(networkFile) {
       });
       nodeId[parts[0]] = nodes.length - 1;
     }
-    if (!nodeId.hasOwnProperty(parts[1])) {
+    if (!(parts[1] in nodeId)) {
       names.push(parts[1]);
       nodes.push({
         id: parts[1],

@@ -59,6 +59,14 @@ bed.query.list = function(bedPath) {
 };
 // End public APIs
 
+
+/**
+ * Maximum number of motifs to return. If the number of motifs in the query
+ * range exceeds this limit, return aggregated ranges instead.
+ * @private @const {number}
+ */
+bed.MOTIF_THRESHOLD_ = 200;
+
 /**
  * Reads a separated bed file for one chromosome.
  * @param {string} bedFile Path to the bed file.
@@ -70,22 +78,87 @@ bed.query.list = function(bedPath) {
 bed.readBed_ = function(bedFile, xl, xr) {
   var data = [];
   var lines = fs.readFileSync(bedFile).toString().split('\n');
-  lines.forEach(function(line) {
+  var numLines = lines.length;
+  var xMin = Infinity, xMax = -Infinity;
+  for (var i = 0; i < numLines; i++) {
+    var line = lines[i];
     var parts = line.split('\t');
-    var xLeft = parseInt(parts[0], 10);
-    var xRight = parseInt(parts[1], 10);
+    var xLeft = parseInt(parts[0]);
+    var xRight = parseInt(parts[1]);
+    if (xLeft > xr) {
+      break;
+    }
     if (xl > xRight || xr < xLeft) {
-      return;
+      continue;
     }
-    if (xl < xLeft && xr > xRight) {
-      data.push({
-        chrStart: xLeft,
-        chrEnd: xRight,
-        label: parts[2]
-      });
+    data.push({
+      chrStart: xLeft,
+      chrEnd: xRight,
+      label: parts[2]
+    });
+    xMin = Math.min(xMin, xLeft);
+    xMax = Math.max(xMax, xRight);
+  }
+
+  /**
+   * Computes the aggregated motifs, assuming each interval [l, r] is extended
+   * to [l, r + extend].
+   * @param {number} extend
+   * @param {boolean} returnArray Whether to return a result array. If false,
+   *     return only the count of the array elements.
+   * @return {number|!Array<bed.Motif>}
+   */
+  var aggregatedMotifs = function(extend, returnArray) {
+    var result = returnArray ? [] : 0;
+    var start, end = -Infinity;
+    data.forEach(function(motif) {
+      if (motif.chrStart > end) {
+        if (end != -Infinity) {
+          if (returnArray) {
+            result.push({
+              chrStart: start,
+              chrEnd: end
+            });
+          } else {
+            result++;
+          }
+        }
+        start = motif.chrStart;
+        end = motif.chrEnd + extend;
+      } else {
+        end = Math.max(end, motif.chrEnd + extend);
+      }
+    });
+    return result;
+  };
+
+  if (data.length > bed.MOTIF_THRESHOLD_) {
+    data.push({
+      chrStart: Infinity
+    });
+    var minExtend = 0, maxExtend = xMax - xMin;
+    while (minExtend <= maxExtend) {
+      var extend = (minExtend + maxExtend) >> 1;
+      var result = aggregatedMotifs(extend, false);
+      if (result > bed.MOTIF_THRESHOLD_) {
+        minExtend = extend + 1;
+      } else {
+        maxExtend = extend - 1;
+      }
     }
-  });
-  return data;
+    var aggregatedData = aggregatedMotifs(minExtend, true);
+    console.log(aggregatedData.length, 'aggregated motifs with extend',
+      maxExtend);
+    return {
+      aggregated: true,
+      motifs: aggregatedData
+    };
+  }
+  console.log(data.length, 'motifs');
+  return {
+    aggregated: false,
+    motifs: data
+  };
 };
 
 /**
