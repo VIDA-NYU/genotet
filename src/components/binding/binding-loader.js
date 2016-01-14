@@ -91,7 +91,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
     this.updateRanges_();
     if (addTrack) {
       // Add one more track.
-      this.signal('track');
+      this.loadBindingList();
     }
   }.bind(this), 'cannot load binding overview');
 
@@ -214,4 +214,20 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
       detailXMax: overviewXMax
     });
   }
+};
+
+/**
+ * Loads binding data list into genotet.data.bindingGenes.
+ */
+genotet.BindingLoader.prototype.loadBindingList = function() {
+  var params = {
+    type: 'list-binding'
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    genotet.data.bindingGenes = [];
+    data.forEach(function(bindingGene) {
+      genotet.data.bindingGenes.push(bindingGene.gene);
+    });
+    this.signal('track');
+  }.bind(this), 'cannot load binding list');
 };

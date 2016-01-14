@@ -26,7 +26,7 @@ bed.query = {};
 
 /**
  * @typedef {{
- *   bedName: string,
+ *   fileName: string,
  *   chr: string,
  *   xl: (number|undefined),
  *   xr: (number|undefined)
@@ -41,9 +41,9 @@ bed.query.Motifs;
  * @return {!Array<!bed.Motif>}
  */
 bed.query.motifs = function(query, bedPath) {
-  var bedName = query.bedName;
+  var fileName = query.fileName;
   var chr = query.chr;
-  var dir = bedPath + bedName + '_chr/' + bedName + '_chr' + chr;
+  var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
   return bed.readBed_(dir, query.xl, query.xr);
 };
 
@@ -170,6 +170,22 @@ bed.readBed_ = function(bedFile, xl, xr) {
  * @private
  */
 bed.listBed_ = function(bedPath) {
-  // TODO(jiaming)
-  return [];
+  var folder = bedPath;
+  var ret = [];
+  var files = fs.readdirSync(folder);
+  files.forEach(function(file) {
+    if (file.indexOf('.txt') != -1) {
+      var fname = file.substr(0, file.length - 4);
+      var content = fs.readFileSync(folder + file, 'utf8')
+        .toString().split('\n');
+      var bedName = content[0];
+      var description = content.slice(1).join('');
+      ret.push({
+        bedName: bedName,
+        fileName: fname,
+        description: description
+      });
+    }
+  });
+  return ret;
 };

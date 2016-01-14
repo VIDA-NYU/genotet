@@ -127,6 +127,20 @@ genotet.dialog.createNetwork_ = function() {
       viewName.val(genotet.viewManager.nextSuffixName(
         /** @type {string} */(viewName.val())));
       modal.find('.selectpicker').selectpicker();
+      var params = {
+        type: 'list-network'
+      };
+      $.get(genotet.data.serverURL, params, function(data) {
+          var selectpicker = modal.find('.selectpicker');
+          data.forEach(function(network) {
+            $('<option></option>')
+              .text(network.networkName)
+              .appendTo(selectpicker);
+          });
+        }.bind(this), 'jsonp')
+        .fail(function() {
+          genotet.error('failed to get network list');
+        });
 
       // Create
       modal.find('#btn-create').click(function() {
@@ -161,15 +175,24 @@ genotet.dialog.createBinding_ = function() {
       modal.find('#chr').select2({
         data: chrs
       });
-      var genes = genotet.data.bindingGenes.map(function(gene, index) {
-        return {
-          id: gene,
-          text: gene
-        };
-      });
-      modal.find('#gene').select2({
-        data: genes
-      });
+      var genes = [];
+      var params = {
+        type: 'list-binding'
+      };
+      $.get(genotet.data.serverURL, params, function(data) {
+          data.forEach(function(bindingFile) {
+            genes.push({
+              id: bindingFile.gene,
+              text: bindingFile.gene
+            });
+          });
+          modal.find('#gene').select2({
+            data: genes
+          });
+        }.bind(this), 'jsonp')
+        .fail(function() {
+          genotet.error('failed to get binding list');
+        });
 
       // Create
       modal.find('#btn-create').click(function() {
@@ -195,6 +218,20 @@ genotet.dialog.createExpression_ = function() {
       viewName.val(genotet.viewManager.nextSuffixName(
         /** @type {string} */(viewName.val())));
       modal.find('.selectpicker').selectpicker();
+      var params = {
+        type: 'list-matrix'
+      };
+      $.get(genotet.data.serverURL, params, function(data) {
+          var selectpicker = modal.find('.selectpicker');
+          data.forEach(function(matrix) {
+            $('<option></option>')
+              .text(matrix.matrixName)
+              .appendTo(selectpicker);
+          });
+        }.bind(this), 'jsonp')
+        .fail(function() {
+          genotet.error('failed to get expression list');
+        });
 
       // Choose input type of gene and condition.
       modal.find('#gene-input-regex input')
@@ -245,7 +282,8 @@ genotet.dialog.upload_ = function() {
       modal.find('.selectpicker').selectpicker();
 
       var file = modal.find('#file');
-      var fileName = modal.find('#data-name');
+      var fileName = modal.find('#file-name');
+      var dataName = modal.find('#data-name');
 
       var btnUpload = modal.find('#btn-upload').prop('disabled', true);
       var btnFile = modal.find('#btn-file');
@@ -259,7 +297,7 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return fileName.val() && file.val();
+        return fileName.val() && file.val() && dataName.val();
       };
 
       file.change(function(event) {
@@ -276,9 +314,11 @@ genotet.dialog.upload_ = function() {
         formData.append('type',
           /** @type {string} */(modal.find('#type').val()));
         formData.append('name',
-          /** @type {string} */(fileName.val()));
+          /** @type {string} */(dataName.val()));
         formData.append('description',
           /** @type {string} */(modal.find('#description').val()));
+        formData.append('fileName',
+          /** @type {string} */(fileName.val()));
         formData.append('file', file[0].files[0]);
 
         $.ajax({
