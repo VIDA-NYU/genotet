@@ -1,4 +1,4 @@
-var FormData = require('form-data');
+var formData = require('form-data');
 
 var server = require('../server.js');
 var chain = require('../chain.js');
@@ -8,8 +8,12 @@ var data = require('../data.js');
 var bedSpec = {};
 
 /**
- * Data information of test cases
- * @type {{name: string, description: string, fileName: string}}
+ * Data information of test cases.
+ * @type {{
+ *   name: string,
+ *   description: string,
+ *   fileName: string
+ * }}
  */
 bedSpec.dataInfo = {
   name: 'bed-1',
@@ -18,14 +22,18 @@ bedSpec.dataInfo = {
 };
 
 /**
- * @type {!Array<*>}
- * @return {*}
+ * Test cases of bed data
+ * @type {!Array<{
+ *   name: string,
+ *   action: function(!frisby),
+ *   check: Function
+ * }>}
  */
 bedSpec.tests = [
   {
     name: 'upload bed',
     action: function(frisby) {
-      var form = new FormData();
+      var form = new formData();
       form.append('type', 'bed');
       form.append('name', bedSpec.dataInfo.name);
       form.append('fileName', bedSpec.dataInfo.fileName);
@@ -37,14 +45,11 @@ bedSpec.tests = [
       server
         .postForm(frisby, form)
         .expectStatus(200);
-      return form;
     },
     check: function(body) {
-      var json = JSON.parse(body);
-      describe('upload bed', function() {
-        it('upload response is success', function() {
-          expect(json.success).toBe(true);
-        });
+      var data = /** @type {server.uploadResponse} */(JSON.parse(body));
+      it('without error field', function() {
+        expect(data.error).toBeUndefined();
       });
     }
   },
@@ -57,14 +62,12 @@ bedSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      describe('list bed', function() {
-        it('listed bed data', function() {
-          expect(data.length).toBe(1);
-          expect(data[0]).toEqual({
-            bedName: bedSpec.dataInfo.name,
-            fileName: bedSpec.dataInfo.fileName,
-            description: bedSpec.dataInfo.description
-          });
+      it('listed bed data', function() {
+        expect(data.length).toBe(1);
+        expect(data[0]).toEqual({
+          bedName: bedSpec.dataInfo.name,
+          fileName: bedSpec.dataInfo.fileName,
+          description: bedSpec.dataInfo.description
         });
       });
     }
@@ -82,11 +85,10 @@ bedSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      describe('query bed chr1', function() {
-        it('without x range', function() {
-          expect(data).toEqual([
-            {chrStart: 49344650, chrEnd: 49344667, label: 'label_1_1'}
-          ]);
+      it('without x range', function() {
+        expect(data).toEqual({
+          aggregated: false,
+          motifs: [{chrStart: 49344650, chrEnd: 49344667, label: 'label_1_1'}]
         });
       });
     }
@@ -106,13 +108,13 @@ bedSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      describe('query bed chr2', function() {
-        it('partially intersect', function() {
-          expect(data).toEqual([
+      it('partially intersect', function() {
+        expect(data).toEqual({
+          aggregated: false,
+          motifs: [
             {chrStart: 26382888, chrEnd: 26382905, label: 'label_2_2'},
             {chrStart: 101662494, chrEnd: 101662511, label: 'label_2_1'}
-          ]);
-        });
+        ]});
       });
     }
   },
@@ -131,9 +133,10 @@ bedSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      describe('query bed chr3', function() {
-        it('no intersection', function() {
-          expect(data).toEqual([]);
+      it('no intersection', function() {
+        expect(data).toEqual({
+          aggregated: false,
+          motifs: []
         });
       });
     }

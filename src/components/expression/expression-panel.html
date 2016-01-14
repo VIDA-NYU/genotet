@@ -8,6 +8,13 @@
     <div class="item-title">Add Gene Profiles</div>
     <select></select>
   </div>
+  <div id="input-type" class="panel-section">
+    <div class="item-title">Input Type</div>
+    <div class="input-checkbox">
+      <label id="regex" class="radio-inline"><input type="radio" name="optradio">regex</label>
+      <label id="string" class="radio-inline"><input type="radio" name="optradio">string</label>
+    </div>
+  </div>
   <div id="genes" class="panel-section">
     <div class="item-title">Genes</div>
     <!--<button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>-->
@@ -30,6 +37,10 @@
       <button id="removeCondition" class="btn btn-default btn-xs glyphicon glyphicon-minus" title="remove conditions"></button>
     </div>
   </div>
+  <div id="zoom-out" class="panel-section">
+    <div class="item-title">Zoom Out</div>
+    <button id="out" class="zoom-out btn btn-default btn-xs glyphicon glyphicon-zoom-out"></button>
+  </div>
   <div class="panel-section switches">
     <table>
       <colgroup>
@@ -51,7 +62,7 @@
       </tr>
       <tr>
         <td>TFA Profiles</td>
-        <td><input type="checkbox" id="show-gradient" title="show TFA profiles (line charts)" checked></td>
+        <td><input type="checkbox" id="show-tfa-profile" title="show TFA profiles (line charts)" checked></td>
       </tr>
       <tr>
         <td>Auto-Scale Gradient</td>

@@ -19,10 +19,16 @@ server.url = 'http://localhost:3000/genotet';
 server.uploadURL = 'http://localhost:3000/genotet/upload';
 
 /**
+ * @typedef {{
+ *   error: {type: string, message: string}
+ * }}
+ */
+server.uploadResponse;
+
+/**
  * Gets a query string.
  * @param {!Object} params
  * @return {string}
- * @this {server}
  */
 server.queryURL = function(params) {
   return server.url + '?' + querystring.stringify(params);
@@ -30,10 +36,9 @@ server.queryURL = function(params) {
 
 /**
  * Posts a file via multi-part form to the server.
- * @param {!Frisby} frisby
- * @param {!FormData} form
- * @return {!Frisby}
- * @this {server}
+ * @param {!frisby} frisby
+ * @param {!formData} form
+ * @return {!frisby}
  */
 server.postForm = function(frisby, form) {
   frisby.post(server.uploadURL, form, {

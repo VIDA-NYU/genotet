@@ -213,7 +213,7 @@ network.readNet_ = function(buf) {
  * @private
  */
 network.getNet_ = function(file, geneRegex) {
-  console.log(file, geneRegex);
+  console.log('get network', file, geneRegex);
   var result = network.readNetwork_(file);
 
   var nodes = [], nodeKeys = {};
@@ -296,7 +296,7 @@ network.getIncidentEdges_ = function(file, gene) {
  * @private
  */
 network.getComb_ = function(file, exp) {
-  console.log(file, exp);
+  console.log('get combination', file, exp);
   var buf = utils.readFileToBuf(file);
   if (buf == null) {
     console.error('cannot read file', file);
@@ -354,7 +354,9 @@ network.readNetwork_ = function(networkFile) {
   var valueNames = [];
   var lines = fs.readFileSync(networkFile).toString().split('\n');
   lines.forEach(function(line) {
-    if (!validFile) return;
+    if (!validFile) {
+      return;
+    }
     var parts = line.split(/[\t\s]+/);
     var source = parts[0];
     var target = parts[1];
@@ -373,7 +375,7 @@ network.readNetwork_ = function(networkFile) {
     for (var i = 2; i < parts.length; i++) {
       numbers.push(parseFloat(parts[i]));
     }
-    if (nodeId.hasOwnProperty(source)) {
+    if (source in nodeId) {
       nodes[nodeId[source]].isTF = true;
     } else {
       names.push(source);
@@ -384,7 +386,7 @@ network.readNetwork_ = function(networkFile) {
       });
       nodeId[source] = nodes.length - 1;
     }
-    if (!nodeId.hasOwnProperty(target)) {
+    if (!(target in nodeId)) {
       names.push(target);
       nodes.push({
         id: target,

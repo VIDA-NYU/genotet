@@ -18,38 +18,35 @@ genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);
 
 /**
  * Loads the network data, adding the genes given by geneRegex.
- * @param {string} networkName Network name.
+ * @param {string} fileName Network File name.
  * @param {string} geneRegex Regex for gene selection.
  * @override
  */
-genotet.NetworkLoader.prototype.load = function(networkName, geneRegex) {
-  this.loadNetwork_(networkName, geneRegex);
+genotet.NetworkLoader.prototype.load = function(fileName, geneRegex) {
+  this.loadNetwork_(fileName, geneRegex);
 };
 
 /**
  * Implements the network loading ajax call.
- * @param {string} networkName Name of the network.
+ * @param {string} fileName FIle Name of the network.
  * @param {string} geneRegex Regex that selects the gene set.
  * @private
  */
-genotet.NetworkLoader.prototype.loadNetwork_ = function(networkName,
+genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName,
                                                         geneRegex) {
-  this.signal('loadStart');
   var params = {
     type: 'network',
-    networkName: networkName,
+    fileName: fileName,
     geneRegex: geneRegex
   };
-  $.get(genotet.data.serverURL, params, function(data) {
-    // Store the last applied networkName and geneRegex.
+  this.get(genotet.data.serverURL, params, function(data) {
+    // Store the last applied fileName and geneRegex.
     _.extend(data, {
-      networkName: networkName,
+      fileName: fileName,
       geneRegex: geneRegex
     });
     _.extend(this.data, data);
-    this.signal('loadComplete');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot load network', params));
+  }.bind(this), 'cannot load network');
 };
 
 /**
@@ -76,7 +73,7 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
       // Return immediately. No ajax.
       return;
   }
-  this.load(this.data.networkName, regex);
+  this.load(this.data.fileName, regex);
 };
 
 
@@ -126,14 +123,13 @@ genotet.NetworkLoader.prototype.updateGeneRegex_ = function() {
 genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   var params = {
     type: 'incident-edges',
-    networkName: this.data.networkName,
+    fileName: this.data.fileName,
     gene: node.id
   };
-  $.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverURL, params, function(data) {
     this.data.incidentEdges = data;
     this.signal('incidentEdges');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, 'cannot get incident edges', params));
+  }.bind(this), 'cannot get incident edges');
 };
 
 /*

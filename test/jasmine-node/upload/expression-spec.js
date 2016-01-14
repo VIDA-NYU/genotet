@@ -1,4 +1,4 @@
-var FormData = require('form-data');
+var formData = require('form-data');
 
 var server = require('../server.js');
 var chain = require('../chain.js');
@@ -9,7 +9,11 @@ var expressionSpec = {};
 
 /**
  * Data information for expression tests
- * @type {{name: string, description: string, fileName: string}}
+ * @type {{
+ *   name: string,
+ *   description: string,
+ *   fileName: string
+ * }}
  */
 expressionSpec.dataInfo = {
   name: 'expression-1',
@@ -18,15 +22,31 @@ expressionSpec.dataInfo = {
 };
 
 /**
+ * @typedef {{
+ *   geneNames: string,
+ *   conditionNames: string,
+ *   values: !Array<!Array<number>>,
+ *   valueMin: number,
+ *   valueMax: number,
+ *   allValueMin: number,
+ *   allValueMax: number
+ * }}
+ */
+expressionSpec.QueryResponse;
+
+/**
  * Test cases for expression queries
- * @type {*[]}
- * @return {*}
+ * @type {!Array<{
+ *   name: string,
+ *   action: function(!frisby),
+ *   check: Function
+ * }>}
  */
 expressionSpec.tests = [
   {
     name: 'upload expression',
     action: function(frisby) {
-      var form = new FormData();
+      var form = new formData();
       form.append('type', 'expression');
       form.append('name', expressionSpec.dataInfo.name);
       form.append('fileName', expressionSpec.dataInfo.fileName);
@@ -39,14 +59,11 @@ expressionSpec.tests = [
       server
         .postForm(frisby, form)
         .expectStatus(200);
-      return form;
     },
     check: function(body) {
-      var json = JSON.parse(body);
-      describe('upload expression', function() {
-        it('upload response is success', function() {
-          expect(json.success).toBe(true);
-        });
+      var data = /** @type {server.uploadResponse} */(JSON.parse(body));
+      it('without error field', function() {
+        expect(data.error).toBeUndefined();
       });
     }
   },
@@ -59,14 +76,12 @@ expressionSpec.tests = [
     },
     check: function(body) {
       var data = JSON.parse(body);
-      describe('list expression', function() {
-        it('listed expression data', function() {
-          expect(data.length).toBe(1);
-          expect(data[0]).toEqual({
-            matrixName: expressionSpec.dataInfo.name,
-            fileName: expressionSpec.dataInfo.fileName,
-            description: expressionSpec.dataInfo.description
-          });
+      it('listed expression data', function() {
+        expect(data.length).toBe(1);
+        expect(data[0]).toEqual({
+          matrixName: expressionSpec.dataInfo.name,
+          fileName: expressionSpec.dataInfo.fileName,
+          description: expressionSpec.dataInfo.description
         });
       });
     }
@@ -78,35 +93,27 @@ expressionSpec.tests = [
         .get(server.queryURL({
           type: 'expression',
           fileName: expressionSpec.dataInfo.fileName,
-          geneRegex: 'a|b',
-          conditionRegex: '1|2'
+          geneNames: ['a', 'b'],
+          conditionNames: ['cond1', 'cond2']
         }))
         .expectStatus(200);
     },
     check: function(body) {
-      var data = JSON.parse(body);
-      describe('query expression', function() {
-        it('gene names', function() {
-          expect(data.geneNames).toEqual(['a', 'b']);
-        });
+      var data = /** @type {expressionSpec.QueryResponse} */(JSON.parse(body));
+      it('gene names', function() {
+        expect(data.geneNames).toEqual(['a', 'b']);
       });
-      describe('query expression', function() {
-        it('condition names', function() {
-          expect(data.conditionNames).toEqual(['cond1', 'cond2']);
-        });
+      it('condition names', function() {
+        expect(data.conditionNames).toEqual(['cond1', 'cond2']);
       });
-      describe('query expression', function() {
-        it('values', function() {
-          expect(data.values).toEqual([[1, 2], [4, 5]]);
-        });
+      it('values', function() {
+        expect(data.values).toEqual([[1, 2], [4, 5]]);
       });
-      describe('query expression', function() {
-        it('min/max values', function() {
-          expect(data.valueMin).toBe(1);
-          expect(data.valueMax).toBe(5);
-          expect(data.allValueMin).toBe(-1);
-          expect(data.allValueMax).toBe(9);
-        });
+      it('min/max values', function() {
+        expect(data.valueMin).toBe(1);
+        expect(data.valueMax).toBe(5);
+        //expect(data.allValueMin).toBe(-1);
+        //expect(data.allValueMax).toBe(9);
       });
     }
   }

@@ -19,7 +19,7 @@ genotet.ExpressionPanel = function(data) {
     showGeneLabels: true,
     showConditionLabels: true,
     showProfiles: true,
-    showGradient: false,
+    showTfaProfiles: true,
     autoScaleGradient: true
   });
 
@@ -28,6 +28,12 @@ genotet.ExpressionPanel = function(data) {
    * @private {select2}
    */
   this.selectProfiles_ = null;
+
+  /**
+   * Input type for genes and conditions update..
+   * @private {boolean}
+   */
+  this.isRegex_ = true;
 };
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
@@ -67,13 +73,11 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       type: 'visibility',
       attribute: 'showProfiles'
     },
-    /*
     {
-      selector: '#show-gradient',
+      selector: '#show-tfa-profile',
       type: 'visibility',
-      attribute: 'showGradient'
+      attribute: 'showTfaProfiles'
     },
-    */
     {
       selector: '#auto-scale',
       type: 'auto-scale',
@@ -93,26 +97,43 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   this.selectProfiles_
     .on('select2:select', function(event) {
       var geneIndex = event.params.data.element.index;
+      var geneName = event.params.data.text;
       this.signal('addGeneProfile', geneIndex);
     }.bind(this))
     .on('select2:unselect', function(event) {
       var geneIndex = event.params.data.element.index;
+      var geneName = event.params.data.text;
       this.signal('removeGeneProfile', geneIndex);
     }.bind(this));
+
+  // Input type update
+  this.container.find('#regex input').click(function() {
+    this.isRegex_ = true;
+  }.bind(this));
+  this.container.find('#string input').click(function() {
+    this.isRegex_ = false;
+  }.bind(this));
+  this.container.find('#regex input').trigger('click');
 
   // Gene update
   ['setGene', 'addGene', 'removeGene'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
       var input = this.container.find('#genes input');
-      var geneRegex = input.val();
-      if (geneRegex == '') {
+      var geneInput = input.val().toString();
+      if (geneInput == '') {
         genotet.warning('missing input gene selection');
         return;
       }
       input.val('');
+
+      var geneNames = this.formatGeneInput(this.isRegex_, geneInput);
+      if (geneNames.length == 0) {
+        genotet.warning('invalid input gene selection');
+        return;
+      }
       this.signal('update', {
         type: 'gene',
-        regex: geneRegex,
+        names: geneNames,
         method: method
       });
     }.bind(this));
@@ -122,19 +143,34 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   ['setCondition', 'addCondition', 'removeCondition'].forEach(function(method) {
     this.container.find('#conditions #' + method).click(function() {
       var input = this.container.find('#conditions input');
-      var conditionRegex = input.val();
-      if (conditionRegex == '') {
+      var conditionInput = input.val().toString();
+      if (conditionInput == '') {
         genotet.warning('missing input condition selection');
         return;
       }
       input.val('');
+
+      var conditionNames = this.formatConditionInput(this.isRegex_,
+        conditionInput);
+      if (conditionNames.length == 0) {
+        genotet.warning('invalid input condition selection');
+        return;
+      }
       this.signal('update', {
         type: 'condition',
-        regex: conditionRegex,
+        names: conditionNames,
         method: method
       });
     }.bind(this));
   }, this);
+
+  // Zoom out
+  this.container.find('#out').click(function() {
+    if (this.data.zoomStack.length > 0) {
+      var zoomStatus = this.data.zoomStack.pop();
+      this.signal('expressionZoomOut', zoomStatus);
+    }
+  }.bind(this));
 };
 
 /**
@@ -219,3 +255,50 @@ genotet.ExpressionPanel.prototype.displayCellInfo = function(geneName,
     this.hideCellInfo();
   }.bind(this));
 };
+
+/**
+ * @param {boolean} isGeneRegex Gene input type that is regex or string.
+ * @param {string} geneInput Gene input.
+ * @return {!Array<string>} geneNames Names for gene selection.
+ */
+genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
+                                                              geneInput) {
+  var geneNames = [];
+  if (isGeneRegex) {
+    var geneRegex = RegExp(geneInput, 'i');
+    geneNames = Object.keys(this.data.matrixInfo.allGeneNames)
+      .filter(function(geneName) {
+        return geneName.match(geneRegex);
+      });
+  } else {
+    var inputWords = geneInput.split(',');
+    geneNames = inputWords.filter(function(word) {
+      return word in this.data.matrixInfo.allGeneNames;
+    }.bind(this));
+  }
+  return geneNames;
+};
+
+/**
+ * @param {boolean} isConditionRegex Gene input type that is regex or string.
+ * @param {string} conditionInput Condition input.
+ * @return {!Array<string>} conditionNames Names for experiment condition
+ *      selection.
+ */
+genotet.ExpressionPanel.prototype.formatConditionInput =
+  function(isConditionRegex, conditionInput) {
+    var conditionNames = [];
+    if (isConditionRegex) {
+      var conditionRegex = RegExp(conditionInput, 'i');
+      conditionNames = Object.keys(this.data.matrixInfo.allConditionNames)
+        .filter(function(conditionName) {
+          return conditionName.match(conditionRegex);
+        });
+    } else {
+      var inputWords = conditionInput.split(',');
+      conditionNames = inputWords.filter(function(word) {
+        return word in this.data.matrixInfo.allConditionNames;
+      }.bind(this));
+    }
+    return conditionNames;
+  };

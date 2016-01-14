@@ -18,6 +18,18 @@ module.exports = uploader;
 function uploader() {}
 
 /**
+ * Size of a binding entry, one int, one double
+ * @private @const {number}
+ */
+uploader.ENTRY_SIZE_ = 12;
+
+/**
+ * Size of one double, for binding file storage
+ * @private @const {number}
+ */
+uploader.DOUBLE_SIZE_ = 8;
+
+/**
  * Uploads a file or a directory to server.
  * @param {{
  *   type: string,
@@ -31,7 +43,6 @@ function uploader() {}
  * @return {Object} Success or not as a JS Object.
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
-  console.log('hello');
   var source = fs.createReadStream(file.path);
   var dest = fs.createWriteStream(prefix + desc.fileName);
   source.pipe(dest);
@@ -96,7 +107,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       var xr = parseInt(linePart[2], 10);
       var val = parseFloat(linePart[3]);
       //console.log(seg);
-      if (!seg.hasOwnProperty(linePart[0])) {
+      if (!(linePart[0] in seg)) {
         seg[linePart[0]] = [];
       }
       if (xl != lastChrXr[chName] && lastChrXr[chName] > -1) {
@@ -133,13 +144,13 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
 
     for (var chr in seg) {
       var bcwigFile = folder + '/' + bwFile + '_' + chr + '.bcwig';
-      var bcwigBuf = new Buffer(12 * seg[chr].length);
+      var bcwigBuf = new Buffer(uploader.ENTRY_SIZE_ * seg[chr].length);
       for (var i = 0; i < seg[chr].length; i++) {
-        bcwigBuf.writeInt32LE(seg[chr][i].x, i * 12);
-        bcwigBuf.writeDoubleLE(seg[chr][i].value, i * 12 + 4);
+        bcwigBuf.writeInt32LE(seg[chr][i].x, i * uploader.ENTRY_SIZE_);
+        bcwigBuf.writeDoubleLE(seg[chr][i].value, i * uploader.ENTRY_SIZE_ + 4);
       }
       var fd = fs.openSync(bcwigFile, 'w');
-      fs.writeSync(fd, bcwigBuf, 0, 12 * seg[chr].length, 0);
+      fs.writeSync(fd, bcwigBuf, 0, uploader.ENTRY_SIZE_ * seg[chr].length, 0);
       fs.closeSync(fd);
     }
 
@@ -148,9 +159,10 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       var segFile = folder + '/' + bwFile + '_' + chr + '.seg';
       var nodes = [];
       segtree.buildSegmentTree(nodes, seg[chr]);
-      var segBuf = new Buffer(4 + nodes.length * 8);
+      var segBuf = new Buffer(4 + nodes.length * uploader.DOUBLE_SIZE_);
       segBuf.writeInt32LE(nodes.length, 0);
-      for (var i = 0, offset = 4; i < nodes.length; i++, offset += 8) {
+      for (var i = 0, offset = 4; i < nodes.length; i++,
+        offset += uploader.DOUBLE_SIZE_) {
         segBuf.writeDoubleLE(nodes[i], offset);
       }
       var fd = fs.openSync(segFile, 'w');
@@ -177,7 +189,7 @@ uploader.bedSort = function(prefix, bedFile) {
     if (parts[0].indexOf('track') != -1) {
       return;
     }
-    if (!data.hasOwnProperty(parts[0])) {
+    if (!(parts[0] in data)) {
       data[parts[0]] = [];
     }
     data[parts[0]].push({
@@ -193,6 +205,9 @@ uploader.bedSort = function(prefix, bedFile) {
     fs.mkdirSync(folder);
     for (var chr in data) {
       data[chr].sort(function(a, b) {
+        if (a.chrStart == b.chrStart) {
+          return a.chrEnd - b.chrEnd;
+        }
         return a.chrStart - b.chrStart;
       });
       var chrFileName = folder + '/' + bedFile + '_' + chr;

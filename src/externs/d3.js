@@ -59,6 +59,11 @@ d3.prototype.remove = function() {};
 d3.prototype.empty = function() {};
 
 /**
+ * @param {!d3|Function} selector
+ */
+d3.prototype.filter = function(selector) {};
+
+/**
  * @param {!Array<*>} arg
  * @param {Function=} opt_mapping
  */
@@ -79,7 +84,7 @@ d3.prototype.classed = function(classes, val) {};
 d3.prototype.style = function(prop, opt_val) {};
 
 /**
- * @param {string} prop
+ * @param {string|!Object} prop
  * @param {(string|number)=} opt_val
  * @return {!d3|string|number|null}
  */
@@ -106,6 +111,11 @@ d3.prototype.append = function(tag) {};
  * @param {!d3.zoom} arg
  */
 d3.prototype.call = function(arg) {};
+
+/**
+ * @return {Element}
+ */
+d3.prototype.node = function() {};
 
 /** @const */
 d3.svg = {};

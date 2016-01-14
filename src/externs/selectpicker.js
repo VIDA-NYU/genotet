@@ -3,6 +3,6 @@
  */
 
 /**
- * @param {Object|string|null=} opt_params
+ * @param {Object=} opt_params
  */
 jQuery.prototype.selectpicker = function(opt_params) {};

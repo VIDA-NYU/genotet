@@ -8,6 +8,18 @@
 genotet.dialog = {};
 
 /**
+ * Gene input type that is regex or string.
+ * @private {boolean}
+ */
+genotet.dialog.isGeneRegex_ = true;
+
+/**
+ * Condition input type that is regex or string.
+ * @private {boolean}
+ */
+genotet.dialog.isConditionRegex_ = true;
+
+/**
  * Template paths.
  * @private {!Object<string>}
  */
@@ -125,7 +137,6 @@ genotet.dialog.createNetwork_ = function() {
               .text(network.networkName)
               .appendTo(selectpicker);
           });
-          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get network list');
@@ -217,18 +228,43 @@ genotet.dialog.createExpression_ = function() {
               .text(matrix.matrixName)
               .appendTo(selectpicker);
           });
-          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get expression list');
         });
+
+      // Choose input type of gene and condition.
+      modal.find('#gene-input-regex input')
+        .on('click', function() {
+          genotet.dialog.isGeneRegex_ = true;
+        })
+        .trigger('click');
+      modal.find('#gene-input-string input')
+        .on('click', function() {
+          genotet.dialog.isGeneRegex_ = false;
+        });
+      modal.find('#condition-input-regex input')
+        .on('click', function() {
+          genotet.dialog.isCondtionRegex_ = true;
+        })
+        .trigger('click');
+      modal.find('#condition-input-string input')
+        .on('click', function() {
+          genotet.dialog.isCondtionRegex_ = false;
+        });
+
       // Create
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
+        var geneInput = modal.find('#gene-regex').val();
+        var conditionInput = modal.find('#cond-regex').val();
         genotet.viewManager.createView('expression', viewName, {
           matrixName: modal.find('#matrix').val(),
-          geneRegex: modal.find('#gene-regex').val(),
-          condRegex: modal.find('#cond-regex').val()
+          dataName: modal.find('.selectpicker').selectpicker(),
+          isGeneRegex: genotet.dialog.isGeneRegex_,
+          isConditionRegex: genotet.dialog.isConditionRegex_,
+          geneInput: geneInput,
+          conditionInput: conditionInput
         });
       });
     });
