@@ -47,7 +47,7 @@ bedSpec.tests = [
         .expectStatus(200);
     },
     check: function(body) {
-      var data = /** @type {server.uploadResponse} */(JSON.parse(body));
+      var data = /** @type {server.UploadResponse} */(JSON.parse(body));
       it('without error field', function() {
         expect(data.error).toBeUndefined();
       });

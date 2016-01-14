@@ -23,7 +23,7 @@ server.uploadURL = 'http://localhost:3000/genotet/upload';
  *   error: {type: string, message: string}
  * }}
  */
-server.uploadResponse;
+server.UploadResponse;
 
 /**
  * Gets a query string.

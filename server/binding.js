@@ -133,13 +133,13 @@ binding.query.list = function(wigglePath) {
 binding.DEFAULT_NUM_SAMPLES_ = 1000;
 
 /**
- * Size of one int, one double, for binding data storage
+ * Size of one int, one double, for binding data storage.
  * @private @const {number}
  */
 binding.ENTRY_SIZE_ = 12;
 
 /**
- * Size of one double, for binding file storage
+ * Size of one double, for binding file storage.
  * @private @const {number}
  */
 binding.DOUBLE_SIZE_ = 8;
@@ -546,10 +546,10 @@ binding.listBindingGenes_ = function(wigglePath) {
 };
 
 /**
- * Gets gene name for a specific binding file
- * @param {string} wigglePath Path to the wiggle folder
- * @param {string} fileName File name of the wiggle file
- * @return {string} the gene name
+ * Gets gene name for a specific binding file.
+ * @param {string} wigglePath Path to the wiggle folder.
+ * @param {string} fileName File name of the wiggle file.
+ * @return {string} the gene name.
  * @private
  */
 binding.getGene_ = function(wigglePath, fileName) {

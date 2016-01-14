@@ -18,13 +18,13 @@ module.exports = uploader;
 function uploader() {}
 
 /**
- * Size of a binding entry, one int, one double
+ * Size of a binding entry, one int, one double.
  * @private @const {number}
  */
 uploader.ENTRY_SIZE_ = 12;
 
 /**
- * Size of one double, for binding file storage
+ * Size of one double, for binding file storage.
  * @private @const {number}
  */
 uploader.DOUBLE_SIZE_ = 8;
