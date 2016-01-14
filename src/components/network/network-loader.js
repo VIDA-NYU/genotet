@@ -12,6 +12,12 @@
  */
 genotet.NetworkLoader = function(data) {
   genotet.NetworkLoader.base.constructor.call(this, data);
+
+  _.extend(this.data, {
+    network: null,
+    incidentEdges: null,
+    geneRegex: null
+  });
 };
 
 genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);
@@ -45,7 +51,7 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName,
       fileName: fileName,
       geneRegex: geneRegex
     });
-    _.extend(this.data, data);
+    this.data.network = data;
   }.bind(this), 'cannot load network');
 };
 
@@ -130,6 +136,41 @@ genotet.NetworkLoader.prototype.incidentEdges = function(node) {
     this.data.incidentEdges = data;
     this.signal('incidentEdges');
   }.bind(this), 'cannot get incident edges');
+};
+
+genotet.NetworkLoader.prototype.addOneGene = function(node) {
+  var params = {
+    type: 'add-gene',
+    fileName: this.data.fileName,
+    gene: node.id
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    this.data.network.nodes.push({
+      id: node.id,
+      name: node.id,
+      isTF: data.isTF
+    });
+    for (var edge in data.edges) {
+      this.data.network.edges.push(edge);
+    }
+  }.bind(this), 'cannot add one gene');
+};
+
+genotet.NetworkLoader.prototype.deleteOneGene = function(gene) {
+  // delete the node
+  for (var i = 0; i < this.data.nodes.length; i++) {
+    if (this.data.nodes[i].id == gene) {
+      this.data.nodes.splice(i);
+      break;
+    }
+  }
+  // delete the edges
+  for (var i = this.data.edges.length - 1; i >= 0; i--) {
+    if (this.data.edges[i].source == gene ||
+      this.data.edges[i].target == gene) {
+      this.data.edges.splice(i);
+    }
+  }
 };
 
 /*

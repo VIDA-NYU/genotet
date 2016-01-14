@@ -4,6 +4,37 @@
 
 'use strict';
 
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   isTF: boolean
+ * }}
+ */
+genotet.NetworkNode;
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   source: string,
+ *   target: string,
+ *   weight: !Array<number>
+ * }}
+ */
+genotet.NetworkEdge;
+
+/**
+ * @typedef {{
+ *   numNodes: number,
+ *   numEdges: number,
+ *   nodes: !Array<!genotet.NetworkNode>,
+ *   edges: !Array<!genotet.NetworkEdge>,
+ *   names: !Array<string>
+ * }}
+ */
+genotet.NetworkData;
+
 /**
  * NetworkView extends the base View class, and renders the regulatory network
  * topology.
@@ -28,6 +59,8 @@ genotet.NetworkView = function(viewName, params) {
     showTFToNonTF: true
   };
 
+  /** @protected {genotet.NetworkData} */
+  this.data.network;
 
   this.container.addClass('network');
 

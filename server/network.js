@@ -131,7 +131,7 @@ network.query.combinedRegulation = function(query, networkPath) {
 /**
  * @param {!network.query.AddGene} query
  * @param {string} networkPath
- * @returns {!Array<!network.Edge>}
+ * @return {!Array<!network.Edge>}
  */
 network.query.addGene = function(query, networkPath) {
   var fileName = query.fileName;
@@ -448,7 +448,7 @@ network.listNetwork_ = function(networkPath) {
  * @param {string} file Network file path
  * @param {string} gene Gene to add to the graph
  * @param {!Array<!network.Node>} nodes Nodes that already in the original graph
- * @returns {!Array<!network.Edge>} Edges connecting the new gene and original graph
+ * @return {!Array<!network.Edge>} Edges between the new gene and original graph
  * @private
  */
 network.addGene_ = function(file, gene, nodes) {
