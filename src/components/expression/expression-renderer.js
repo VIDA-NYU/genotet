@@ -200,12 +200,12 @@ genotet.ExpressionRenderer.Profile = function(params) {
 /**
  * Zoom status object storing the status of expression matrix.
  * @param {{
- *   matrixName: (?string),
+ *   fileName: (?string),
  *   dataName: (?string|undefined),
  *   geneNames: (!Array<string>),
  *   conditionNames: (!Array<string>)
  * }} params
- *     matrixName: Matrix name of the expression.
+ *     fileName: Matrix name of the expression.
  *     dataName: Data name of the expression.
  *     geneNames: Names for gene selection.
  *     conditionNames: Names for experiment condition selection.
@@ -214,7 +214,7 @@ genotet.ExpressionRenderer.Profile = function(params) {
  */
 genotet.ExpressionRenderer.ZoomStatus = function(params) {
   /** @type {?string} */
-  this.matrixName = params.matrixName != null ? params.matrixName : null;
+  this.fileName = params.fileName != null ? params.fileName : null;
 
   /** @type {?string} */
   this.dataName = params.dataName != null ? params.dataName : null;
@@ -860,7 +860,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         };
         var zoomStatus = this.zoomDataLoaded_(zoomParams);
         var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
-          matrixName: heatmapData.matrixName,
+          fileName: heatmapData.fileName,
           geneNames: heatmapData.geneNames,
           conditionNames: heatmapData.conditionNames
         });
@@ -1435,7 +1435,7 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
 genotet.ExpressionRenderer.prototype.zoomDataLoaded_ = function(params) {
   var heatmapData = this.data.matrix;
   var zoomStatus = new genotet.ExpressionRenderer.ZoomStatus({
-    matrixName: heatmapData.matrixName,
+    fileName: heatmapData.fileName,
     geneNames: heatmapData.geneNames.slice(params.rowStart, params.rowEnd + 1),
     conditionNames: heatmapData.conditionNames.slice(params.columnStart,
       params.columnEnd + 1)

@@ -26,11 +26,10 @@ genotet.NetworkEdge;
 
 /**
  * @typedef {{
- *   numNodes: number,
- *   numEdges: number,
  *   nodes: !Array<!genotet.NetworkNode>,
  *   edges: !Array<!genotet.NetworkEdge>,
- *   names: !Array<string>
+ *   weightMin: number,
+ *   weightMax: number
  * }}
  */
 genotet.NetworkData;
@@ -93,6 +92,12 @@ genotet.NetworkView = function(viewName, params) {
         break;
       case 'gene':
         this.loader.updateGenes(data.method, data.regex);
+        break;
+      case 'add-gene':
+        this.loader.addOneGene(data.node);
+        break;
+      case 'delete-gene':
+        this.loader.deleteOneGene(data.gene);
         break;
       default:
         genotet.error('unknown update type', data.type);

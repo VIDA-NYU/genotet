@@ -30,35 +30,35 @@ genotet.utils.inherit(genotet.ExpressionLoader, genotet.ViewLoader);
 
 /**
  * Loads the expression matrix data, with given gene and condition selectors.
- * @param {string} matrixName Name of the expression matrix.
+ * @param {string} fileName Name of the expression matrix.
  * @param {string} dataName Name of the expression matrix data file.
  * @param {!Array<string>} geneNames Names for gene selection.
  * @param {!Array<string>} conditionNames Names for experiment condition
  *      selection.
  * @override
  */
-genotet.ExpressionLoader.prototype.load = function(matrixName, dataName,
+genotet.ExpressionLoader.prototype.load = function(fileName, dataName,
                                                    geneNames, conditionNames) {
-  this.loadExpressionMatrix_(matrixName, dataName, geneNames, conditionNames);
+  this.loadExpressionMatrix_(fileName, dataName, geneNames, conditionNames);
 };
 
 /**
  * Implements the expression matrix loading ajax call. Since the matrix may
  * contain a large number of entries, we use GET request.
- * @param {string} matrixName Name of the expression matrix.
+ * @param {string} fileName Name of the expression matrix.
  * @param {string} dataName Name of the expression matrix data file.
  */
 genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo =
-  function(matrixName, dataName) {
+  function(fileName, dataName) {
     var params = {
       type: 'expression-info',
-      matrixName: matrixName
+      fileName: fileName
     };
 
     this.get(genotet.data.serverURL, params, function(data) {
         // Store the last applied data selectors.
         _.extend(data, {
-          matrixName: matrixName
+          fileName: fileName
         });
 
         if (Object.keys(data.allGeneNames).length == 0) {
@@ -78,7 +78,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo =
 /**
  * Implements the expression matrix loading ajax call. Since the matrix may
  * contain a large number of entries, we use GET request.
- * @param {string} matrixName Name of the expression matrix.
+ * @param {string} fileName Name of the expression matrix.
  * @param {string} dataName Name of the expression matrix data file.
  * @param {!Array<string>} geneNames Names for gene selection.
  * @param {!Array<string>} conditionNames Names for experiment condition
@@ -86,10 +86,10 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo =
  * @private
  */
 genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
-  function(matrixName, dataName, geneNames, conditionNames) {
+  function(fileName, dataName, geneNames, conditionNames) {
     var params = {
       type: 'expression',
-      matrixName: matrixName,
+      fileName: fileName,
       geneNames: geneNames,
       conditionNames: conditionNames
     };
@@ -97,7 +97,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
     this.get(genotet.data.serverURL, params, function(data) {
         // Store the last applied data selectors.
         _.extend(data, {
-          matrixName: matrixName,
+          fileName: fileName,
           dataName: 'b-subtilis'
         });
 
@@ -122,14 +122,14 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
         this.data.matrixGeneNameDict = matrixGeneNameDict;
         this.data.matrixConditionNameDict = matrixConditionNameDict;
 
-        this.loadTfaData_(matrixName, dataName, geneNames, conditionNames);
+        this.loadTfaData_(fileName, dataName, geneNames, conditionNames);
       }.bind(this), 'cannot load expression matrix');
   };
 
 /**
  * Implements the TFA data loading ajax call.
  * Since the matrix may contain a large number of entries, we use GET request.
- * @param {string} matrixName Name of the expression matrix.
+ * @param {string} fileName Name of the expression matrix.
  * @param {string} dataName Name of the expression matrix data file.
  * @param {!Array<string>} geneNames Names for gene selection.
  * @param {!Array<string>} conditionNames Names for experiment condition
@@ -137,10 +137,10 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ =
  * @private
  */
 genotet.ExpressionLoader.prototype.loadTfaData_ =
-  function(matrixName, dataName, geneNames, conditionNames) {
+  function(fileName, dataName, geneNames, conditionNames) {
     var tfaParams = {
       type: 'expression-profile',
-      matrixName: 'b-subtilis',
+      fileName: 'b-subtilis',
       geneNames: geneNames,
       conditionNames: conditionNames
     };
@@ -162,15 +162,15 @@ genotet.ExpressionLoader.prototype.loadTfaData_ =
 /**
  * Updates the genes in the current expression.
  * @param {string} method Update method, either 'set' or 'add'.
- * @param {string} matrixName Matrix name of the expression.
+ * @param {string} fileName Matrix name of the expression.
  * @param {!Array<string>} names Names that selects the genes or conditions
  *      to be updated.
  */
-genotet.ExpressionLoader.prototype.update = function(method, matrixName,
+genotet.ExpressionLoader.prototype.update = function(method, fileName,
                                                      names) {
   var heatmapData = this.data.matrix;
   var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
-    matrixName: heatmapData.matrixName,
+    fileName: heatmapData.fileName,
     dataName: heatmapData.dataName,
     geneNames: heatmapData.geneNames,
     conditionNames: heatmapData.conditionNames
@@ -211,7 +211,7 @@ genotet.ExpressionLoader.prototype.update = function(method, matrixName,
     }
   }, this);
   var zoomStatus = this.data.zoomStack.pop();
-  this.load(zoomStatus.matrixName, zoomStatus.dataName, zoomStatus.geneNames,
+  this.load(zoomStatus.fileName, zoomStatus.dataName, zoomStatus.geneNames,
     zoomStatus.conditionNames);
 };
 

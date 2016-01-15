@@ -66,7 +66,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
 
 /** @inheritDoc */
 genotet.NetworkPanel.prototype.dataLoaded = function() {
-  this.container.find('#network input').val(this.data.networkName);
+  this.container.find('#network input').val(this.data.fileName);
 };
 
 /**

@@ -134,9 +134,10 @@ genotet.dialog.createNetwork_ = function() {
           var selectpicker = modal.find('.selectpicker');
           data.forEach(function(network) {
             $('<option></option>')
-              .text(network.networkName)
+              .text(network.fileName)
               .appendTo(selectpicker);
           });
+          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get network list');
@@ -146,7 +147,7 @@ genotet.dialog.createNetwork_ = function() {
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
         genotet.viewManager.createView('network', viewName, {
-          networkName: modal.find('#network').val(),
+          fileName: modal.find('#network').val(),
           geneRegex: modal.find('#geneRegex').val()
         });
       });
@@ -175,19 +176,19 @@ genotet.dialog.createBinding_ = function() {
       modal.find('#chr').select2({
         data: chrs
       });
-      var genes = [];
+      var fileNames = [];
       var params = {
         type: 'list-binding'
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(bindingFile) {
-            genes.push({
-              id: bindingFile.gene,
-              text: bindingFile.gene
+            fileNames.push({
+              id: bindingFile.fileName,
+              text: bindingFile.fileName
             });
           });
           modal.find('#gene').select2({
-            data: genes
+            data: fileNames
           });
         }.bind(this), 'jsonp')
         .fail(function() {
@@ -198,7 +199,7 @@ genotet.dialog.createBinding_ = function() {
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
         genotet.viewManager.createView('binding', viewName, {
-          gene: modal.find('#gene').val(),
+          fileName: modal.find('#gene').val(),
           chr: modal.find('#chr').val()
         });
       });
@@ -225,9 +226,10 @@ genotet.dialog.createExpression_ = function() {
           var selectpicker = modal.find('.selectpicker');
           data.forEach(function(matrix) {
             $('<option></option>')
-              .text(matrix.matrixName)
+              .text(matrix.fileName)
               .appendTo(selectpicker);
           });
+          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get expression list');
@@ -259,7 +261,7 @@ genotet.dialog.createExpression_ = function() {
         var geneInput = modal.find('#gene-regex').val();
         var conditionInput = modal.find('#cond-regex').val();
         genotet.viewManager.createView('expression', viewName, {
-          matrixName: modal.find('#matrix').val(),
+          fileName: modal.find('#matrix').val(),
           dataName: modal.find('.selectpicker').selectpicker(),
           isGeneRegex: genotet.dialog.isGeneRegex_,
           isConditionRegex: genotet.dialog.isConditionRegex_,

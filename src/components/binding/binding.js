@@ -6,7 +6,7 @@
 
 /**
  * @typedef {{
- *   gene: string,
+ *   fileName: string,
  *   overview: !Array,
  *   detail: !Array,
  *   xMin: number,
@@ -67,7 +67,7 @@ genotet.BindingView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.gene, params.chr);
+    this.loader.load(params.fileName, params.chr);
   }.bind(this));
 
   $(this.renderer)
@@ -96,12 +96,12 @@ genotet.BindingView = function(viewName, params) {
       this.loader.loadTrackDetail(range[0], range[1]);
       this.renderer.zoomTransform(range);
     }.bind(this))
-    .on('genotet.locus', function(event, gene) {
-      if (!gene) {
+    .on('genotet.locus', function(event, fileName) {
+      if (!fileName) {
         genotet.warning('please enter gene name');
         return;
       }
-      this.loader.findLocus(gene);
+      this.loader.findLocus(fileName);
     }.bind(this))
     .on('genotet.chr', function(event, chr) {
       this.loader.switchChr(chr);
@@ -112,7 +112,7 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.addTrack', function() {
       var track = this.data.tracks.slice(-1).pop();
-      this.loader.loadFullTrack(this.data.tracks.length, track.gene,
+      this.loader.loadFullTrack(this.data.tracks.length, track.fileName,
           this.data.chr);
     }.bind(this))
     .on('genotet.removeTrack', function(event, trackIndex) {
@@ -121,8 +121,8 @@ genotet.BindingView = function(viewName, params) {
       this.panel.updateTracks();
     }.bind(this))
     .on('genotet.gene', function(event, data) {
-      this.data.tracks[data.trackIndex].gene = data.gene;
-      this.loader.loadFullTrack(data.trackIndex, data.gene, this.data.chr);
+      this.data.tracks[data.trackIndex].fileName = data.fileName;
+      this.loader.loadFullTrack(data.trackIndex, data.fileName, this.data.chr);
     }.bind(this));
 
   $(this.loader)

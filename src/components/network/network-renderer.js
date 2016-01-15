@@ -74,14 +74,6 @@ genotet.NetworkRenderer = function(container, data) {
   this.zoomScale_ = 1.0;
   /** @private {genotet.NetworkRenderer.MouseState} */
   this.mouseState_ = genotet.NetworkRenderer.MouseState.NONE;
-
-  /**
-   * @protected {{
-   *   weightMin: number,
-   *   weightMax: number
-   * }}
-   */
-  this.data;
 };
 
 genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
@@ -231,7 +223,7 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
 
 /** @inheritDoc */
 genotet.NetworkRenderer.prototype.dataReady = function() {
-  return this.data.nodes != null;
+  return this.data.network.nodes != null;
 };
 
 
@@ -241,7 +233,7 @@ genotet.NetworkRenderer.prototype.dataReady = function() {
  */
 genotet.NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
-    .domain([this.data.weightMin, this.data.weightMax])
+    .domain([this.data.network.weightMin, this.data.network.weightMax])
     .range(genotet.data.redBlueScale);
 
   // Store which nodes exist in the new data.
@@ -249,7 +241,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
   // a new position.
   var nodeIds = {};
 
-  this.data.nodes.forEach(function(node) {
+  this.data.network.nodes.forEach(function(node) {
     if (!this.nodes_[node.id]) {
       this.nodes_[node.id] = _.extend({}, node);
     }
@@ -263,7 +255,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
 
   // Edges do not have position data to keep. Simply reset.
   this.edges_ = {};
-  this.data.edges.forEach(function(edge) {
+  this.data.network.edges.forEach(function(edge) {
     if (!this.nodes_[edge.source] || !this.nodes_[edge.target]) {
       genotet.error('edge contains nodes that do not exist',
           JSON.stringify(edge));

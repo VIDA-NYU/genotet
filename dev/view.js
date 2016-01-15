@@ -12,19 +12,21 @@ genotet.test = function() {
   // e.g. the following lines create a few views.
 
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
-    matrixName: 'expressionMatrix',
+    fileName: 'expressionMatrix',
     dataName: 'b-subtilis',
     isGeneRegex: true,
     isConditionRegex: true,
     geneInput: 'sig.*',
     conditionInput: 'si.*'
   });
+  /*
   genotet.viewManager.createView('binding', 'My Genome Browser', {
-    gene: 'SL3037_SL3036',
+    fileName: 'SL3037_SL3036',
     chr: '1'
   });
+  */
   genotet.viewManager.createView('network', 'My Network', {
-    networkName: 'meishei.tsv',
+    fileName: 'meishei.tsv',
     geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
   });
 };

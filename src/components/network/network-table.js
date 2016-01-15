@@ -19,6 +19,7 @@ genotet.NetworkTable = function(data) {
  * container.
  * @param {!jQuery} table Table element as container.
  * @param {!Array<{
+ *   id: string,
  *   source: string,
  *   target: string,
  *   weight: number,
@@ -28,7 +29,7 @@ genotet.NetworkTable = function(data) {
  */
 genotet.NetworkTable.prototype.create = function(table, edges) {
   var edgeIds = {};
-  this.data.edges.forEach(function(edge) {
+  this.data.network.edges.forEach(function(edge) {
     edgeIds[edge.id] = true;
   });
   edges.forEach(function(edge) {

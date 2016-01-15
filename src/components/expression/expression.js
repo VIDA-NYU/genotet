@@ -58,7 +58,7 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.loadExpressionMatrixInfo(params.matrixName, params.dataName);
+    this.loader.loadExpressionMatrixInfo(params.fileName, params.dataName);
   }.bind(this));
 
   // Format gene and condition input to list.
@@ -67,7 +67,7 @@ genotet.ExpressionView = function(viewName, params) {
       params.geneInput);
     var conditionNames = this.panel.formatConditionInput(
       params.isConditionRegex, params.conditionInput);
-    this.loader.load(params.matrixName, params.dataName, geneNames,
+    this.loader.load(params.fileName, params.dataName, geneNames,
       conditionNames);
   }.bind(this));
 
@@ -82,10 +82,10 @@ genotet.ExpressionView = function(viewName, params) {
           this.renderer.render();
           break;
         case 'gene':
-          this.loader.update(data.method, params.matrixName, data.names);
+          this.loader.update(data.method, params.fileName, data.names);
           break;
         case 'condition':
-          this.loader.update(data.method, params.matrixName, data.names);
+          this.loader.update(data.method, params.fileName, data.names);
           break;
         case 'auto-scale':
           this.renderer.render();
@@ -138,12 +138,12 @@ genotet.ExpressionView = function(viewName, params) {
   // Zoom in and out in expression.
   $(this.renderer)
     .on('genotet.expressionZoomIn', function(event, zoomStatus) {
-      this.loader.load(zoomStatus.matrixName, zoomStatus.dataName,
+      this.loader.load(zoomStatus.fileName, zoomStatus.dataName,
         zoomStatus.geneNames, zoomStatus.conditionNames);
     }.bind(this));
   $(this.panel)
     .on('genotet.expressionZoomOut', function(event, zoomStatus) {
-      this.loader.load(zoomStatus.matrixName, zoomStatus.dataName,
+      this.loader.load(zoomStatus.fileName, zoomStatus.dataName,
         zoomStatus.geneNames, zoomStatus.conditionNames);
     }.bind(this));
 

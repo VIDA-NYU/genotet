@@ -16,7 +16,8 @@ genotet.NetworkLoader = function(data) {
   _.extend(this.data, {
     network: null,
     incidentEdges: null,
-    geneRegex: null
+    geneRegex: null,
+    options: null
   });
 };
 
@@ -96,10 +97,10 @@ genotet.NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
     genotet.error('invalid gene regex', geneRegex);
     return;
   }
-  this.data.nodes = _.filter(this.data.nodes, function(node) {
+  this.data.network.nodes = _.filter(this.data.network.nodes, function(node) {
     return !node.id.match(regex);
   });
-  this.data.edges = _.filter(this.data.edges, function(edge) {
+  this.data.network.edges = _.filter(this.data.network.edges, function(edge) {
     return !edge.source.match(regex) && !edge.target.match(regex);
   });
 
@@ -116,8 +117,8 @@ genotet.NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
  */
 genotet.NetworkLoader.prototype.updateGeneRegex_ = function() {
   var regex = '';
-  this.data.nodes.forEach(function(node, index) {
-    regex += node.id + (index == this.data.nodes.length - 1 ? '' : '|');
+  this.data.network.nodes.forEach(function(node, index) {
+    regex += node.id + (index == this.data.network.nodes.length - 1 ? '' : '|');
   }, this);
   this.data.geneRegex = regex;
 };
@@ -138,16 +139,20 @@ genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   }.bind(this), 'cannot get incident edges');
 };
 
-genotet.NetworkLoader.prototype.addOneGene = function(node) {
+/**
+ * Adds one gene to the network, and the edges to the original graph
+ * @param {string} gene Name of the gene
+ */
+genotet.NetworkLoader.prototype.addOneGene = function(gene) {
   var params = {
     type: 'add-gene',
     fileName: this.data.fileName,
-    gene: node.id
+    gene: gene
   };
   this.get(genotet.data.serverURL, params, function(data) {
     this.data.network.nodes.push({
-      id: node.id,
-      name: node.id,
+      id: gene,
+      name: gene,
       isTF: data.isTF
     });
     for (var edge in data.edges) {
@@ -156,19 +161,23 @@ genotet.NetworkLoader.prototype.addOneGene = function(node) {
   }.bind(this), 'cannot add one gene');
 };
 
+/**
+ * Delete one gene from graph and related edges
+ * @param {string} gene Name of the gene
+ */
 genotet.NetworkLoader.prototype.deleteOneGene = function(gene) {
   // delete the node
-  for (var i = 0; i < this.data.nodes.length; i++) {
-    if (this.data.nodes[i].id == gene) {
-      this.data.nodes.splice(i);
+  for (var i = 0; i < this.data.network.nodes.length; i++) {
+    if (this.data.network.nodes[i].id == gene) {
+      this.data.network.nodes.splice(i);
       break;
     }
   }
   // delete the edges
-  for (var i = this.data.edges.length - 1; i >= 0; i--) {
-    if (this.data.edges[i].source == gene ||
-      this.data.edges[i].target == gene) {
-      this.data.edges.splice(i);
+  for (var i = this.data.network.edges.length - 1; i >= 0; i--) {
+    if (this.data.network.edges[i].source == gene ||
+      this.data.network.edges[i].target == gene) {
+      this.data.network.edges.splice(i);
     }
   }
 };
