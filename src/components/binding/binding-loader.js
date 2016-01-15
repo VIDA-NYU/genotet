@@ -116,7 +116,6 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
 
 /**
  * Loads the bed data of a single binding track.
- * @param {string} bedName Name of the bed track data.
  * @param {string} chr Chromosome.
  * @param {number|undefined} xl Left coordinate of the query range.
  *   If null, use the leftmost coordinate of the track.
