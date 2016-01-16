@@ -17,6 +17,18 @@ genotet.bindingTrack;
 
 /**
  * @typedef {{
+ *   aggregated: boolean,
+ *   motifs: !Array<{
+ *     chrStart: number,
+ *     chrEnd: number,
+ *     label: (string|undefined)
+ *   }>
+ * }}
+ */
+genotet.Bed;
+
+/**
+ * @typedef {{
  *   name: string,
  *   name2: string,
  *   txStart: number,
@@ -33,6 +45,8 @@ genotet.Exon;
  *   overviewXMin: number,
  *   overviewXMax: number,
  *   tracks: !Array<!genotet.bindingTrack>,
+ *   bed: !genotet.Bed,
+ *   bedName: string,
  *   exons: !Array<!genotet.Exon>
  * }}
  */
