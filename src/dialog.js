@@ -143,12 +143,24 @@ genotet.dialog.createNetwork_ = function() {
           genotet.error('failed to get network list');
         });
 
+      // Choose input type of gene and condition.
+      modal.find('#gene-input-regex input')
+        .on('click', function() {
+          genotet.dialog.isGeneRegex_ = true;
+        })
+        .trigger('click');
+      modal.find('#gene-input-string input')
+        .on('click', function() {
+          genotet.dialog.isGeneRegex_ = false;
+        });
+
       // Create
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
         genotet.viewManager.createView('network', viewName, {
           fileName: modal.find('#network').val(),
-          geneRegex: modal.find('#geneRegex').val()
+          inputGene: modal.find('#geneRegex').val(),
+          isRegex: genotet.dialog.isGeneRegex_
         });
       });
     });

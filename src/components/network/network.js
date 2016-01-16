@@ -77,7 +77,7 @@ genotet.NetworkView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.fileName, params.geneRegex);
+    this.loader.loadNetworkInfo(params.fileName);
   }.bind(this));
 
   // Set up rendering update.
@@ -91,13 +91,16 @@ genotet.NetworkView = function(viewName, params) {
         this.renderer.update();
         break;
       case 'gene':
-        this.loader.updateGenes(data.method, data.regex);
+        this.loader.updateGenes(data.method, data.inputGene, data.isRegex);
+        this.renderer.update();
         break;
-      case 'add-gene':
-        this.loader.addOneGene(data.node);
+      case 'add-edge':
+        this.loader.addOneEdge(data.source, data.target, data.weight);
+        this.renderer.update();
         break;
-      case 'delete-gene':
-        this.loader.deleteOneGene(data.gene);
+      case 'delete-edge':
+        this.loader.deleteOneEdge(data.source, data.target);
+        this.renderer.update();
         break;
       default:
         genotet.error('unknown update type', data.type);
@@ -106,6 +109,9 @@ genotet.NetworkView = function(viewName, params) {
 
   // Gene removal update.
   $(this.loader)
+    .on('genotet.infoLoaded', function() {
+      this.loader.load(params.fileName, params.inputGene, params.isRegex);
+    }.bind(this))
     .on('genotet.geneRemove', function() {
       this.renderer.dataLoaded();
     }.bind(this))

@@ -27,6 +27,7 @@ genotet.test = function() {
   */
   genotet.viewManager.createView('network', 'My Network', {
     fileName: 'meishei.tsv',
-    geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
+    inputGene: 'BATF|RORC|STAT3|IRF4|MAF',
+    isRegex: true
   });
 };

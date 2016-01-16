@@ -190,6 +190,9 @@ app.get('/genotet', function(req, res) {
     case 'network':
       data = network.query.network(query, networkPath);
       break;
+    case 'network-info':
+      data = network.query.networkInfo(query, networkPath);
+      break;
     case 'incident-edges':
       data = network.query.incidentEdges(query, networkPath);
       break;

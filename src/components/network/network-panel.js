@@ -45,20 +45,30 @@ genotet.NetworkPanel.prototype.initPanel = function() {
         }.bind(this));
   }, this);
 
+  // Input type update
+  this.container.find('#regex input').click(function() {
+    this.isRegex_ = true;
+  }.bind(this));
+  this.container.find('#string input').click(function() {
+    this.isRegex_ = false;
+  }.bind(this));
+  this.container.find('#regex input').trigger('click');
+
   // Gene update
   ['set', 'add', 'remove'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
       var input = this.container.find('#genes input');
-      var geneRegex = input.val();
-      if (geneRegex == '') {
+      var inputGene = input.val();
+      if (inputGene == '') {
         genotet.warning('missing input gene selection');
         return;
       }
       input.val('');
       this.signal('update', {
         type: 'gene',
-        regex: geneRegex,
-        method: method
+        inputGene: inputGene,
+        method: method,
+        isRegex: this.isRegex_
       });
     }.bind(this));
   }, this);
@@ -137,6 +147,14 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
     .text(edge.target.label);
   container.children('#weight').children('span')
     .text(edge.weight);
+  container.children('#rm-edge').click(function() {
+    this.signal('update', {
+      type: 'add-edge',
+      source: edge.source.label,
+      target: edge.target.label,
+      weight: edge.weight
+    });
+  });
 };
 
 /**

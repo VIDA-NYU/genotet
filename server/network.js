@@ -59,7 +59,7 @@ network.query = {};
 /**
  * @typedef {{
  *   fileName: string,
- *   geneRegex: string
+ *   genes: !Array<string>
  * }}
  */
 network.query.Network;
@@ -89,6 +89,13 @@ network.query.CombinedRegulation;
  */
 network.query.AddGene;
 
+/**
+ * @typedef {{
+ *  fileName: string
+ * }}
+ */
+network.query.NetworkInfo;
+
 // Start public APIs
 /**
  * @param {!network.query.Network} query
@@ -97,10 +104,8 @@ network.query.AddGene;
  */
 network.query.network = function(query, networkPath) {
   var fileName = query.fileName;
-  var geneRegex = utils.decodeSpecialChar(query.geneRegex);
   var file = networkPath + fileName;
-  geneRegex = geneRegex == '' ? 'a^' : geneRegex;
-  return network.getNet_(file, geneRegex);
+  return network.getNet_(file, query.genes);
 };
 
 /**
@@ -121,7 +126,7 @@ network.query.incidentEdges = function(query, networkPath) {
  * @return {!Array<!network.Node>}
  */
 network.query.combinedRegulation = function(query, networkPath) {
-  var networkName = query.networkName;
+  var networkName = query.fileName;
   var geneRegex = utils.decodeSpecialChar(query.geneRegex);
   var file = networkPath + networkName + '.bnet';
   // TODO(jiaming): fix old file read
@@ -150,6 +155,16 @@ network.query.addGene = function(query, networkPath) {
  */
 network.query.list = function(networkPath) {
   return network.listNetwork_(networkPath);
+};
+
+/**
+ * @param {!network.query.NetworkInfo} query
+ * @param {string} networkPath
+ * @return {!Array<!network.NetworkNode>}
+ */
+network.query.networkInfo = function(query, networkPath) {
+  var file = networkPath + query.fileName;
+  return network.networkInfo_(file);
 };
 // End public APIs
 
@@ -208,38 +223,35 @@ network.readNet_ = function(buf) {
 /**
  * Gets the network data according to the gene selection.
  * @param {string} file Network file name.
- * @param {string} geneRegex Regex for gene selection.
+ * @param {!Array<string>} genes Genes for gene selection.
  * @return {?network.Network} The network data object.
  * @private
  */
-network.getNet_ = function(file, geneRegex) {
-  console.log('get network', file, geneRegex);
+network.getNet_ = function(file, genes) {
+  console.log('get network', file);
   var result = network.readNetwork_(file);
 
   var nodes = [], nodeKeys = {};
   var edges = [];
-  var regex;
-  try {
-    regex = RegExp(geneRegex, 'i');
-  } catch (e) {
-    regex = 'a^'; // return empty network
-  }
+  genes.forEach(function(gene) {
+    nodeKeys[gene.id] = true;
+  });
 
   var numNode = result.nodes.length;
   var numEdge = result.edges.length;
   for (var i = 0; i < numNode; i++) {
-    if (result.names[i].match(regex) != null) {
+    if (result.nodes[i].id in nodeKeys) {
       var nd = result.nodes[i];
       nodes.push(nd);
-      nodeKeys[result.names[i]] = true;
     }
   }
+
   var wmax = -Infinity, wmin = Infinity;
   for (var i = 0; i < numEdge; i++) {
     var s = result.edges[i].source;
     var t = result.edges[i].target;
     var w = result.edges[i].weight;
-    if (nodeKeys[s] && nodeKeys[t]) {
+    if (s in nodeKeys && t in nodeKeys) {
       for (var j = 0; j < w.length; j++) {
         wmax = Math.max(w[j], wmax);
         wmin = Math.min(w[j], wmin);
@@ -444,25 +456,45 @@ network.listNetwork_ = function(networkPath) {
 };
 
 /**
- * Find all edges connecting the gene to other exist genes
- * @param {string} file Network file path
- * @param {string} gene Gene to add to the graph
- * @param {!Array<!network.Node>} nodes Nodes that already in the original graph
- * @return {!Array<!network.Edge>} Edges between the new gene and original graph
+ * Find all edges connecting the gene to other exist genes.
+ * @param {string} file Network file path.
+ * @param {!Array<string>} genes Genes to add to the graph.
+ * @param {!Array<!network.Node>} nodes Nodes that already in the graph.
+ * @return {!Array<!network.Edge>} Edges between the new gene and graph.
  * @private
  */
-network.addGene_ = function(file, gene, nodes) {
+network.addGene_ = function(file, genes, nodes) {
   var oldNodes = {};
   nodes.forEach(function(node) {
     oldNodes[node.name] = true;
   });
+  var newNodes = {};
+  genes.forEach(function(gene) {
+    newNodes[gene] = true;
+  });
   var edges = [];
   var result = network.readNetwork_(file);
   result.edges.forEach(function(edge) {
-    if ((edge.source == gene && edge.target in oldNodes) ||
-      (edges.source in oldNodes && edge.target == source)) {
+    if ((edge.source in newNodes && edge.target in oldNodes) ||
+      (edge.source in oldNodes && edge.target in newNodes) ||
+      (edge.source in newNodes && edge.target in newNodes)) {
       edges.push(edge);
     }
   });
   return edges;
+};
+
+/**
+ * Gets the node info for the network.
+ * @param {string} file File path of the network.
+ * @return {{
+ *  nodes: !Array<!network.NetworkNode>
+ * }} The node info.
+ * @private
+ */
+network.networkInfo_ = function(file) {
+  data = network.readNetwork_(file);
+  return {
+    nodes: data.nodes
+  };
 };
