@@ -14,7 +14,7 @@ function chain() {}
 
 /**
  * Runs the frisby requests one by one and performs the tests.
- * @param {!Array<!{
+ * @param {!Array<{
  *   name: string,
  *   action: function(!frisby),
  *   check: Function

@@ -5,10 +5,18 @@
 'use strict';
 
 /**
+ * @typedef {{
+ *   fileName: string,
+ *   geneRegex: string
+ * }}
+ */
+genotet.NetworkViewParams;
+
+/**
  * NetworkView extends the base View class, and renders the regulatory network
  * topology.
  * @param {string} viewName Name of the view.
- * @param {!Object} params Additional parameters.
+ * @param {genotet.NetworkViewParams} params
  * @extends {genotet.View}
  * @constructor
  */
@@ -16,7 +24,7 @@ genotet.NetworkView = function(viewName, params) {
   genotet.NetworkView.base.constructor.call(this, viewName);
 
   /**
-   * @protected {!{
+   * @protected {{
    *   showLabels: boolean,
    *   showTFToTF: boolean,
    *   showTFToNonTF: boolean
@@ -27,7 +35,6 @@ genotet.NetworkView = function(viewName, params) {
     showTFToTF: true,
     showTFToNonTF: true
   };
-
 
   this.container.addClass('network');
 

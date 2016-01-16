@@ -6,6 +6,18 @@
 
 /**
  * @typedef {{
+ *   fileName: string,
+ *   isGeneRegex: boolean,
+ *   isConditionRegex: boolean,
+ *   geneInput: string,
+ *   conditionInput: string
+ * }}
+ */
+genotet.ExpressionViewParams;
+
+/**
+ * @typedef {{
+ *   fileName: string,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
  *   allGeneNames: !Array<string>,
@@ -30,10 +42,19 @@ genotet.ExpressionMatrix;
 genotet.ExpressionTfaData;
 
 /**
+ * @typedef {!Array<{
+ *   matrixName: string,
+ *   fileName: string,
+ *   description: string
+ * }>}
+ */
+genotet.ListedExpression;
+
+/**
  * View extends the base View class, and renders the expression matrix
  * associated with the regulatory Expression.
  * @param {string} viewName Name of the view.
- * @param {!Object} params Additional parameters.
+ * @param {genotet.ExpressionViewParams} params
  * @extends {genotet.View}
  * @constructor
  */
@@ -58,7 +79,7 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.loadExpressionMatrixInfo(params.matrixName, params.dataName);
+    this.loader.loadExpressionMatrixInfo(params.fileName);
   }.bind(this));
 
   // Format gene and condition input to list.
@@ -67,8 +88,7 @@ genotet.ExpressionView = function(viewName, params) {
       params.geneInput);
     var conditionNames = this.panel.formatConditionInput(
       params.isConditionRegex, params.conditionInput);
-    this.loader.load(params.matrixName, params.dataName, geneNames,
-      conditionNames);
+    this.loader.load(params.fileName, geneNames, conditionNames);
   }.bind(this));
 
   // Set up rendering update.
@@ -82,10 +102,10 @@ genotet.ExpressionView = function(viewName, params) {
           this.renderer.render();
           break;
         case 'gene':
-          this.loader.update(data.method, params.matrixName, data.names);
+          this.loader.update(data.method, params.fileName, data.names);
           break;
         case 'condition':
-          this.loader.update(data.method, params.matrixName, data.names);
+          this.loader.update(data.method, params.fileName, data.names);
           break;
         case 'auto-scale':
           this.renderer.render();
@@ -118,7 +138,7 @@ genotet.ExpressionView = function(viewName, params) {
       this.panel.displayCellInfo(object.geneName, object.conditionName,
         object.value);
     }.bind(this))
-    .on('genotet.expressionUnclick', function(event) {
+    .on('genotet.expressionUnclick', function() {
       this.panel.hideCellInfo();
       this.renderer.unhighlightLabelsForClickedObject();
     }.bind(this));
@@ -138,18 +158,18 @@ genotet.ExpressionView = function(viewName, params) {
   // Zoom in and out in expression.
   $(this.renderer)
     .on('genotet.expressionZoomIn', function(event, zoomStatus) {
-      this.loader.load(zoomStatus.matrixName, zoomStatus.dataName,
-        zoomStatus.geneNames, zoomStatus.conditionNames);
+      this.loader.load(this.data.matrix.fileName, zoomStatus.geneNames,
+        zoomStatus.conditionNames);
     }.bind(this));
   $(this.panel)
     .on('genotet.expressionZoomOut', function(event, zoomStatus) {
-      this.loader.load(zoomStatus.matrixName, zoomStatus.dataName,
-        zoomStatus.geneNames, zoomStatus.conditionNames);
+      this.loader.load(this.data.matrix.fileName, zoomStatus.geneNames,
+        zoomStatus.conditionNames);
     }.bind(this));
 
   // Update expression panel.
   $(this.loader)
-    .on('genotet.updatePanel', function(event) {
+    .on('genotet.updatePanel', function() {
       this.panel.dataLoaded();
     }.bind(this));
 };

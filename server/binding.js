@@ -162,7 +162,7 @@ binding.HistogramTree;
 
 /**
  * Binding data cache, used to avoid repeated file reading.
- * @type {!{
+ * @type {{
  *   list: !Array,
  *   cache: !Object
  * }}
