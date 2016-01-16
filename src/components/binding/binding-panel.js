@@ -18,6 +18,7 @@ genotet.BindingPanel = function(data) {
     autoScale: true,
     showOverview: true,
     showBed: true,
+    showBedLabel: true,
     showExons: true
   });
 
@@ -52,6 +53,7 @@ genotet.BindingPanel.prototype.initPanel = function() {
   [
     {selector: '#overview', type: 'overview', attribute: 'showOverview'},
     {selector: '#bed', type: 'bed', attribute: 'showBed'},
+    {selector: '#bed-label', type: 'bed-label', attribute: 'showBedLabel'},
     {selector: '#exons', type: 'exons', attribute: 'showExons'},
     {selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScale'}
   ].forEach(function(bSwitch) {
@@ -73,6 +75,7 @@ genotet.BindingPanel.prototype.initPanel = function() {
         var coordinate = +this.container.find(ui.selector + ' input').val();
         this.signal('coordinate', {
           type: ui.type,
+          bedName: this.data.bedName,
           chr: this.data.chr,
           coordinate: coordinate
         });

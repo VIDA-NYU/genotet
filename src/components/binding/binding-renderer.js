@@ -684,7 +684,7 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
   this.bedRectHeight_ = (this.bedHeight_ - this.BED_MARGINS_.TOP -
     this.BED_MARGINS_.BOTTOM) / bedData.length;
   var unitHeight = this.bedRectHeight_;
-  if (!this.data.bed.aggregated) {
+  if (!this.data.bed.aggregated && this.data.options.showBedLabel) {
     this.bedRectHeight_ -= this.BED_LABEL_SIZE;
   }
   var opt_range = [];
@@ -700,7 +700,7 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
       var rectWidth = opt_range[1] - opt_range[0];
       return rectWidth < 3 ? 3 : rectWidth;
     }.bind(this))
-    .attr('height', this.bedRectHeight_)
+    .attr('height', this.bedRectHeight_ > 0 ? this.bedRectHeight_ : 0)
     .attr('x', function(data) {
       var range = [data.chrStart, data.chrEnd];
       opt_range = this.bindingCoordinatesToScreenRange_(range);
@@ -711,7 +711,8 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
     }.bind(this));
   bedRects.exit().remove();
 
-  if (!this.data.bed.aggregated) {
+  if (!this.data.bed.aggregated && this.data.options.showBedLabel) {
+    this.bedContent_.selectAll('text').style('display', 'inline');
     var labels = bedRows.selectAll('text').data(_.identity);
     labels.enter().append('text');
     labels
@@ -730,7 +731,7 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
         genotet.utils.getTransform([0, this.BED_MARGINS_.TOP]));
     labels.exit().remove();
   } else {
-    this.bedContent_.selectAll('text').remove();
+    this.bedContent_.selectAll('text').style('display', 'none');
   }
 };
 
@@ -872,6 +873,7 @@ genotet.BindingRenderer.prototype.bindingCoordinatesToScreenRange_ = function(
 genotet.BindingRenderer.prototype.zoomDetail_ = function(opt_range) {
   var range = opt_range ? opt_range : this.screenRangeToBindingCoordinates_();
   this.signal('zoom', {
+    bedName: this.data.bedName,
     chr: this.data.chr,
     xl: range[0],
     xr: range[1]

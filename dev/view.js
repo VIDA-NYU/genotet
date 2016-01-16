@@ -21,7 +21,7 @@ genotet.test = function() {
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     gene: 'SL3037_SL3036',
-    bedName: 'Tcell_max4_FDRp15',
+    bedName: 'bed_data',
     chr: '1'
   });
   genotet.viewManager.createView('network', 'My Network', {

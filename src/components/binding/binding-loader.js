@@ -15,7 +15,8 @@ genotet.BindingLoader = function(data) {
 
   _.extend(this.data, {
     tracks: [],
-    bed: [],
+    bed: null,
+    bedName: null,
     exons: []
   });
 };
@@ -28,14 +29,15 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 /**
  * Loads the binding data for a given gene and chromosome.
  * @param {string} gene Name of the gene.
+ * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
-genotet.BindingLoader.prototype.load = function(gene, chr, opt_track) {
+genotet.BindingLoader.prototype.load = function(gene, bedName, chr, opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   this.data.chr = chr;
-  this.loadFullTrack(trackIndex, gene, chr);
+  this.loadFullTrack(trackIndex, gene, bedName, chr);
   this.loadExons_(chr);
 };
 
@@ -72,10 +74,11 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
  * Loads the data of a single binding track.
  * @param {number} trackIndex Track index.
  * @param {string} gene Gene name.
+ * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr Chromosome.
  */
 genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
-                                                         chr) {
+                                                         bedName, chr) {
   var params = {
     type: 'binding',
     gene: gene,
@@ -90,7 +93,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
     var addTrack = trackIndex == this.data.tracks.length;
     this.data.tracks[trackIndex] = track;
     this.updateRanges_();
-    this.loadBed(chr, this.data.detailXMin, this.data.detailXMax);
+    this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
     if (addTrack) {
       // Add one more track.
       this.signal('track');
@@ -116,22 +119,24 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, gene,
 
 /**
  * Loads the bed data of a single binding track.
+ * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr Chromosome.
  * @param {number|undefined} xl Left coordinate of the query range.
  *   If null, use the leftmost coordinate of the track.
  * @param {number|undefined} xr Right coordinate of the query range.
  *   If null, use the rightmost coordinate of the track.
  */
-genotet.BindingLoader.prototype.loadBed = function(chr, xl, xr) {
+genotet.BindingLoader.prototype.loadBed = function(bedName, chr, xl, xr) {
   var params = {
     type: 'bed',
-    bedName: 'bed_data',
+    bedName: bedName,
     chr: chr,
     xl: xl,
     xr: xr
   };
   this.get(genotet.data.serverURL, params, function(data) {
     this.data.bed = data;
+    this.data.bedName = bedName;
   }.bind(this), 'cannot load binding data');
 };
 
@@ -194,7 +199,8 @@ genotet.BindingLoader.prototype.findLocus = function(gene) {
         this.signal('chr', res.chr);
         this.switchChr(res.chr);
       } else {
-        this.loadBed(this.data.chr, this.data.detailXMin, this.data.detailXMax);
+        this.loadBed(this.data.bedName, this.data.chr, this.data.detailXMin,
+          this.data.detailXMax);
         this.loadTrackDetail(this.data.detailXMin, this.data.detailXMax);
       }
     }
