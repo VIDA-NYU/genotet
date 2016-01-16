@@ -17,6 +17,7 @@ function binding() {}
 
 /**
  * @typedef {{
+ *   numSamples: number,
  *   gene: (string|undefined),
  *   chr: (string|undefined),
  *   xMin: number,
@@ -50,10 +51,11 @@ binding.query = {};
 
 /**
  * @typedef {{
- *   gene: string,
+ *   fileName: string,
  *   chr: string,
  *   xl: (number|undefined),
- *   xr: (number|undefined)
+ *   xr: (number|undefined),
+ *   numSamples: (number|undefined)
  * }}
  */
 binding.query.Histogram;
@@ -77,11 +79,12 @@ binding.query.Locus;
  * @return {?binding.Histogram}
  */
 binding.query.histogram = function(query, wigglePath) {
-  var gene = utils.decodeSpecialChar(query.gene);
+  var fileName = query.fileName;
   var chr = query.chr;
-  var file = wigglePath + gene + '_chr/' + gene + '_chr' + chr + '.bcwig';
-  var data = binding.getBinding_(file, query.xl, query.xr);
-  data.gene = gene;
+  var file = wigglePath + fileName + '_chr/' + fileName + '_chr' + chr +
+    '.bcwig';
+  var data = binding.getBinding_(file, query.xl, query.xr, query.numSamples);
+  data.gene = binding.getGene_(wigglePath, fileName);
   data.chr = chr;
   return data;
 };
@@ -125,10 +128,21 @@ binding.query.list = function(wigglePath) {
 
 /**
  * Number of samples created for each query.
- * @const {number}
+ * @private @const {number}
  */
-// TODO(jiaming): User number of pixels on the screen.
-binding.NUM_SAMPLES = 1000;
+binding.DEFAULT_NUM_SAMPLES_ = 1000;
+
+/**
+ * Size of one int, one double, for binding data storage.
+ * @private @const {number}
+ */
+binding.ENTRY_SIZE_ = 12;
+
+/**
+ * Size of one double, for binding file storage.
+ * @private @const {number}
+ */
+binding.DOUBLE_SIZE_ = 8;
 
 /**
  * Binging data cache, maximum size 4.
@@ -310,10 +324,11 @@ binding.formatExons_ = function(exons) {
  * @param {string} file File name of the binding data.
  * @param {number|undefined} x1 Left coordinate.
  * @param {number|undefined} x2 Right coordinate.
+ * @param {number} numSamples Number of return samples
  * @return {?binding.Histogram} Binding data as histogram.
  * @private
  */
-binding.getBinding_ = function(file, x1, x2) {
+binding.getBinding_ = function(file, x1, x2, numSamples) {
   console.log(file, x1, x2);
   var cache = binding.loadHistogram_(file);
   if (cache == null) {
@@ -330,11 +345,17 @@ binding.getBinding_ = function(file, x1, x2) {
     xr = cache.xMax;
   }
 
-  var n = binding.NUM_SAMPLES;
+  var n;
+  if (numSamples == null) {
+    n = binding.DEFAULT_NUM_SAMPLES_;
+  } else {
+    n = numSamples;
+  }
   var span = xr - xl;
   // Used '>>' to avoid floating point result.
   var segslen = (cache.nodes.length + 1) >> 1;
   var hist = {
+    numSamples: n,
     xMin: xl,
     xMax: xr,
     values: [],
@@ -347,8 +368,8 @@ binding.getBinding_ = function(file, x1, x2) {
   // segment tree for RMQ.
   for (var i = 0; i < n; i++) {
     // [inclusive, exclusive) range
-    var l = xl + i / n * span;
-    var r = xl + (i + 1) / n * span - 0.1;
+    var l = xl + i / (n - 1) * span;
+    var r = xl + (i + 1) / (n - 1) * span - 0.1;
     var li = utils.binarySearch(cache.segs, l);
     var ri = utils.binarySearch(cache.segs, r);
     if (li == -1 && ri != -1) {
@@ -436,19 +457,19 @@ binding.loadHistogram_ = function(file) {
     return null;
   }
 
-  var n = buf.length / 8;
+  var n = buf.length / binding.ENTRY_SIZE_;
   var offset = 0;
   var segs = [];
 
   for (var i = 0; i < n; i++) {
     var x = buf.readInt32LE(offset),
-        val = buf.readFloatLE(offset + 4);
+        val = buf.readDoubleLE(offset + 4);
     segs.push({
       x: x,
       value: val
     });
-    offset += 8;
-    // 1 int, 1 float
+    offset += binding.ENTRY_SIZE_;
+    // 1 int, 1 double
   }
 
   console.log('read complete, cache size', binding.dataCache.list.length);
@@ -476,12 +497,11 @@ binding.loadHistogram_ = function(file) {
     segtree.buildSegmentTree(nodes, segs);
     cache.nodes = nodes;
     console.log('SegmentTree constructed');
-
-    buf = new Buffer(4 + nodes.length * 4);
+    buf = new Buffer(4 + nodes.length * binding.DOUBLE_SIZE_);
     buf.writeInt32LE(nodes.length, 0);
     offset = 4;
-    for (var i = 0; i < nodes.length; i++, offset += 4) {
-      buf.writeFloatLE(nodes[i], offset);
+    for (var i = 0; i < nodes.length; i++, offset += binding.DOUBLE_SIZE_) {
+      buf.writeDoubleLE(nodes[i], offset);
     }
     var fd = fs.openSync(segfile, 'w');
     fs.writeSync(fd, buf, 0, offset, 0);
@@ -489,9 +509,8 @@ binding.loadHistogram_ = function(file) {
   } else {
     var num = buf.readInt32LE(0);
     var nodes = [];
-    offset = 4;
-    for (var i = 0; i < num; i++, offset += 4) {
-      nodes.push(buf.readFloatLE(offset));
+    for (var i = 0, offset = 4; i < num; i++, offset += binding.DOUBLE_SIZE_) {
+      nodes.push(buf.readDoubleLE(offset));
     }
     cache.nodes = nodes;
     console.log('SegmentTree read');
@@ -501,28 +520,42 @@ binding.loadHistogram_ = function(file) {
 
 /**
  * Lists all the wiggle files in the server.
- * @param {string} wiggleAddr Folder of the wiggle file in the server.
+ * @param {string} wigglePath Folder of the wiggle file in the server.
  * @return {!Array} Array of object of each wiggle file.
  * @private
  */
-binding.listBindingGenes_ = function(wiggleAddr) {
-  var folder = wiggleAddr;
+binding.listBindingGenes_ = function(wigglePath) {
+  var folder = wigglePath;
   var ret = [];
   var files = fs.readdirSync(folder);
-  for (var i = 0; i < files.length; i++) {
-    var stat = fs.lstatSync(folder + files[i]);
-    if (!stat.isDirectory) {
-      if (files[i].indexOf('.txt') != -1) {
-        var fname = files[i].substr(0, files[i].length - 4);
-        var description = new Buffer();
-        var fd = fs.openSync(folder + files[i]);
-        fs.readSync(fd, description);
-        ret.push({
-          bindingName: fname,
-          description: description.toString()
-        });
-      }
+  files.forEach(function(file) {
+    if (file.indexOf('.txt') != -1) {
+      var fname = file.substr(0, file.length - 4);
+      var content = fs.readFileSync(folder + file, 'utf8')
+        .toString().split('\n');
+      var gene = content[0];
+      var description = content.slice(1).join('');
+      ret.push({
+        fileName: fname,
+        gene: gene,
+        description: description
+      });
     }
-  }
+  });
   return ret;
 };
+
+/**
+ * Gets gene name for a specific binding file.
+ * @param {string} wigglePath Path to the wiggle folder.
+ * @param {string} fileName File name of the wiggle file.
+ * @return {string} the gene name.
+ * @private
+ */
+binding.getGene_ = function(wigglePath, fileName) {
+  var filePath = wigglePath + fileName + '.txt';
+  var content = fs.readFileSync(filePath, 'utf-8').toString().split('\n');
+  var gene = content[0];
+  return gene;
+};
+

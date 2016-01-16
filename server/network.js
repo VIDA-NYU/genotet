@@ -58,7 +58,7 @@ network.query = {};
 
 /**
  * @typedef {{
- *   networkName: string,
+ *   fileName: string,
  *   geneRegex: string
  * }}
  */
@@ -66,7 +66,7 @@ network.query.Network;
 
 /**
  * @typedef {{
- *   networkName: string,
+ *   fileName: string,
  *   gene: string
  * }}
  */
@@ -74,7 +74,7 @@ network.query.IncidentEdges;
 
 /**
  * @typedef {{
- *   networkName: string,
+ *   fileName: string,
  *   geneRegex: string
  * }}
  */
@@ -87,15 +87,11 @@ network.query.CombinedRegulation;
  * @return {?network.Network}
  */
 network.query.network = function(query, networkPath) {
-  var networkName = query.networkName.toLowerCase();
+  var fileName = query.fileName;
   var geneRegex = utils.decodeSpecialChar(query.geneRegex);
-  var fileType = 'text';
-  var file = networkPath + networkName + '.bnet';
-  if (fileType == 'text') {
-    file = networkPath + networkName;
-  }
+  var file = networkPath + fileName;
   geneRegex = geneRegex == '' ? 'a^' : geneRegex;
-  return network.getNet_(file, geneRegex, fileType);
+  return network.getNet_(file, geneRegex);
 };
 
 /**
@@ -104,9 +100,9 @@ network.query.network = function(query, networkPath) {
  * @return {!Array<!network.Edge>}
  */
 network.query.incidentEdges = function(query, networkPath) {
-  var networkName = query.networkName.toLowerCase();
+  var fileName = query.fileName;
   var gene = query.gene;
-  var file = networkPath + networkName;
+  var file = networkPath + fileName;
   return network.getIncidentEdges_(file, gene);
 };
 
@@ -191,23 +187,12 @@ network.readNet_ = function(buf) {
  * Gets the network data according to the gene selection.
  * @param {string} file Network file name.
  * @param {string} geneRegex Regex for gene selection.
- * @param {string} fileType 'text' or 'bin'.
  * @return {?network.Network} The network data object.
  * @private
  */
-network.getNet_ = function(file, geneRegex, fileType) {
-  console.log(file, geneRegex);
-  var result;
-  if (fileType == 'bin') {
-    var buf = utils.readFileToBuf(file);
-    if (buf == null) {
-      console.error('cannot read file', file);
-      return null;
-    }
-    result = network.readNet_(buf);
-  } else if (fileType == 'text') {
-    result = network.readNetwork_(file);
-  }
+network.getNet_ = function(file, geneRegex) {
+  console.log('get network', file, geneRegex);
+  var result = network.readNetwork_(file);
 
   var nodes = [], nodeKeys = {};
   var edges = [];
@@ -232,11 +217,11 @@ network.getNet_ = function(file, geneRegex, fileType) {
     var s = result.edges[i].source;
     var t = result.edges[i].target;
     var w = result.edges[i].weight;
-    for (var j = 0; j < w.length; j++) {
-      wmax = Math.max(w[j], wmax);
-      wmin = Math.min(w[j], wmin);
-    }
     if (nodeKeys[s] && nodeKeys[t]) {
+      for (var j = 0; j < w.length; j++) {
+        wmax = Math.max(w[j], wmax);
+        wmin = Math.min(w[j], wmin);
+      }
       edges.push({
         id: result.edges[i].id,
         source: s,
@@ -289,7 +274,7 @@ network.getIncidentEdges_ = function(file, gene) {
  * @private
  */
 network.getComb_ = function(file, exp) {
-  console.log(file, exp);
+  console.log('get combination', file, exp);
   var buf = utils.readFileToBuf(file);
   if (buf == null) {
     console.error('cannot read file', file);
@@ -334,12 +319,11 @@ network.getComb_ = function(file, exp) {
 /**
  * Read network from a .tsv file.
  * @param {string} networkFile path to the .tsv network file.
- * @return {Object} data of the network.
+ * @return {!network.Network} data of the network.
  * @private
  */
 network.readNetwork_ = function(networkFile) {
   var validFile = true;
-  var ret = {};
   var edges = [];
   var nodes = [];
   var names = [];
@@ -347,89 +331,92 @@ network.readNetwork_ = function(networkFile) {
   var isFirst = true;
   var valueNames = [];
   var lines = fs.readFileSync(networkFile).toString().split('\n');
-  for (var lineNum in lines) {
-    var line = lines[lineNum];
-    if (!validFile) continue;
+  lines.forEach(function(line) {
+    if (!validFile) {
+      return;
+    }
     var parts = line.split(/[\t\s]+/);
+    var source = parts[0];
+    var target = parts[1];
     if (parts.length < 3) {
       validFile = false;
-      continue;
+      return;
     }
     if (isFirst) {
       isFirst = false;
       for (var i = 2; i < parts.length; i++) {
         valueNames.push(parts[i]);
       }
-      continue;
+      return;
     }
     var numbers = [];
     for (var i = 2; i < parts.length; i++) {
       numbers.push(parseFloat(parts[i]));
     }
-    if (parts[0] in nodeId) {
-      nodes[nodeId[parts[0]]].isTF = true;
+    if (source in nodeId) {
+      nodes[nodeId[source]].isTF = true;
     } else {
-      names.push(parts[0]);
+      names.push(source);
       nodes.push({
-        id: parts[0],
-        label: parts[0],
+        id: source,
+        label: source,
         isTF: true
       });
-      nodeId[parts[0]] = nodes.length - 1;
+      nodeId[source] = nodes.length - 1;
     }
-    if (!(parts[1] in nodeId)) {
-      names.push(parts[1]);
+    if (!(target in nodeId)) {
+      names.push(target);
       nodes.push({
-        id: parts[1],
-        label: parts[1],
+        id: target,
+        label: target,
         isTF: false
       });
-      nodeId[parts[0]] = nodes.length - 1;
+      nodeId[target] = nodes.length - 1;
     }
     edges.push({
-      id: parts[0] + ',' + parts[1],
-      source: parts[0],
-      target: parts[1],
+      id: source + ',' + target,
+      source: source,
+      target: target,
       weight: numbers
     });
-  }
-  ret.nodes = nodes;
-  ret.edges = edges;
-  ret.names = names;
-  ret.numNodes = nodes.length;
-  ret.numEdges = edges.length;
-  ret.valueNames = valueNames;
+  });
 
-  return ret;
+  return {
+    nodes: nodes,
+    edges: edges,
+    names: names,
+    numNodes: nodes.length,
+    numEdges: edges.length,
+    valueNames: valueNames
+  };
 };
 
 /**
- * List all the networks in the server
- * @param {string} networkAddr Folder of the network in the server
+ * List all the networks in the server.
+ * @param {string} networkPath Folder of the network in the server.
  * @return {!Array<{
  *   networkName: string,
  *   description: string
  * }>} Array of network file info.
  * @private
  */
-network.listNetwork_ = function(networkAddr) {
-  var folder = networkAddr;
+network.listNetwork_ = function(networkPath) {
+  var folder = networkPath;
   var ret = [];
   var files = fs.readdirSync(folder);
-  for (var i = 0; i < files.length; i++) {
-    var stat = fs.lstatSync(folder + files[i]);
-    if (!stat.isDirectory) {
-      if (files[i].indexOf('.txt') != -1) {
-        var fname = files[i].substr(0, files[i].length - 4);
-        var description = '';
-        var fd = fs.openSync(folder + files[i]);
-        fs.readSync(fd, description);
-        ret.push({
-          networkName: fname,
-          description: description.toString()
-        });
-      }
+  files.forEach(function(file) {
+    if (file.indexOf('.txt') != -1) {
+      var fname = file.substr(0, file.length - 4);
+      var content = fs.readFileSync(folder + file, 'utf8')
+        .toString().split('\n');
+      var networkName = content[0];
+      var description = content.slice(1).join('');
+      ret.push({
+        fileName: fname,
+        networkName: networkName,
+        description: description
+      });
     }
-  }
+  });
   return ret;
 };

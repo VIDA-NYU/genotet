@@ -45,7 +45,7 @@ genotet.NetworkView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.networkName, params.geneRegex);
+    this.loader.load(params.fileName, params.geneRegex);
   }.bind(this));
 
   // Set up rendering update.

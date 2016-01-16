@@ -1,7 +1,6 @@
 /**
  * @fileoverview upload function handler
  */
-
 var fs = require('fs');
 var childProcess = require('child_process');
 var readline = require('readline');
@@ -19,10 +18,23 @@ module.exports = uploader;
 function uploader() {}
 
 /**
+ * Size of a binding entry, one int, one double.
+ * @private @const {number}
+ */
+uploader.ENTRY_SIZE_ = 12;
+
+/**
+ * Size of one double, for binding file storage.
+ * @private @const {number}
+ */
+uploader.DOUBLE_SIZE_ = 8;
+
+/**
  * Uploads a file or a directory to server.
  * @param {{
  *   type: string,
  *   name: string,
+ *   fileName: string,
  *   description: string
  * }} desc File description.
  * @param {Object} file File object received from multer.
@@ -32,29 +44,32 @@ function uploader() {}
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
   var source = fs.createReadStream(file.path);
-  var dest = fs.createWriteStream(prefix + desc.name);
+  var dest = fs.createWriteStream(prefix + desc.fileName);
   source.pipe(dest);
   source
     .on('end', function() {
       fs.unlink(file.path);
       if (desc.type == 'binding') {
-        uploader.bigWigToBCWig(prefix, desc.name, bigWigToWigAddr);
+        uploader.bigWigToBCWig(prefix, desc.fileName, bigWigToWigAddr);
       } else if (desc.type == 'bed') {
-        uploader.bedSort(prefix, desc.name);
+        uploader.bedSort(prefix, desc.fileName);
       }
     })
     .on('err', function(err) {
-      // TODO(jiaming)
+      return {
+        error: {
+          type: 'upload file copying',
+          message: 'upload file copy failed'
+        }
+      };
     });
 
   // write down the network name and description
-  var fd = fs.openSync(prefix + desc.name + '.txt', 'w');
+  var fd = fs.openSync(prefix + desc.fileName + '.txt', 'w');
+  fs.writeSync(fd, desc.name + '\n');
   fs.writeSync(fd, desc.description);
   fs.closeSync(fd);
-
-  return {
-    success: true
-  };
+  return {};
 };
 
 /**
@@ -83,7 +98,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
     input: fs.createReadStream(prefix + wigFileName),
     terminal: false
   });
-  var lastxr = -1;
+  var lastChrXr = {}, lastValue = {};
   lines.on('line', function(line) {
     if (line.indexOf('#') == -1) {
       var linePart = line.split(RegExp(/\s+/));
@@ -95,41 +110,47 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       if (!(linePart[0] in seg)) {
         seg[linePart[0]] = [];
       }
-      if (xl != lastxr && lastxr > -1) {
+      if (xl != lastChrXr[chName] && lastChrXr[chName] > -1) {
         seg[chName].push({
-          x: lastxr,
-          val: 0
+          x: lastChrXr[chName],
+          value: 0.0
         });
       }
       seg[chName].push({
         x: xl,
-        val: val
+        value: val
       });
-      lastxr = xr;
+      lastChrXr[chName] = xr;
+      lastValue[chName] = val;
     }
   });
 
   lines.on('close', function() {
+    for (var chr in lastChrXr) {
+      seg[chr].push({
+        x: lastChrXr[chr],
+        value: lastValue[chr]
+      });
+    }
     // write to *.bcwig file
     // console.log('start log it');
     // if the folder already exists, then delete it
     var folder = prefix + bwFile + '_chr';
-    var stats = fs.lstatSync(folder);
-    if (stats.isDirectory()) {
+    if (fs.existsSync(folder)) {
       fs.rmdirSync(folder);
       console.log('Wiggle file ' + bwFile + ' is replaced.');
     }
-    mkdirp(folder);
+    fs.mkdirSync(folder);
 
     for (var chr in seg) {
       var bcwigFile = folder + '/' + bwFile + '_' + chr + '.bcwig';
-      var fd = fs.openSync(bcwigFile, 'w');
+      var bcwigBuf = new Buffer(uploader.ENTRY_SIZE_ * seg[chr].length);
       for (var i = 0; i < seg[chr].length; i++) {
-        var bcwigBuf = new Buffer(8 * seg[chr].length);
-        bcwigBuf.writeInt32LE(seg[chr][i].x, i * 4);
-        bcwigBuf.writeFloatLE(seg[chr][i].val, i * 4 + 4);
+        bcwigBuf.writeInt32LE(seg[chr][i].x, i * uploader.ENTRY_SIZE_);
+        bcwigBuf.writeDoubleLE(seg[chr][i].value, i * uploader.ENTRY_SIZE_ + 4);
       }
-      fs.writeSync(fd, bcwigBuf, 0, 8 * seg[chr].length, 0);
+      var fd = fs.openSync(bcwigFile, 'w');
+      fs.writeSync(fd, bcwigBuf, 0, uploader.ENTRY_SIZE_ * seg[chr].length, 0);
       fs.closeSync(fd);
     }
 
@@ -138,10 +159,11 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       var segFile = folder + '/' + bwFile + '_' + chr + '.seg';
       var nodes = [];
       segtree.buildSegmentTree(nodes, seg[chr]);
-      var segBuf = new Buffer(4 + 4 * nodes.length);
+      var segBuf = new Buffer(4 + nodes.length * uploader.DOUBLE_SIZE_);
       segBuf.writeInt32LE(nodes.length, 0);
-      for (var i = 0, offset = 4; i < nodes.length; i++, offset += 2) {
-        segBuf.writeFloatLE(nodes[i], offset);
+      for (var i = 0, offset = 4; i < nodes.length; i++,
+        offset += uploader.DOUBLE_SIZE_) {
+        segBuf.writeDoubleLE(nodes[i], offset);
       }
       var fd = fs.openSync(segFile, 'w');
       fs.writeSync(fd, segBuf, 0, offset, 0);
@@ -176,6 +198,7 @@ uploader.bedSort = function(prefix, bedFile) {
       name: parts[3]
     });
   });
+
   lines.on('close', function() {
     console.log('writing bed data...');
     var folder = prefix + bedFile + '_chr';

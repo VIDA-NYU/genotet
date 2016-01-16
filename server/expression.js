@@ -64,14 +64,14 @@ expression.query = {};
 
 /**
  * @typedef {{
- *   matrixName: string
+ *   fileName: string
  * }}
  */
 expression.query.MatrixInfo;
 
 /**
  * @typedef {{
- *   matrixName: string,
+ *   fileName: string,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>
  * }}
@@ -80,7 +80,7 @@ expression.query.Matrix;
 
 /**
  * @typedef {{
- *   matrixName: string,
+ *   fileName: string,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>
  * }}
@@ -94,7 +94,7 @@ expression.query.Profile;
  * @return {expression.MatrixInfo}
  */
 expression.query.matrixInfo = function(query, expressionPath) {
-  var file = expressionPath + query.matrixName;
+  var file = expressionPath + query.fileName;
   return expression.getMatrixInfo_(file);
 };
 
@@ -104,7 +104,7 @@ expression.query.matrixInfo = function(query, expressionPath) {
  * @return {?expression.Matrix}
  */
 expression.query.matrix = function(query, expressionPath) {
-  var file = expressionPath + query.matrixName;
+  var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   return expression.readExpression_(file, geneNames, conditionNames);
@@ -117,7 +117,7 @@ expression.query.matrix = function(query, expressionPath) {
  * @return {?expression.Profile}
  */
 expression.query.profile = function(query, expressionFile, tfamatFile) {
-  var matrix = query.matrixName;
+  var matrix = query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   var fileExp = expressionFile[matrix], fileTfa = tfamatFile[matrix];
@@ -125,14 +125,14 @@ expression.query.profile = function(query, expressionFile, tfamatFile) {
 };
 
 /**
- * @param {string} expressionAddr
+ * @param {string} expressionPath
  * @return {!Array<{
  *   matrixName: string,
  *   description: string
  * }>}
  */
-expression.query.list = function(expressionAddr) {
-  return expression.listMatrix_(expressionAddr);
+expression.query.list = function(expressionPath) {
+  return expression.listMatrix_(expressionPath);
 };
 // End public APIs
 
@@ -391,7 +391,7 @@ expression.getExpmat_ = function(file, exprows, expcols) {
 
 /**
  * Lists all the expression matrix files in the server
- * @param {string} expmatAddr Folder of the expression matrix file in the
+ * @param {string} expressionPath Folder of the expression matrix file in the
  *     server.
  * @return {!Array<{
  *   matrixName: string,
@@ -399,25 +399,24 @@ expression.getExpmat_ = function(file, exprows, expcols) {
  * }>} array of object of each expression matrix file
  * @private
  */
-expression.listMatrix_ = function(expmatAddr) {
-  var folder = expmatAddr;
+expression.listMatrix_ = function(expressionPath) {
+  var folder = expressionPath;
   var ret = [];
   var files = fs.readdirSync(folder);
-  for (var i = 0; i < files.length; i++) {
-    var stat = fs.lstatSync(folder + files[i]);
-    if (!stat.isDirectory) {
-      if (files[i].indexOf('.txt') != -1) {
-        var fname = files[i].substr(0, files[i].length - 4);
-        var description = new Buffer();
-        var fd = fs.openSync(folder + files[i]);
-        fs.readSync(fd, description);
-        ret.push({
-          matrixName: fname,
-          description: description.toString()
-        });
-      }
+  files.forEach(function(file) {
+    if (file.indexOf('.txt') != -1) {
+      var fname = file.substr(0, file.length - 4);
+      var content = fs.readFileSync(folder + file, 'utf8')
+        .toString().split('\n');
+      var matrixName = content[0];
+      var description = content.slice(1).join('');
+      ret.push({
+        matrixName: matrixName,
+        fileName: fname,
+        description: description
+      });
     }
-  }
+  });
   return ret;
 };
 
@@ -441,7 +440,10 @@ expression.readExpression_ = function(expressionFile, geneNames,
 
   var lines = fs.readFileSync(expressionFile).toString().split('\n');
   lines.forEach(function(line, lineIndex) {
-    var parts = line.split('\t');
+    var parts = line.split(/[\t\s]+/);
+    if (parts.length == 0) {
+      return;
+    }
     if (isFirstRow) {
       // first row contains the conditions
       isFirstRow = false;
@@ -462,7 +464,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
   geneNames.forEach(function(geneName) {
     var geneIndex = allGeneNames[geneName];
     if (geneName in allGeneNames) {
-      var parts = lines[geneIndex].split('\t');
+      var parts = lines[geneIndex].split(/[\t\s]+/);
       var tmpLine = [];
       conditions.forEach(function(conditionIndex) {
         var value = parseFloat(parts[conditionIndex]);

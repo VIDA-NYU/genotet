@@ -5,70 +5,107 @@ var server = require('../server.js');
 var chain = require('../chain.js');
 var data = require('../data.js');
 
-var dataInfo = {
+/** @const */
+var networkSpec = {};
+
+/**
+ * Data information of network tests.
+ * @type {{
+ *   name: string,
+ *   description: string,
+ *   fileName: string
+ * }}
+ */
+networkSpec.dataInfo = {
   name: 'network-1',
   description: 'the first network',
   fileName: 'network-1.tsv'
 };
 
-var tests = [
+/**
+ * @typedef {{
+ *   nodes: !Array<{
+ *     id: string,
+ *     label: string,
+ *     isTF: boolean
+ *   }>,
+ *   edges: !Array<{
+ *     id: string,
+ *     source: string,
+ *     target: string,
+ *     weight: !Array<number>
+ *   }>,
+ *   weightMin: number,
+ *   weightMax: number,
+ *   valueNames: !Array<string>
+ * }}
+ */
+networkSpec.QueryResponse;
+
+/**
+ * Test cases of network queries
+ * @type {!Array<{
+ *   name: string,
+ *   action: function(!frisby),
+ *   check: Function
+ * }>}
+ */
+networkSpec.tests = [
   {
     name: 'upload network',
     action: function(frisby) {
       var form = new formData();
       form.append('type', 'network');
-      form.append('name', dataInfo.name);
-      form.append('description', dataInfo.description);
-      var fileInfo = data.getFile('network', dataInfo.fileName);
+      form.append('name', networkSpec.dataInfo.name);
+      form.append('fileName', networkSpec.dataInfo.fileName);
+      form.append('description', networkSpec.dataInfo.description);
+      var fileInfo = data.getFile('network', networkSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size
       });
-      frisby
-        .post(server.uploadURL, form, {
-          headers: {
-            'content-type': 'multipart/form-data; boundary=' +
-            form.getBoundary(),
-            'content-length': form.getLengthSync()
-          }
-        })
+      server
+        .postForm(frisby, form)
         .expectStatus(200);
-      return form;
     },
     check: function(body) {
-      var json = JSON.parse(body);
-      describe('verify network upload success', function() {
-        it('contains success field', function() {
-          expect(json.error).toBeUndefined();
-        });
+      var data = /** @type {server.UploadResponse} */(JSON.parse(body));
+      it('without error field', function() {
+        expect(data.error).toBeUndefined();
       });
     }
   },
   {
-    name: 'verify network',
+    name: 'query network',
     action: function(frisby) {
       frisby
-        .get(server.url + '?' + querystring.stringify({
-          type: 'list-network'
+        .get(server.queryURL({
+          type: 'network',
+          fileName: networkSpec.dataInfo.fileName,
+          geneRegex: 'a|c|e'
         }))
         .expectStatus(200);
     },
     check: function(body) {
-      var networks = JSON.parse(body);
-      describe('verify uploaded network', function() {
-        // TODO(jdong): enable this after list network is pulled in.
-        /*
-        it('check listed network', function() {
-          expect(networks.length).toBe(1);
-          expect(networks[0]).toEqual({
-            networkName: dataInfo.name,
-            fileName: dataInfo.fileName,
-            description: dataInfo.description
-          });
-        });
-        */
+      var data = /** @type {networkSpec.QueryResponse} */(JSON.parse(body));
+      it('nodes', function() {
+        expect(data.nodes).toEqual([
+          {id: 'a', label: 'a', isTF: true},
+          {id: 'c', label: 'c', isTF: true},
+          {id: 'e', label: 'e', isTF: false}
+        ]);
+      });
+      it('edges', function() {
+        expect(data.edges).toEqual([
+          {id: 'a,c', source: 'a', target: 'c', weight: [2, 3, 0]},
+          {id: 'c,e', source: 'c', target: 'e', weight: [4, 1, 0]}
+        ]);
+      });
+      it('weights', function() {
+        expect(data.valueNames).toEqual(['attr1', 'attr2', 'attr3']);
+        expect(data.weightMax).toBe(4);
+        expect(data.weightMin).toBe(0);
       });
     }
   }
 ];
-
-chain.test(tests);
+chain.test(networkSpec.tests);

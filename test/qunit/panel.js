@@ -8,7 +8,7 @@ QUnit.test('tabs', function(assert) {
     {
       action: function() {
         genotet.viewManager.createView('network', 'Network 1', {
-          networkName: 'network-1.tsv',
+          fileName: 'network-1.tsv',
           geneRegex: '.*'
         });
       },
@@ -21,7 +21,7 @@ QUnit.test('tabs', function(assert) {
     {
       action: function() {
         genotet.viewManager.createView('network', 'Network 2', {
-          networkName: 'network-1.tsv',
+          fileName: 'network-1.tsv',
           geneRegex: '.*'
         });
       },
@@ -53,7 +53,7 @@ QUnit.test('visibility', function(assert) {
     {
       action: function() {
         genotet.viewManager.createView('network', 'Network 1', {
-          networkName: 'network-1.tsv',
+          fileName: 'network-1.tsv',
           geneRegex: '.*'
         });
       },
