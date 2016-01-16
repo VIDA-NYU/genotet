@@ -7,11 +7,14 @@
 /**
  * @typedef {{
  *   gene: string,
- *   overview: !Array,
- *   detail: !Array,
+ *   fileName: string,
+ *   overview: !Array<{x: number, value: number}>,
+ *   detail: !Array<{x: number, value: number}>,
  *   xMin: number,
  *   xMax: number
  * }}
+ *   gene: Data name for this file.
+ *   fileName: File name for the wiggle file.
  */
 genotet.bindingTrack;
 
@@ -39,10 +42,18 @@ genotet.Exon;
 genotet.bindingData;
 
 /**
+ * @typedef {{
+ *   fileName: string,
+ *   chr: string
+ * }}
+ */
+genotet.BindingViewParams;
+
+/**
  * BindingView extends the base View class, and renders the binding data
  * associated with the regulatory Binding.
  * @param {string} viewName Name of the view.
- * @param {!Object} params Additional parameters.
+ * @param {genotet.BindingViewParams} params
  * @extends {genotet.View}
  * @constructor
  */
@@ -67,7 +78,7 @@ genotet.BindingView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.gene, params.chr);
+    this.loader.load(params.fileName, params.chr);
   }.bind(this));
 
   $(this.renderer)
@@ -112,7 +123,7 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.addTrack', function() {
       var track = this.data.tracks.slice(-1).pop();
-      this.loader.loadFullTrack(this.data.tracks.length, track.gene,
+      this.loader.loadFullTrack(this.data.tracks.length, track.fileName,
           this.data.chr);
     }.bind(this))
     .on('genotet.removeTrack', function(event, trackIndex) {
@@ -121,15 +132,15 @@ genotet.BindingView = function(viewName, params) {
       this.panel.updateTracks();
     }.bind(this))
     .on('genotet.gene', function(event, data) {
-      this.data.tracks[data.trackIndex].gene = data.gene;
-      this.loader.loadFullTrack(data.trackIndex, data.gene, this.data.chr);
+      this.data.tracks[data.trackIndex].fileName = data.fileName;
+      this.loader.loadFullTrack(data.trackIndex, data.fileName, this.data.chr);
     }.bind(this));
 
   $(this.loader)
     .on('genotet.chr', function(event, chr) {
       this.panel.updateChr(chr);
     }.bind(this))
-    .on('genotet.track', function(event) {
+    .on('genotet.track', function() {
       this.panel.updateTracks();
     }.bind(this));
 };

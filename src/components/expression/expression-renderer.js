@@ -200,25 +200,15 @@ genotet.ExpressionRenderer.Profile = function(params) {
 /**
  * Zoom status object storing the status of expression matrix.
  * @param {{
- *   matrixName: (?string),
- *   dataName: (?string|undefined),
- *   geneNames: (!Array<string>),
- *   conditionNames: (!Array<string>)
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
  * }} params
- *     matrixName: Matrix name of the expression.
- *     dataName: Data name of the expression.
  *     geneNames: Names for gene selection.
  *     conditionNames: Names for experiment condition selection.
  * @struct
  * @constructor
  */
 genotet.ExpressionRenderer.ZoomStatus = function(params) {
-  /** @type {?string} */
-  this.matrixName = params.matrixName != null ? params.matrixName : null;
-
-  /** @type {?string} */
-  this.dataName = params.dataName != null ? params.dataName : null;
-
   /** @type {!Array<string>} */
   this.geneNames = params.geneNames != null ? params.geneNames : [];
 
@@ -260,9 +250,6 @@ genotet.ExpressionRenderer.prototype.LABEL_DIFFERENCE = 10;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.HEATMAP_LEGEND_MARGIN = 1;
-
-/** @const {number} */
-genotet.ExpressionRenderer.prototype.HEATMAP_CELL_STROKE_WIDTH = 1;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_MARGIN = 5;
@@ -860,7 +847,6 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         };
         var zoomStatus = this.zoomDataLoaded_(zoomParams);
         var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
-          matrixName: heatmapData.matrixName,
           geneNames: heatmapData.geneNames,
           conditionNames: heatmapData.conditionNames
         });
@@ -1435,7 +1421,6 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
 genotet.ExpressionRenderer.prototype.zoomDataLoaded_ = function(params) {
   var heatmapData = this.data.matrix;
   var zoomStatus = new genotet.ExpressionRenderer.ZoomStatus({
-    matrixName: heatmapData.matrixName,
     geneNames: heatmapData.geneNames.slice(params.rowStart, params.rowEnd + 1),
     conditionNames: heatmapData.conditionNames.slice(params.columnStart,
       params.columnEnd + 1)
