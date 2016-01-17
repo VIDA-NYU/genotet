@@ -22,7 +22,7 @@ genotet.BindingRenderer = function(container, data) {
   this.detailHeight_ = 0;
 
   /**
-   * Height of a single bed binding track. This is re-computed upon
+   * Height of a single bed track. This is re-computed upon
    * resize event.
    * @private {number}
    */
@@ -76,7 +76,7 @@ genotet.BindingRenderer = function(container, data) {
    * Positions for the bed rects.
    * @private {!Array<!Array<number>>}
    */
-  this.bedPosition_ = [];
+  this.bedPositions_ = [];
 
   /**
    * Timer handle for the zoom interval.
@@ -122,6 +122,8 @@ genotet.BindingRenderer.prototype.STRAND_VERTICAL_SIZE = 3;
 genotet.BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
 /** @const {number} */
 genotet.BindingRenderer.prototype.BED_LABEL_SIZE = 13;
+/** @const {number} */
+genotet.BindingRenderer.prototype.BED_MIN_WIDTH = 3;
 
 /** @const {!Array<number>} */
 genotet.BindingRenderer.ZOOM_EXTENT = [1, 65536];
@@ -202,12 +204,12 @@ genotet.BindingRenderer.prototype.arrangeBedRectPositions_ = function() {
   var lineCount = 0;
   var rightCoordinates = [];
   var minRight = Infinity;
-  this.bedPosition_ = [];
+  this.bedPositions_ = [];
   var bedData = this.data.bed.motifs;
   bedData.forEach(function(data) {
-    if (this.bedPosition_.length == 0 || minRight >= data.chrStart) {
+    if (this.bedPositions_.length == 0 || minRight >= data.chrStart) {
       var newLine = [data];
-      this.bedPosition_.push(newLine);
+      this.bedPositions_.push(newLine);
       rightCoordinates.push(data.chrEnd);
       minRight = Math.min(minRight, data.chrEnd);
       lineCount++;
@@ -215,7 +217,7 @@ genotet.BindingRenderer.prototype.arrangeBedRectPositions_ = function() {
       var i = lineCount;
       while (i > 0) {
         if (rightCoordinates[i - 1] < data.chrStart) {
-          this.bedPosition_[i - 1].push(data);
+          this.bedPositions_[i - 1].push(data);
           rightCoordinates[i - 1] = data.chrEnd;
           minRight = Math.min.apply(null, rightCoordinates);
           break;
@@ -223,7 +225,7 @@ genotet.BindingRenderer.prototype.arrangeBedRectPositions_ = function() {
         i--;
       }
     }
-  }.bind(this));
+  }, this);
 };
 
 /** @inheritDoc */
@@ -680,11 +682,11 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
   } else {
     this.bedContent_.style('display', 'inline');
   }
-  var bedData = this.bedPosition_;
+  var bedData = this.bedPositions_;
   this.bedRectHeight_ = (this.bedHeight_ - this.BED_MARGINS_.TOP -
     this.BED_MARGINS_.BOTTOM) / bedData.length;
   var unitHeight = this.bedRectHeight_;
-  if (!this.data.bed.aggregated && this.data.options.showBedLabel) {
+  if (!this.data.bed.aggregated && this.data.options.showBedLabels) {
     this.bedRectHeight_ -= this.BED_LABEL_SIZE;
   }
   var opt_range = [];
@@ -698,7 +700,8 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
       var range = [data.chrStart, data.chrEnd];
       opt_range = this.bindingCoordinatesToScreenRange_(range);
       var rectWidth = opt_range[1] - opt_range[0];
-      return rectWidth < 3 ? 3 : rectWidth;
+      return rectWidth < this.BED_MIN_WIDTH ? this.BED_MIN_WIDTH :
+        rectWidth;
     }.bind(this))
     .attr('height', this.bedRectHeight_ > 0 ? this.bedRectHeight_ : 0)
     .attr('x', function(data) {
@@ -711,7 +714,7 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
     }.bind(this));
   bedRects.exit().remove();
 
-  if (!this.data.bed.aggregated && this.data.options.showBedLabel) {
+  if (!this.data.bed.aggregated && this.data.options.showBedLabels) {
     this.bedContent_.selectAll('text').style('display', 'inline');
     var labels = bedRows.selectAll('text').data(_.identity);
     labels.enter().append('text');
@@ -731,7 +734,7 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
         genotet.utils.getTransform([0, this.BED_MARGINS_.TOP]));
     labels.exit().remove();
   } else {
-    this.bedContent_.selectAll('text').style('display', 'none');
+    this.bedContent_.selectAll('text').remove();
   }
 };
 

@@ -140,7 +140,7 @@ genotet.BindingView = function(viewName, params) {
     .on('genotet.addTrack', function() {
       var track = this.data.tracks.slice(-1).pop();
       this.loader.loadFullTrack(this.data.tracks.length, track.fileName,
-        this.data.bedName, this.data.chr);
+        this.data.chr);
     }.bind(this))
     .on('genotet.removeTrack', function(event, trackIndex) {
       this.data.tracks.splice(trackIndex, 1);
@@ -150,7 +150,7 @@ genotet.BindingView = function(viewName, params) {
     .on('genotet.gene', function(event, data) {
       this.data.tracks[data.trackIndex].fileName = data.fileName;
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
-        this.data.bedName, this.data.chr);
+        this.data.chr);
     }.bind(this));
 
   $(this.loader)

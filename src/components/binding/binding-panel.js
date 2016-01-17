@@ -18,7 +18,7 @@ genotet.BindingPanel = function(data) {
     autoScale: true,
     showOverview: true,
     showBed: true,
-    showBedLabel: true,
+    showBedLabels: true,
     showExons: true
   });
 
@@ -53,7 +53,7 @@ genotet.BindingPanel.prototype.initPanel = function() {
   [
     {selector: '#overview', type: 'overview', attribute: 'showOverview'},
     {selector: '#bed', type: 'bed', attribute: 'showBed'},
-    {selector: '#bed-label', type: 'bed-label', attribute: 'showBedLabel'},
+    {selector: '#bed-labels', type: 'bed-labels', attribute: 'showBedLabels'},
     {selector: '#exons', type: 'exons', attribute: 'showExons'},
     {selector: '#auto-scale', type: 'auto-scale', attribute: 'autoScale'}
   ].forEach(function(bSwitch) {

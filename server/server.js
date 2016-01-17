@@ -92,7 +92,7 @@ function config() {
     var variable = tokens[i];
     var value = tokens[i + 2];
     switch (variable) {
-      case 'bindingPath':
+      case 'wigglePath':
         wigglePath = value;
         break;
       case 'networkPath':
