@@ -46,8 +46,10 @@ genotet.NetworkLoader.prototype.prepareGene_ = function(inputGene, isRegex) {
       genotet.error('invalid gene regex', inputGene);
       return [];
     }
-    genes = _.filter(this.data.networkInfo.nodes, function(node) {
-      return node.id.match(regex);
+    this.data.networkInfo.nodes.forEach(function(node) {
+      if (node.id.match(regex)) {
+        genes.push(node.id);
+      }
     });
   } else {
     genes = inputGene.split(',');
@@ -85,7 +87,7 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
   this.get(genotet.data.serverURL, params, function(data) {
     // Store the last applied fileName and genes.
 
-    if (data.genes.length == 0) {
+    if (genes.length == 0) {
       genotet.warning('input gene not found');
       return;
     }
@@ -107,6 +109,11 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
 genotet.NetworkLoader.prototype.updateGenes = function(method, inputGene,
                                                        isRegex) {
   var genes = this.prepareGene_(inputGene, isRegex);
+  if (genes.length == 0) {
+    genotet.warning('no gene input found');
+    return;
+  }
+
   switch (method) {
     case 'set':
       this.loadNetwork_(this.data.network.fileName, genes);
@@ -180,7 +187,7 @@ genotet.NetworkLoader.prototype.addGene_ = function(genes) {
     data.edges.forEach(function(edge) {
       this.data.network.edges.push(edge);
     }.bind(this));
-  }.bind(this), 'cannot add one gene');
+  }.bind(this), 'cannot add genes');
 };
 
 /**
@@ -193,18 +200,19 @@ genotet.NetworkLoader.prototype.deleteGene_ = function(genes) {
   genes.forEach(function(gene) {
     geneMap[gene] = true;
   });
-  // delete the node
+  console.log(genes);
+  // delete the nodes
   for (var i = 0; i < this.data.network.nodes.length; i++) {
     if (this.data.network.nodes[i].id in geneMap) {
-      this.data.network.nodes.splice(i);
-      break;
+      this.data.network.nodes.splice(i, 1);
     }
   }
+
   // delete the edges
   for (var i = this.data.network.edges.length - 1; i >= 0; i--) {
     if (this.data.network.edges[i].source in geneMap ||
       this.data.network.edges[i].target in geneMap) {
-      this.data.network.edges.splice(i);
+      this.data.network.edges.splice(i, 1);
     }
   }
 };

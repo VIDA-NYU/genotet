@@ -223,7 +223,7 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
 
 /** @inheritDoc */
 genotet.NetworkRenderer.prototype.dataReady = function() {
-  return this.data.network.nodes != null;
+  return this.data.network != null;
 };
 
 

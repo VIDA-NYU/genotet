@@ -92,15 +92,15 @@ genotet.NetworkView = function(viewName, params) {
         break;
       case 'gene':
         this.loader.updateGenes(data.method, data.inputGene, data.isRegex);
-        this.renderer.update();
+        this.renderer.dataLoaded();
         break;
       case 'add-edge':
         this.loader.addOneEdge(data.source, data.target, data.weight);
-        this.renderer.update();
+        this.renderer.dataLoaded();
         break;
       case 'delete-edge':
         this.loader.deleteOneEdge(data.source, data.target);
-        this.renderer.update();
+        this.renderer.dataLoaded();
         break;
       default:
         genotet.error('unknown update type', data.type);

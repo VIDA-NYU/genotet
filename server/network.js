@@ -234,7 +234,7 @@ network.getNet_ = function(file, genes) {
   var nodes = [], nodeKeys = {};
   var edges = [];
   genes.forEach(function(gene) {
-    nodeKeys[gene.id] = true;
+    nodeKeys[gene] = true;
   });
 
   var numNode = result.nodes.length;
