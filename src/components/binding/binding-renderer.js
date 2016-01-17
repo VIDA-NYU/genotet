@@ -85,7 +85,7 @@ genotet.BindingRenderer = function(container, data) {
   this.zoomTimer_;
 
   /**
-   * Margins of the bed binding track.
+   * Margins of the bed track.
    * @private @const {!Object<number>}
    */
   this.BED_MARGINS_ = {
