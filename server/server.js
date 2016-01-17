@@ -128,24 +128,6 @@ var upload = multer({
 var exonFile = wigglePath + 'exons.bin';
 
 /**
- * Mapping from expression matrix names to their file locations.
- * @type {!Object<string>}
- */
-var expressionFile = {
-  'b-subtilis': expressionPath + 'expressionMatrix.bin',
-  'rna-seq': expressionPath + 'rnaseq.bin'
-};
-
-/**
- * Mapping from expression matrix names to their TFA file locations.
- * @type {!Object<string>}
- */
-var tfamatFile = {
-  'b-subtilis': expressionPath + 'tfa.matrix2.bin',
-  'rna-seq': null
-};
-
-/**
  * POST request is not used as it conflicts with jsonp.
  */
 app.post('/genotet/upload', upload.single('file'), function(req, res) {
@@ -214,8 +196,8 @@ app.get('/genotet', function(req, res) {
     case 'expression-info':
       data = expression.query.matrixInfo(query, expressionPath);
       break;
-    case 'expression-profile':
-      data = expression.query.profile(query, expressionFile, tfamatFile);
+    case 'tfa-profile':
+      data = expression.query.tfaProfile(query, expressionPath);
       break;
 
     // Bed data queries

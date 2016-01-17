@@ -44,7 +44,7 @@ genotet.viewManager.init = function() {
  * Creates a view with the given type and name.
  * @param {string} type Type of the view.
  * @param {string} viewName Name of the view.
- * @param {Object} params Additional parameters passed to the view.
+ * @param {*} params Additional parameters passed to the view.
  */
 genotet.viewManager.createView = function(type, viewName, params) {
   if (!viewName) {
@@ -62,13 +62,16 @@ genotet.viewManager.createView = function(type, viewName, params) {
   var newView;
   switch (type) {
     case 'network':
-      newView = new genotet.NetworkView(viewName, params);
+      newView = new genotet.NetworkView(viewName,
+        /** @type {genotet.NetworkViewParams} */(params));
       break;
     case 'expression':
-      newView = new genotet.ExpressionView(viewName, params);
+      newView = new genotet.ExpressionView(viewName,
+        /** @type {genotet.ExpressionViewParams} */(params));
       break;
     case 'binding':
-      newView = new genotet.BindingView(viewName, params);
+      newView = new genotet.BindingView(viewName,
+        /** @type {genotet.BindingViewParams} */(params));
       break;
     default:
       genotet.error('unknown view type');
@@ -118,7 +121,7 @@ genotet.viewManager.closeAllViews = function() {
  * The function attempts to put the new view to the right or bottom of some
  * existing view.
  * @param {genotet.View} newView The newly created view.
- * @return {!{left: number, top: number}}
+ * @return {{left: number, top: number}}
  */
 genotet.viewManager.findPosition = function(newView) {
   var newRect = newView.rect();
