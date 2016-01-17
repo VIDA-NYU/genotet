@@ -336,8 +336,9 @@ genotet.BindingRenderer.prototype.layout = function() {
   this.detailTranslateY_ = this.data.options.showOverview ?
     numTracks * this.OVERVIEW_HEIGHT : 0;
   this.exonsTranslateY_ = this.canvasHeight - this.EXON_HEIGHT;
-  this.bedTranslateY_ = this.data.options.showOverview ?
-    this.OVERVIEW_HEIGHT + this.detailHeight_ : this.detailHeight_;
+  this.bedTranslateY_ = this.data.options.showExons ?
+    this.canvasHeight - this.EXON_HEIGHT - this.bedHeight_:
+    this.canvasHeight - this.bedHeight_;
 
   // Translate SVG groups to place.
   this.svgDetail_.attr('transform',
