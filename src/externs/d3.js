@@ -266,3 +266,8 @@ d3.layout.force.prototype.stop = function() {};
  * @param {!Array<number>} arg
  */
 d3.layout.force.prototype.size = function(arg) {};
+
+/**
+ * @param {!Array<*>} arg
+ */
+d3.layout.force.prototype.nodes = function(arg) {};

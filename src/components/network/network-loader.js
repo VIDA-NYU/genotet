@@ -245,6 +245,7 @@ genotet.NetworkLoader.prototype.addOneEdge = function(source, target, weight) {
       isTF: isTF
     });
   }
+
   this.data.network.edges.push({
     id: source + ',' + target,
     source: source,
