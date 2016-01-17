@@ -16,7 +16,7 @@ function network() {}
 /**
  * @typedef {{
  *   id: string,
- *   name: string,
+ *   label: string,
  *   isTF: boolean
  * }}
  */
@@ -466,11 +466,13 @@ network.listNetwork_ = function(networkPath) {
 network.addGene_ = function(file, genes, nodes) {
   var oldNodes = {};
   nodes.forEach(function(node) {
-    oldNodes[node.name] = true;
+    oldNodes[node.id] = true;
   });
   var newNodes = {};
   genes.forEach(function(gene) {
-    newNodes[gene] = true;
+    if (!(gene in oldNodes)) {
+      newNodes[gene] = true;
+    }
   });
   var edges = [];
   var result = network.readNetwork_(file);
@@ -481,7 +483,9 @@ network.addGene_ = function(file, genes, nodes) {
       edges.push(edge);
     }
   });
-  return edges;
+  return {
+    edges: edges
+  };
 };
 
 /**

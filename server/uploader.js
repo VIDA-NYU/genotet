@@ -169,6 +169,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       fs.writeSync(fd, segBuf, 0, offset, 0);
       fs.closeSync(fd);
     }
+    genotet.success('binding data is uploaded and processed');
   });
 };
 

@@ -147,13 +147,14 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
     .text(edge.target.label);
   container.children('#weight').children('span')
     .text(edge.weight);
-  container.children('#rm-edge').click(function() {
+  container.children('#weight').children('#rm-edge').click(function() {
     this.signal('update', {
       type: 'delete-edge',
       source: edge.source.label,
       target: edge.target.label
     });
-  });
+    this.container.find('#edge-info').hide().slideUp();
+  }.bind(this));
 };
 
 /**

@@ -180,7 +180,7 @@ genotet.NetworkLoader.prototype.addGene_ = function(genes) {
     newGenes.forEach(function(gene) {
       this.data.network.nodes.push({
         id: gene,
-        name: gene,
+        label: gene,
         isTF: isTF[gene]
       });
     }.bind(this));
@@ -200,14 +200,12 @@ genotet.NetworkLoader.prototype.deleteGene_ = function(genes) {
   genes.forEach(function(gene) {
     geneMap[gene] = true;
   });
-  console.log(genes);
   // delete the nodes
   for (var i = 0; i < this.data.network.nodes.length; i++) {
     if (this.data.network.nodes[i].id in geneMap) {
       this.data.network.nodes.splice(i, 1);
     }
   }
-
   // delete the edges
   for (var i = this.data.network.edges.length - 1; i >= 0; i--) {
     if (this.data.network.edges[i].source in geneMap ||
@@ -236,7 +234,7 @@ genotet.NetworkLoader.prototype.addOneEdge = function(source, target, weight) {
   if (!sourceExists) {
     this.data.network.nodes.push({
       id: source,
-      name: source,
+      label: source,
       isTF: true
     });
   }
@@ -249,11 +247,10 @@ genotet.NetworkLoader.prototype.addOneEdge = function(source, target, weight) {
     });
     this.data.network.nodes.push({
       id: target,
-      name: target,
+      label: target,
       isTF: isTF
     });
   }
-
   this.data.network.edges.push({
     id: source + ',' + target,
     source: source,
@@ -271,7 +268,7 @@ genotet.NetworkLoader.prototype.deleteOneEdge = function(source, target) {
   for (var i = 0; i < this.data.network.edges.length; i++) {
     if (this.data.network.edges[i].source == source &&
       this.data.network.edges[i].target == target) {
-      this.data.network.edges.splice(i);
+      this.data.network.edges.splice(i, 1);
       break;
     }
   }
@@ -287,7 +284,7 @@ genotet.NetworkLoader.prototype.deleteOneEdge = function(source, target) {
   if (!sourceExists) {
     for (var i = 0; i < this.data.network.nodes.length; i++) {
       if (this.data.network.nodes[i].id == source) {
-        this.data.network.nodes.splice(i);
+        this.data.network.nodes.splice(i, 1);
         break;
       }
     }
@@ -295,7 +292,7 @@ genotet.NetworkLoader.prototype.deleteOneEdge = function(source, target) {
   if (!targetExists) {
     for (var i = 0; i < this.data.network.nodes.length; i++) {
       if (this.data.network.nodes[i].id == target) {
-        this.data.network.nodes.splice(i);
+        this.data.network.nodes.splice(i, 1);
         break;
       }
     }

@@ -8,7 +8,7 @@
 /**
  * @typedef {{
  *   id: string,
- *   name: string,
+ *   label: string,
  *   isTF: boolean
  * }}
  */
