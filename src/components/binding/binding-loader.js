@@ -15,6 +15,8 @@ genotet.BindingLoader = function(data) {
 
   _.extend(this.data, {
     tracks: [],
+    bed: null,
+    bedName: null,
     exons: []
   });
 };
@@ -27,14 +29,17 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 /**
  * Loads the binding data for a given gene and chromosome.
  * @param {string} fileName Binding file name.
+ * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
-genotet.BindingLoader.prototype.load = function(fileName, chr, opt_track) {
+genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
+                                                opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   this.data.chr = chr;
   this.loadFullTrack(trackIndex, fileName, chr);
+  this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
   this.loadExons_(chr);
 };
 
@@ -55,7 +60,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
       this.updateRanges_();
     }.bind(this), 'cannot load binding overview');
 
-    // Send send query for the details.
+    // Send query for the details.
     _.extend(params, {
       xl: this.data.detailXMin,
       xr: this.data.detailXMax
@@ -110,6 +115,29 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
       this.data.tracks[trackIndex].detail = data;
     }.bind(this), 'cannot load binding detail');
   }
+};
+
+/**
+ * Loads the bed data of a single binding track.
+ * @param {string} fileName File name of the bed binding track.
+ * @param {string} chr Chromosome.
+ * @param {number|undefined} xl Left coordinate of the query range.
+ *   If null, use the leftmost coordinate of the track.
+ * @param {number|undefined} xr Right coordinate of the query range.
+ *   If null, use the rightmost coordinate of the track.
+ */
+genotet.BindingLoader.prototype.loadBed = function(fileName, chr, xl, xr) {
+  var params = {
+    type: 'bed',
+    fileName: fileName,
+    chr: chr,
+    xl: xl,
+    xr: xr
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    this.data.bed = data;
+    this.data.bedName = fileName;
+  }.bind(this), 'cannot load binding data');
 };
 
 /**
@@ -171,6 +199,8 @@ genotet.BindingLoader.prototype.findLocus = function(gene) {
         this.signal('chr', res.chr);
         this.switchChr(res.chr);
       } else {
+        this.loadBed(this.data.bedName, this.data.chr, this.data.detailXMin,
+          this.data.detailXMax);
         this.loadTrackDetail(this.data.detailXMin, this.data.detailXMax);
       }
     }

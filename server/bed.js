@@ -14,12 +14,15 @@ function bed() {}
 
 /**
  * @typedef {{
- *   chrStart: number,
- *   chrEnd: number,
- *   label: string
+ *   aggregated: boolean,
+ *   motifs: !Array<{
+ *     chrStart: number,
+ *     chrEnd: number,
+ *     label: (string|undefined)
+ *   }>
  * }}
  */
-bed.Motif;
+bed.MotifsResult;
 
 /** @const */
 bed.query = {};
@@ -38,7 +41,7 @@ bed.query.Motifs;
 /**
  * @param {!bed.query.Motifs} query
  * @param {string} bedPath
- * @return {!Array<!bed.Motif>}
+ * @return {!bed.MotifsResult}
  */
 bed.query.motifs = function(query, bedPath) {
   var fileName = query.fileName;
@@ -72,7 +75,7 @@ bed.MOTIF_THRESHOLD_ = 200;
  * @param {string} bedFile Path to the bed file.
  * @param {number|undefined} xl Left coordinate of the query range.
  * @param {number|undefined} xr Right coordinate of the query range.
- * @return {!Array<!bed.Motif>} Contains the intervals of bed data.
+ * @return {!bed.MotifsResult} Contains the intervals of bed data.
  * @private
  */
 bed.readBed_ = function(bedFile, xl, xr) {
@@ -106,7 +109,7 @@ bed.readBed_ = function(bedFile, xl, xr) {
    * @param {number} extend
    * @param {boolean} returnArray Whether to return a result array. If false,
    *     return only the count of the array elements.
-   * @return {number|!Array<bed.Motif>}
+   * @return {number|bed.MotifsResult}
    */
   var aggregatedMotifs = function(extend, returnArray) {
     var result = returnArray ? [] : 0;

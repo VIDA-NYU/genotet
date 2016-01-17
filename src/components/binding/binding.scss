@@ -1,5 +1,6 @@
 $gray: #aaa;
 $white: #fff;
+$bed-blue: #031c51;
 $exon-blue: #031c51;
 $overview-fill: #666;
 $details-fill: #222;
@@ -18,6 +19,17 @@ $details-fill: #222;
 
   .details path {
     fill: $details-fill;
+  }
+
+  .bed {
+    rect {
+      fill: $bed-blue;
+    }
+
+    text {
+      font-size: 11px;
+      text-anchor: middle;
+    }
   }
 
   .exons {

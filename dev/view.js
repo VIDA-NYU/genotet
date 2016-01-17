@@ -20,6 +20,7 @@ genotet.test = function() {
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     fileName: 'b6.bw',
+    bedName: 'bed_data.bed',
     chr: '1'
   });
   genotet.viewManager.createView('network', 'My Network', {
