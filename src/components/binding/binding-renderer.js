@@ -201,31 +201,21 @@ genotet.BindingRenderer.prototype.getBindingRanges_ = function() {
  * @private
  */
 genotet.BindingRenderer.prototype.arrangeBedRectPositions_ = function() {
-  var lineCount = 0;
   var rightCoordinates = [];
-  var minRight = Infinity;
-  this.bedPositions_ = [];
-  var bedData = this.data.bed.motifs;
-  bedData.forEach(function(data) {
-    if (this.bedPositions_.length == 0 || minRight >= data.chrStart) {
-      var newLine = [data];
-      this.bedPositions_.push(newLine);
-      rightCoordinates.push(data.chrEnd);
-      minRight = Math.min(minRight, data.chrEnd);
-      lineCount++;
+  var minRight = Infinity, minRightIndex = -1;
+  var positions = [];
+  this.data.bed.motifs.forEach(function(motif) {
+    if (!positions.length || minRight >= motif.chrStart) {
+      positions.push([motif]);
+      rightCoordinates.push(motif.chrEnd);
     } else {
-      var i = lineCount;
-      while (i > 0) {
-        if (rightCoordinates[i - 1] < data.chrStart) {
-          this.bedPositions_[i - 1].push(data);
-          rightCoordinates[i - 1] = data.chrEnd;
-          minRight = Math.min.apply(null, rightCoordinates);
-          break;
-        }
-        i--;
-      }
+      positions[minRightIndex].push(motif);
+      rightCoordinates[minRightIndex] = motif.chrEnd;
     }
-  }, this);
+    minRight = Math.min.apply(null, rightCoordinates);
+    minRightIndex = rightCoordinates.indexOf(minRight);
+  });
+  this.bedPositions_ = positions;
 };
 
 /** @inheritDoc */

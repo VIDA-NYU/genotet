@@ -35,7 +35,7 @@ genotet.Error;
  * Path of wiggle files.
  * @type {string}
  */
-var wigglePath;
+var bindingPath;
 /**
  * Path of network files.
  * @type {string}
@@ -92,8 +92,8 @@ function config() {
     var variable = tokens[i];
     var value = tokens[i + 2];
     switch (variable) {
-      case 'wigglePath':
-        wigglePath = value;
+      case 'bindingPath':
+        bindingPath = value;
         break;
       case 'networkPath':
         networkPath = value;
@@ -125,7 +125,7 @@ var upload = multer({
  * Path of the exon info file.
  * @type {string}
  */
-var exonFile = wigglePath + 'exons.bin';
+var exonFile = bindingPath + 'exons.bin';
 
 /**
  * POST request is not used as it conflicts with jsonp.
@@ -139,7 +139,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
       prefix = networkPath;
       break;
     case 'binding':
-      prefix = wigglePath;
+      prefix = bindingPath;
       break;
     case 'expression':
       prefix = expressionPath;
@@ -181,7 +181,7 @@ app.get('/genotet', function(req, res) {
 
     // Binding data queries
     case 'binding':
-      data = binding.query.histogram(query, wigglePath);
+      data = binding.query.histogram(query, bindingPath);
       break;
     case 'exons':
       data = binding.query.exons(query, exonFile);
@@ -210,7 +210,7 @@ app.get('/genotet', function(req, res) {
       data = network.query.list(networkPath);
       break;
     case 'list-binding':
-      data = binding.query.list(wigglePath);
+      data = binding.query.list(bindingPath);
       break;
     case 'list-expression':
       data = expression.query.list(expressionPath);
