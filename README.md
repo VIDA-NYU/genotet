@@ -35,7 +35,7 @@ Installation:
     networkPath = .../genotet_data/network/
     bindingPath = .../genotet_data/binding/
     expressionPath = .../genotet_data/expression/
-    bigWigToWigPath = .../genotet_data/
+    bigWigToWigPath = .../genotet_data/bigWigToWig
     uploadPath = .../genotet_data/upload/
     bedPath = .../genotet_data/bed/
     ```

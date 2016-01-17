@@ -34,7 +34,8 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
-genotet.BindingLoader.prototype.load = function(fileName, bedName, chr, opt_track) {
+genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
+                                                opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   this.data.chr = chr;
   this.loadFullTrack(trackIndex, fileName, bedName, chr);
@@ -129,7 +130,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
 genotet.BindingLoader.prototype.loadBed = function(bedName, chr, xl, xr) {
   var params = {
     type: 'bed',
-    bedName: bedName,
+    fileName: bedName,
     chr: chr,
     xl: xl,
     xr: xr
