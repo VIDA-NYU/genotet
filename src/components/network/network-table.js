@@ -22,7 +22,7 @@ genotet.NetworkTable = function(data) {
  *   id: string,
  *   source: string,
  *   target: string,
- *   weight: number,
+ *   weight: !Array<number>,
  *   added: boolean
  * }>} edges List of edges.
  *   added: Whether the edge has been added to the network
@@ -35,8 +35,19 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
   edges.forEach(function(edge) {
     edge.added = edge.id in edgeIds;
   });
+  var edgesForTable = [];
+  edges.forEach(function(edge) {
+    edgesForTable.push({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      added: edge.added,
+      weight: edge.weight[0],
+      originalWeight: edge.weight
+    });
+  });
   table.DataTable({
-    data: edges,
+    data: edgesForTable,
     columnDefs: [
       {
         render: function(added) {
@@ -49,7 +60,15 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       {title: 'Source', data: 'source'},
       {title: 'Target', data: 'target'},
       {title: 'Weight', data: 'weight'},
-      {title: '', data: 'added'}
+      {title: 'Add', data: 'added'}
+    ],
+    select: true,
+    dom: 'Bfrtip',
+    buttons: [
+      'copyHtml5',
+      'excelHtml5',
+      'csvHtml5',
+      'pdfHtml5'
     ],
     lengthMenu: [5, 10, 20, 50],
     pageLength: 5,
