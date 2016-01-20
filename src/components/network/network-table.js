@@ -8,11 +8,14 @@
 /**
  * NetworkTable renders given multi-dimensional data as a table.
  * @param {!Object} data Data object of the view.
+ * @extends {genotet.ViewLoader}
  * @constructor
  */
 genotet.NetworkTable = function(data) {
   this.data = data;
 };
+
+genotet.utils.inherit(genotet.NetworkTable, genotet.ViewLoader);
 
 /**
  * Creates an incident edge table with the given data, inside a given
@@ -25,7 +28,7 @@ genotet.NetworkTable = function(data) {
  *   weight: !Array<number>,
  *   added: boolean
  * }>} edges List of edges.
- *   added: Whether the edge has been added to the network
+ *   added: Whether the edge has been added to the network.
  */
 genotet.NetworkTable.prototype.create = function(table, edges) {
   var edgeIds = {};
@@ -65,14 +68,54 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
     select: true,
     dom: 'Bfrtip',
     buttons: [
-      'copyHtml5',
-      'excelHtml5',
-      'csvHtml5',
-      'pdfHtml5'
+      {
+        text: 'add',
+        action: function(e, dt, node, config) {
+          var selectedEdge = dt.rows({selected: true}).data()[0];
+          this.signal('addEdge', {
+            source: selectedEdge.source,
+            target: selectedEdge.target,
+            weight: selectedEdge.originalWeight
+          });
+          edgesForTable.forEach(function(edge) {
+            if (edge.id == selectedEdge.id) {
+              edge.added = true;
+            }
+          });
+        }.bind(this)
+      },
+      {
+        text: 'remove',
+        action: function(e, dt, node, config) {
+          var selectedEdge = dt.rows({selected: true}).data()[0];
+          this.signal('removeEdge', {
+            source: selectedEdge.source,
+            target: selectedEdge.target,
+            weight: selectedEdge.originalWeight
+          });
+          edgesForTable.forEach(function(edge) {
+            if (edge.id == selectedEdge.id) {
+              edge.added = false;
+            }
+          });
+        }.bind(this)
+      },
+      'pageLength'
     ],
     lengthMenu: [5, 10, 20, 50],
     pageLength: 5,
     pagingType: 'full'
+  });
+
+  table.on('select', function(e, dt, type, indexes) {
+    console.log('here');
+    var count = table.rows({selected: true}).count();
+    if (count == 1) {
+      var row = table.rows({selected: true}).data[0];
+      console.log(row.added);
+      table.button(0).enable(!row.added);
+      table.button(1).enable(row.added);
+    }
   });
   table.closest('#edge-list').css('width',
     /** @type {number} */(table.width()));

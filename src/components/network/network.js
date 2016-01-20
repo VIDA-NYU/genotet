@@ -95,11 +95,11 @@ genotet.NetworkView = function(viewName, params) {
         this.renderer.dataLoaded();
         break;
       case 'add-edge':
-        this.loader.addOneEdge(data.source, data.target, data.weight);
+        this.loader.addOneEdge(data);
         this.renderer.dataLoaded();
         break;
       case 'delete-edge':
-        this.loader.deleteOneEdge(data.source, data.target);
+        this.loader.deleteOneEdge(data);
         this.renderer.dataLoaded();
         break;
       default:
@@ -140,6 +140,17 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.edgeUnhover', function(event, edge) {
       genotet.tooltip.hideAll();
+    }.bind(this));
+
+  // Table
+  $(this.table)
+    .on('genotet.addEdge', function(event, data) {
+      this.loader.addOneEdge(data);
+      this.renderer.dataLoaded();
+    }.bind(this))
+    .on('genotet.removeEdge', function(event, data) {
+      this.loader.deleteOneEdge(data);
+      this.renderer.dataLoaded();
     }.bind(this));
 };
 

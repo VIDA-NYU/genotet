@@ -216,12 +216,13 @@ genotet.NetworkLoader.prototype.deleteGene_ = function(genes) {
 };
 
 /**
- * Add one edge to the graph.
- * @param {string} source Source of the edge.
- * @param {string} target Target of the edge.
- * @param {!Array<number>} weight Weights of the edge.
+ * Adds one edge to the graph.
+ * @param {!Object} data Input data for adding an edge.
  */
-genotet.NetworkLoader.prototype.addOneEdge = function(source, target, weight) {
+genotet.NetworkLoader.prototype.addOneEdge = function(data) {
+  var source = data.source;
+  var target = data.target;
+  var weight = data.weight;
   var sourceExists = false, targetExists = false;
   this.data.network.nodes.forEach(function(node) {
     if (source == node.id) {
@@ -261,10 +262,11 @@ genotet.NetworkLoader.prototype.addOneEdge = function(source, target, weight) {
 
 /**
  * Delete one edge from the graph.
- * @param {string} source Source of the edge.
- * @param {string} target Target of the edge.
+ * @param {!Object} data Input data for delete.
  */
-genotet.NetworkLoader.prototype.deleteOneEdge = function(source, target) {
+genotet.NetworkLoader.prototype.deleteOneEdge = function(data) {
+  var source = data.source;
+  var target = data.target;
   for (var i = 0; i < this.data.network.edges.length; i++) {
     if (this.data.network.edges[i].source == source &&
       this.data.network.edges[i].target == target) {

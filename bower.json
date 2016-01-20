@@ -29,7 +29,10 @@
     "datatables.net-dt": "~1.10.10",
     "datatables.net-buttons-dt": "~1.1.0",
     "datatables.net-select-dt": "~1.1.0",
-    "datatables.net": "~1.10.10"
+    "datatables.net": "~1.10.10",
+    "datatables.net-bs": "~1.10.10",
+    "datatables.net-buttons-bs": "~1.1.0",
+    "datatables.net-select-bs": "~1.1.0"
   },
   "devDependencies": {
     "qunit": "~1.20.0"
