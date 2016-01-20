@@ -119,6 +119,9 @@ genotet.View.prototype.init = function() {
     .on('genotet.loadFail', function() {
       this.renderer.showFailure();
     }.bind(this));
+
+  // Override jQuery Resizable handle.
+  $('.ui-resizable-handle').css('z-index', 'auto');
 };
 
 /**
