@@ -96,6 +96,21 @@ $white: #fff;
     padding: 10px;
   }
 
+  .input-checkbox {
+    float: left;
+    font-size: 12px;
+    margin-top: 4px;
+
+    label {
+      margin-left: 0;
+    }
+
+    input {
+      height: 10px;
+      width: 100%;
+    }
+  }
+
   .zoom-out {
     margin-top: 5px;
     width: 100%;

@@ -162,7 +162,6 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
                                                      names) {
   var heatmapData = this.data.matrix;
   var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
-    fileName: heatmapData.fileName,
     geneNames: heatmapData.geneNames,
     conditionNames: heatmapData.conditionNames
   });
@@ -175,14 +174,14 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
         break;
       case 'addGene':
         // Concat the two names.
-        this.removeNames_(zoomStatus.geneNames, names);
+        zoomStatus.geneNames = this.removeNames_(zoomStatus.geneNames, names);
         names.forEach(function(name) {
           zoomStatus.geneNames.push(name);
         });
         break;
       case 'removeGene':
         // Remove the names.
-        this.removeNames_(zoomStatus.geneNames, names);
+        zoomStatus.geneNames = this.removeNames_(zoomStatus.geneNames, names);
         break;
       case 'setCondition':
         // Totally replace the regex.
@@ -190,19 +189,21 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
         break;
       case 'addCondition':
         // Concat the two names.
-        this.removeNames_(zoomStatus.conditionNames, names);
+        zoomStatus.conditionNames = this.removeNames_(zoomStatus.conditionNames,
+          names);
         names.forEach(function(name) {
           zoomStatus.conditionNames.push(name);
         });
         break;
       case 'removeCondition':
         // Remove the names.
-        this.removeNames_(zoomStatus.conditionNames, names);
+        zoomStatus.conditionNames = this.removeNames_(zoomStatus.conditionNames,
+          names);
         break;
     }
   }, this);
   var zoomStatus = this.data.zoomStack.pop();
-  this.load(zoomStatus.fileName, zoomStatus.geneNames,
+  this.load(heatmapData.fileName, zoomStatus.geneNames,
     zoomStatus.conditionNames);
 };
 
@@ -211,18 +212,26 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
  * @param {!Array<string>} originalNames Original names from previous zoom
  *      status.
  * @param {!Array<string>} removeNames Names need to be removed.
+ * @return {!Array<string>} result Revised names.
  * @private
  */
 genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames,
                                                            removeNames) {
   var namesDict = {};
+  var result = [];
   originalNames.forEach(function(name, i) {
     namesDict[name] = i;
   });
   removeNames.forEach(function(name) {
     var geneIndex = namesDict[name];
     if (name in namesDict) {
-      originalNames.splice(geneIndex, 1);
+      delete originalNames[geneIndex];
     }
   });
+  originalNames.forEach(function(name) {
+    if (name) {
+      result.push(name);
+    }
+  });
+  return result;
 };
