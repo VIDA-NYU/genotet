@@ -53,6 +53,7 @@ $white: #fff;
   }
 
   .gene-label {
+    font-size: 11px;
     text-anchor: end;
 
     &.highlighted {
@@ -71,6 +72,7 @@ $white: #fff;
   }
 
   .condition-label {
+    font-size: 11px;
     text-anchor: right;
 
     &.highlighted {
@@ -85,6 +87,12 @@ $white: #fff;
     &.label-selected {
       fill: $blue;
       stroke: none;
+    }
+  }
+
+  .heatmap-gradient {
+    text {
+      font-size: 11px;
     }
   }
 }
