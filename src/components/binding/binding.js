@@ -6,14 +6,29 @@
 
 /**
  * @typedef {{
+ *   gene: string,
  *   fileName: string,
- *   overview: !Array,
- *   detail: !Array,
+ *   overview: !Array<{x: number, value: number}>,
+ *   detail: !Array<{x: number, value: number}>,
  *   xMin: number,
  *   xMax: number
  * }}
+ *   gene: Data name for this file.
+ *   fileName: File name for the wiggle file.
  */
 genotet.bindingTrack;
+
+/**
+ * @typedef {{
+ *   aggregated: boolean,
+ *   motifs: !Array<{
+ *     chrStart: number,
+ *     chrEnd: number,
+ *     label: (string|undefined)
+ *   }>
+ * }}
+ */
+genotet.Bed;
 
 /**
  * @typedef {{
@@ -33,16 +48,26 @@ genotet.Exon;
  *   overviewXMin: number,
  *   overviewXMax: number,
  *   tracks: !Array<!genotet.bindingTrack>,
+ *   bed: !genotet.Bed,
+ *   bedName: string,
  *   exons: !Array<!genotet.Exon>
  * }}
  */
 genotet.bindingData;
 
 /**
+ * @typedef {{
+ *   fileName: string,
+ *   chr: string
+ * }}
+ */
+genotet.BindingViewParams;
+
+/**
  * BindingView extends the base View class, and renders the binding data
  * associated with the regulatory Binding.
  * @param {string} viewName Name of the view.
- * @param {!Object} params Additional parameters.
+ * @param {genotet.BindingViewParams} params
  * @extends {genotet.View}
  * @constructor
  */
@@ -67,12 +92,13 @@ genotet.BindingView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.fileName, params.chr);
+    this.loader.load(params.fileName, params.bedName, params.chr);
   }.bind(this));
 
   $(this.renderer)
     .on('genotet.zoom', function(event, data) {
       this.loader.loadTrackDetail(data.xl, data.xr);
+      this.loader.loadBed(data.bedName, data.chr, data.xl, data.xr);
     }.bind(this))
     .on('genotet.coordinates', function(event, data) {
       this.panel.updateCoordinates(data.start, data.end);
@@ -94,6 +120,7 @@ genotet.BindingView = function(viewName, params) {
         return;
       }
       this.loader.loadTrackDetail(range[0], range[1]);
+      this.loader.loadBed(data.bedName, data.chr, range[0], range[1]);
       this.renderer.zoomTransform(range);
     }.bind(this))
     .on('genotet.locus', function(event, fileName) {
@@ -113,7 +140,7 @@ genotet.BindingView = function(viewName, params) {
     .on('genotet.addTrack', function() {
       var track = this.data.tracks.slice(-1).pop();
       this.loader.loadFullTrack(this.data.tracks.length, track.fileName,
-          this.data.chr);
+        this.data.chr);
     }.bind(this))
     .on('genotet.removeTrack', function(event, trackIndex) {
       this.data.tracks.splice(trackIndex, 1);
@@ -122,14 +149,15 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.gene', function(event, data) {
       this.data.tracks[data.trackIndex].fileName = data.fileName;
-      this.loader.loadFullTrack(data.trackIndex, data.fileName, this.data.chr);
+      this.loader.loadFullTrack(data.trackIndex, data.fileName,
+        this.data.chr);
     }.bind(this));
 
   $(this.loader)
     .on('genotet.chr', function(event, chr) {
       this.panel.updateChr(chr);
     }.bind(this))
-    .on('genotet.track', function(event) {
+    .on('genotet.track', function() {
       this.panel.updateTracks();
     }.bind(this));
 };

@@ -35,7 +35,7 @@ genotet.Error;
  * Path of wiggle files.
  * @type {string}
  */
-var wigglePath;
+var bindingPath;
 /**
  * Path of network files.
  * @type {string}
@@ -93,7 +93,7 @@ function config() {
     var value = tokens[i + 2];
     switch (variable) {
       case 'bindingPath':
-        wigglePath = value;
+        bindingPath = value;
         break;
       case 'networkPath':
         networkPath = value;
@@ -125,25 +125,7 @@ var upload = multer({
  * Path of the exon info file.
  * @type {string}
  */
-var exonFile = wigglePath + 'exons.bin';
-
-/**
- * Mapping from expression matrix names to their file locations.
- * @type {!Object<string>}
- */
-var expressionFile = {
-  'b-subtilis': expressionPath + 'expressionMatrix.bin',
-  'rna-seq': expressionPath + 'rnaseq.bin'
-};
-
-/**
- * Mapping from expression matrix names to their TFA file locations.
- * @type {!Object<string>}
- */
-var tfamatFile = {
-  'b-subtilis': expressionPath + 'tfa.matrix2.bin',
-  'rna-seq': null
-};
+var exonFile = bindingPath + 'exons.bin';
 
 /**
  * POST request is not used as it conflicts with jsonp.
@@ -157,7 +139,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
       prefix = networkPath;
       break;
     case 'binding':
-      prefix = wigglePath;
+      prefix = bindingPath;
       break;
     case 'expression':
       prefix = expressionPath;
@@ -205,7 +187,7 @@ app.get('/genotet', function(req, res) {
 
     // Binding data queries
     case 'binding':
-      data = binding.query.histogram(query, wigglePath);
+      data = binding.query.histogram(query, bindingPath);
       break;
     case 'exons':
       data = binding.query.exons(query, exonFile);
@@ -220,8 +202,8 @@ app.get('/genotet', function(req, res) {
     case 'expression-info':
       data = expression.query.matrixInfo(query, expressionPath);
       break;
-    case 'expression-profile':
-      data = expression.query.profile(query, expressionFile, tfamatFile);
+    case 'tfa-profile':
+      data = expression.query.tfaProfile(query, expressionPath);
       break;
 
     // Bed data queries
@@ -234,7 +216,7 @@ app.get('/genotet', function(req, res) {
       data = network.query.list(networkPath);
       break;
     case 'list-binding':
-      data = binding.query.list(wigglePath);
+      data = binding.query.list(bindingPath);
       break;
     case 'list-expression':
       data = expression.query.list(expressionPath);

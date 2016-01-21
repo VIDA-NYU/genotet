@@ -235,8 +235,9 @@ genotet.dialog.createExpression_ = function() {
         type: 'list-matrix'
       };
       $.get(genotet.data.serverURL, params, function(data) {
+          var matrices = /** @type {genotet.ListedExpression} */(data);
           var selectpicker = modal.find('.selectpicker');
-          data.forEach(function(matrix) {
+          matrices.forEach(function(matrix) {
             $('<option></option>')
               .text(matrix.fileName)
               .appendTo(selectpicker);
@@ -274,7 +275,6 @@ genotet.dialog.createExpression_ = function() {
         var conditionInput = modal.find('#cond-regex').val();
         genotet.viewManager.createView('expression', viewName, {
           fileName: modal.find('#matrix').val(),
-          dataName: modal.find('.selectpicker').selectpicker(),
           isGeneRegex: genotet.dialog.isGeneRegex_,
           isConditionRegex: genotet.dialog.isConditionRegex_,
           geneInput: geneInput,

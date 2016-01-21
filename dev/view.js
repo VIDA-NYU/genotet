@@ -13,7 +13,6 @@ genotet.test = function() {
 
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
     fileName: 'expressionMatrix',
-    dataName: 'b-subtilis',
     isGeneRegex: true,
     isConditionRegex: true,
     geneInput: 'sig.*',
@@ -21,7 +20,8 @@ genotet.test = function() {
   });
   /*
   genotet.viewManager.createView('binding', 'My Genome Browser', {
-    fileName: 'SL3037_SL3036',
+    fileName: 'b6.bw',
+    bedName: 'bed_data.bed',
     chr: '1'
   });
   */

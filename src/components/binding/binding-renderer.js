@@ -21,6 +21,19 @@ genotet.BindingRenderer = function(container, data) {
    */
   this.detailHeight_ = 0;
 
+  /**
+   * Height of a single bed track. This is re-computed upon
+   * resize event.
+   * @private {number}
+   */
+  this.bedHeight_ = 0;
+
+  /**
+   * Height of a single bed rect. This is re-computed upon resize event.
+   * @private {number}
+   */
+  this.bedRectHeight_ = 0;
+
   // Navigation state.
   /** @private {!Array<number>} */
   this.zoomTranslate_ = [0, 0];
@@ -49,16 +62,36 @@ genotet.BindingRenderer = function(container, data) {
    */
   this.detailTranslateY_;
   /**
+   * Vertical translate value of the bed SVG group.
+   * @private {number}
+   */
+  this.bedTranslateY_;
+  /**
    * Vertical translate value of the exons SVG group.
    * @private {number}
    */
   this.exonsTranslateY_;
 
   /**
+   * Positions for the bed rects.
+   * @private {!Array<!Array<number>>}
+   */
+  this.bedPositions_ = [];
+
+  /**
    * Timer handle for the zoom interval.
    * @private {number}
    */
   this.zoomTimer_;
+
+  /**
+   * Margins of the bed track.
+   * @private @const {!Object<number>}
+   */
+  this.BED_MARGINS_ = {
+    TOP: 5,
+    BOTTOM: 5
+  };
 };
 
 genotet.utils.inherit(genotet.BindingRenderer, genotet.ViewRenderer);
@@ -87,6 +120,10 @@ genotet.BindingRenderer.prototype.STRAND_HORIZONTAL_SIZE = 5;
 genotet.BindingRenderer.prototype.STRAND_VERTICAL_SIZE = 3;
 /** @const {number} */
 genotet.BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
+/** @const {number} */
+genotet.BindingRenderer.prototype.BED_LABEL_SIZE = 13;
+/** @const {number} */
+genotet.BindingRenderer.prototype.BED_MIN_WIDTH = 3;
 
 /** @const {!Array<number>} */
 genotet.BindingRenderer.ZOOM_EXTENT = [1, 65536];
@@ -105,6 +142,7 @@ genotet.BindingRenderer.prototype.init = function() {
     .on('zoom', this.zoomHandler_.bind(this))
     .on('zoomend', this.zoomEndHandler_.bind(this));
   this.detailHandle_.call(this.zoom_);
+  this.bedHandle_.call(this.zoom_);
   this.exonsHandle_.call(this.zoom_);
 
   // Set up the overview drag range selection.
@@ -158,9 +196,32 @@ genotet.BindingRenderer.prototype.getBindingRanges_ = function() {
   }
 };
 
+/**
+ * Arranges the binding data bed rect positions.
+ * @private
+ */
+genotet.BindingRenderer.prototype.arrangeBedRectPositions_ = function() {
+  var rightCoordinates = [];
+  var minRight = Infinity, minRightIndex = -1;
+  var positions = [];
+  this.data.bed.motifs.forEach(function(motif) {
+    if (!positions.length || minRight >= motif.chrStart) {
+      positions.push([motif]);
+      rightCoordinates.push(motif.chrEnd);
+    } else {
+      positions[minRightIndex].push(motif);
+      rightCoordinates[minRightIndex] = motif.chrEnd;
+    }
+    minRight = Math.min.apply(null, rightCoordinates);
+    minRightIndex = rightCoordinates.indexOf(minRight);
+  });
+  this.bedPositions_ = positions;
+};
+
 /** @inheritDoc */
 genotet.BindingRenderer.prototype.dataLoaded = function() {
   this.getBindingRanges_();
+  this.arrangeBedRectPositions_();
   this.render();
 
   // Initialize coordinates in the panel.
@@ -187,6 +248,12 @@ genotet.BindingRenderer.prototype.initLayout = function() {
   this.svgDetail_ = this.canvas.append('g')
     .classed('details', true);
   /**
+   * SVG group for the bed tracks.
+   * @private {!d3}
+   */
+  this.svgBed_ = this.canvas.append('g')
+    .classed('bed', true);
+  /**
    * SVG group for the binding overviews.
    * @private {!d3}
    */
@@ -203,6 +270,12 @@ genotet.BindingRenderer.prototype.initLayout = function() {
    * @private {!d3}
    */
   this.detailContent_ = this.svgDetail_.append('g')
+    .classed('content', true);
+  /**
+   * SVG group for the bed tracks content.
+   * @private {!d3}
+   */
+  this.bedContent_ = this.svgBed_.append('g')
     .classed('content', true);
   /**
    * SVG group for the exons content.
@@ -234,6 +307,12 @@ genotet.BindingRenderer.prototype.initLayout = function() {
   this.detailHandle_ = this.svgDetail_.append('rect')
     .classed('zoom-handle', true);
   /**
+   * Handle for the bed group.
+   * @private {!d3}
+   */
+  this.bedHandle_ = this.svgBed_.append('rect')
+    .classed('zoom-handle', true);
+  /**
    * Handle for the exons group.
    * @private {!d3}
    */
@@ -257,12 +336,19 @@ genotet.BindingRenderer.prototype.layout = function() {
   this.detailTranslateY_ = this.data.options.showOverview ?
     numTracks * this.OVERVIEW_HEIGHT : 0;
   this.exonsTranslateY_ = this.canvasHeight - this.EXON_HEIGHT;
+  this.bedTranslateY_ = this.data.options.showOverview ?
+    this.OVERVIEW_HEIGHT + this.detailHeight_ : this.detailHeight_;
 
   // Translate SVG groups to place.
   this.svgDetail_.attr('transform',
     genotet.utils.getTransform([0, this.detailTranslateY_]));
+  this.svgBed_.attr('transform',
+    genotet.utils.getTransform([0, this.bedTranslateY_]));
   this.svgExons_.attr('transform',
     genotet.utils.getTransform([0, this.exonsTranslateY_]));
+
+  this.bedContent_.attr('transform',
+    genotet.utils.getTransform([0, this.BED_MARGINS_.TOP]));
 
   var trackID = function(track, index) {
     return 'track-' + index;
@@ -581,12 +667,65 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
  * @private
  */
 genotet.BindingRenderer.prototype.drawBed_ = function() {
-  // TODO(liana): Check bed visual encoding and implement this.
-  /*
   if (!this.data.options.showBed) {
-    this.bedContent_.style('display', '');
+    this.bedContent_.style('display', 'none');
+  } else {
+    this.bedContent_.style('display', 'inline');
   }
-  */
+  var bedData = this.bedPositions_;
+  this.bedRectHeight_ = (this.bedHeight_ - this.BED_MARGINS_.TOP -
+    this.BED_MARGINS_.BOTTOM) / bedData.length;
+  var unitHeight = this.bedRectHeight_;
+  if (!this.data.bed.aggregated && this.data.options.showBedLabels) {
+    this.bedRectHeight_ -= this.BED_LABEL_SIZE;
+  }
+  var opt_range = [];
+  var bedRows = this.bedContent_.selectAll('g').data(bedData);
+  bedRows.enter().append('g');
+  bedRows.exit().remove();
+  var bedRects = bedRows.selectAll('rect').data(_.identity);
+  bedRects.enter().append('rect');
+  bedRects
+    .attr('width', function(data) {
+      var range = [data.chrStart, data.chrEnd];
+      opt_range = this.bindingCoordinatesToScreenRange_(range);
+      var rectWidth = opt_range[1] - opt_range[0];
+      return rectWidth < this.BED_MIN_WIDTH ? this.BED_MIN_WIDTH :
+        rectWidth;
+    }.bind(this))
+    .attr('height', this.bedRectHeight_ > 0 ? this.bedRectHeight_ : 0)
+    .attr('x', function(data) {
+      var range = [data.chrStart, data.chrEnd];
+      opt_range = this.bindingCoordinatesToScreenRange_(range);
+      return opt_range[0];
+    }.bind(this))
+    .attr('y', function(data, i, j) {
+      return j * unitHeight;
+    }.bind(this));
+  bedRects.exit().remove();
+
+  if (!this.data.bed.aggregated && this.data.options.showBedLabels) {
+    this.bedContent_.selectAll('text').style('display', 'inline');
+    var labels = bedRows.selectAll('text').data(_.identity);
+    labels.enter().append('text');
+    labels
+      .text(function(data) {
+        return data.label;
+      })
+      .attr('x', function(data) {
+        var range = [data.chrStart, data.chrEnd];
+        opt_range = this.bindingCoordinatesToScreenRange_(range);
+        return opt_range[0];
+      }.bind(this))
+      .attr('y', function(data, i, j) {
+        return j * unitHeight + this.bedRectHeight_ + this.BED_LABEL_SIZE / 2;
+      }.bind(this))
+      .attr('transform',
+        genotet.utils.getTransform([0, this.BED_MARGINS_.TOP]));
+    labels.exit().remove();
+  } else {
+    this.bedContent_.selectAll('text').remove();
+  }
 };
 
 /**
@@ -599,7 +738,10 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
     this.OVERVIEW_HEIGHT * numTracks : 0;
   var exonsHeight = this.data.options.showExons ?
     this.EXON_HEIGHT : 0;
-  var totalDetailHeight = this.canvasHeight - exonsHeight - overviewHeight;
+  this.bedHeight_ = this.data.options.showBed ?
+    (this.canvasHeight - exonsHeight - overviewHeight) / 2 : 0;
+  var totalDetailHeight = this.canvasHeight - this.bedHeight_ - exonsHeight -
+    overviewHeight;
   this.detailHeight_ = totalDetailHeight / (numTracks ? numTracks : 1);
 };
 
@@ -674,6 +816,7 @@ genotet.BindingRenderer.prototype.zoomHandler_ = function() {
   });
 
   this.drawDetails_();
+  this.drawBed_();
   this.drawExons_();
 };
 
@@ -702,6 +845,20 @@ genotet.BindingRenderer.prototype.screenRangeToBindingCoordinates_ = function(
 };
 
 /**
+ * Maps a data domain binding coordinates to the screen range.
+ * @param {Array<number>=} range The detail range. If not given, the function
+ *     uses the full view width [this.data.detailXMin, this.data.detailXMax].
+ * @return {!Array<number>} The screen range.
+ * @private
+ */
+genotet.BindingRenderer.prototype.bindingCoordinatesToScreenRange_ = function(
+  range) {
+  var opt_range = range ? range : [this.data.detailXMin, this.data.detailXMax];
+  var invert = this.xScaleZoom_;
+  return [invert(opt_range[0]), invert(opt_range[1])];
+};
+
+/**
  * Fires an event to zoom the histogram details.
  * @param {Array<number>=} opt_range The detail range to zoom into.
  * @private
@@ -709,6 +866,8 @@ genotet.BindingRenderer.prototype.screenRangeToBindingCoordinates_ = function(
 genotet.BindingRenderer.prototype.zoomDetail_ = function(opt_range) {
   var range = opt_range ? opt_range : this.screenRangeToBindingCoordinates_();
   this.signal('zoom', {
+    bedName: this.data.bedName,
+    chr: this.data.chr,
     xl: range[0],
     xr: range[1]
   });

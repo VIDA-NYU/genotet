@@ -75,16 +75,16 @@ binding.query.Locus;
 // Start public APIs
 /**
  * @param {!binding.query.Histogram} query
- * @param {string} wigglePath
+ * @param {string} bindingPath
  * @return {?binding.Histogram}
  */
-binding.query.histogram = function(query, wigglePath) {
+binding.query.histogram = function(query, bindingPath) {
   var fileName = query.fileName;
   var chr = query.chr;
-  var file = wigglePath + fileName + '_chr/' + fileName + '_chr' + chr +
+  var file = bindingPath + fileName + '_chr/' + fileName + '_chr' + chr +
     '.bcwig';
   var data = binding.getBinding_(file, query.xl, query.xr, query.numSamples);
-  data.gene = binding.getGene_(wigglePath, fileName);
+  data.gene = binding.getGene_(bindingPath, fileName);
   data.chr = chr;
   return data;
 };
@@ -115,14 +115,14 @@ binding.query.locus = function(query, exonFile) {
 };
 
 /**
- * @param {string} wigglePath
+ * @param {string} bindingPath
  * @return {!Array<{
  *   geneName: string,
  *   description: string
  * }>}
  */
-binding.query.list = function(wigglePath) {
-  return binding.listBindingGenes_(wigglePath);
+binding.query.list = function(bindingPath) {
+  return binding.listBindingGenes_(bindingPath);
 };
 // End public APIs
 
@@ -162,7 +162,7 @@ binding.HistogramTree;
 
 /**
  * Binding data cache, used to avoid repeated file reading.
- * @type {!{
+ * @type {{
  *   list: !Array,
  *   cache: !Object
  * }}
@@ -520,12 +520,12 @@ binding.loadHistogram_ = function(file) {
 
 /**
  * Lists all the wiggle files in the server.
- * @param {string} wigglePath Folder of the wiggle file in the server.
+ * @param {string} bindingPath Folder of the wiggle file in the server.
  * @return {!Array} Array of object of each wiggle file.
  * @private
  */
-binding.listBindingGenes_ = function(wigglePath) {
-  var folder = wigglePath;
+binding.listBindingGenes_ = function(bindingPath) {
+  var folder = bindingPath;
   var ret = [];
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
@@ -547,13 +547,13 @@ binding.listBindingGenes_ = function(wigglePath) {
 
 /**
  * Gets gene name for a specific binding file.
- * @param {string} wigglePath Path to the wiggle folder.
+ * @param {string} bindingPath Path to the wiggle folder.
  * @param {string} fileName File name of the wiggle file.
  * @return {string} the gene name.
  * @private
  */
-binding.getGene_ = function(wigglePath, fileName) {
-  var filePath = wigglePath + fileName + '.txt';
+binding.getGene_ = function(bindingPath, fileName) {
+  var filePath = bindingPath + fileName + '.txt';
   var content = fs.readFileSync(filePath, 'utf-8').toString().split('\n');
   var gene = content[0];
   return gene;
