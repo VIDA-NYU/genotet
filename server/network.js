@@ -112,9 +112,9 @@ network.query.incidentEdges = function(query, networkPath) {
  * @return {!Array<!network.Node>}
  */
 network.query.combinedRegulation = function(query, networkPath) {
-  var networkName = query.networkName;
+  var fileName = query.fileName;
   var geneRegex = utils.decodeSpecialChar(query.geneRegex);
-  var file = networkPath + networkName + '.bnet';
+  var file = networkPath + fileName;
   // TODO(jiaming): fix old file read
   return network.getComb_(file, geneRegex);
 };
@@ -317,9 +317,9 @@ network.getComb_ = function(file, exp) {
 };
 
 /**
- * Read network from a .tsv file.
+ * Reads network from a .tsv file.
  * @param {string} networkFile path to the .tsv network file.
- * @return {!network.Network} data of the network.
+ * @return {!network.RawNetwork} Data of the network.
  * @private
  */
 network.readNetwork_ = function(networkFile) {
@@ -392,7 +392,7 @@ network.readNetwork_ = function(networkFile) {
 };
 
 /**
- * List all the networks in the server.
+ * Lists all the networks in the server.
  * @param {string} networkPath Folder of the network in the server.
  * @return {!Array<{
  *   networkName: string,
