@@ -12,14 +12,20 @@ module.exports = bed;
  */
 function bed() {}
 
+
+/**
+ * @typedef {{
+ *   chrStart: number,
+ *   chrEnd: number,
+ *   label: (string|undefined)
+ * }}
+ */
+bed.Motif;
+
 /**
  * @typedef {{
  *   aggregated: boolean,
- *   motifs: !Array<{
- *     chrStart: number,
- *     chrEnd: number,
- *     label: (string|undefined)
- *   }>
+ *   motifs: !Array<!bed.Motif>
  * }}
  */
 bed.MotifsResult;
@@ -86,8 +92,8 @@ bed.readBed_ = function(bedFile, xl, xr) {
   for (var i = 0; i < numLines; i++) {
     var line = lines[i];
     var parts = line.split('\t');
-    var xLeft = parseInt(parts[0]);
-    var xRight = parseInt(parts[1]);
+    var xLeft = parseInt(parts[0], 10);
+    var xRight = parseInt(parts[1], 10);
     if (xLeft > xr) {
       break;
     }
@@ -109,7 +115,7 @@ bed.readBed_ = function(bedFile, xl, xr) {
    * @param {number} extend
    * @param {boolean} returnArray Whether to return a result array. If false,
    *     return only the count of the array elements.
-   * @return {number|bed.MotifsResult}
+   * @return {number|!Array<bed.Motif>}
    */
   var aggregatedMotifs = function(extend, returnArray) {
     var result = returnArray ? [] : 0;
@@ -149,7 +155,8 @@ bed.readBed_ = function(bedFile, xl, xr) {
         maxExtend = extend - 1;
       }
     }
-    var aggregatedData = aggregatedMotifs(minExtend, true);
+    var aggregatedData = /** @type {!Array<!bed.Motif>} */
+      (aggregatedMotifs(minExtend, true));
     console.log(aggregatedData.length, 'aggregated motifs with extend',
       maxExtend);
     return {
