@@ -162,5 +162,5 @@ gulp.task('compile-jasmine-node', ['precompile-jasmine-node'], function(cb) {
 });
 
 gulp.task('compile-all', function(cb) {
-  runSequence('compile-qunit', 'compile-jasmine-node', cb);
+  runSequence('compile-qunit', 'compile-jasmine-node', 'compile-server', cb);
 });
