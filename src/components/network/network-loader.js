@@ -19,31 +19,31 @@ genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);
 /**
  * Loads the network data, adding the genes given by geneRegex.
  * @param {string} fileName Network File name.
- * @param {string} inputGene The input genes.
- * @param {boolean} isRegex If inputGene is regex representation.
+ * @param {string} inputGenes The input genes.
+ * @param {boolean} isRegex Whether inputGene is regex.
  * @override
  */
-genotet.NetworkLoader.prototype.load = function(fileName, inputGene, isRegex) {
-  var genes = this.prepareGene_(inputGene, isRegex);
+genotet.NetworkLoader.prototype.load = function(fileName, inputGenes, isRegex) {
+  var genes = this.prepareGene_(inputGenes, isRegex);
   this.data.genes = genes;
   this.loadNetwork_(fileName, genes);
 };
 
 /**
  * Prepares gene array for the input gene string and isRegex.
- * @param {string} inputGene Input string for genes.
+ * @param {string} inputGenes Input string for genes.
  * @param {boolean} isRegex If inputGene is regex.
  * @return {!Array<string>}
  * @private
  */
-genotet.NetworkLoader.prototype.prepareGene_ = function(inputGene, isRegex) {
+genotet.NetworkLoader.prototype.prepareGene_ = function(inputGenes, isRegex) {
   var genes = [];
   if (isRegex) {
     var regex;
     try {
-      regex = RegExp(inputGene, 'i');
+      regex = RegExp(inputGenes, 'i');
     } catch (e) {
-      genotet.error('invalid gene regex', inputGene);
+      genotet.error('invalid gene regex', inputGenes);
       return [];
     }
     this.data.networkInfo.nodes.forEach(function(node) {
@@ -52,7 +52,7 @@ genotet.NetworkLoader.prototype.prepareGene_ = function(inputGene, isRegex) {
       }
     });
   } else {
-    genes = inputGene.split(',');
+    genes = inputGenes.split(',');
   }
   return genes;
 };
@@ -103,14 +103,14 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
 /**
  * Updates the genes in the current network.
  * @param {string} method Update method, either 'set' or 'add'.
- * @param {string} inputGene Genes that selects the genes to be updated.
- * @param {boolean} isRegex Update is based on regex or not.
+ * @param {string} inputGenes Genes that selects the genes to be updated.
+ * @param {boolean} isRegex Whether update is based on regex.
  */
-genotet.NetworkLoader.prototype.updateGenes = function(method, inputGene,
+genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
                                                        isRegex) {
-  var genes = this.prepareGene_(inputGene, isRegex);
+  var genes = this.prepareGene_(inputGenes, isRegex);
   if (genes.length == 0) {
-    genotet.warning('no gene input found');
+    genotet.warning('no genes found');
     return;
   }
 
@@ -119,10 +119,10 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGene,
       this.loadNetwork_(this.data.network.fileName, genes);
       break;
     case 'add':
-      this.addGene_(genes);
+      this.addGenes_(genes);
       break;
     case 'remove':
-      this.deleteGene_(genes);
+      this.deleteGenes_(genes);
       break;
   }
 };
@@ -148,7 +148,7 @@ genotet.NetworkLoader.prototype.incidentEdges = function(node) {
  * @param {!Array<string>} genes Names of the genes.
  * @private
  */
-genotet.NetworkLoader.prototype.addGene_ = function(genes) {
+genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
   var oldGenes = {};
   this.data.network.nodes.forEach(function(node) {
     oldGenes[node.id] = true;
@@ -161,12 +161,12 @@ genotet.NetworkLoader.prototype.addGene_ = function(genes) {
   });
 
   if (newGenes.length == 0) {
-    genotet.warning('Genes are already in graph');
+    genotet.warning('genes are already in the network');
     return;
   }
 
   var params = {
-    type: 'add-gene',
+    type: 'incremental-edges',
     fileName: this.data.network.fileName,
     gene: newGenes,
     nodes: this.data.network.nodes
@@ -191,11 +191,11 @@ genotet.NetworkLoader.prototype.addGene_ = function(genes) {
 };
 
 /**
- * Delete one gene from graph and related edges.
+ * Deletes genes from graph and related edges.
  * @param {!Array<string>} genes Names of the genes.
  * @private
  */
-genotet.NetworkLoader.prototype.deleteGene_ = function(genes) {
+genotet.NetworkLoader.prototype.deleteGenes_ = function(genes) {
   var geneMap = {};
   genes.forEach(function(gene) {
     geneMap[gene] = true;
@@ -217,7 +217,11 @@ genotet.NetworkLoader.prototype.deleteGene_ = function(genes) {
 
 /**
  * Adds one edge to the graph.
- * @param {!Object} data Input data for adding an edge.
+ * @param {{
+ *   source: string,
+ *   target: string,
+ *   weight: !Array<number>
+ * }} data Input data for adding an edge.
  */
 genotet.NetworkLoader.prototype.addOneEdge = function(data) {
   var source = data.source;
@@ -262,7 +266,10 @@ genotet.NetworkLoader.prototype.addOneEdge = function(data) {
 
 /**
  * Delete one edge from the graph.
- * @param {!Object} data Input data for delete.
+ * @param {{
+ *   source: string,
+ *   target: string
+ * }} data Input data for delete.
  */
 genotet.NetworkLoader.prototype.deleteOneEdge = function(data) {
   var source = data.source;

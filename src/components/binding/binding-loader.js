@@ -180,12 +180,12 @@ genotet.BindingLoader.prototype.loadExons_ = function(chr) {
 
 /**
  * Queries the locus of a given gene.
- * @param {string} fileName File name to be searched for.
+ * @param {string} gene Gene name to be searched for.
  */
-genotet.BindingLoader.prototype.findLocus = function(fileName) {
+genotet.BindingLoader.prototype.findLocus = function(gene) {
   var params = {
     type: 'locus',
-    fileName: fileName
+    gene: gene
   };
   this.get(genotet.data.serverURL, params, function(res) {
     if (!res.success) {

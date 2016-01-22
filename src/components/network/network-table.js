@@ -69,6 +69,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
     dom: 'Bfrtip',
     buttons: [
       {
+        extend: 'selectedSingle',
         text: 'add',
         action: function(e, dt, node, config) {
           var selectedEdge = dt.rows({selected: true}).data()[0];
@@ -85,6 +86,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
         }.bind(this)
       },
       {
+        extend: 'selectedSingle',
         text: 'remove',
         action: function(e, dt, node, config) {
           var selectedEdge = dt.rows({selected: true}).data()[0];
@@ -107,16 +109,6 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
     pagingType: 'full'
   });
 
-  table.on('select', function(e, dt, type, indexes) {
-    console.log('here');
-    var count = table.rows({selected: true}).count();
-    if (count == 1) {
-      var row = table.rows({selected: true}).data[0];
-      console.log(row.added);
-      table.button(0).enable(!row.added);
-      table.button(1).enable(row.added);
-    }
-  });
   table.closest('#edge-list').css('width',
     /** @type {number} */(table.width()));
 };

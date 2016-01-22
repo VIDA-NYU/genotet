@@ -27,7 +27,7 @@ expression.RawMatrix;
 /**
  * @typedef {{
  *   allGeneNames: !Object<string>,
- *   allConditionNames: !Array<string>,
+ *   allConditionNames: !Object<string>,
  *   allValueMin: number,
  *   allValueMax: number
  * }}
@@ -85,7 +85,7 @@ expression.query.Matrix;
  *   conditionNames: !Array<string>
  * }}
  */
-expression.query.tfaProfile;
+expression.query.TfaProfile;
 
 // Start public APIs
 /**
@@ -111,8 +111,8 @@ expression.query.matrix = function(query, expressionPath) {
 };
 
 /**
- * @param {!expression.query.Profile} query
- * @return {?expression.Profile}
+ * @param {!expression.query.TfaProfile} query
+ * @return {?expression.TfaProfile}
  * @param {string} expressionPath
  */
 expression.query.tfaProfile = function(query, expressionPath) {
@@ -207,7 +207,7 @@ expression.readTFAmat_ = function(buf) {
  * @param {string} fileName TFA file name.
  * @param {!Array<string>} geneNames Names of the expression matrix.
  * @param {!Array<string>} conditionNames Names of the expression matrix.
- * @return {?expression.Profile} Gene expression profile as a JS object.
+ * @return {?expression.TfaProfile} Gene expression profile as a JS object.
  * @private
  */
 expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
@@ -433,7 +433,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
 /**
  * Reads all of the expression matrix data from text file.
  * @param {string} expressionFile Path to the expression file.
- * @return {expression.MatrixInfo}
+ * @return {!expression.MatrixInfo}
  * @private
  */
 expression.getMatrixInfo_ = function(expressionFile) {

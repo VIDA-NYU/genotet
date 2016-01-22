@@ -123,12 +123,12 @@ genotet.BindingView = function(viewName, params) {
       this.loader.loadBed(data.bedName, data.chr, range[0], range[1]);
       this.renderer.zoomTransform(range);
     }.bind(this))
-    .on('genotet.locus', function(event, fileName) {
-      if (!fileName) {
+    .on('genotet.locus', function(event, gene) {
+      if (!gene) {
         genotet.warning('please enter gene name');
         return;
       }
-      this.loader.findLocus(fileName);
+      this.loader.findLocus(gene);
     }.bind(this))
     .on('genotet.chr', function(event, chr) {
       this.loader.switchChr(chr);

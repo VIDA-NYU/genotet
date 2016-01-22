@@ -58,15 +58,15 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   ['set', 'add', 'remove'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
       var input = this.container.find('#genes input');
-      var inputGene = input.val();
-      if (inputGene == '') {
+      var inputGenes = input.val();
+      if (inputGenes == '') {
         genotet.warning('missing input gene selection');
         return;
       }
       input.val('');
       this.signal('update', {
         type: 'gene',
-        inputGene: inputGene,
+        inputGenes: inputGenes,
         method: method,
         isRegex: this.isRegex_
       });

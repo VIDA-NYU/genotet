@@ -100,7 +100,7 @@ genotet.NetworkView = function(viewName, params) {
         this.renderer.update();
         break;
       case 'gene':
-        this.loader.updateGenes(data.method, data.inputGene, data.isRegex);
+        this.loader.updateGenes(data.method, data.inputGenes, data.isRegex);
         this.renderer.dataLoaded();
         break;
       case 'add-edge':

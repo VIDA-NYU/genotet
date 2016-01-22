@@ -324,7 +324,7 @@ binding.formatExons_ = function(exons) {
  * @param {string} file File name of the binding data.
  * @param {number|undefined} x1 Left coordinate.
  * @param {number|undefined} x2 Right coordinate.
- * @param {number} numSamples Number of return samples
+ * @param {number|undefined} numSamples Number of return samples.
  * @return {?binding.Histogram} Binding data as histogram.
  * @private
  */
@@ -509,7 +509,8 @@ binding.loadHistogram_ = function(file) {
   } else {
     var num = buf.readInt32LE(0);
     var nodes = [];
-    for (var i = 0, offset = 4; i < num; i++, offset += binding.DOUBLE_SIZE_) {
+    offset = 4;
+    for (var i = 0; i < num; i++, offset += binding.DOUBLE_SIZE_) {
       nodes.push(buf.readDoubleLE(offset));
     }
     cache.nodes = nodes;
