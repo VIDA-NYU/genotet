@@ -8,14 +8,20 @@
 /**
  * NetworkTable renders given multi-dimensional data as a table.
  * @param {!Object} data Data object of the view.
- * @extends {genotet.ViewLoader}
  * @constructor
  */
 genotet.NetworkTable = function(data) {
   this.data = data;
 };
 
-genotet.utils.inherit(genotet.NetworkTable, genotet.ViewLoader);
+/**
+ * Triggers a jQuery event on the panel.
+ * @param {string} eventType Type of event.
+ * @param {*=} opt_data Data to be sent via the event.
+ */
+genotet.NetworkTable.prototype.signal = function(eventType, opt_data) {
+  $(this).trigger('genotet.' + eventType, [opt_data]);
+};
 
 /**
  * Creates an incident edge table with the given data, inside a given

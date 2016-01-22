@@ -82,16 +82,16 @@ network.query.CombinedRegulation;
 
 /**
  * @typedef {{
- *  fileName: string,
- *  genes: !Array<string>,
- *  nodes: !Array<!network.Node>
+ *   fileName: string,
+ *   genes: !Array<string>,
+ *   nodes: !Array<!network.Node>
  * }}
  */
 network.query.IncrementalEdges;
 
 /**
  * @typedef {{
- *  fileName: string
+ *   fileName: string
  * }}
  */
 network.query.NetworkInfo;

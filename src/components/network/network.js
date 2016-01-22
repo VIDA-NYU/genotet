@@ -121,9 +121,6 @@ genotet.NetworkView = function(viewName, params) {
     .on('genotet.infoLoaded', function() {
       this.loader.load(params.fileName, params.inputGene, params.isRegex);
     }.bind(this))
-    .on('genotet.geneRemove', function() {
-      this.renderer.dataLoaded();
-    }.bind(this))
     .on('genotet.incidentEdges', function() {
       this.table.create(this.panel.edgeListContainer(),
           this.data.incidentEdges);
