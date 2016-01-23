@@ -104,11 +104,11 @@ genotet.NetworkView = function(viewName, params) {
         this.renderer.dataLoaded();
         break;
       case 'add-edge':
-        this.loader.addOneEdge(data);
+        this.loader.addEdge(data);
         this.renderer.dataLoaded();
         break;
       case 'delete-edge':
-        this.loader.deleteOneEdge(data);
+        this.loader.deleteEdge(data);
         this.renderer.dataLoaded();
         break;
       default:
@@ -151,11 +151,11 @@ genotet.NetworkView = function(viewName, params) {
   // Table
   $(this.table)
     .on('genotet.addEdge', function(event, data) {
-      this.loader.addOneEdge(data);
+      this.loader.addEdge(data);
       this.renderer.dataLoaded();
     }.bind(this))
     .on('genotet.removeEdge', function(event, data) {
-      this.loader.deleteOneEdge(data);
+      this.loader.deleteEdge(data);
       this.renderer.dataLoaded();
     }.bind(this));
 };

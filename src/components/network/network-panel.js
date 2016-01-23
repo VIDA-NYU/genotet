@@ -153,7 +153,7 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
       source: edge.source.label,
       target: edge.target.label
     });
-    this.container.find('#edge-info').hide().slideUp();
+    this.container.find('#edge-info').slideUp();
   }.bind(this));
 };
 

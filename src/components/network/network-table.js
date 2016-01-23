@@ -15,7 +15,7 @@ genotet.NetworkTable = function(data) {
 };
 
 /**
- * Triggers a jQuery event on the panel.
+ * Triggers a jQuery event on the table.
  * @param {string} eventType Type of event.
  * @param {*=} opt_data Data to be sent via the event.
  */
@@ -97,6 +97,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
         action: function(e, dt, node, config) {
           var selectedEdge = dt.rows({selected: true}).data()[0];
           this.signal('removeEdge', {
+            id: selectedEdge.id,
             source: selectedEdge.source,
             target: selectedEdge.target,
             weight: selectedEdge.originalWeight

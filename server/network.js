@@ -94,7 +94,7 @@ network.query.IncrementalEdges;
  *   fileName: string
  * }}
  */
-network.query.NetworkInfo;
+network.query.NetworkAllNodes;
 
 // Start public APIs
 /**
@@ -160,15 +160,15 @@ network.query.list = function(networkPath) {
 };
 
 /**
- * @param {!network.query.NetworkInfo} query
+ * @param {!network.query.NetworkAllNodes} query
  * @param {string} networkPath
  * @return {{
  *   nodes: !Array<!network.Node>
  * }}
  */
-network.query.networkInfo = function(query, networkPath) {
+network.query.networkAllNodes = function(query, networkPath) {
   var file = networkPath + query.fileName;
-  return network.networkInfo_(file);
+  return network.networkAllNodes_(file);
 };
 // End public APIs
 
@@ -341,7 +341,7 @@ network.getComb_ = function(file, exp) {
   for (var i = 0; i < result.numEdges; i++) {
     var s = result.edges[i].source, t = result.edges[i].target;
     if (tfs[result.nodes[s].id] == true) {
-      regcnt[result.nodes[t].id] ++;
+      regcnt[result.nodes[t].id]++;
     }
   }
   var nodes = [];
@@ -495,14 +495,14 @@ network.incrementalEdges_ = function(file, genes, nodes) {
 };
 
 /**
- * Gets the node info for the network.
+ * Gets the node info for the whole network.
  * @param {string} file File path of the network.
  * @return {{
  *   nodes: !Array<!network.Node>
  * }} The node info.
  * @private
  */
-network.networkInfo_ = function(file) {
+network.networkAllNodes_ = function(file) {
   var data = network.readNetwork_(file);
   return {
     nodes: data.nodes

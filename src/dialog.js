@@ -147,8 +147,7 @@ genotet.dialog.createNetwork_ = function() {
       modal.find('#gene-input-regex input')
         .on('click', function() {
           genotet.dialog.isGeneRegex_ = true;
-        })
-        .trigger('click');
+        });
       modal.find('#gene-input-string input')
         .on('click', function() {
           genotet.dialog.isGeneRegex_ = false;

@@ -46,10 +46,8 @@ genotet.NetworkLoader.prototype.prepareGene_ = function(inputGenes, isRegex) {
       genotet.error('invalid gene regex', inputGenes);
       return [];
     }
-    this.data.networkInfo.nodes.forEach(function(node) {
-      if (node.id.match(regex)) {
-        genes.push(node.id);
-      }
+    genes = this.data.networkInfo.nodes.filter(function(node) {
+      return node.id.match(regex);
     });
   } else {
     genes = inputGenes.split(',');
@@ -87,7 +85,7 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
   this.get(genotet.data.serverURL, params, function(data) {
     // Store the last applied fileName and genes.
 
-    if (genes.length == 0) {
+    if (!genes.length) {
       genotet.warning('input gene not found');
       return;
     }
@@ -109,7 +107,7 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
 genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
                                                        isRegex) {
   var genes = this.prepareGene_(inputGenes, isRegex);
-  if (genes.length == 0) {
+  if (!genes.length) {
     genotet.warning('no genes found');
     return;
   }
@@ -129,7 +127,8 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
 
 /**
  * Fetches the incident edges of a given node.
- * @param {!Object} node Node of which the incident edges are queried.
+ * @param {!genotet.NetworkNode} node Node of which the incident
+ * edges are queried.
  */
 genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   var params = {
@@ -154,13 +153,11 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
     oldGenes[node.id] = true;
   });
   var newGenes = [];
-  genes.forEach(function(gene) {
-    if (!(gene in oldGenes)) {
-      newGenes.push(gene);
-    }
+  newGenes = genes.filter(function(gene) {
+    return !(gene in oldGenes);
   });
 
-  if (newGenes.length == 0) {
+  if (!newGenes.length) {
     genotet.warning('genes are already in the network');
     return;
   }
@@ -183,10 +180,10 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
         label: gene,
         isTF: isTF[gene]
       });
-    }.bind(this));
+    }, this);
     data.edges.forEach(function(edge) {
       this.data.network.edges.push(edge);
-    }.bind(this));
+    }, this);
   }.bind(this), 'cannot add genes');
 };
 
@@ -196,10 +193,7 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
  * @private
  */
 genotet.NetworkLoader.prototype.deleteGenes_ = function(genes) {
-  var geneMap = {};
-  genes.forEach(function(gene) {
-    geneMap[gene] = true;
-  });
+  var geneMap = genotet.utils.keySet(genes);
   // delete the nodes
   for (var i = 0; i < this.data.network.nodes.length; i++) {
     if (this.data.network.nodes[i].id in geneMap) {
@@ -216,14 +210,10 @@ genotet.NetworkLoader.prototype.deleteGenes_ = function(genes) {
 };
 
 /**
- * Adds one edge to the graph.
- * @param {{
- *   source: string,
- *   target: string,
- *   weight: !Array<number>
- * }} data Input data for adding an edge.
+ * Adds one edge to the network.
+ * @param {!genotet.NetworkEdge} data Input data for adding an edge.
  */
-genotet.NetworkLoader.prototype.addOneEdge = function(data) {
+genotet.NetworkLoader.prototype.addEdge = function(data) {
   var source = data.source;
   var target = data.target;
   var weight = data.weight;
@@ -265,13 +255,13 @@ genotet.NetworkLoader.prototype.addOneEdge = function(data) {
 };
 
 /**
- * Delete one edge from the graph.
+ * Deletes one edge from the network.
  * @param {{
  *   source: string,
  *   target: string
- * }} data Input data for delete.
+ * }} data Input edge to be deleted.
  */
-genotet.NetworkLoader.prototype.deleteOneEdge = function(data) {
+genotet.NetworkLoader.prototype.deleteEdge = function(data) {
   var source = data.source;
   var target = data.target;
   for (var i = 0; i < this.data.network.edges.length; i++) {
