@@ -121,7 +121,7 @@ genotet.View.prototype.init = function() {
     }.bind(this));
 
   // Override jQuery Resizable handle.
-  $('.ui-resizable-handle').css('z-index', 'auto');
+  this.container.find('.ui-resizable-handle').css('z-index', 'auto');
 };
 
 /**

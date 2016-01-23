@@ -106,6 +106,8 @@ genotet.BindingRenderer.prototype.EXON_CENTER_Y = 20;
 genotet.BindingRenderer.prototype.EXON_LABEL_OFFSET = 3;
 /** @const {number} */
 genotet.BindingRenderer.prototype.OVERVIEW_HEIGHT = 25;
+/** @const {number} */
+genotet.BindingRenderer.prototype.BED_HEIGHT = 35;
 
 /**
  * When there are more than this limit number of exons, we draw exons as
@@ -124,6 +126,8 @@ genotet.BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
 genotet.BindingRenderer.prototype.BED_LABEL_SIZE = 13;
 /** @const {number} */
 genotet.BindingRenderer.prototype.BED_MIN_WIDTH = 3;
+/** @const {number} */
+genotet.BindingRenderer.prototype.BED_HEIGHT_PROPORTION = 0.8;
 
 /** @const {!Array<number>} */
 genotet.BindingRenderer.ZOOM_EXTENT = [1, 65536];
@@ -739,8 +743,13 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
     this.OVERVIEW_HEIGHT * numTracks : 0;
   var exonsHeight = this.data.options.showExons ?
     this.EXON_HEIGHT : 0;
-  this.bedHeight_ = this.data.options.showBed ?
-    (this.canvasHeight - exonsHeight - overviewHeight) / 2 : 0;
+  if (this.data.bed.aggregated) {
+    this.bedHeight_ = this.BED_HEIGHT;
+  } else {
+    this.bedHeight_ = this.data.options.showBed ?
+    (this.canvasHeight - exonsHeight - overviewHeight) *
+    this.BED_HEIGHT_PROPORTION : 0;
+  }
   var totalDetailHeight = this.canvasHeight - this.bedHeight_ - exonsHeight -
     overviewHeight;
   this.detailHeight_ = totalDetailHeight / (numTracks ? numTracks : 1);
