@@ -8,16 +8,6 @@
 jQuery.prototype.DataTable = function(opt_params) {};
 
 /**
- * @param {number} param
- */
-jQuery.prototype.button = function(param) {};
-
-/**
  * @param {Object=} opt_params
  */
 jQuery.prototype.rows = function(opt_params) {};
-
-/**
- * @param {Object=} opt_params
- */
-jQuery.prototype.fnDraw = function(opt_params) {};
