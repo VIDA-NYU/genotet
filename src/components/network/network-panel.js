@@ -52,7 +52,6 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   this.container.find('#string input').click(function() {
     this.isRegex_ = false;
   }.bind(this));
-  this.container.find('#regex input').trigger('click');
 
   // Gene update
   ['set', 'add', 'remove'].forEach(function(method) {
