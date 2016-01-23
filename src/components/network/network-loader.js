@@ -46,8 +46,10 @@ genotet.NetworkLoader.prototype.prepareGene_ = function(inputGenes, isRegex) {
       genotet.error('invalid gene regex', inputGenes);
       return [];
     }
-    genes = this.data.networkInfo.nodes.filter(function(node) {
-      return node.id.match(regex);
+    this.data.networkInfo.nodes.forEach(function(node) {
+      if (node.id.match(regex)) {
+        genes.push(node.id);
+      }
     });
   } else {
     genes = inputGenes.split(',');
@@ -82,6 +84,7 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
     fileName: fileName,
     genes: genes
   };
+
   this.get(genotet.data.serverURL, params, function(data) {
     // Store the last applied fileName and genes.
 

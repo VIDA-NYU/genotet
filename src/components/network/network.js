@@ -37,7 +37,7 @@ genotet.NetworkData;
 /**
  * @typedef {{
  *   fileName: string,
- *   inputGene: string,
+ *   inputGenes: string,
  *   isRegex: boolean
  * }}
  */
@@ -119,7 +119,7 @@ genotet.NetworkView = function(viewName, params) {
   // Gene removal update.
   $(this.loader)
     .on('genotet.infoLoaded', function() {
-      this.loader.load(params.fileName, params.inputGene, params.isRegex);
+      this.loader.load(params.fileName, params.inputGenes, params.isRegex);
     }.bind(this))
     .on('genotet.incidentEdges', function() {
       this.table.create(this.panel.edgeListContainer(),

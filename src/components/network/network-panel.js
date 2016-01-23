@@ -147,7 +147,7 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
     .text(edge.target.label);
   container.children('#weight').children('span')
     .text(edge.weight);
-  container.children('#weight').children('#rm-edge').click(function() {
+  container.children('#rm-edge').children('button').click(function() {
     this.signal('update', {
       type: 'delete-edge',
       source: edge.source.label,

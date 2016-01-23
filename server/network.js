@@ -94,7 +94,7 @@ network.query.IncrementalEdges;
  *   fileName: string
  * }}
  */
-network.query.NetworkAllNodes;
+network.query.AllNodes;
 
 // Start public APIs
 /**
@@ -160,15 +160,15 @@ network.query.list = function(networkPath) {
 };
 
 /**
- * @param {!network.query.NetworkAllNodes} query
+ * @param {!network.query.AllNodes} query
  * @param {string} networkPath
  * @return {{
  *   nodes: !Array<!network.Node>
  * }}
  */
-network.query.networkAllNodes = function(query, networkPath) {
+network.query.allNodes = function(query, networkPath) {
   var file = networkPath + query.fileName;
-  return network.networkAllNodes_(file);
+  return network.allNodes_(file);
 };
 // End public APIs
 
@@ -460,7 +460,7 @@ network.listNetwork_ = function(networkPath) {
 };
 
 /**
- * Find all edges connecting the gene to other exist genes.
+ * Finds all edges connecting the gene to other exist genes.
  * @param {string} file Network file path.
  * @param {!Array<string>} genes Genes to add to the graph.
  * @param {!Array<!network.Node>} nodes Nodes that already in the network.
@@ -495,14 +495,14 @@ network.incrementalEdges_ = function(file, genes, nodes) {
 };
 
 /**
- * Gets the node info for the whole network.
+ * Gets the nodes info for the whole network.
  * @param {string} file File path of the network.
  * @return {{
  *   nodes: !Array<!network.Node>
  * }} The node info.
  * @private
  */
-network.networkAllNodes_ = function(file) {
+network.allNodes_ = function(file) {
   var data = network.readNetwork_(file);
   return {
     nodes: data.nodes
