@@ -792,19 +792,19 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         if (selectedBorderWeight.x < 1 ||
           (selectedBorderWeight.x * 2 < selectedRange.width)) {
           selectedRange.x = mousePosition[0];
-          selectedRange.width = Math.abs(zoomStartPosition.x -
-            mousePosition[0]);
         } else {
-          selectedRange.width = selectedBorderWeight.x;
+          selectedRange.x = zoomStartPosition.x;
         }
+        selectedRange.width = Math.abs(zoomStartPosition.x -
+          mousePosition[0]);
         if (selectedBorderWeight.y < 1 ||
           (selectedBorderWeight.y * 2 < selectedRange.height)) {
           selectedRange.y = mousePosition[1];
-          selectedRange.height = Math.abs(zoomStartPosition.y -
-            mousePosition[1]);
         } else {
-          selectedRange.height = selectedBorderWeight.y;
+          selectedRange.y = zoomStartPosition.y;
         }
+        selectedRange.height = Math.abs(zoomStartPosition.y -
+          mousePosition[1]);
         rectSelection.attr(selectedRange);
 
         this.svgHeatmap_.selectAll('.label-selected')

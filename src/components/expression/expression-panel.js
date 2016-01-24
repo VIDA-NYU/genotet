@@ -288,7 +288,7 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
       if (lowerName in this.data.lowerGeneNames) {
         geneNames.push(this.data.lowerGeneNames[lowerName]);
       }
-    }.bind(this));
+    }, this);
   }
   return geneNames;
 };
@@ -315,7 +315,7 @@ genotet.ExpressionPanel.prototype.formatConditionInput =
         if (lowerName in this.data.lowerConditionNames) {
           conditionNames.push(this.data.lowerConditionNames[lowerName]);
         }
-      }.bind(this));
+      }, this);
     }
     return conditionNames;
   };
