@@ -19,22 +19,22 @@ genotet.preset.loadPreset = function(preset) {
   }
   switch (preset) {
     case 'default':
-      this.createExpression_();
-      this.createNetwork_();
-      this.createBinding_();
+      genotet.preset.createExpression_();
+      genotet.preset.createNetwork_();
+      genotet.preset.createBinding_();
       break;
     case 'network':
-      this.createNetwork_();
-      this.createBinding_();
+      genotet.preset.createNetwork_();
+      genotet.preset.createBinding_();
       break;
     case 'expression':
-      this.createExpression_();
-      this.createNetwork_();
+      genotet.preset.createExpression_();
+      genotet.preset.createNetwork_();
       break;
     case 'binding':
-      this.createExpression_();
-      this.createNetwork_();
-      this.createBinding_();
+      genotet.preset.createExpression_();
+      genotet.preset.createNetwork_();
+      genotet.preset.createBinding_();
       break;
     default:
       genotet.error('unknown preset:', preset);
