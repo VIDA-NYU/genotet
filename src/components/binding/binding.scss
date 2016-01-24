@@ -30,6 +30,11 @@ $details-fill: #222;
       font-size: 11px;
       text-anchor: middle;
     }
+
+    .shallow {
+      stroke: $gray;
+      stroke-width: 1px;
+    }
   }
 
   .exons {
@@ -41,7 +46,7 @@ $details-fill: #222;
 
     line {
       stroke: $exon-blue;
-      stroke-width: 1;
+      stroke-width: 1px;
     }
 
     text {
