@@ -160,10 +160,10 @@ genotet.BindingPanel.prototype.initChrs_ = function() {
 
 /**
  * Adds a select2 for a new track.
+ * @param {number} trackIndex Index of the added track.
  * @private
  */
-genotet.BindingPanel.prototype.addTrack_ = function() {
-  var trackIndex = this.data.tracks.length - 1;
+genotet.BindingPanel.prototype.addTrack_ = function(trackIndex) {
   var ui = this.container.find('#genes #tracks');
   var uiTrack = ui.find('#track-template').clone()
     .appendTo(ui)
@@ -216,7 +216,7 @@ genotet.BindingPanel.prototype.updateTracks = function() {
   this.data.tracks.forEach(function(track, index) {
     var ui = this.container.find('#genes #track-' + index);
     if (!ui.length) {
-      this.addTrack_();
+      this.addTrack_(index);
     }
     this.selectGenes_[index].val(track.fileName).trigger('change');
   }, this);

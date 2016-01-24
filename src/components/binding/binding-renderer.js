@@ -220,6 +220,9 @@ genotet.BindingRenderer.prototype.arrangeBedRectPositions_ = function() {
 
 /** @inheritDoc */
 genotet.BindingRenderer.prototype.dataLoaded = function() {
+  if (this.data.defaultNumberOfTracks > 1) {
+    this.data.overviewRangeChanged = true;
+  }
   this.getBindingRanges_();
   this.arrangeBedRectPositions_();
   this.render();

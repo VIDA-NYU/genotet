@@ -17,7 +17,8 @@ genotet.BindingLoader = function(data) {
     tracks: [],
     bed: null,
     bedName: null,
-    exons: []
+    exons: [],
+    defaultNumberOfTracks: 1
   });
 };
 
@@ -31,16 +32,23 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
  * @param {string} fileName Binding file name.
  * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.
+ * @param {number} numberOfTracks Number of tracks.
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
 genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
-                                                opt_track) {
+                                                numberOfTracks, opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   this.data.chr = chr;
   this.loadFullTrack(trackIndex, fileName, chr);
   this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
   this.loadExons_(chr);
+
+  this.data.defaultNumberOfTracks = numberOfTracks;
+  while (numberOfTracks > 1) {
+    this.loadFullTrack(++trackIndex, fileName, chr);
+    numberOfTracks--;
+  }
 };
 
 /**

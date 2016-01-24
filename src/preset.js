@@ -7,6 +7,11 @@
 /** @const */
 genotet.preset = {};
 
+/** @private @const {number} */
+genotet.preset.DEFAULT_TRACK_NUMBER_ = 1;
+/** @private @const {number} */
+genotet.preset.BINDING_TRACK_NUMBER_ = 3;
+
 /**
  * Loads a preset with the given name.
  * @param {string} preset
@@ -21,11 +26,11 @@ genotet.preset.loadPreset = function(preset) {
     case 'default':
       genotet.preset.createExpression_();
       genotet.preset.createNetwork_();
-      genotet.preset.createBinding_();
+      genotet.preset.createBinding_(genotet.preset.DEFAULT_TRACK_NUMBER_);
       break;
     case 'network':
       genotet.preset.createNetwork_();
-      genotet.preset.createBinding_();
+      genotet.preset.createBinding_(genotet.preset.DEFAULT_TRACK_NUMBER_);
       break;
     case 'expression':
       genotet.preset.createExpression_();
@@ -34,7 +39,7 @@ genotet.preset.loadPreset = function(preset) {
     case 'binding':
       genotet.preset.createExpression_();
       genotet.preset.createNetwork_();
-      genotet.preset.createBinding_();
+      genotet.preset.createBinding_(genotet.preset.BINDING_TRACK_NUMBER_);
       break;
     default:
       genotet.error('unknown preset:', preset);
@@ -69,12 +74,14 @@ genotet.preset.createNetwork_ = function() {
 
 /**
  * Create a preset binding view.
+ * @param {number} numberOfTracks Number of tracks.
  * @private
  */
-genotet.preset.createBinding_ = function() {
+genotet.preset.createBinding_ = function(numberOfTracks) {
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     fileName: 'b6.bw',
     bedName: 'bed_data.bed',
-    chr: '1'
+    chr: '1',
+    numberOfTracks: numberOfTracks
   });
 };
