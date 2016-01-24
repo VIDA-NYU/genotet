@@ -19,6 +19,8 @@ genotet.ExpressionLoader = function(data) {
     tfaData: null,
     matrixGeneNameDict: null,
     matrixConditionNameDict: null,
+    lowerGeneNames: null,
+    lowerConditionNames: null,
     tfaGeneNameDict: null,
     profiles: [],
     tfaProfiles: [],
@@ -106,6 +108,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     }
 
     this.data.matrix = data;
+
     var matrixGeneNameDict = {};
     data.geneNames.forEach(function(geneName, i) {
       matrixGeneNameDict[geneName] = i;
@@ -116,6 +119,18 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     }.bind(this));
     this.data.matrixGeneNameDict = matrixGeneNameDict;
     this.data.matrixConditionNameDict = matrixConditionNameDict;
+
+    var lowerGeneNames = {};
+    Object.keys(this.data.matrixInfo.allGeneNames).forEach(function(name) {
+      lowerGeneNames[name.toLowerCase()] = name;
+    });
+    this.data.lowerGeneNames = lowerGeneNames;
+    var lowerConditionNames = {};
+    Object.keys(this.data.matrixInfo.allConditionNames).forEach(
+      function(name) {
+        lowerConditionNames[name.toLowerCase()] = name;
+      });
+    this.data.lowerConditionNames = lowerConditionNames;
 
     this.loadTfaProfile_(fileName, geneNames, conditionNames);
   }.bind(this), 'cannot load expression matrix');
@@ -212,26 +227,12 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
  * @param {!Array<string>} originalNames Original names from previous zoom
  *      status.
  * @param {!Array<string>} removeNames Names need to be removed.
- * @return {!Array<string>} result Revised names.
+ * @return {!Array<string>}
  * @private
  */
 genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames,
                                                            removeNames) {
-  var namesDict = {};
-  var result = [];
-  originalNames.forEach(function(name, i) {
-    namesDict[name] = i;
+  return originalNames.filter(function(name) {
+    return removeNames.indexOf(name) < 0;
   });
-  removeNames.forEach(function(name) {
-    var geneIndex = namesDict[name];
-    if (name in namesDict) {
-      delete originalNames[geneIndex];
-    }
-  });
-  originalNames.forEach(function(name) {
-    if (name) {
-      result.push(name);
-    }
-  });
-  return result;
 };

@@ -113,20 +113,18 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
     }.bind(this));
 
   // Input type update
-  this.container.find('#gene-regex input').click(function() {
+  this.container.find('#gene-input .regex input').click(function() {
     this.isGeneRegex_ = true;
-  }.bind(this));
-  this.container.find('#gene-string input').click(function() {
+  }.bind(this)).trigger('click');
+  this.container.find('#gene-input .string input').click(function() {
     this.isGeneRegex_ = false;
   }.bind(this));
-  this.container.find('#condition-regex input').click(function() {
+  this.container.find('#condition-input .regex input').click(function() {
     this.isConditionRegex_ = true;
-  }.bind(this));
-  this.container.find('#condition-string input').click(function() {
+  }.bind(this)).trigger('click');
+  this.container.find('#condition-input .string input').click(function() {
     this.isConditionRegex_ = false;
   }.bind(this));
-  this.container.find('#gene-regex input').trigger('click');
-  this.container.find('#condition-regex input').trigger('click');
 
   // Gene update
   ['setGene', 'addGene', 'removeGene'].forEach(function(method) {
@@ -285,15 +283,10 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
       });
   } else {
     var inputWords = geneInput.split(',');
-    var lowerGeneNames = {};
-    Object.keys(this.data.matrixInfo.allGeneNames).forEach(function(name) {
-      lowerGeneNames[name.toLowerCase()] = name;
-    });
-    geneNames = [];
     inputWords.forEach(function(word) {
       var lowerName = word.toLowerCase();
-      if (lowerName in lowerGeneNames) {
-        geneNames.push(lowerGeneNames[lowerName]);
+      if (lowerName in this.data.lowerGeneNames) {
+        geneNames.push(this.data.lowerGeneNames[lowerName]);
       }
     }.bind(this));
   }
@@ -317,16 +310,10 @@ genotet.ExpressionPanel.prototype.formatConditionInput =
         });
     } else {
       var inputWords = conditionInput.split(',');
-      var lowerConditionNames = {};
-      Object.keys(this.data.matrixInfo.allConditionNames).forEach(
-        function(name) {
-          lowerConditionNames[name.toLowerCase()] = name;
-        });
-      conditionNames = [];
       inputWords.forEach(function(word) {
         var lowerName = word.toLowerCase();
-        if (lowerName in lowerConditionNames) {
-          conditionNames.push(lowerConditionNames[lowerName]);
+        if (lowerName in this.data.lowerConditionNames) {
+          conditionNames.push(this.data.lowerConditionNames[lowerName]);
         }
       }.bind(this));
     }

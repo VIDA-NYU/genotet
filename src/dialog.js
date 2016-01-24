@@ -235,21 +235,21 @@ genotet.dialog.createExpression_ = function() {
         });
 
       // Choose input type of gene and condition.
-      modal.find('#gene-input-regex input')
+      modal.find('#gene-input-type .regex input')
         .on('click', function() {
           genotet.dialog.isGeneRegex_ = true;
         })
         .trigger('click');
-      modal.find('#gene-input-string input')
+      modal.find('#gene-input-type .string input')
         .on('click', function() {
           genotet.dialog.isGeneRegex_ = false;
         });
-      modal.find('#condition-input-regex input')
+      modal.find('#condition-input-type .regex input')
         .on('click', function() {
           genotet.dialog.isCondtionRegex_ = true;
         })
         .trigger('click');
-      modal.find('#condition-input-string input')
+      modal.find('#condition-input-type .string input')
         .on('click', function() {
           genotet.dialog.isCondtionRegex_ = false;
         });
@@ -257,8 +257,8 @@ genotet.dialog.createExpression_ = function() {
       // Create
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
-        var geneInput = modal.find('#gene-regex').val();
-        var conditionInput = modal.find('#cond-regex').val();
+        var geneInput = modal.find('#gene-input').val();
+        var conditionInput = modal.find('#cond-input').val();
         genotet.viewManager.createView('expression', viewName, {
           fileName: modal.find('#matrix').val(),
           isGeneRegex: genotet.dialog.isGeneRegex_,

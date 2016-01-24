@@ -1097,11 +1097,13 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
-  this.drawProfileLegend_(this.data.tfaProfiles);
   if (!this.data.options.showTfaProfiles) {
     this.svgTfaProfile_.selectAll('*').attr('display', 'none');
     return;
   } else {
+    if (!this.data.options.showProfiles) {
+      this.drawProfileLegend_(this.data.tfaProfiles);
+    }
     this.svgTfaProfile_.selectAll('*').attr('display', 'inline');
   }
 
@@ -1115,7 +1117,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
   ]).domain([0, heatmapData.conditionNames.length]);
   var yScaleTop = this.profileMargins_.top +
     this.DEFAULT_PROFILE_LEGEND_HEIGHT;
-  if (this.data.tfaProfiles.length == 0 ||
+  if (!this.data.tfaProfiles.length ||
     this.data.options.showProfiles) {
     yScaleTop -= this.DEFAULT_PROFILE_LEGEND_HEIGHT;
   }
