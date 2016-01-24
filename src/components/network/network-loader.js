@@ -52,7 +52,7 @@ genotet.NetworkLoader.prototype.prepareGene_ = function(inputGenes, isRegex) {
       }
     });
   } else {
-    genes = inputGenes.split(',');
+    genes = inputGenes.replace(' ', '').split(',');
   }
   return genes;
 };
@@ -259,44 +259,15 @@ genotet.NetworkLoader.prototype.addEdge = function(data) {
 
 /**
  * Deletes one edge from the network.
- * @param {{
- *   source: string,
- *   target: string
- * }} data Input edge to be deleted.
+ * @param {string} source Source Gene of the edge to be deleted.
+ * @param {string} target Target Gene of the edge to be deleted.
  */
-genotet.NetworkLoader.prototype.deleteEdge = function(data) {
-  var source = data.source;
-  var target = data.target;
+genotet.NetworkLoader.prototype.deleteEdge = function(source, target) {
   for (var i = 0; i < this.data.network.edges.length; i++) {
     if (this.data.network.edges[i].source == source &&
       this.data.network.edges[i].target == target) {
       this.data.network.edges.splice(i, 1);
       break;
-    }
-  }
-  var sourceExists = false, targetExists = false;
-  this.data.network.edges.forEach(function(edges) {
-    if (source == edges.source || source == edges.target) {
-      sourceExists = true;
-    }
-    if (target == edges.target || target == edges.target) {
-      targetExists = true;
-    }
-  });
-  if (!sourceExists) {
-    for (var i = 0; i < this.data.network.nodes.length; i++) {
-      if (this.data.network.nodes[i].id == source) {
-        this.data.network.nodes.splice(i, 1);
-        break;
-      }
-    }
-  }
-  if (!targetExists) {
-    for (var i = 0; i < this.data.network.nodes.length; i++) {
-      if (this.data.network.nodes[i].id == target) {
-        this.data.network.nodes.splice(i, 1);
-        break;
-      }
     }
   }
 };

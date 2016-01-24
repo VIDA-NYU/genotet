@@ -144,8 +144,8 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
   container.children('#rm-edge').children('button').click(function() {
     this.signal('update', {
       type: 'delete-edge',
-      source: edge.source.label,
-      target: edge.target.label
+      source: edge.source.id,
+      target: edge.target.id
     });
     this.container.find('#edge-info').slideUp();
   }.bind(this));

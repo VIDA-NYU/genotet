@@ -108,7 +108,7 @@ genotet.NetworkView = function(viewName, params) {
         this.renderer.dataLoaded();
         break;
       case 'delete-edge':
-        this.loader.deleteEdge(data);
+        this.loader.deleteEdge(data.source, data.target);
         this.renderer.dataLoaded();
         break;
       default:
@@ -155,7 +155,7 @@ genotet.NetworkView = function(viewName, params) {
       this.renderer.dataLoaded();
     }.bind(this))
     .on('genotet.removeEdge', function(event, data) {
-      this.loader.deleteEdge(data);
+      this.loader.deleteEdge(data.source, data.target);
       this.renderer.dataLoaded();
     }.bind(this));
 };
