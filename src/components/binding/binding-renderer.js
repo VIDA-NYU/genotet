@@ -132,7 +132,7 @@ genotet.BindingRenderer.prototype.BED_MIN_WIDTH = 3;
 genotet.BindingRenderer.prototype.BED_HEIGHT_PROPORTION = 0.8;
 
 /** @const {!Array<number>} */
-genotet.BindingRenderer.ZOOM_EXTENT = [1, 15673503];
+genotet.BindingRenderer.ZOOM_EXTENT = [1, 20000000];
 /** @const {number} */
 genotet.BindingRenderer.ZOOM_INTERVAL = 500;
 
