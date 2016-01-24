@@ -45,17 +45,12 @@ genotet.NetworkPanel.prototype.initPanel = function() {
         }.bind(this));
   }, this);
 
-  // Input type update
-  this.container.find('#regex input').click(function() {
-    this.isRegex_ = true;
-  }.bind(this));
-  this.container.find('#string input').click(function() {
-    this.isRegex_ = false;
-  }.bind(this));
-
   // Gene update
   ['set', 'add', 'remove'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
+      var regexOrString = this.container.find('#gene-regex-string')
+        .children('label');
+      var isRegex = regexOrString.children('input')[0].checked;
       var input = this.container.find('#genes input');
       var inputGenes = input.val();
       if (inputGenes == '') {
@@ -67,7 +62,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
         type: 'gene',
         inputGenes: inputGenes,
         method: method,
-        isRegex: this.isRegex_
+        isRegex: isRegex
       });
     }.bind(this));
   }, this);
