@@ -286,15 +286,13 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
         return geneName.match(geneRegex);
       });
   } else {
-    geneInput = geneInput.replace(/^[,\s]+|[,\s]+$/g, '');
-    geneInput = geneInput.replace(/\s*,\s*/g, ',');
-    var inputWords = geneInput.split(',');
-    inputWords.forEach(function(word) {
-      var lowerName = word.toLowerCase();
-      if (lowerName in this.data.lowerGeneNames) {
-        geneNames.push(this.data.lowerGeneNames[lowerName]);
+    var inputWords = geneInput.toLowerCase().split(/[,\s]+/g);
+    geneNames = inputWords.reduce(function(result, name) {
+      if (name && name in this.data.lowerGeneNames) {
+        result.push(this.data.lowerGeneNames[name]);
       }
-    }, this);
+      return result;
+    }.bind(this), []);
   }
   return geneNames;
 };
@@ -315,13 +313,13 @@ genotet.ExpressionPanel.prototype.formatConditionInput =
           return conditionName.match(conditionRegex);
         });
     } else {
-      var inputWords = conditionInput.split(',');
-      inputWords.forEach(function(word) {
-        var lowerName = word.toLowerCase();
-        if (lowerName in this.data.lowerConditionNames) {
-          conditionNames.push(this.data.lowerConditionNames[lowerName]);
+      var inputWords = conditionInput.toLowerCase().split(/[,\s]+/g);
+      conditionNames = inputWords.reduce(function(result, name) {
+        if (name && name in this.data.lowerConditionNames) {
+          result.push(this.data.lowerConditionNames[name]);
         }
-      }, this);
+        return result;
+      }.bind(this), []);
     }
     return conditionNames;
   };
