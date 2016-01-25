@@ -6,6 +6,12 @@
   td:first-child {
     font-weight: bold;
   }
+
+  .input-checkbox {
+    label {
+      margin-left: 0;
+    }
+  }
 }
 
 #dialog {
