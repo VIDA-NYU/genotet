@@ -33,13 +33,13 @@ genotet.ExpressionPanel = function(data) {
    * Input type for genes update.
    * @private {boolean}
    */
-  this.isGeneRegex_ = true;
+  this.isGeneRegex_ = false;
 
   /**
    * Input type for conditions update.
    * @private {boolean}
    */
-  this.isConditionRegex_ = true;
+  this.isConditionRegex_ = false;
 };
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
@@ -113,19 +113,19 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
     }.bind(this));
 
   // Input type update
-  this.container.find('#gene-input label[name="regex"] input')
+  this.container.find('#gene-input label[name=regex] input')
     .click(function() {
       this.isGeneRegex_ = true;
     }.bind(this));
-  this.container.find('#gene-input label[name="string"] input')
+  this.container.find('#gene-input label[name=string] input')
     .click(function() {
       this.isGeneRegex_ = false;
     }.bind(this));
-  this.container.find('#condition-input label[name="regex"] input')
+  this.container.find('#condition-input label[name=regex] input')
     .click(function() {
       this.isConditionRegex_ = true;
     }.bind(this));
-  this.container.find('#condition-input label[name="string"] input')
+  this.container.find('#condition-input label[name=string] input')
     .click(function() {
       this.isConditionRegex_ = false;
     }.bind(this));
@@ -286,6 +286,8 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
         return geneName.match(geneRegex);
       });
   } else {
+    geneInput = geneInput.replace(/^[,\s]+|[,\s]+$/g, '');
+    geneInput = geneInput.replace(/\s*,\s*/g, ',');
     var inputWords = geneInput.split(',');
     inputWords.forEach(function(word) {
       var lowerName = word.toLowerCase();

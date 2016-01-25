@@ -232,7 +232,11 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
  */
 genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames,
                                                            removeNames) {
+  var removeNamesDict = {};
+  removeNames.forEach(function(name, i) {
+    removeNamesDict[name] = i;
+  });
   return originalNames.filter(function(name) {
-    return removeNames.indexOf(name) < 0;
+    return !(name in removeNamesDict);
   });
 };

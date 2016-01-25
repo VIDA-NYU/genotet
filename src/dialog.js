@@ -11,13 +11,13 @@ genotet.dialog = {};
  * Gene input type that is regex or string.
  * @private {boolean}
  */
-genotet.dialog.isGeneRegex_ = true;
+genotet.dialog.isGeneRegex_ = false;
 
 /**
  * Condition input type that is regex or string.
  * @private {boolean}
  */
-genotet.dialog.isConditionRegex_ = true;
+genotet.dialog.isConditionRegex_ = false;
 
 /**
  * Template paths.
@@ -235,19 +235,19 @@ genotet.dialog.createExpression_ = function() {
         });
 
       // Choose input type of gene and condition.
-      modal.find('#gene-input-type label[name="regex"] input')
+      modal.find('#gene-input-type label[name=regex] input')
         .on('click', function() {
           genotet.dialog.isGeneRegex_ = true;
         });
-      modal.find('#gene-input-type label[name="string"] input')
+      modal.find('#gene-input-type label[name=string] input')
         .on('click', function() {
           genotet.dialog.isGeneRegex_ = false;
         });
-      modal.find('#condition-input-type label[name="regex"] input')
+      modal.find('#condition-input-type label[name=regex] input')
         .on('click', function() {
           genotet.dialog.isCondtionRegex_ = true;
         });
-      modal.find('#condition-input-type label[name="string"] input')
+      modal.find('#condition-input-type label[name=string] input')
         .on('click', function() {
           genotet.dialog.isCondtionRegex_ = false;
         });
