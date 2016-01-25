@@ -19,6 +19,8 @@ genotet.ExpressionLoader = function(data) {
     tfaData: null,
     matrixGeneNameDict: null,
     matrixConditionNameDict: null,
+    lowerGeneNames: null,
+    lowerConditionNames: null,
     tfaGeneNameDict: null,
     profiles: [],
     tfaProfiles: [],
@@ -106,6 +108,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     }
 
     this.data.matrix = data;
+
     var matrixGeneNameDict = {};
     data.geneNames.forEach(function(geneName, i) {
       matrixGeneNameDict[geneName] = i;
@@ -116,6 +119,18 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     }.bind(this));
     this.data.matrixGeneNameDict = matrixGeneNameDict;
     this.data.matrixConditionNameDict = matrixConditionNameDict;
+
+    var lowerGeneNames = {};
+    Object.keys(this.data.matrixInfo.allGeneNames).forEach(function(name) {
+      lowerGeneNames[name.toLowerCase()] = name;
+    });
+    this.data.lowerGeneNames = lowerGeneNames;
+    var lowerConditionNames = {};
+    Object.keys(this.data.matrixInfo.allConditionNames).forEach(
+      function(name) {
+        lowerConditionNames[name.toLowerCase()] = name;
+      });
+    this.data.lowerConditionNames = lowerConditionNames;
 
     this.loadTfaProfile_(fileName, geneNames, conditionNames);
   }.bind(this), 'cannot load expression matrix');
@@ -162,7 +177,6 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
                                                      names) {
   var heatmapData = this.data.matrix;
   var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
-    fileName: heatmapData.fileName,
     geneNames: heatmapData.geneNames,
     conditionNames: heatmapData.conditionNames
   });
@@ -175,14 +189,14 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
         break;
       case 'addGene':
         // Concat the two names.
-        this.removeNames_(zoomStatus.geneNames, names);
+        zoomStatus.geneNames = this.removeNames_(zoomStatus.geneNames, names);
         names.forEach(function(name) {
           zoomStatus.geneNames.push(name);
         });
         break;
       case 'removeGene':
         // Remove the names.
-        this.removeNames_(zoomStatus.geneNames, names);
+        zoomStatus.geneNames = this.removeNames_(zoomStatus.geneNames, names);
         break;
       case 'setCondition':
         // Totally replace the regex.
@@ -190,19 +204,21 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
         break;
       case 'addCondition':
         // Concat the two names.
-        this.removeNames_(zoomStatus.conditionNames, names);
+        zoomStatus.conditionNames = this.removeNames_(zoomStatus.conditionNames,
+          names);
         names.forEach(function(name) {
           zoomStatus.conditionNames.push(name);
         });
         break;
       case 'removeCondition':
         // Remove the names.
-        this.removeNames_(zoomStatus.conditionNames, names);
+        zoomStatus.conditionNames = this.removeNames_(zoomStatus.conditionNames,
+          names);
         break;
     }
   }, this);
   var zoomStatus = this.data.zoomStack.pop();
-  this.load(zoomStatus.fileName, zoomStatus.geneNames,
+  this.load(heatmapData.fileName, zoomStatus.geneNames,
     zoomStatus.conditionNames);
 };
 
@@ -211,18 +227,16 @@ genotet.ExpressionLoader.prototype.update = function(method, fileName,
  * @param {!Array<string>} originalNames Original names from previous zoom
  *      status.
  * @param {!Array<string>} removeNames Names need to be removed.
+ * @return {!Array<string>}
  * @private
  */
 genotet.ExpressionLoader.prototype.removeNames_ = function(originalNames,
                                                            removeNames) {
-  var namesDict = {};
-  originalNames.forEach(function(name, i) {
-    namesDict[name] = i;
+  var removeNamesDict = {};
+  removeNames.forEach(function(name, i) {
+    removeNamesDict[name] = i;
   });
-  removeNames.forEach(function(name) {
-    var geneIndex = namesDict[name];
-    if (name in namesDict) {
-      originalNames.splice(geneIndex, 1);
-    }
+  return originalNames.filter(function(name) {
+    return !(name in removeNamesDict);
   });
 };

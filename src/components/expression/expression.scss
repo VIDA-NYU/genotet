@@ -53,6 +53,7 @@ $white: #fff;
   }
 
   .gene-label {
+    font-size: 11px;
     text-anchor: end;
 
     &.highlighted {
@@ -71,6 +72,7 @@ $white: #fff;
   }
 
   .condition-label {
+    font-size: 11px;
     text-anchor: right;
 
     &.highlighted {
@@ -87,6 +89,12 @@ $white: #fff;
       stroke: none;
     }
   }
+
+  .heatmap-gradient {
+    text {
+      font-size: 11px;
+    }
+  }
 }
 
 #side-panel .expression {
@@ -94,6 +102,21 @@ $white: #fff;
     border: 1px solid $gray;
     border-radius: 4px;
     padding: 10px;
+  }
+
+  .input-checkbox {
+    float: left;
+    font-size: 12px;
+    margin-top: 4px;
+
+    label {
+      margin-left: 0;
+    }
+
+    input {
+      height: 10px;
+      width: 100%;
+    }
   }
 
   .zoom-out {
