@@ -48,9 +48,8 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   // Gene update
   ['set', 'add', 'remove'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
-      var geneInputType = this.container.find('#gene-input-type')
-        .children('label');
-      var isRegex = geneInputType.children('input[name=regex]').prop('checked');
+      var isRegex = this.container.find('#gene-input-type')
+        .children('label[name=regex]').children('input').prop('checked');
       var input = this.container.find('#genes input');
       var inputGenes = input.val();
       if (inputGenes == '') {

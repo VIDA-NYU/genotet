@@ -146,9 +146,8 @@ genotet.dialog.createNetwork_ = function() {
       // Create
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
-        var geneInputType = modal.find('#gene-input-type').children('label');
-        var isRegex = geneInputType.children('input[name=regex]')
-          .prop('checked');
+        var isRegex = modal.find('#gene-input-type')
+          .children('label[name=regex]').children('input').prop('checked');
         genotet.viewManager.createView('network', viewName, {
           fileName: modal.find('#network').val(),
           inputGenes: modal.find('#geneRegex').val(),

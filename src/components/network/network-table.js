@@ -69,13 +69,12 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       {title: 'Source', data: 'source'},
       {title: 'Target', data: 'target'},
       {title: 'Weight', data: 'weight'},
-      {title: 'Add', data: 'added'}
+      {title: '', data: 'added'}
     ],
     select: true,
     dom: 'Bfrtip',
     buttons: [
       {
-        extend: 'selectedSingle',
         text: 'add',
         action: function(e, dt, node, config) {
           var selectedEdge = dt.rows({selected: true}).data()[0];
@@ -92,7 +91,6 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
         }.bind(this)
       },
       {
-        extend: 'selectedSingle',
         text: 'remove',
         action: function(e, dt, node, config) {
           var selectedEdge = dt.rows({selected: true}).data()[0];

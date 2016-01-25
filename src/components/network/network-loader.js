@@ -168,7 +168,7 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
   var params = {
     type: 'incremental-edges',
     fileName: this.data.network.fileName,
-    gene: newGenes,
+    genes: newGenes,
     nodes: this.data.network.nodes
   };
 
