@@ -288,7 +288,7 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
   } else {
     var inputWords = geneInput.toLowerCase().split(/[,\s]+/g);
     geneNames = inputWords.reduce(function(result, name) {
-      if (name && name in this.data.lowerGeneNames) {
+      if (name !== '' && name in this.data.lowerGeneNames) {
         result.push(this.data.lowerGeneNames[name]);
       }
       return result;
@@ -315,7 +315,7 @@ genotet.ExpressionPanel.prototype.formatConditionInput =
     } else {
       var inputWords = conditionInput.toLowerCase().split(/[,\s]+/g);
       conditionNames = inputWords.reduce(function(result, name) {
-        if (name && name in this.data.lowerConditionNames) {
+        if (name !== '' && name in this.data.lowerConditionNames) {
           result.push(this.data.lowerConditionNames[name]);
         }
         return result;
