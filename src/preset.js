@@ -74,14 +74,14 @@ genotet.preset.createNetwork_ = function() {
 
 /**
  * Create a preset binding view.
- * @param {number} numberOfTracks Number of tracks.
+ * @param {number} numTracks Number of tracks.
  * @private
  */
-genotet.preset.createBinding_ = function(numberOfTracks) {
+genotet.preset.createBinding_ = function(numTracks) {
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     fileName: 'b6.bw',
     bedName: 'bed_data.bed',
     chr: '1',
-    numberOfTracks: numberOfTracks
+    numTracks: numTracks
   });
 };

@@ -51,7 +51,7 @@ genotet.Exon;
  *   bed: !genotet.Bed,
  *   bedName: string,
  *   exons: !Array<!genotet.Exon>,
- *   defaultNumberOfTracks: number
+ *   defaultNumTracks: number
  * }}
  */
 genotet.bindingData;
@@ -61,7 +61,7 @@ genotet.bindingData;
  *   fileName: string,
  *   bedName: string,
  *   chr: string,
- *   numberOfTracks: number
+ *   numTracks: number
  * }}
  */
 genotet.BindingViewParams;
@@ -96,7 +96,7 @@ genotet.BindingView = function(viewName, params) {
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.fileName, params.bedName, params.chr,
-      params.numberOfTracks);
+      params.numTracks);
   }.bind(this));
 
   $(this.renderer)
