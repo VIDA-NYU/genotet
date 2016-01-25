@@ -55,7 +55,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       originalWeight: edge.weight
     });
   });
-  table.DataTable({
+  var dataTable = table.DataTable({
     data: edgesForTable,
     columnDefs: [
       {
@@ -72,10 +72,13 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       {title: '', data: 'added'}
     ],
     select: true,
-    dom: 'Bfrtip',
+    dom: '<"row"<"col-sm-12"B>>' +
+      '<"row"<"col-sm-6"l><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"tr>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
     buttons: [
       {
-        text: 'add',
+        text: 'Add',
         action: function(e, dt, node, config) {
           var selectedEdge = dt.rows({selected: true}).data()[0];
           this.signal('addEdge', {
@@ -88,10 +91,11 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               edge.added = true;
             }
           });
-        }.bind(this)
+        }.bind(this),
+        enabled: false
       },
       {
-        text: 'remove',
+        text: 'Remove',
         action: function(e, dt, node, config) {
           var selectedEdge = dt.rows({selected: true}).data()[0];
           this.signal('removeEdge', {
@@ -105,13 +109,21 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               edge.added = false;
             }
           });
-        }.bind(this)
-      },
-      'pageLength'
+        }.bind(this),
+        enabled: false
+      }
     ],
     lengthMenu: [5, 10, 20, 50],
     pageLength: 5,
     pagingType: 'full'
+  });
+
+  table.on('click', function() {
+    var data = dataTable.rows({selected: true}).data();
+    if (data.length == 1) {
+      dataTable.button(0).enable(!data[0].added);
+      dataTable.button(1).enable(data[0].added);
+    }
   });
 
   table.closest('#edge-list').css('width',
