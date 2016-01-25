@@ -34,25 +34,25 @@ uploader.DOUBLE_SIZE_ = 8;
  * @param {{
  *   type: string,
  *   name: string,
- *   fileName: string,
  *   description: string
  * }} desc File description.
- * @param {Object} file File object received from multer.
+ * @param {!Object} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
  * @return {Object} Success or not as a JS Object.
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
+  var fileName = file.originalname;
   var source = fs.createReadStream(file.path);
-  var dest = fs.createWriteStream(prefix + desc.fileName);
+  var dest = fs.createWriteStream(prefix + fileName);
   source.pipe(dest);
   source
     .on('end', function() {
       fs.unlink(file.path);
       if (desc.type == 'binding') {
-        uploader.bigWigToBCWig(prefix, desc.fileName, bigWigToWigAddr);
+        uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr);
       } else if (desc.type == 'bed') {
-        uploader.bedSort(prefix, desc.fileName);
+        uploader.bedSort(prefix, fileName);
       }
     })
     .on('err', function(err) {
@@ -65,7 +65,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
     });
 
   // write down the network name and description
-  var fd = fs.openSync(prefix + desc.fileName + '.txt', 'w');
+  var fd = fs.openSync(prefix + fileName + '.txt', 'w');
   fs.writeSync(fd, desc.name + '\n');
   fs.writeSync(fd, desc.description);
   fs.closeSync(fd);
