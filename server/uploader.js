@@ -43,6 +43,15 @@ uploader.DOUBLE_SIZE_ = 8;
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
   var fileName = file.originalname;
+  if (fs.existsSync(prefix + fileName) ||
+    fs.existsSync(prefix + fileName + '_chr')) {
+    return {
+      error: {
+        type: 'file already exists',
+        message: 'file already exists'
+      }
+    };
+  }
   var source = fs.createReadStream(file.path);
   var dest = fs.createWriteStream(prefix + fileName);
   source.pipe(dest);
