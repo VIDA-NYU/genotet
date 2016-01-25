@@ -235,21 +235,19 @@ genotet.dialog.createExpression_ = function() {
         });
 
       // Choose input type of gene and condition.
-      modal.find('#gene-input-type .regex input')
+      modal.find('#gene-input-type label[name="regex"] input')
         .on('click', function() {
           genotet.dialog.isGeneRegex_ = true;
-        })
-        .trigger('click');
-      modal.find('#gene-input-type .string input')
+        });
+      modal.find('#gene-input-type label[name="string"] input')
         .on('click', function() {
           genotet.dialog.isGeneRegex_ = false;
         });
-      modal.find('#condition-input-type .regex input')
+      modal.find('#condition-input-type label[name="regex"] input')
         .on('click', function() {
           genotet.dialog.isCondtionRegex_ = true;
-        })
-        .trigger('click');
-      modal.find('#condition-input-type .string input')
+        });
+      modal.find('#condition-input-type label[name="string"] input')
         .on('click', function() {
           genotet.dialog.isCondtionRegex_ = false;
         });

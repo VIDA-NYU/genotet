@@ -113,18 +113,22 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
     }.bind(this));
 
   // Input type update
-  this.container.find('#gene-input .regex input').click(function() {
-    this.isGeneRegex_ = true;
-  }.bind(this)).trigger('click');
-  this.container.find('#gene-input .string input').click(function() {
-    this.isGeneRegex_ = false;
-  }.bind(this));
-  this.container.find('#condition-input .regex input').click(function() {
-    this.isConditionRegex_ = true;
-  }.bind(this)).trigger('click');
-  this.container.find('#condition-input .string input').click(function() {
-    this.isConditionRegex_ = false;
-  }.bind(this));
+  this.container.find('#gene-input label[name="regex"] input')
+    .click(function() {
+      this.isGeneRegex_ = true;
+    }.bind(this));
+  this.container.find('#gene-input label[name="string"] input')
+    .click(function() {
+      this.isGeneRegex_ = false;
+    }.bind(this));
+  this.container.find('#condition-input label[name="regex"] input')
+    .click(function() {
+      this.isConditionRegex_ = true;
+    }.bind(this));
+  this.container.find('#condition-input label[name="string"] input')
+    .click(function() {
+      this.isConditionRegex_ = false;
+    }.bind(this));
 
   // Gene update
   ['setGene', 'addGene', 'removeGene'].forEach(function(method) {
