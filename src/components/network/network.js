@@ -157,6 +157,9 @@ genotet.NetworkView = function(viewName, params) {
     .on('genotet.removeEdge', function(event, data) {
       this.loader.deleteEdge(data.source, data.target);
       this.renderer.dataLoaded();
+    }.bind(this))
+    .on('genotet.highlightEdge', function(event, data) {
+      this.renderer.findSelectEdge(data.edgeId);
     }.bind(this));
 };
 

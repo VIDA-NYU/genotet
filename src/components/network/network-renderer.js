@@ -526,3 +526,14 @@ genotet.NetworkRenderer.prototype.selectEdge = function(edge) {
       return edge.id == idSelected;
     }.bind(this));
 };
+
+/**
+ * Finds an edge and select highlight it.
+ * @param {string} edgeId The id of the edge to be found.
+ */
+genotet.NetworkRenderer.prototype.findSelectEdge = function(edgeId) {
+  if (edgeId in this.edges_) {
+    this.selectEdge(this.edges_[edgeId]);
+    this.signal('edgeClick', this.edges_[edgeId]);
+  }
+};

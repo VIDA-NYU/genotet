@@ -123,6 +123,15 @@ genotet.NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
     .css('display', node.isTF ? '' : 'none');
   container.children('#subtiwiki').children('a')
     .attr('href', this.SUBTIWIKI_URL + node.id);
+  container.children('#rm-gene').children('button').click(function() {
+    this.signal('update', {
+      type: 'gene',
+      method: 'remove',
+      inputGenes: node.id,
+      isRegex: false
+    });
+    this.container.find('#node-info').slideUp();
+  }.bind(this));
 };
 
 /**

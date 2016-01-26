@@ -15,4 +15,9 @@ jQuery.prototype.rows = function(opt_params) {};
 /**
  * @param {Object=} opt_params
  */
-jQuery.prototype.row = function(opt_params) {};
+jQuery.prototype.draw = function(opt_params) {};
+
+/**
+ * @param {Object=} opt_params
+ */
+jQuery.prototype.invalidate = function(opt_params) {};

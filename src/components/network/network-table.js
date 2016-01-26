@@ -91,6 +91,11 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               edge.added = true;
             }
           });
+          // refresh the row
+          dt.row({selected: true}).invalidate();
+          // change the button status
+          dt.buttons(0).enable(false);
+          dt.buttons(1).enable(true);
         }.bind(this),
         enabled: false
       },
@@ -109,6 +114,11 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               edge.added = false;
             }
           });
+          // refresh the row
+          dt.row({selected: true}).invalidate();
+          // change the button status
+          dt.buttons(0).enable(true);
+          dt.buttons(1).enable(false);
         }.bind(this),
         enabled: false
       }
@@ -123,8 +133,11 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
     if (data.length == 1) {
       dataTable.button(0).enable(!data[0].added);
       dataTable.button(1).enable(data[0].added);
+      this.signal('highlightEdge', {
+        edgeId: data[0].id
+      });
     }
-  });
+  }.bind(this));
 
   table.closest('#edge-list').css('width',
     /** @type {number} */(table.width()));
