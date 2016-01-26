@@ -8,18 +8,15 @@
     <div class="item-title">Add Gene Profiles</div>
     <select></select>
   </div>
-  <div id="input-type" class="panel-section">
-    <div class="item-title">Input Type</div>
-    <div class="input-checkbox">
-      <label id="regex" class="radio-inline"><input type="radio" name="optradio">regex</label>
-      <label id="string" class="radio-inline"><input type="radio" name="optradio">string</label>
-    </div>
-  </div>
   <div id="genes" class="panel-section">
     <div class="item-title">Genes</div>
     <!--<button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>-->
     <!--<input class="form-control input-with-update">-->
     <input class="form-control">
+    <div id="gene-input" class="input-checkbox">
+      <label class="radio-inline" name="string"><input type="radio" name="gene-optradio" checked>text</label>
+      <label class="radio-inline" name="regex"><input type="radio" name="gene-optradio">regex</label>
+    </div>
     <div class="sub-buttons">
       <button id="setGene" class="btn btn-default btn-xs glyphicon glyphicon-refresh" title="set genes"></button>
       <button id="addGene" class="btn btn-default btn-xs glyphicon glyphicon-plus" title="add genes"></button>
@@ -31,6 +28,10 @@
     <!--<button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>-->
     <!--<input class="form-control input-with-update">-->
     <input class="form-control">
+    <div id="condition-input" class="input-checkbox">
+      <label class="radio-inline" name="string"><input type="radio" name="condition-optradio" checked>text</label>
+      <label class="radio-inline" name="regex"><input type="radio" name="condition-optradio">regex</label>
+    </div>
     <div class="sub-buttons">
       <button id="setCondition" class="btn btn-default btn-xs glyphicon glyphicon-refresh" title="set conditions"></button>
       <button id="addCondition" class="btn btn-default btn-xs glyphicon glyphicon-plus" title="add conditions"></button>

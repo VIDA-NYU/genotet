@@ -234,7 +234,7 @@ genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN = 10;
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_MARGIN = 40;
 
 /** @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_HEATMAP_GRADIENT_HEIGHT = 30;
+genotet.ExpressionRenderer.prototype.DEFAULT_HEATMAP_GRADIENT_HEIGHT = 20;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.GENE_LABEL_WIDTH_FACTOR = 8.725;
@@ -284,7 +284,7 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
    * SVG group for profile legend.
    * @private {!d3}
    */
-  this.svgLegend_ = this.svgProfile_.append('g')
+  this.svgLegend_ = this.canvas.append('g')
     .classed('legend', true);
 
   /**
@@ -749,6 +749,10 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   var cellWidth = this.cellWidth;
   var cellHeight = this.cellHeight;
   var columnStart, columnEnd, rowStart, rowEnd;
+  var zoomStartPosition = {
+    x: 0,
+    y: 0
+  };
   var zoomOutButtonSelection = d3.select('#zoom-out button');
   zoomOutButtonSelection.classed('disabled', this.data.zoomStack.length == 0);
 
@@ -757,6 +761,10 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       var mousePosition = d3.mouse(d3.event.target);
       rowStart = Math.floor(mousePosition[1] / cellHeight);
       columnStart = Math.floor(mousePosition[0] / cellWidth);
+      zoomStartPosition = {
+        x: mousePosition[0],
+        y: mousePosition[1]
+      };
       zoomSelection.append('rect')
         .classed('selection', true)
         .attr({
@@ -781,23 +789,22 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
           x: mousePosition[0] - selectedRange.x,
           y: mousePosition[1] - selectedRange.y
         };
-
         if (selectedBorderWeight.x < 1 ||
           (selectedBorderWeight.x * 2 < selectedRange.width)) {
           selectedRange.x = mousePosition[0];
-          selectedRange.width -= selectedBorderWeight.x;
         } else {
-          selectedRange.width = selectedBorderWeight.x;
+          selectedRange.x = zoomStartPosition.x;
         }
+        selectedRange.width = Math.abs(zoomStartPosition.x -
+          mousePosition[0]);
         if (selectedBorderWeight.y < 1 ||
           (selectedBorderWeight.y * 2 < selectedRange.height)) {
           selectedRange.y = mousePosition[1];
-          selectedRange.height -= selectedBorderWeight.y;
         } else {
-          selectedRange.height = selectedBorderWeight.y;
+          selectedRange.y = zoomStartPosition.y;
         }
-        selectedRange.height = Math.abs(selectedRange.height);
-        selectedRange.width = Math.abs(selectedRange.width);
+        selectedRange.height = Math.abs(zoomStartPosition.y -
+          mousePosition[1]);
         rectSelection.attr(selectedRange);
 
         this.svgHeatmap_.selectAll('.label-selected')
@@ -993,6 +1000,7 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
  * @private
  */
 genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
+  this.drawProfileLegend_(this.data.profiles);
   if (!this.data.options.showProfiles) {
     this.svgProfile_.selectAll('*').attr('display', 'none');
     return;
@@ -1002,9 +1010,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
 
   var heatmapData = this.data.matrix;
   this.svgProfile_.attr('width', this.canvasWidth);
-
-  var legendHeight = this.DEFAULT_PROFILE_LEGEND_HEIGHT -
-    this.DEFAULT_PROFILE_LEGEND_MARGIN;
 
   var xScale = d3.scale.linear().range([
     this.profileMargins_.left,
@@ -1032,39 +1037,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     })
     .y(yScale)
     .interpolate('linear');
-
-  var legendRect = this.svgLegend_.selectAll('rect')
-    .data(this.data.profiles);
-  legendRect.enter().append('rect');
-  legendRect
-    .attr('height', legendHeight)
-    .attr('width', legendHeight)
-    .attr('x', function(profile, i) {
-      return i * (legendHeight +
-        profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
-    }.bind(this))
-    .style('fill', function(profile) {
-      return this.COLOR_CATEGORY[genotet.utils.hashString(profile.geneName) %
-        this.COLOR_CATEGORY_SIZE];
-    }.bind(this));
-  legendRect.exit().remove();
-
-  var legendText = this.svgLegend_.selectAll('text')
-    .data(this.data.profiles);
-  legendText.enter().append('text');
-  legendText
-    .text(function(profile) {
-      return profile.geneName;
-    })
-    .attr('transform', genotet.utils.getTransform([
-      legendHeight + this.HEATMAP_LEGEND_MARGIN,
-      legendHeight / 2 + this.TEXT_HEIGHT / 2
-    ]))
-    .attr('x', function(profile, i) {
-      return i * (legendHeight +
-        profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
-    }.bind(this));
-  legendText.exit().remove();
 
   var profilePath = this.profileContent_.selectAll('path')
     .data(this.data.profiles);
@@ -1129,6 +1101,9 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
     this.svgTfaProfile_.selectAll('*').attr('display', 'none');
     return;
   } else {
+    if (!this.data.options.showProfiles) {
+      this.drawProfileLegend_(this.data.tfaProfiles);
+    }
     this.svgTfaProfile_.selectAll('*').attr('display', 'inline');
   }
 
@@ -1140,7 +1115,12 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
     this.profileMargins_.left,
     this.canvasWidth - this.profileMargins_.right
   ]).domain([0, heatmapData.conditionNames.length]);
-  var yScaleTop = this.profileMargins_.top;
+  var yScaleTop = this.profileMargins_.top +
+    this.DEFAULT_PROFILE_LEGEND_HEIGHT;
+  if (!this.data.tfaProfiles.length ||
+    this.data.options.showProfiles) {
+    yScaleTop -= this.DEFAULT_PROFILE_LEGEND_HEIGHT;
+  }
   var yScale = d3.scale.linear().range([
     this.tfaProfileHeight_ - this.profileMargins_.bottom,
     yScaleTop
@@ -1228,6 +1208,56 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
       this.signal('expressionClick', this.clickedObject_);
     }.bind(this));
   profilePath.exit().remove();
+};
+
+/**
+ * Renders legend for gene profiles and TFA profiles.
+ * @param {!Array<genotet.ExpressionRenderer.Profile>} profiles
+ * @private
+ */
+genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
+  if (!this.data.options.showProfiles &&
+    !this.data.options.showTfaProfiles) {
+    this.svgLegend_.selectAll('*').attr('display', 'none');
+    return;
+  } else {
+    this.svgLegend_.selectAll('*').attr('display', 'inline');
+  }
+  var legendHeight = this.DEFAULT_PROFILE_LEGEND_HEIGHT -
+    this.DEFAULT_PROFILE_LEGEND_MARGIN;
+
+  var legendRect = this.svgLegend_.selectAll('rect')
+    .data(profiles);
+  legendRect.enter().append('rect');
+  legendRect
+    .attr('height', legendHeight)
+    .attr('width', legendHeight)
+    .attr('x', function(profile, i) {
+      return i * (legendHeight +
+        profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
+    }.bind(this))
+    .style('fill', function(profile) {
+      return this.COLOR_CATEGORY[genotet.utils.hashString(profile.geneName) %
+      this.COLOR_CATEGORY_SIZE];
+    }.bind(this));
+  legendRect.exit().remove();
+
+  var legendText = this.svgLegend_.selectAll('text')
+    .data(profiles);
+  legendText.enter().append('text');
+  legendText
+    .text(function(profile) {
+      return profile.geneName;
+    })
+    .attr('transform', genotet.utils.getTransform([
+      legendHeight + this.HEATMAP_LEGEND_MARGIN,
+      legendHeight / 2 + this.TEXT_HEIGHT / 2
+    ]))
+    .attr('x', function(profile, i) {
+      return i * (legendHeight +
+        profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
+    }.bind(this));
+  legendText.exit().remove();
 };
 
 /**
