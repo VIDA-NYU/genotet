@@ -17,8 +17,7 @@ genotet.BindingLoader = function(data) {
     tracks: [],
     bed: null,
     bedName: null,
-    exons: [],
-    defaultNumTracks: 1
+    exons: []
   });
 };
 
@@ -39,14 +38,14 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
                                                 numTracks, opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
+  var addTrack = opt_track ? false : true;
   this.data.chr = chr;
-  this.loadFullTrack(trackIndex, fileName, chr);
+  this.loadFullTrack(trackIndex, fileName, chr, addTrack);
   this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
   this.loadExons_(chr);
 
-  this.data.defaultNumTracks = numTracks;
   for (var i = 1; i < numTracks; i++) {
-    this.loadFullTrack(trackIndex + i, fileName, chr);
+    this.loadFullTrack(trackIndex + i, fileName, chr, addTrack);
   }
 };
 
@@ -84,9 +83,10 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
  * @param {number} trackIndex Track index.
  * @param {string} fileName Binding file name.
  * @param {string} chr Chromosome.
+ * @param {boolean} addTrack Whether add a new track.
  */
 genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
-                                                         chr) {
+                                                         chr, addTrack) {
   var params = {
     type: 'binding',
     fileName: fileName,
@@ -98,7 +98,6 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
       overview: data,
       detail: data
     };
-    var addTrack = trackIndex == this.data.tracks.length;
     this.data.tracks[trackIndex] = track;
     this.updateRanges_();
     if (addTrack) {
@@ -236,10 +235,6 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
     overviewXMax = Math.max(overviewXMax, track.overview.xMax);
   }, this);
 
-  // Overview range may change, then need to reset zoom state.
-  this.data.overviewRangeChanged = overviewXMin != this.data.overviewXMin ||
-    overviewXMax != this.data.overviewXMax;
-
   _.extend(this.data, {
     overviewXMin: overviewXMin,
     overviewXMax: overviewXMax
@@ -265,6 +260,5 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
     data.forEach(function(dataInfo) {
       genotet.data.bindingGenes.push(dataInfo.gene);
     });
-    this.signal('track');
   }.bind(this), 'cannot load binding list');
 };

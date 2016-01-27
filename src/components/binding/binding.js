@@ -51,7 +51,6 @@ genotet.Exon;
  *   bed: !genotet.Bed,
  *   bedName: string,
  *   exons: !Array<!genotet.Exon>,
- *   defaultNumTracks: number
  * }}
  */
 genotet.bindingData;
@@ -106,6 +105,9 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.coordinates', function(event, data) {
       this.panel.updateCoordinates(data.start, data.end);
+    }.bind(this))
+    .on('genotet.track', function() {
+      this.panel.updateTracks();
     }.bind(this));
 
   $(this.panel)
@@ -144,7 +146,7 @@ genotet.BindingView = function(viewName, params) {
     .on('genotet.addTrack', function() {
       var track = this.data.tracks.slice(-1).pop();
       this.loader.loadFullTrack(this.data.tracks.length, track.fileName,
-        this.data.chr);
+        this.data.chr, true);
     }.bind(this))
     .on('genotet.removeTrack', function(event, trackIndex) {
       this.data.tracks.splice(trackIndex, 1);
@@ -154,15 +156,12 @@ genotet.BindingView = function(viewName, params) {
     .on('genotet.gene', function(event, data) {
       this.data.tracks[data.trackIndex].fileName = data.fileName;
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
-        this.data.chr);
+        this.data.chr, false);
     }.bind(this));
 
   $(this.loader)
     .on('genotet.chr', function(event, chr) {
       this.panel.updateChr(chr);
-    }.bind(this))
-    .on('genotet.track', function() {
-      this.panel.updateTracks();
     }.bind(this));
 };
 

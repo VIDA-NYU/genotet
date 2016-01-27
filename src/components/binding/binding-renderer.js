@@ -186,20 +186,18 @@ genotet.BindingRenderer.prototype.init = function() {
  * @private
  */
 genotet.BindingRenderer.prototype.getBindingRanges_ = function() {
-  if (this.data.overviewRangeChanged) {
-    this.xScaleZoom_
-      .domain([this.data.overviewXMin, this.data.overviewXMax])
-      .range([0, this.canvasWidth]);
-    this.zoom_.x(this.xScaleZoom_);
-    this.zoomTranslate_ = [0, 0];
-    this.zoomScale_ = 1;
+  this.xScaleZoom_
+    .domain([this.data.overviewXMin, this.data.overviewXMax])
+    .range([0, this.canvasWidth]);
+  this.zoom_.x(this.xScaleZoom_);
+  this.zoomTranslate_ = [0, 0];
+  this.zoomScale_ = 1;
 
-    this.xScaleOverview_
-      .domain([this.data.overviewXMin, this.data.overviewXMax])
-      .range([0, this.canvasWidth]);
+  this.xScaleOverview_
+    .domain([this.data.overviewXMin, this.data.overviewXMax])
+    .range([0, this.canvasWidth]);
 
-    this.detailContent_.attr('transform', '');
-  }
+  this.detailContent_.attr('transform', '');
 };
 
 /**
@@ -226,9 +224,6 @@ genotet.BindingRenderer.prototype.arrangeBedRectPositions_ = function() {
 
 /** @inheritDoc */
 genotet.BindingRenderer.prototype.dataLoaded = function() {
-  if (this.data.defaultNumTracks > 1) {
-    this.data.overviewRangeChanged = true;
-  }
   this.getBindingRanges_();
   this.arrangeBedRectPositions_();
   this.render();
@@ -239,6 +234,9 @@ genotet.BindingRenderer.prototype.dataLoaded = function() {
     start: this.data.detailXMin,
     end: this.data.detailXMax
   });
+
+  // Initialize binding tracks in the panel.
+  this.signal('track');
 };
 
 /** @inheritDoc */
