@@ -164,6 +164,9 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       if (allSame) {
         dataTable.button(0).enable(!data[0].added); // the addition button
         dataTable.button(1).enable(data[0].added);  // the removal button
+      } else {
+        dataTable.button(0).disable();
+        dataTable.button(1).disable();
       }
       for (var i = 0; i < data.length; i++) {
         this.signal('highlightEdge', {
