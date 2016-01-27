@@ -73,6 +73,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
     ],
     select: true,
     dom: '<"row"<"col-sm-12"B>>' +
+      '<"row">' +
       '<"row"<"col-sm-5"l><"col-sm-7"f>>' +
       '<"row"<"col-sm-12"tr>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
@@ -80,45 +81,62 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       {
         text: 'Add',
         action: function(e, dt, node, config) {
-          var selectedEdge = dt.rows({selected: true}).data()[0];
-          this.signal('addEdge', {
-            source: selectedEdge.source,
-            target: selectedEdge.target,
-            weight: selectedEdge.originalWeight
+          var selectedEdges = dt.rows({selected: true}).data();
+          var additionEdges = [];
+          for (var i = 0; i < selectedEdges.length; i++) {
+            additionEdges.push({
+              id: selectedEdges[i].id,
+              source: selectedEdges[i].source,
+              target: selectedEdges[i].target,
+              weight: selectedEdges[i].originalWeight
+            });
+            edgesForTable.forEach(function(edge) {
+              if (selectedEdges[i].id == edge.id) {
+                edge.added = true;
+              }
+            });
+          }
+          this.signal('addEdges', {
+            edges: additionEdges
           });
-          edgesForTable.forEach(function(edge) {
-            if (edge.id == selectedEdge.id) {
-              edge.added = true;
-            }
-          });
+
           // refresh the row
-          dt.row({selected: true}).invalidate();
+          dt.rows({selected: true}).invalidate();
           // change the button status
-          dt.buttons(0).enable(false);
-          dt.buttons(1).enable(true);
+          dt.buttons(0).enable(false);  // the addition button
+          dt.buttons(1).enable(true);   // the removal button
         }.bind(this),
         enabled: false
       },
       {
         text: 'Remove',
         action: function(e, dt, node, config) {
-          var selectedEdge = dt.rows({selected: true}).data()[0];
-          this.signal('removeEdge', {
-            id: selectedEdge.id,
-            source: selectedEdge.source,
-            target: selectedEdge.target,
-            weight: selectedEdge.originalWeight
+          var selectedEdges = dt.rows({selected: true}).data();
+          var removalEdges = [];
+          for (var i = 0; i < selectedEdges.length; i++) {
+            removalEdges.push({
+              id: selectedEdges[i].id,
+              source: selectedEdges[i].source,
+              target: selectedEdges[i].target,
+              weight: selectedEdges[i].originalWeight
+            });
+            edgesForTable.forEach(function(edge) {
+              if (selectedEdges[i].id == edge.id) {
+                edge.added = false;
+              }
+            });
+          }
+          this.signal('removeEdges', {
+            edges: removalEdges
           });
-          edgesForTable.forEach(function(edge) {
-            if (edge.id == selectedEdge.id) {
-              edge.added = false;
-            }
+          this.signal('hideEdge', {
+            edges: removalEdges
           });
           // refresh the row
           dt.row({selected: true}).invalidate();
           // change the button status
-          dt.buttons(0).enable(true);
-          dt.buttons(1).enable(false);
+          dt.buttons(0).enable(true);   // the addition button
+          dt.buttons(1).enable(false);  // the removal button
         }.bind(this),
         enabled: false
       }
@@ -130,12 +148,25 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
 
   table.on('click', function() {
     var data = dataTable.rows({selected: true}).data();
-    if (data.length == 1) {
-      dataTable.button(0).enable(!data[0].added);
-      dataTable.button(1).enable(data[0].added);
-      this.signal('highlightEdge', {
-        edgeId: data[0].id
-      });
+    if (data.length > 0) {
+      var allSame = true;
+      if (data.length > 1) {
+        for (var i = 1; i < data.length; i++) {
+          if (data[i].added != data[i - 1].added) {
+            allSame = false;
+            break;
+          }
+        }
+      }
+      if (allSame) {
+        dataTable.button(0).enable(!data[0].added); // the addition button
+        dataTable.button(1).enable(data[0].added);  // the removal button
+      }
+      for (var i = 0; i < data.length; i++) {
+        this.signal('highlightEdge', {
+          edgeId: data[i].id
+        });
+      }
     }
   }.bind(this));
 

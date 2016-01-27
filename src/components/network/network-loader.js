@@ -124,6 +124,9 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
       break;
     case 'remove':
       this.deleteGenes_(genes);
+      this.signal('hideNode', {
+        genes: genes
+      });
       break;
   }
 };
@@ -177,16 +180,15 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
     this.data.networkInfo.nodes.forEach(function(node) {
       isTF[node.id] = node.isTF;
     });
-    newGenes.forEach(function(gene) {
-      this.data.network.nodes.push({
+    this.data.network.nodes = this.data.network.nodes
+      .concat(newGenes.map(function(gene) {
+      return {
         id: gene,
         label: gene,
         isTF: isTF[gene]
-      });
-    }, this);
-    data.edges.forEach(function(edge) {
-      this.data.network.edges.push(edge);
-    }, this);
+      };
+    }));
+    this.data.network.edges = this.data.network.edges.concat(data.edges);
   }.bind(this), 'cannot add genes');
 };
 
@@ -213,63 +215,68 @@ genotet.NetworkLoader.prototype.deleteGenes_ = function(genes) {
 };
 
 /**
- * Adds one edge to the network.
- * @param {!genotet.NetworkEdge} data Input data for adding an edge.
+ * Adds edges to the network.
+ * @param {!Array<!genotet.NetworkEdge>} edges Edges to be add into network.
  */
-genotet.NetworkLoader.prototype.addEdge = function(data) {
-  var source = data.source;
-  var target = data.target;
-  var weight = data.weight;
-  var sourceExists = false, targetExists = false;
-  this.data.network.nodes.forEach(function(node) {
-    if (source == node.id) {
-      sourceExists = true;
-    }
-    if (target == node.id) {
-      targetExists = true;
-    }
-  });
-  if (!sourceExists) {
-    this.data.network.nodes.push({
-      id: source,
-      label: source,
-      isTF: true
-    });
-  }
-  if (!targetExists) {
-    var isTF = false;
-    this.data.networkInfo.nodes.forEach(function(node) {
+genotet.NetworkLoader.prototype.addEdges = function(edges) {
+  edges.forEach(function(edge) {
+    var source = edge.source;
+    var target = edge.target;
+    var weight = edge.weight;
+    var sourceExists = false, targetExists = false;
+    this.data.network.nodes.forEach(function(node) {
+      if (source == node.id) {
+        sourceExists = true;
+      }
       if (target == node.id) {
-        isTF = node.isTF;
+        targetExists = true;
       }
     });
-    this.data.network.nodes.push({
-      id: target,
-      label: target,
-      isTF: isTF
+    if (!sourceExists) {
+      this.data.network.nodes.push({
+        id: source,
+        label: source,
+        isTF: true
+      });
+    }
+    if (!targetExists) {
+      var isTF = false;
+      this.data.networkInfo.nodes.forEach(function(node) {
+        if (target == node.id) {
+          isTF = node.isTF;
+        }
+      });
+      this.data.network.nodes.push({
+        id: target,
+        label: target,
+        isTF: isTF
+      });
+    }
+    this.data.network.edges.push({
+      id: source + ',' + target,
+      source: source,
+      target: target,
+      weight: weight
     });
-  }
-  this.data.network.edges.push({
-    id: source + ',' + target,
-    source: source,
-    target: target,
-    weight: weight
-  });
+  }, this);
 };
 
 /**
- * Deletes one edge from the network.
- * @param {string} source Source Gene of the edge to be deleted.
- * @param {string} target Target Gene of the edge to be deleted.
+ * Deletes edges from the network.
+ * @param {!Array<!genotet.NetworkEdge>} edges Edges to be deleted.
  */
-genotet.NetworkLoader.prototype.deleteEdge = function(source, target) {
-  for (var i = 0; i < this.data.network.edges.length; i++) {
-    if (this.data.network.edges[i].source == source &&
-      this.data.network.edges[i].target == target) {
-      this.data.network.edges.splice(i, 1);
-      break;
+genotet.NetworkLoader.prototype.deleteEdges = function(edges) {
+  edges.forEach(function(edge) {
+    var source = edge.source;
+    var target = edge.target;
+    for (var i = 0; i < this.data.network.edges.length; i++) {
+      if (this.data.network.edges[i].source == source &&
+        this.data.network.edges[i].target == target) {
+        this.data.network.edges.splice(i, 1);
+        break;
+      }
     }
-  }
+  }, this);
 };
 
 /*
