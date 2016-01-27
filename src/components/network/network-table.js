@@ -71,7 +71,10 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       {title: 'Weight', data: 'weight'},
       {title: '', data: 'added'}
     ],
-    select: true,
+    select: {
+      style: 'os',
+      info: false
+    },
     dom: '<"row"<"col-sm-12"B>>' +
       '<"row">' +
       '<"row"<"col-sm-5"l><"col-sm-7"f>>' +
@@ -133,7 +136,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
             edges: removalEdges
           });
           // refresh the row
-          dt.row({selected: true}).invalidate();
+          dt.rows({selected: true}).invalidate();
           // change the button status
           dt.buttons(0).enable(true);   // the addition button
           dt.buttons(1).enable(false);  // the removal button
