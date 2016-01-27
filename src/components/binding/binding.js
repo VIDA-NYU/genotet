@@ -57,10 +57,9 @@ genotet.bindingData;
 
 /**
  * @typedef {{
- *   fileName: string,
+ *   fileName: !Array<string>,
  *   bedName: string,
- *   chr: string,
- *   numTracks: number
+ *   chr: string
  * }}
  */
 genotet.BindingViewParams;
@@ -94,8 +93,7 @@ genotet.BindingView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.fileName, params.bedName, params.chr,
-      params.numTracks);
+    this.loader.load(params.fileName, params.bedName, params.chr);
   }.bind(this));
 
   $(this.renderer)

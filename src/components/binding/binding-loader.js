@@ -28,24 +28,22 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 
 /**
  * Loads the binding data for a given gene and chromosome.
- * @param {string} fileName Binding file name.
+ * @param {!Array<string>} fileName Binding file name.
  * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.
- * @param {number} numTracks Number of tracks.
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
 genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
-                                                numTracks, opt_track) {
+                                                opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
-  var addTrack = opt_track ? false : true;
+  var addTrack = !opt_track;
   this.data.chr = chr;
-  this.loadFullTrack(trackIndex, fileName, chr, addTrack);
   this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
   this.loadExons_(chr);
 
-  for (var i = 1; i < numTracks; i++) {
-    this.loadFullTrack(trackIndex + i, fileName, chr, addTrack);
+  for (var i = 0; i < fileName.length; i++) {
+    this.loadFullTrack(trackIndex + i, fileName[i], chr, addTrack);
   }
 };
 

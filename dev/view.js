@@ -19,10 +19,9 @@ genotet.test = function() {
     conditionInput: 'si.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
-    fileName: 'b6.bw',
+    fileName: ['b6.bw'],
     bedName: 'bed_data.bed',
-    chr: '1',
-    numTracks: 1
+    chr: '1'
   });
   genotet.viewManager.createView('network', 'My Network', {
     fileName: 'meishei.tsv',
