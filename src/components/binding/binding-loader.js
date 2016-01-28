@@ -92,6 +92,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
   };
   this.get(genotet.data.serverURL, params, function(data) {
     var track = {
+      gene: data.gene,
       fileName: fileName,
       overview: data,
       detail: data
@@ -254,9 +255,9 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
     type: 'list-binding'
   };
   this.get(genotet.data.serverURL, params, function(data) {
-    genotet.data.bindingGenes = [];
+    genotet.data.bindingGenes = {};
     data.forEach(function(dataInfo) {
-      genotet.data.bindingGenes.push(dataInfo.gene);
+      genotet.data.bindingGenes[dataInfo.gene] = dataInfo.fileName;
     });
   }.bind(this), 'cannot load binding list');
 };

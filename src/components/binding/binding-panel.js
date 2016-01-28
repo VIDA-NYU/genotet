@@ -170,17 +170,17 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
     .attr('id', 'track-' + trackIndex)
     .show();
 
-  var genes = genotet.data.bindingGenes.map(function(gene) {
+  var genes = Object.keys(genotet.data.bindingGenes).map(function(gene) {
     return {
       id: gene,
       text: gene
     };
   });
-  var fileName = this.data.tracks[trackIndex].fileName;
+  var gene = this.data.tracks[trackIndex].gene;
   var select = uiTrack.children('select').select2({
     data: genes
   });
-  select.val(fileName).trigger('change');
+  select.val(gene).trigger('change');
   this.selectGenes_[trackIndex] = select;
 
   uiTrack.find('.select2-container').css({
@@ -193,7 +193,8 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
 
   // Set track fileName
   select.on('select2:select', function(event) {
-    var fileName = event.params.data.id;
+    var gene = event.params.data.id;
+    var fileName = genotet.data.bindingGenes[gene];
     this.signal('gene', {
       trackIndex: trackIndex,
       fileName: fileName
@@ -218,7 +219,7 @@ genotet.BindingPanel.prototype.updateTracks = function() {
     if (!ui.length) {
       this.addTrack_();
     }
-    this.selectGenes_[index].val(track.fileName).trigger('change');
+    this.selectGenes_[index].val(track.gene).trigger('change');
   }, this);
   this.container.find('#genes .glyphicon-remove')
     .css('display', this.data.tracks.length == 1 ? 'none' : '');
