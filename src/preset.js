@@ -4,40 +4,12 @@
 
 'use strict';
 
-/**
- * @typedef {{
- *   fileName: string,
- *   isGeneRegex: boolean,
- *   isConditionRegex: boolean,
- *   geneInput: string,
- *   conditionInput: string
- * }}
- */
-genotet.ExpressionParams;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   geneRegex: string
- * }}
- */
-genotet.NetworkParams;
-
-/**
- * @typedef {{
- *   fileName: !Array<string>,
- *   bedName: string,
- *   chr: string
- * }}
- */
-genotet.BindingParams;
-
 /** @const */
 genotet.preset = {};
 
 /**
  * Parameters for preset expression view.
- * @private @const {!genotet.ExpressionParams}
+ * @private @const {!genotet.ExpressionViewParams}
  */
 genotet.preset.EXPRESSION_PARAMS_ = {
   fileName: 'expressionMatrix',
@@ -48,27 +20,34 @@ genotet.preset.EXPRESSION_PARAMS_ = {
 };
 /**
  * Parameters for preset network view.
- * @private @const {!genotet.NetworkParams}
+ * @private @const {!genotet.NetworkViewParams}
  */
 genotet.preset.NETWORK_PARAMS_ = {
-  fileName: 'meishei.tsv',
+  fileName: 'th17.tsv',
   geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
 };
 /**
  * Parameters for preset binding view.
- * @private @const {!genotet.BindingParams}
+ * @private @const {!genotet.BindingViewParams}
  */
 genotet.preset.BINDING_PARAMS_ = {
-  fileName: ['b6.bw'],
+  fileNames: ['b6.bw'],
   bedName: 'bed_data.bed',
   chr: '1'
 };
 /**
  * Parameters for preset 3-track binding view.
- * @private @const {!genotet.BindingParams}
+ * @private @const {!genotet.BindingViewParams}
  */
 genotet.preset.THREE_TRACK_BINDING_PARAMS_ = {
-  fileName: ['b6.bw', 'b6.bw', 'b6.bw'],
+  /**
+   * Raw file names: [
+   *   Th0_B6_48h_5_noMito.bw,
+   *   Cd4SP_s1_noMito.bw,
+   *   WT_72hrs_Th17_1b623_1_norm.bw
+   * ]
+   */
+  fileNames: ['b6.bw', 'Cd4SP_s1.bw', '1b623_1.bw'],
   bedName: 'bed_data.bed',
   chr: '1'
 };
@@ -110,40 +89,27 @@ genotet.preset.loadPreset = function(preset) {
 
 /**
  * Create a preset expression view.
- * @param {!genotet.ExpressionParams} params
+ * @param {!genotet.ExpressionViewParams} params
  * @private
  */
 genotet.preset.createExpression_ = function(params) {
-  genotet.viewManager.createView('expression', 'My Expression Matrix', {
-    fileName: params.fileName,
-    isGeneRegex: params.isGeneRegex,
-    isConditionRegex: params.isConditionRegex,
-    geneInput: params.geneInput,
-    conditionInput: params.conditionInput
-  });
+  genotet.viewManager.createView('expression', 'My Expression Matrix', params);
 };
 
 /**
  * Create a preset network view.
- * @param {!genotet.NetworkParams} params
+ * @param {!genotet.NetworkViewParams} params
  * @private
  */
 genotet.preset.createNetwork_ = function(params) {
-  genotet.viewManager.createView('network', 'My Network', {
-    fileName: params.fileName,
-    geneRegex: params.geneRegex
-  });
+  genotet.viewManager.createView('network', 'My Network', params);
 };
 
 /**
  * Create a preset binding view.
- * @param {!genotet.BindingParams} params
+ * @param {!genotet.BindingViewParams} params
  * @private
  */
 genotet.preset.createBinding_ = function(params) {
-  genotet.viewManager.createView('binding', 'My Genome Browser', {
-    fileName: params.fileName,
-    bedName: params.bedName,
-    chr: params.chr
-  });
+  genotet.viewManager.createView('binding', 'My Genome Browser', params);
 };

@@ -19,12 +19,12 @@ genotet.test = function() {
     conditionInput: 'si.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
-    fileName: ['b6.bw'],
+    fileNames: ['b6.bw'],
     bedName: 'bed_data.bed',
     chr: '1'
   });
   genotet.viewManager.createView('network', 'My Network', {
-    fileName: 'meishei.tsv',
+    fileName: 'th17.tsv',
     geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
   });
 };

@@ -28,23 +28,23 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 
 /**
  * Loads the binding data for a given gene and chromosome.
- * @param {!Array<string>} fileName Binding file name.
+ * @param {!Array<string>} fileNames Binding file names.
  * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
-genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
+genotet.BindingLoader.prototype.load = function(fileNames, bedName, chr,
                                                 opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
-  var addTrack = !opt_track;
+  var isAddTrack = !opt_track;
   this.data.chr = chr;
   this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
   this.loadExons_(chr);
 
-  for (var i = 0; i < fileName.length; i++) {
-    this.loadFullTrack(trackIndex + i, fileName[i], chr, addTrack);
-  }
+  fileNames.forEach(function(fileName, i) {
+    this.loadFullTrack(trackIndex + i, fileName, chr, isAddTrack);
+  }, this);
 };
 
 /**
@@ -81,10 +81,10 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
  * @param {number} trackIndex Track index.
  * @param {string} fileName Binding file name.
  * @param {string} chr Chromosome.
- * @param {boolean} addTrack Whether add a new track.
+ * @param {boolean} isAddTrack Whether it is adding a new track.
  */
 genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
-                                                         chr, addTrack) {
+                                                         chr, isAddTrack) {
   var params = {
     type: 'binding',
     fileName: fileName,
@@ -98,7 +98,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
     };
     this.data.tracks[trackIndex] = track;
     this.updateRanges_();
-    if (addTrack) {
+    if (isAddTrack) {
       // Add one more track.
       this.loadBindingList();
     }

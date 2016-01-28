@@ -50,14 +50,14 @@ genotet.Exon;
  *   tracks: !Array<!genotet.bindingTrack>,
  *   bed: !genotet.Bed,
  *   bedName: string,
- *   exons: !Array<!genotet.Exon>,
+ *   exons: !Array<!genotet.Exon>
  * }}
  */
 genotet.bindingData;
 
 /**
  * @typedef {{
- *   fileName: !Array<string>,
+ *   fileNames: !Array<string>,
  *   bedName: string,
  *   chr: string
  * }}
@@ -93,7 +93,7 @@ genotet.BindingView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.fileName, params.bedName, params.chr);
+    this.loader.load(params.fileNames, params.bedName, params.chr);
   }.bind(this));
 
   $(this.renderer)
