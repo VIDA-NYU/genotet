@@ -442,7 +442,7 @@ genotet.NetworkRenderer.prototype.drawEdges_ = function() {
     .style('fill', getEdgeColor)
     .on('click', function(edge) {
       this.signal('edgeClick', edge);
-      this.selectEdge(edge);
+      this.selectEdges([edge]);
     }.bind(this))
     .on('mouseenter', function(edge) {
       this.signal('edgeHover', edge);
@@ -516,23 +516,33 @@ genotet.NetworkRenderer.prototype.selectNode = function(node) {
 
 /**
  * Selects an edge to highlight it.
- * @param {!Object} edge Edge selected.
+ * @param {!Array<!Object>} edges Edges selected.
  */
-genotet.NetworkRenderer.prototype.selectEdge = function(edge) {
-  this.data.edgeSelected = edge;
-  var idSelected = edge.id;
+genotet.NetworkRenderer.prototype.selectEdges = function(edges) {
+  this.data.edgesSelected = edges;
+  var idsSelected = {};
+  edges.forEach(function(edge) {
+    idsSelected[edge.id] = true;
+  });
   this.svgEdges_.selectAll('g')
     .classed('active', function(edge) {
-      return edge.id == idSelected;
+      return edge.id in idsSelected;
     }.bind(this));
 };
 
 /**
- * Finds an edge and select highlight it.
- * @param {string} edgeId The id of the edge to be found.
+ * Finds an edge and select/highlight it.
+ * @param {!Array<string>} edgesId The ids of the edge to be found.
  */
-genotet.NetworkRenderer.prototype.findSelectEdge = function(edgeId) {
-  if (edgeId in this.edges_) {
-    this.selectEdge(this.edges_[edgeId]);
+genotet.NetworkRenderer.prototype.findSelectEdge = function(edgesId) {
+  var selectedEdges = [];
+  edgesId.forEach(function(edgeId) {
+    if (edgeId in this.edges_) {
+      selectedEdges.push(this.edges_[edgeId]);
+    }
+  }, this);
+  this.selectEdges(selectedEdges);
+  if (selectedEdges.length > 1) {
+    this.signal('showMultiEdges');
   }
 };

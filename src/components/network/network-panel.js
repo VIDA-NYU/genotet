@@ -211,30 +211,32 @@ genotet.NetworkPanel.prototype.tooltipEdge = function(edge) {
 };
 
 /**
- * Hides the info of the node if one of the nodes in the network.
+ * Hides the node-info when removing nodes.
  * @param {!Array<string>} genes Genes to hide.
  */
 genotet.NetworkPanel.prototype.hideNodeInfo = function(genes) {
   var info = this.container.find('#node-info');
   var name = info.children('#name').children('span').text();
-  genes.forEach(function(gene) {
-    if (gene == name) {
-      this.hideNodeInfo_();
-    }
-  }, this);
+  var geneMap = genotet.utils.keySet(genes);
+  if (name in geneMap) {
+    this.hideNodeInfo_();
+  }
 };
 
 /**
- * Hides the info of the edge if one of the edges in the network.
+ * Hides the edge-info when removing edges.
  * @param {!Array<!genotet.NetworkEdge>} edges Edges to hide.
  */
 genotet.NetworkPanel.prototype.hideEdgeInfo = function(edges) {
   var info = this.container.find('#edge-info');
   var source = info.children('#source').children('span').text();
   var target = info.children('#target').children('span').text();
+  var edgeId = source + ',' + target;
+  var edgeIdMap = {};
   edges.forEach(function(edge) {
-    if (edge.source == source && edge.target == target) {
-      this.hideEdgeInfo_();
-    }
-  }, this);
+      edgeIdMap[edge.id] = true;
+  });
+  if (edgeId in edgeIdMap) {
+    this.hideEdgeInfo_();
+  }
 };

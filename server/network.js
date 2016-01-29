@@ -480,14 +480,11 @@ network.incrementalEdges_ = function(file, genes, nodes) {
       newNodes[gene] = true;
     }
   });
-  var edges = [];
   var result = network.readNetwork_(file);
-  result.edges.forEach(function(edge) {
-    if ((edge.source in newNodes && edge.target in oldNodes) ||
-      (edge.source in oldNodes && edge.target in newNodes) ||
-      (edge.source in newNodes && edge.target in newNodes)) {
-      edges.push(edge);
-    }
+  var edges = result.edges.filter(function(edge) {
+    return ((edge.source in newNodes && edge.target in oldNodes) ||
+    (edge.source in oldNodes && edge.target in newNodes) ||
+    (edge.source in newNodes && edge.target in newNodes));
   });
   return {
     edges: edges

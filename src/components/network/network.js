@@ -157,8 +157,8 @@ genotet.NetworkView = function(viewName, params) {
       this.loader.deleteEdges(data.edges);
       this.renderer.dataLoaded();
     }.bind(this))
-    .on('genotet.highlightEdge', function(event, data) {
-      this.renderer.findSelectEdge(data.edgeId);
+    .on('genotet.highlightEdges', function(event, data) {
+      this.renderer.findSelectEdge(data.edgesId);
     }.bind(this))
     .on('genotet.hideEdge', function(event, data) {
       this.panel.hideEdgeInfo(data.edges);

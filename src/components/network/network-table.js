@@ -129,6 +129,9 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               }
             });
           }
+          this.signal('highlightEdges', {
+            edgesId: []
+          });
           this.signal('removeEdges', {
             edges: removalEdges
           });
@@ -168,11 +171,13 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
         dataTable.button(0).disable();
         dataTable.button(1).disable();
       }
+      var edgesId = [];
       for (var i = 0; i < data.length; i++) {
-        this.signal('highlightEdge', {
-          edgeId: data[i].id
-        });
+        edgesId.push(data[i].id);
       }
+      this.signal('highlightEdges', {
+        edgesId: edgesId
+      });
     }
   }.bind(this));
 

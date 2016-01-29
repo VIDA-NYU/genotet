@@ -86,13 +86,11 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
   };
 
   this.get(genotet.data.serverURL, params, function(data) {
-    // Store the last applied fileName and genes.
-
     if (!genes.length) {
       genotet.warning('input gene not found');
       return;
     }
-
+    // Store the last applied fileName and genes.
     _.extend(data, {
       fileName: fileName,
       genes: genes
@@ -200,18 +198,13 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
 genotet.NetworkLoader.prototype.deleteGenes_ = function(genes) {
   var geneMap = genotet.utils.keySet(genes);
   // delete the nodes
-  for (var i = 0; i < this.data.network.nodes.length; i++) {
-    if (this.data.network.nodes[i].id in geneMap) {
-      this.data.network.nodes.splice(i, 1);
-    }
-  }
+  this.data.network.nodes = this.data.network.nodes.filter(function(node) {
+    return !(node.id in geneMap);
+  });
   // delete the edges
-  for (var i = this.data.network.edges.length - 1; i >= 0; i--) {
-    if (this.data.network.edges[i].source in geneMap ||
-      this.data.network.edges[i].target in geneMap) {
-      this.data.network.edges.splice(i, 1);
-    }
-  }
+  this.data.network.edges = this.data.network.edges.filter(function(edge) {
+    return !(edge.source in geneMap) && !(edge.target in geneMap);
+  });
 };
 
 /**
@@ -266,17 +259,16 @@ genotet.NetworkLoader.prototype.addEdges = function(edges) {
  * @param {!Array<!genotet.NetworkEdge>} edges Edges to be deleted.
  */
 genotet.NetworkLoader.prototype.deleteEdges = function(edges) {
+  var edgeMap = {};
   edges.forEach(function(edge) {
-    var source = edge.source;
-    var target = edge.target;
-    for (var i = 0; i < this.data.network.edges.length; i++) {
-      if (this.data.network.edges[i].source == source &&
-        this.data.network.edges[i].target == target) {
-        this.data.network.edges.splice(i, 1);
-        break;
-      }
+    edgeMap[edge.id] = true;
+  });
+  console.log(this.data.network.edges);
+  for (var i = this.data.network.edges.length - 1; i >= 0; i--) {
+    if (this.data.network.edges[i].id in edgeMap) {
+      this.data.network.edges.splice(i, 1);
     }
-  }, this);
+  }
 };
 
 /*
