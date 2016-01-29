@@ -75,7 +75,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       style: 'os',
       info: false
     },
-    dom: '<"row"<"col-sm-12"B>>' +
+    dom: '<"row"<"#table-btn.col-sm-12"B>>' +
       '<"row">' +
       '<"row"<"col-sm-5"l><"col-sm-7"f>>' +
       '<"row"<"col-sm-12"tr>>' +
@@ -83,6 +83,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
     buttons: [
       {
         text: 'Add',
+        className: 'btn btn-default',
         action: function(e, dt, node, config) {
           var selectedEdges = dt.rows({selected: true}).data();
           var additionEdges = [];
@@ -113,6 +114,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       },
       {
         text: 'Remove',
+        className: 'btn btn-default',
         action: function(e, dt, node, config) {
           var selectedEdges = dt.rows({selected: true}).data();
           var removalEdges = [];
@@ -165,7 +167,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
         }
         this.signal('multiEdgeInfo');
       } else {
-        if (data[0].id in edgeIds) {
+        if (data[0].added) {
           this.signal('edgeInfo', {
             edge: {
               id: data[0].id,
