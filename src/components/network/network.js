@@ -162,6 +162,12 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.hideEdge', function(event, data) {
       this.panel.hideEdgeInfo(data.edges);
+    }.bind(this))
+    .on('genotet.multiEdgeInfo', function() {
+      this.panel.displayMultiEdgeInfo();
+    }.bind(this))
+    .on('genotet.edgeInfo', function(event, data) {
+      this.panel.displayEdgeInfo(data.edge);
     }.bind(this));
 };
 

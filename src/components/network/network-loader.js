@@ -263,7 +263,6 @@ genotet.NetworkLoader.prototype.deleteEdges = function(edges) {
   edges.forEach(function(edge) {
     edgeMap[edge.id] = true;
   });
-  console.log(this.data.network.edges);
   for (var i = this.data.network.edges.length - 1; i >= 0; i--) {
     if (this.data.network.edges[i].id in edgeMap) {
       this.data.network.edges.splice(i, 1);

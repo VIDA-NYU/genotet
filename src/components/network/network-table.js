@@ -163,6 +163,24 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
             break;
           }
         }
+        this.signal('multiEdgeInfo');
+      } else {
+        if (data[0].id in edgeIds) {
+          this.signal('edgeInfo', {
+            edge: {
+              id: data[0].id,
+              source: {
+                id: data[0].source,
+                label: data[0].source
+              },
+              target: {
+                id: data[0].target,
+                label: data[0].target
+              },
+              weight: data[0].weight
+            }
+          });
+        }
       }
       if (allSame) {
         dataTable.button(0).enable(!data[0].added); // the addition button

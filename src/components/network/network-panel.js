@@ -170,7 +170,7 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
  * @param {!Object} node Node of which the info is to be displayed.
  */
 genotet.NetworkPanel.prototype.displayNodeInfo = function(node) {
-  var info = this.container.find('#node-info').hide().slideDown();
+  var info = this.container.find('#node-info').slideDown();
   this.setNodeInfo_(node, info);
   info.find('.close').click(function() {
     this.hideNodeInfo_();
@@ -182,8 +182,20 @@ genotet.NetworkPanel.prototype.displayNodeInfo = function(node) {
  * @param {!Object} edge Edge of which the info is to be displayed.
  */
 genotet.NetworkPanel.prototype.displayEdgeInfo = function(edge) {
-  var info = this.container.find('#edge-info').hide().slideDown();
+  var info = this.container.find('#edge-info').slideDown();
   this.setEdgeInfo_(edge, info);
+  info.find('.close').click(function() {
+    this.hideEdgeInfo_();
+  }.bind(this));
+};
+
+/**
+ * Displays multiple edges selected info.
+ */
+genotet.NetworkPanel.prototype.displayMultiEdgeInfo = function() {
+  var info = this.container.find('#edge-info').slideDown();
+  info.html(/** @type {string} */
+    (this.container.find('#edge-info-multi-template').html()));
   info.find('.close').click(function() {
     this.hideEdgeInfo_();
   }.bind(this));
@@ -197,7 +209,7 @@ genotet.NetworkPanel.prototype.tooltipNode = function(node) {
   var tooltip = genotet.tooltip.create();
   this.setNodeInfo_(node, tooltip);
   // Tooltip cannot be interacted with, thus link is not shown.
-  tooltip.find('#subtiwiki, .close').remove();
+  tooltip.find('#subtiwiki, #rm-gene, .close').remove();
 };
 
 /**
@@ -207,7 +219,7 @@ genotet.NetworkPanel.prototype.tooltipNode = function(node) {
 genotet.NetworkPanel.prototype.tooltipEdge = function(edge) {
   var tooltip = genotet.tooltip.create();
   this.setEdgeInfo_(edge, tooltip);
-  tooltip.find('.close').remove();
+  tooltip.find('#rm-edge, .close').remove();
 };
 
 /**
