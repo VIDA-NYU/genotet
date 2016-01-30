@@ -13,21 +13,20 @@ genotet.test = function() {
 
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
     fileName: 'expressionMatrix',
+    tfaFileName: 'tfa.matrix2.bin',
     isGeneRegex: true,
     isConditionRegex: true,
     geneInput: 'sig.*',
-    conditionInput: 'si.*',
-    isPreset: false
+    conditionInput: 'si.*'
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     fileNames: 'SL971_SL970',
     bedName: 'bed_data.bed',
     chr: '1',
-    isPreset: false
+    multipleTracks: false
   });
   genotet.viewManager.createView('network', 'My Network', {
     fileName: 'th17.tsv',
-    geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
-    isPreset: false
+    geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
   });
 };

@@ -7,11 +7,11 @@
 /**
  * @typedef {{
  *   fileName: string,
+ *   tfaFileName: string,
  *   isGeneRegex: boolean,
  *   isConditionRegex: boolean,
  *   geneInput: string,
- *   conditionInput: string,
- *   isPreset: boolean
+ *   conditionInput: string
  * }}
  */
 genotet.ExpressionViewParams;
@@ -80,17 +80,25 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
+    this.data.tfaFileName = params.tfaFileName;
     this.loader.loadExpressionMatrixInfo(params.fileName);
   }.bind(this));
 
   // Format gene and condition input to list.
-  $(this.loader).on('genotet.matrixInfoLoaded', function() {
+  $(this.loader)
+    .on('genotet.matrixInfoLoaded', function() {
     var geneNames = this.panel.formatGeneInput(params.isGeneRegex,
       params.geneInput);
     var conditionNames = this.panel.formatConditionInput(
       params.isConditionRegex, params.conditionInput);
     this.loader.load(params.fileName, geneNames, conditionNames);
-  }.bind(this));
+  }.bind(this))
+    .on('genotet.loadTfaProfile', function() {
+      var geneNames = this.data.matrix.geneNames;
+      var conditionNames = this.data.matrix.conditionNames;
+      this.loader.loadTfaProfile(this.data.tfaFileName, geneNames,
+        conditionNames);
+    }.bind(this));
 
   // Set up rendering update.
   $(this.panel)

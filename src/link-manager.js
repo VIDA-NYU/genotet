@@ -6,7 +6,7 @@
 genotet.linkManager = {};
 
 /**
- * Object that stores the preset status of all the views. Keys are view names.
+ * Array that stores the preset view names of all the views.
  */
-/** @type {!Object<string, boolean>} */
-genotet.linkManager.presetStatus = {};
+/** @type {!Array<string>} */
+genotet.linkManager.presetStatus = [];

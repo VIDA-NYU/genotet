@@ -51,8 +51,8 @@ genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
  * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.
  */
-genotet.BindingLoader.prototype.loadPreset = function(fileNames, bedName,
-                                                      chr) {
+genotet.BindingLoader.prototype.loadMultipleTracks = function(fileNames,
+                                                              bedName, chr) {
   var trackIndex = this.data.tracks.length;
   this.data.chr = chr;
   this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);

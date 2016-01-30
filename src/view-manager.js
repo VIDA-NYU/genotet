@@ -80,7 +80,6 @@ genotet.viewManager.createView = function(type, viewName, params) {
   genotet.viewManager.views[viewName] = newView;
   var panelContainer = genotet.panelManager.addPanel(newView);
   newView.createPanel(panelContainer);
-  genotet.linkManager.presetStatus[viewName] = params.isPreset;
 };
 
 /**
@@ -116,7 +115,7 @@ genotet.viewManager.closeAllViews = function() {
   });
   genotet.viewManager.views = {};
   genotet.panelManager.closeAllPanels();
-  genotet.linkManager.presetStatus = {};
+  genotet.linkManager.presetStatus = [];
 };
 
 /**

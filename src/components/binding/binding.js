@@ -60,7 +60,7 @@ genotet.bindingData;
  *   fileNames: (!Array<string>|string),
  *   bedName: string,
  *   chr: string,
- *   isPreset: boolean
+ *   multipleTracks: boolean
  * }}
  */
 genotet.BindingViewParams;
@@ -94,9 +94,10 @@ genotet.BindingView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    if (params.isPreset) {
-      this.loader.loadPreset(/** @type {!Array<string>} */(params.fileNames),
-        params.bedName, params.chr);
+    if (params.multipleTracks) {
+      this.loader.loadMultipleTracks(
+        /** @type {!Array<string>} */(params.fileNames), params.bedName,
+        params.chr);
     } else {
       this.loader.load(/** @type {string} */(params.fileNames),
         params.bedName, params.chr);

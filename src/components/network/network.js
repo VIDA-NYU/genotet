@@ -7,8 +7,7 @@
 /**
  * @typedef {{
  *   fileName: string,
- *   geneRegex: string,
- *   isPreset: boolean
+ *   geneRegex: string
  * }}
  */
 genotet.NetworkViewParams;
