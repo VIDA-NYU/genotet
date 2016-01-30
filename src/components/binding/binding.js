@@ -168,6 +168,9 @@ genotet.BindingView = function(viewName, params) {
     .on('genotet.chr', function(event, chr) {
       this.panel.updateChr(chr);
     }.bind(this))
+    .on('genotet.addTrack', function() {
+      this.loader.loadBindingList();
+    }.bind(this))
     .on('genotet.track', function() {
       this.panel.updateTracks();
     }.bind(this));

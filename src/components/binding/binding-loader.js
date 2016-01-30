@@ -116,7 +116,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
     this.updateRanges_();
     if (isAddTrack) {
       // Add one more track.
-      this.loadBindingList();
+      this.signal('addTrack');
     }
   }.bind(this), 'cannot load binding overview');
 
