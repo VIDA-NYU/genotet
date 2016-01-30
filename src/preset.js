@@ -33,7 +33,7 @@ genotet.preset.NETWORK_PARAMS_ = {
  * @private @const {!genotet.BindingViewParams}
  */
 genotet.preset.BINDING_PARAMS_ = {
-  fileNames: ['b6.bw'],
+  fileNames: ['SL971_SL970'],
   bedName: 'bed_data.bed',
   chr: '1',
   isPreset: true
@@ -85,7 +85,7 @@ genotet.preset.loadPreset = function(preset) {
 };
 
 /**
- * Create a preset expression view.
+ * Creates a preset expression view.
  * @param {!genotet.ExpressionViewParams} params
  * @private
  */

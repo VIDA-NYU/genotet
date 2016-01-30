@@ -45,7 +45,8 @@ genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
 };
 
 /**
- * Loads the binding data for a given gene and chromosome in preset mode.
+ * Loads the binding data for multiple genes and chromosome in preset mode,
+ * and the genes are added at the end of the tracks list.
  * @param {!Array<string>} fileNames Binding file names.
  * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.

@@ -20,7 +20,7 @@ genotet.test = function() {
     isPreset: false
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
-    fileNames: 'b6.bw',
+    fileNames: 'SL971_SL970',
     bedName: 'bed_data.bed',
     chr: '1',
     isPreset: false
