@@ -80,6 +80,7 @@ genotet.viewManager.createView = function(type, viewName, params) {
   genotet.viewManager.views[viewName] = newView;
   var panelContainer = genotet.panelManager.addPanel(newView);
   newView.createPanel(panelContainer);
+  genotet.linkManager.presetStatus[viewName] = params.isPreset;
 };
 
 /**
@@ -94,6 +95,7 @@ genotet.viewManager.closeView = function(view) {
   // Remove the view reference.
   delete genotet.viewManager.views[view.name()];
   genotet.panelManager.removePanel(view.name());
+  delete genotet.linkManager.presetStatus[view.name()];
 };
 
 /**
@@ -114,6 +116,7 @@ genotet.viewManager.closeAllViews = function() {
   });
   genotet.viewManager.views = {};
   genotet.panelManager.closeAllPanels();
+  genotet.linkManager.presetStatus = {};
 };
 
 /**

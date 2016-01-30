@@ -85,6 +85,12 @@ genotet.BindingRenderer = function(container, data) {
   this.zoomTimer_;
 
   /**
+   * Timer handle for the zoom interval.
+   * @private {boolean}
+   */
+  this.scaleSet_ = false;
+
+  /**
    * Margins of the bed track.
    * @private @const {!Object<number>}
    */
@@ -186,18 +192,21 @@ genotet.BindingRenderer.prototype.init = function() {
  * @private
  */
 genotet.BindingRenderer.prototype.getBindingRanges_ = function() {
-  this.xScaleZoom_
-    .domain([this.data.overviewXMin, this.data.overviewXMax])
-    .range([0, this.canvasWidth]);
-  this.zoom_.x(this.xScaleZoom_);
-  this.zoomTranslate_ = [0, 0];
-  this.zoomScale_ = 1;
+  if (this.data.overviewRangeChanged || !this.scaleSet_) {
+    this.scaleSet_ = true;
+    this.xScaleZoom_
+      .domain([this.data.overviewXMin, this.data.overviewXMax])
+      .range([0, this.canvasWidth]);
+    this.zoom_.x(this.xScaleZoom_);
+    this.zoomTranslate_ = [0, 0];
+    this.zoomScale_ = 1;
 
-  this.xScaleOverview_
-    .domain([this.data.overviewXMin, this.data.overviewXMax])
-    .range([0, this.canvasWidth]);
+    this.xScaleOverview_
+      .domain([this.data.overviewXMin, this.data.overviewXMax])
+      .range([0, this.canvasWidth]);
 
-  this.detailContent_.attr('transform', '');
+    this.detailContent_.attr('transform', '');
+  }
 };
 
 /**
@@ -234,9 +243,6 @@ genotet.BindingRenderer.prototype.dataLoaded = function() {
     start: this.data.detailXMin,
     end: this.data.detailXMax
   });
-
-  // Initialize binding tracks in the panel.
-  this.signal('track');
 };
 
 /** @inheritDoc */

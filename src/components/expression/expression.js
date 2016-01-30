@@ -10,7 +10,8 @@
  *   isGeneRegex: boolean,
  *   isConditionRegex: boolean,
  *   geneInput: string,
- *   conditionInput: string
+ *   conditionInput: string,
+ *   isPreset: boolean
  * }}
  */
 genotet.ExpressionViewParams;

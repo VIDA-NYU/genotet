@@ -16,15 +16,18 @@ genotet.test = function() {
     isGeneRegex: true,
     isConditionRegex: true,
     geneInput: 'sig.*',
-    conditionInput: 'si.*'
+    conditionInput: 'si.*',
+    isPreset: false
   });
   genotet.viewManager.createView('binding', 'My Genome Browser', {
-    fileNames: ['b6.bw'],
+    fileNames: 'b6.bw',
     bedName: 'bed_data.bed',
-    chr: '1'
+    chr: '1',
+    isPreset: false
   });
   genotet.viewManager.createView('network', 'My Network', {
     fileName: 'th17.tsv',
-    geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
+    geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
+    isPreset: false
   });
 };

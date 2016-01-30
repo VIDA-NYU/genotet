@@ -16,7 +16,8 @@ genotet.preset.EXPRESSION_PARAMS_ = {
   isGeneRegex: true,
   isConditionRegex: true,
   geneInput: 'sig.*',
-  conditionInput: 'si.*'
+  conditionInput: 'si.*',
+  isPreset: true
 };
 /**
  * Parameters for preset network view.
@@ -24,7 +25,8 @@ genotet.preset.EXPRESSION_PARAMS_ = {
  */
 genotet.preset.NETWORK_PARAMS_ = {
   fileName: 'th17.tsv',
-  geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
+  geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
+  isPreset: true
 };
 /**
  * Parameters for preset binding view.
@@ -33,23 +35,18 @@ genotet.preset.NETWORK_PARAMS_ = {
 genotet.preset.BINDING_PARAMS_ = {
   fileNames: ['b6.bw'],
   bedName: 'bed_data.bed',
-  chr: '1'
+  chr: '1',
+  isPreset: true
 };
 /**
  * Parameters for preset 3-track binding view.
  * @private @const {!genotet.BindingViewParams}
  */
 genotet.preset.THREE_TRACK_BINDING_PARAMS_ = {
-  /**
-   * Raw file names: [
-   *   Th0_B6_48h_5_noMito.bw,
-   *   Cd4SP_s1_noMito.bw,
-   *   WT_72hrs_Th17_1b623_1_norm.bw
-   * ]
-   */
-  fileNames: ['b6.bw', 'Cd4SP_s1.bw', '1b623_1.bw'],
+  fileNames: ['SL971_SL970', 'SL1851', 'SL10572_SL10566'],
   bedName: 'bed_data.bed',
-  chr: '1'
+  chr: '1',
+  isPreset: true
 };
 
 /**

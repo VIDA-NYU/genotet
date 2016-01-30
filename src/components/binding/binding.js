@@ -57,9 +57,10 @@ genotet.bindingData;
 
 /**
  * @typedef {{
- *   fileNames: !Array<string>,
+ *   fileNames: (!Array<string>|string),
  *   bedName: string,
- *   chr: string
+ *   chr: string,
+ *   isPreset: boolean
  * }}
  */
 genotet.BindingViewParams;
@@ -93,7 +94,13 @@ genotet.BindingView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.fileNames, params.bedName, params.chr);
+    if (params.isPreset) {
+      this.loader.loadPreset(/** @type {!Array<string>} */(params.fileNames),
+        params.bedName, params.chr);
+    } else {
+      this.loader.load(/** @type {string} */(params.fileNames),
+        params.bedName, params.chr);
+    }
   }.bind(this));
 
   $(this.renderer)
@@ -160,6 +167,9 @@ genotet.BindingView = function(viewName, params) {
   $(this.loader)
     .on('genotet.chr', function(event, chr) {
       this.panel.updateChr(chr);
+    }.bind(this))
+    .on('genotet.track', function() {
+      this.panel.updateTracks();
     }.bind(this));
 };
 
