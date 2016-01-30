@@ -205,6 +205,11 @@ app.get('/genotet', function(req, res) {
       data = bed.query.motifs(query, bedPath);
       break;
 
+    // Mapping data queries
+    case 'mapping':
+      data = mapping.query.getMapping(query, mappingPath);
+      break;
+
     // Data listing
     case 'list-network':
       data = network.query.list(networkPath);
@@ -217,6 +222,9 @@ app.get('/genotet', function(req, res) {
       break;
     case 'list-bed':
       data = bed.query.list(bedPath);
+      break;
+    case 'list-mapping':
+      data = mapping.query.list(mappingPath);
       break;
 
     // Undefined type, error

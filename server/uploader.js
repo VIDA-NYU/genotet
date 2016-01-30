@@ -64,11 +64,13 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
       };
     });
 
-  // write down the network name and description
-  var fd = fs.openSync(prefix + desc.fileName + '.txt', 'w');
-  fs.writeSync(fd, desc.name + '\n');
-  fs.writeSync(fd, desc.description);
-  fs.closeSync(fd);
+  if (desc.type != 'mapping') {
+    // write down the data name and description
+    var fd = fs.openSync(prefix + desc.fileName + '.txt', 'w');
+    fs.writeSync(fd, desc.name + '\n');
+    fs.writeSync(fd, desc.description);
+    fs.closeSync(fd);
+  }
   return {};
 };
 
