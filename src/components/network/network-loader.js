@@ -68,6 +68,12 @@ genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
   };
   this.get(genotet.data.serverURL, params, function(data) {
     this.data.networkInfo = data;
+    this.data.networkInfo.nodeLabel = {};
+    this.data.networkInfo.isTF = {};
+    this.data.networkInfo.nodes.forEach(function(node) {
+      this.data.networkInfo.nodeLabel[node.id] = node.label;
+      this.data.networkInfo.isTF[node.id] = node.label;
+    }, this);
     this.signal('infoLoaded');
   }.bind(this), 'cannot load network info');
 };
@@ -93,8 +99,14 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
     // Store the last applied fileName and genes.
     _.extend(data, {
       fileName: fileName,
-      genes: genes
+      genes: genes,
+      edgeIdtoId: {}
     });
+
+    // construct edge id string to index.
+    for (var i = 0; i < data.edges.length; i++) {
+      data.edgeIdtoId[data.edges[i].id] = i;
+    }
     this.data.network = data;
   }.bind(this), 'cannot load network');
 };
@@ -171,20 +183,14 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
   };
 
   this.get(genotet.data.serverURL, params, function(data) {
-    var isTF = {};
-    var geneLabel = {};
-    this.data.networkInfo.nodes.forEach(function(node) {
-      isTF[node.id] = node.isTF;
-      geneLabel[node.id] = node.label;
-    });
     this.data.network.nodes = this.data.network.nodes
       .concat(newGenes.map(function(gene) {
       return {
         id: gene,
-        label: geneLabel[gene],
-        isTF: isTF[gene]
+        label: this.data.networkInfo.nodeLabel[gene],
+        isTF: this.data.networkInfo.isTF[gene]
       };
-    }));
+      }.bind(this)));
     this.data.network.edges = this.data.network.edges.concat(data.edges);
   }.bind(this), 'cannot add genes');
 };
@@ -211,12 +217,6 @@ genotet.NetworkLoader.prototype.deleteGenes_ = function(genes) {
  * @param {!Array<!genotet.NetworkEdge>} edges Edges to be add into network.
  */
 genotet.NetworkLoader.prototype.addEdges = function(edges) {
-  var nodeLabel = {};
-  var isTF = {};
-  this.data.networkInfo.nodes.forEach(function(node) {
-    nodeLabel[node.id] = node.label;
-    isTF[node.id] = node.isTF;
-  });
   edges.forEach(function(edge) {
     var source = edge.source;
     var target = edge.target;
@@ -233,15 +233,15 @@ genotet.NetworkLoader.prototype.addEdges = function(edges) {
     if (!sourceExists) {
       this.data.network.nodes.push({
         id: source,
-        label: nodeLabel[source],
+        label: this.data.networkInfo.nodeLabel[source],
         isTF: true
       });
     }
     if (!targetExists) {
       this.data.network.nodes.push({
         id: target,
-        label: nodeLabel[target],
-        isTF: isTF[target]
+        label: this.data.networkInfo.nodeLabel[target],
+        isTF: this.data.networkInfo.isTF[target]
       });
     }
     this.data.network.edges.push({

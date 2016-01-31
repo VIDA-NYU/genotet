@@ -137,46 +137,24 @@ genotet.NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
 
 /**
  * Adds the edge info into a given container.
- * @param {!Object} edge Edge of which info is to be displayed.
+ * @param {!genotet.NetworkEdge} edge Edge of which info is to be displayed.
  * @param {!jQuery} container Info container.
  * @private
  */
 genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
-  var sourceLabel, targetLabel;
-  var sourceId, targetId;
-  if (typeof edge.source == 'object') {
-    sourceLabel = edge.source.label;
-    targetLabel = edge.target.label;
-    sourceId = edge.source.id;
-    targetId = edge.target.id;
-  } else {
-    var nodeLabel = {};
-    this.data.network.nodes.forEach(function(node) {
-      nodeLabel[node.id] = node.label;
-    });
-    sourceLabel = nodeLabel[edge.source];
-    targetLabel = nodeLabel[edge.target];
-    sourceId = edge.source;
-    targetId = edge.target;
-  }
   container.html(
     /** @type {string} */(this.container.find('#edge-info-template').html()));
   container.children('#source').children('span')
-    .text(sourceLabel);
+    .text(this.data.networkInfo.nodeLabel[edge.source]);
   container.children('#target').children('span')
-    .text(targetLabel);
+    .text(this.data.networkInfo.nodeLabel[edge.target]);
   container.children('#edge-sub-info').children('#weight').children('span')
-    .text(edge.weight);
+    .text(edge.weight[0]);
   container.children('#edge-sub-info').children('#rm-edge').children('button')
     .click(function() {
     this.signal('update', {
       type: 'delete-edges',
-      edges: [{
-        id: edge.id,
-        source: sourceId,
-        target: targetId,
-        weight: edge.weight
-      }]
+      edges: [edge]
     });
     this.container.find('#edge-info').slideUp();
   }.bind(this));
@@ -184,7 +162,7 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
 
 /**
  * Displays the info box for network node.
- * @param {!Object} node Node of which the info is to be displayed.
+ * @param {!genotet.NetworkNode} node Node of which the info is to be displayed.
  */
 genotet.NetworkPanel.prototype.displayNodeInfo = function(node) {
   var info = this.container.find('#node-info').slideDown();
@@ -196,7 +174,7 @@ genotet.NetworkPanel.prototype.displayNodeInfo = function(node) {
 
 /**
  * Displays the info box for network edge.
- * @param {!Object} edge Edge of which the info is to be displayed.
+ * @param {!genotet.NetworkEdge} edge Edge to be displayed.
  */
 genotet.NetworkPanel.prototype.displayEdgeInfo = function(edge) {
   var info = this.container.find('#edge-info').slideDown();
@@ -220,7 +198,7 @@ genotet.NetworkPanel.prototype.displayMultiEdgeInfo = function() {
 
 /**
  * Displays a tooltip around cursor about a hovered node.
- * @param {!Object} node Node being hovered.
+ * @param {!genotet.NetworkNode} node Node being hovered.
  */
 genotet.NetworkPanel.prototype.tooltipNode = function(node) {
   var tooltip = genotet.tooltip.create();
@@ -231,7 +209,7 @@ genotet.NetworkPanel.prototype.tooltipNode = function(node) {
 
 /**
  * Displays a tooltip around cursor about a hovered edge.
- * @param {!Object} edge Edge being hovered.
+ * @param {!genotet.NetworkEdge} edge Edge being hovered.
  */
 genotet.NetworkPanel.prototype.tooltipEdge = function(edge) {
   var tooltip = genotet.tooltip.create();

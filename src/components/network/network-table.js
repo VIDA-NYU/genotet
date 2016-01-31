@@ -51,9 +51,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       target: edge.target,
       added: edge.added,
       // weight is only weight[0]
-      weight: edge.weight[0],
-      // originalWeight stores the weight array
-      originalWeight: edge.weight
+      weight: edge.weight[0]
     };
   });
   var dataTable = table.DataTable({
@@ -89,12 +87,8 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
           var selectedEdges = dt.rows({selected: true}).data();
           var additionEdges = [];
           for (var i = 0; i < selectedEdges.length; i++) {
-            additionEdges.push({
-              id: selectedEdges[i].id,
-              source: selectedEdges[i].source,
-              target: selectedEdges[i].target,
-              weight: selectedEdges[i].originalWeight
-            });
+            additionEdges.push(this.data.network.edges[this.data
+              .network.edgeIdtoId[selectedEdges[i].id]]);
           }
           var additionEdgeIds = genotet.utils.keySet(additionEdges
             .map(function(edge) {
@@ -123,12 +117,8 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
           var selectedEdges = dt.rows({selected: true}).data();
           var removalEdges = [];
           for (var i = 0; i < selectedEdges.length; i++) {
-            removalEdges.push({
-              id: selectedEdges[i].id,
-              source: selectedEdges[i].source,
-              target: selectedEdges[i].target,
-              weight: selectedEdges[i].originalWeight
-            });
+            removalEdges.push(this.data.network.edges[this.data
+              .network.edgeIdtoId[selectedEdges[i].id]]);
           }
           var removalEdgeIds = genotet.utils.keySet(removalEdges
             .map(function(edge) {
@@ -190,7 +180,9 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
 
       if (edgeIds.length == 1) {
         var selectedEdge = data[0];
-        this.signal('showEdgeInfo', selectedEdge);
+        var networkEdge = this.data.network.edges[this.data
+          .network.edgeIdtoId[selectedEdge.id]];
+        this.signal('showEdgeInfo', networkEdge);
       } else if (edgeIds.length > 1) {
         this.signal('multiEdgeInfo');
       } else {

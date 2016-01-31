@@ -441,11 +441,15 @@ genotet.NetworkRenderer.prototype.drawEdges_ = function() {
     .style('stroke', getEdgeColor)
     .style('fill', getEdgeColor)
     .on('click', function(edge) {
-      this.signal('edgeClick', edge);
+      var networkEdge = this.data.network.edges[this.data
+        .network.edgeIdtoId[edge.id]];
+      this.signal('edgeClick', networkEdge);
       this.selectEdges([edge]);
     }.bind(this))
     .on('mouseenter', function(edge) {
-      this.signal('edgeHover', edge);
+      var networkEdge = this.data.network.edges[this.data
+        .network.edgeIdtoId[edge.id]];
+      this.signal('edgeHover', networkEdge);
     }.bind(this))
     .on('mouseleave', function(edge) {
       this.signal('edgeUnhover', edge);
@@ -520,10 +524,9 @@ genotet.NetworkRenderer.prototype.selectNode = function(node) {
  */
 genotet.NetworkRenderer.prototype.selectEdges = function(edges) {
   this.data.edgesSelected = edges;
-  var idsSelected = {};
-  edges.forEach(function(edge) {
-    idsSelected[edge.id] = true;
-  });
+  var idsSelected = genotet.utils.keySet(edges.map(function(edge) {
+    return edge.id;
+  }));
   this.svgEdges_.selectAll('g')
     .classed('active', function(edge) {
       return edge.id in idsSelected;
