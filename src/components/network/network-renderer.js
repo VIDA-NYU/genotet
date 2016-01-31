@@ -32,7 +32,7 @@ genotet.NetworkRenderer = function(container, data) {
    * Node objects storing the rendering properties of network nodes.
    * Node objects are used by D3 force-directed layout.
    * The keys of the object is the node IDs. Currently ID is the node name.
-   * @private {!Object<!Object>}
+   * @private {!Object<!genotet.NetworkNode>}
    */
   this.nodes_ = {};
 
@@ -40,7 +40,7 @@ genotet.NetworkRenderer = function(container, data) {
    * Edge objects storing the rendering properties of network edges.
    * Edge objects are used by D3 force-directed layout.
    * The keys of the object is {source node ID} + ',' + {target node ID}
-   * @private {!Object<!Object>}
+   * @private {!Object<!genotet.RenderEdge>}
    */
   this.edges_ = {};
 
@@ -531,16 +531,11 @@ genotet.NetworkRenderer.prototype.selectEdges = function(edges) {
 };
 
 /**
- * Finds an edge and select/highlight it.
- * @param {!Array<string>} edgesId The ids of the edge to be found.
+ * Finds edges and select/highlight it.
+ * @param {!Array<string>} edgeIds The ids of the edge to be found.
  */
-genotet.NetworkRenderer.prototype.findSelectEdge = function(edgesId) {
-  var selectedEdges = [];
-  edgesId.forEach(function(edgeId) {
-    if (edgeId in this.edges_) {
-      selectedEdges.push(this.edges_[edgeId]);
-    }
-  }, this);
+genotet.NetworkRenderer.prototype.findSelectEdges = function(edgeIds) {
+  var selectedEdges = _.values(_.pick(this.edges_, edgeIds));
   this.selectEdges(selectedEdges);
   if (selectedEdges.length > 1) {
     this.signal('showMultiEdges');

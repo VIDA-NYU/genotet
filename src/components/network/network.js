@@ -26,6 +26,16 @@ genotet.NetworkEdge;
 
 /**
  * @typedef {{
+ *   id: string,
+ *   source: !genotet.NetworkNode,
+ *   target: !genotet.NetworkNode,
+ *   weight: !Array<number>
+ * }}
+ */
+genotet.RenderEdge;
+
+/**
+ * @typedef {{
  *   nodes: !Array<!genotet.NetworkNode>,
  *   edges: !Array<!genotet.NetworkEdge>,
  *   weightMin: number,
@@ -104,7 +114,7 @@ genotet.NetworkView = function(viewName, params) {
         this.renderer.dataLoaded();
         break;
       case 'delete-edges':
-        this.loader.deleteEdges(data.edges);
+        this.loader.deleteEdges(data);
         this.renderer.dataLoaded();
         break;
       default:
@@ -121,8 +131,8 @@ genotet.NetworkView = function(viewName, params) {
       this.table.create(this.panel.edgeListContainer(),
           this.data.incidentEdges);
     }.bind(this))
-    .on('genotet.hideNode', function(event, data) {
-      this.panel.hideNodeInfo(data.genes);
+    .on('genotet.hideNodeInfo', function(event, genes) {
+      this.panel.hideNodeInfo(genes);
     }.bind(this));
 
   // Node and edge hover in network.
@@ -149,25 +159,25 @@ genotet.NetworkView = function(viewName, params) {
 
   // Table
   $(this.table)
-    .on('genotet.addEdges', function(event, data) {
-      this.loader.addEdges(data.edges);
+    .on('genotet.addEdges', function(event, edges) {
+      this.loader.addEdges(edges);
       this.renderer.dataLoaded();
     }.bind(this))
-    .on('genotet.removeEdges', function(event, data) {
-      this.loader.deleteEdges(data.edges);
+    .on('genotet.removeEdges', function(event, edges) {
+      this.loader.deleteEdges(edges);
       this.renderer.dataLoaded();
     }.bind(this))
-    .on('genotet.highlightEdges', function(event, data) {
-      this.renderer.findSelectEdge(data.edgesId);
+    .on('genotet.highlightEdges', function(event, edgeIds) {
+      this.renderer.findSelectEdges(edgeIds);
     }.bind(this))
-    .on('genotet.hideEdge', function(event, data) {
-      this.panel.hideEdgeInfo(data.edges);
+    .on('genotet.hideEdgeInfo', function(event, data) {
+      this.panel.hideEdgeInfo(data.edges, data.force);
     }.bind(this))
     .on('genotet.multiEdgeInfo', function() {
       this.panel.displayMultiEdgeInfo();
     }.bind(this))
-    .on('genotet.edgeInfo', function(event, data) {
-      this.panel.displayEdgeInfo(data.edge);
+    .on('genotet.showEdgeInfo', function(event, edge) {
+      this.panel.displayEdgeInfo(edge);
     }.bind(this));
 };
 

@@ -44,16 +44,15 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
   edges.forEach(function(edge) {
     edge.added = edge.id in edgeIds;
   });
-  var edgesForTable = [];
-  edges.forEach(function(edge) {
-    edgesForTable.push({
+  var edgesForTable = edges.map(function(edge) {
+    return {
       id: edge.id,
       source: edge.source,
       target: edge.target,
       added: edge.added,
       weight: edge.weight[0],
       originalWeight: edge.weight
-    });
+    };
   });
   var dataTable = table.DataTable({
     data: edgesForTable,
@@ -94,17 +93,19 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               target: selectedEdges[i].target,
               weight: selectedEdges[i].originalWeight
             });
-            edgesForTable.forEach(function(edge) {
-              if (selectedEdges[i].id == edge.id) {
-                edge.added = true;
-              }
-            });
           }
-          this.signal('addEdges', {
-            edges: additionEdges
+          var additionEdgeIds = genotet.utils.keySet(additionEdges
+            .map(function(edge) {
+              return edge.id;
+            }));
+          edgesForTable.forEach(function(edge) {
+            if (edge.id in additionEdgeIds) {
+              edge.added = true;
+            }
           });
+          this.signal('addEdges', additionEdges);
 
-          // refresh the row
+          // refresh the rows
           dt.rows({selected: true}).invalidate();
           // change the button status
           dt.buttons(0).enable(false);  // the addition button
@@ -125,20 +126,23 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               target: selectedEdges[i].target,
               weight: selectedEdges[i].originalWeight
             });
-            edgesForTable.forEach(function(edge) {
-              if (selectedEdges[i].id == edge.id) {
-                edge.added = false;
-              }
-            });
           }
-          this.signal('highlightEdges', {
-            edgesId: []
+          var removalEdgeIds = genotet.utils.keySet(removalEdges
+            .map(function(edge) {
+              return edge.id;
+            }));
+          edgesForTable.forEach(function(edge) {
+            if (edge.id in removalEdgeIds) {
+              edge.added = false;
+            }
           });
-          this.signal('removeEdges', {
-            edges: removalEdges
-          });
-          this.signal('hideEdge', {
-            edges: removalEdges
+
+          // change panel, renderer and network data in memory
+          this.signal('highlightEdges', []);
+          this.signal('removeEdges', removalEdges);
+          this.signal('hideEdgeInfo', {
+            edges: removalEdges,
+            force: false
           });
           // refresh the row
           dt.rows({selected: true}).invalidate();
@@ -165,39 +169,34 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
             break;
           }
         }
-        this.signal('multiEdgeInfo');
-      } else {
-        if (data[0].added) {
-          this.signal('edgeInfo', {
-            edge: {
-              id: data[0].id,
-              source: {
-                id: data[0].source,
-                label: data[0].source
-              },
-              target: {
-                id: data[0].target,
-                label: data[0].target
-              },
-              weight: data[0].weight
-            }
-          });
-        }
       }
       if (allSame) {
-        dataTable.button(0).enable(!data[0].added); // the addition button
-        dataTable.button(1).enable(data[0].added);  // the removal button
+        var firstEdge = data[0];
+        dataTable.button(0).enable(!firstEdge.added); // the addition button
+        dataTable.button(1).enable(firstEdge.added);  // the removal button
       } else {
         dataTable.button(0).disable();
         dataTable.button(1).disable();
       }
-      var edgesId = [];
+      var edgeIds = [];
       for (var i = 0; i < data.length; i++) {
-        edgesId.push(data[i].id);
+        if (data[i].added) {
+          edgeIds.push(data[i].id);
+        }
       }
-      this.signal('highlightEdges', {
-        edgesId: edgesId
-      });
+
+      if (edgeIds.length == 1) {
+        var selectedEdge = data[0];
+        this.signal('showEdgeInfo', selectedEdge);
+      } else if (edgeIds.length > 1) {
+        this.signal('multiEdgeInfo');
+      } else {
+        this.signal('hideEdgeInfo', {
+          edges: [],
+          force: true
+        });
+      }
+      this.signal('highlightEdges', edgeIds);
     }
   }.bind(this));
 

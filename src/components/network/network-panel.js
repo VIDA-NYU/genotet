@@ -142,12 +142,29 @@ genotet.NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
  * @private
  */
 genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
+  var sourceLabel, targetLabel;
+  var sourceId, targetId;
+  if (typeof edge.source == 'object') {
+    sourceLabel = edge.source.label;
+    targetLabel = edge.target.label;
+    sourceId = edge.source.id;
+    targetId = edge.target.id;
+  } else {
+    var nodeLabel = {};
+    this.data.network.nodes.forEach(function(node) {
+      nodeLabel[node.id] = node.label;
+    });
+    sourceLabel = nodeLabel[edge.source];
+    targetLabel = nodeLabel[edge.target];
+    sourceId = edge.source;
+    targetId = edge.target;
+  }
   container.html(
     /** @type {string} */(this.container.find('#edge-info-template').html()));
   container.children('#source').children('span')
-    .text(edge.source.label);
+    .text(sourceLabel);
   container.children('#target').children('span')
-    .text(edge.target.label);
+    .text(targetLabel);
   container.children('#edge-sub-info').children('#weight').children('span')
     .text(edge.weight);
   container.children('#edge-sub-info').children('#rm-edge').children('button')
@@ -156,8 +173,8 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
       type: 'delete-edges',
       edges: [{
         id: edge.id,
-        source: edge.source.id,
-        target: edge.target.id,
+        source: sourceId,
+        target: targetId,
         weight: edge.weight
       }]
     });
@@ -229,8 +246,7 @@ genotet.NetworkPanel.prototype.tooltipEdge = function(edge) {
 genotet.NetworkPanel.prototype.hideNodeInfo = function(genes) {
   var info = this.container.find('#node-info');
   var name = info.children('#name').children('span').text();
-  var geneMap = genotet.utils.keySet(genes);
-  if (name in geneMap) {
+  if (genes.indexOf(name) != -1) {
     this.hideNodeInfo_();
   }
 };
@@ -238,17 +254,25 @@ genotet.NetworkPanel.prototype.hideNodeInfo = function(genes) {
 /**
  * Hides the edge-info when removing edges.
  * @param {!Array<!genotet.NetworkEdge>} edges Edges to hide.
+ * @param {boolean} force Whether to force to hide.
  */
-genotet.NetworkPanel.prototype.hideEdgeInfo = function(edges) {
-  var info = this.container.find('#edge-info');
-  var source = info.children('#source').children('span').text();
-  var target = info.children('#target').children('span').text();
-  var edgeId = source + ',' + target;
-  var edgeIdMap = {};
-  edges.forEach(function(edge) {
-      edgeIdMap[edge.id] = true;
-  });
-  if (edgeId in edgeIdMap) {
+genotet.NetworkPanel.prototype.hideEdgeInfo = function(edges, force) {
+  if (force) {
     this.hideEdgeInfo_();
+  } else {
+    var info = this.container.find('#edge-info');
+    var source = info.children('#source').children('span').text();
+    var target = info.children('#target').children('span').text();
+    var edgeId = source + ',' + target;
+    var exists = false;
+    for (var i = 0; i < edges.length; i++) {
+      if (edges[i].id == edgeId) {
+        exists = true;
+        break;
+      }
+    }
+    if (exists) {
+      this.hideEdgeInfo_();
+    }
   }
 };
