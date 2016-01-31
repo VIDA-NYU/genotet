@@ -275,10 +275,10 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
     type: 'list-binding'
   };
   this.get(genotet.data.serverURL, params, function(data) {
-    genotet.data.bindingGenes = {};
+    genotet.data.bindingFiles = [];
     data.forEach(function(dataInfo) {
-      genotet.data.bindingGenes[dataInfo.gene] = dataInfo.fileName;
+      genotet.data.bindingFiles.push(dataInfo);
     });
-    this.signal('track');
+    this.signal('updateTrack');
   }.bind(this), 'cannot load binding list');
 };

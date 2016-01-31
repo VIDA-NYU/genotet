@@ -47,6 +47,7 @@ expression.Matrix;
 
 /**
  * @typedef {{
+ *   fileName: string,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
  *   tfaValues: !Array<{
@@ -252,6 +253,7 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
   });
   console.log('returning TFA line', geneNames.join(','));
   return {
+    fileName: fileName,
     geneNames: geneNames,
     conditionNames: conditionNames,
     tfaValues: allTfaValues,

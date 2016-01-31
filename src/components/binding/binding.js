@@ -111,9 +111,6 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.coordinates', function(event, data) {
       this.panel.updateCoordinates(data.start, data.end);
-    }.bind(this))
-    .on('genotet.track', function() {
-      this.panel.updateTracks();
     }.bind(this));
 
   $(this.panel)
@@ -172,7 +169,7 @@ genotet.BindingView = function(viewName, params) {
     .on('genotet.addTrack', function() {
       this.loader.loadBindingList();
     }.bind(this))
-    .on('genotet.track', function() {
+    .on('genotet.updateTrack', function() {
       this.panel.updateTracks();
     }.bind(this));
 };
