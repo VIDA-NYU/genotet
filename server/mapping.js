@@ -2,6 +2,8 @@
  * @fileoverview Server handler for mapping data.
  */
 
+var fs = require('fs');
+
 /** @type {mapping} */
 module.exports = mapping;
 
@@ -23,29 +25,29 @@ mapping.query.GetMapping;
 /**
  * Lists all the mapping files.
  * @param {string} mappingPath Path to the mapping file folder.
- * @returns {{
- *   fileList: !Array<string>
+ * @return {{
+ *   fileList: ?Array<string>
  * }}
  */
 mapping.query.list = function(mappingPath) {
   return {
     fileList: fs.readdirSync(mappingPath)
-  }
+  };
 };
 
 /**
  * @param {!mapping.query.GetMapping} query
  * @param {string} mappingPath
- * @returns {{mappingName: !Object<string>}}
+ * @return {{mappingName: !Object<string>}}
  */
 mapping.query.getMapping = function(query, mappingPath) {
-  return this.getMapping_(mappingPath + query.fileName);
+  return mapping.getMapping_(mappingPath + query.fileName);
 };
 
 /**
  * Gets mapping rules.
  * @param {string} filePath Path to the mapping file.
- * @returns {{mappingName: !Object<string>}}
+ * @return {{mappingName: !Object<string>}}
  * @private
  */
 mapping.getMapping_ = function(filePath) {
@@ -58,5 +60,5 @@ mapping.getMapping_ = function(filePath) {
   });
   return {
     mappingName: mappingName
-  }
+  };
 };

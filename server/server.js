@@ -13,6 +13,7 @@ var binding = require('./binding.js');
 var expression = require('./expression.js');
 var uploader = require('./uploader.js');
 var bed = require('./bed.js');
+var mapping = require('./mapping.js');
 
 // Application
 var app = express();
@@ -62,6 +63,11 @@ var uploadPath;
  */
 var bedPath;
 /**
+ * Path of mapping files.
+ * @type {string}
+ */
+var mappingPath;
+/**
  * Path of config file.
  * @type {string}
  */
@@ -109,6 +115,9 @@ function config() {
         break;
       case 'bedPath':
         bedPath = value;
+        break;
+      case 'mappingPath':
+        mappingPath = value;
         break;
     }
   }
