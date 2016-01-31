@@ -213,13 +213,20 @@ genotet.BindingPanel.prototype.updateTracks = function() {
       this.container.find('#genes #track-' + index).remove();
     }
   }
+  this.signal('loadBindingList');
+  this.container.find('#genes .glyphicon-remove')
+    .css('display', this.data.tracks.length == 1 ? 'none' : '');
+};
+
+/**
+ * Updates the gene selected for each track.
+ */
+genotet.BindingPanel.prototype.updateTrackList = function() {
   this.data.tracks.forEach(function(track, index) {
     var ui = this.container.find('#genes #track-' + index);
     if (!ui.length) {
       this.addTrack_();
     }
-    this.selectGenes_[index].val(track.fileName).trigger('change');
+    this.selectGenes_[index].val(track.gene).trigger('change');
   }, this);
-  this.container.find('#genes .glyphicon-remove')
-    .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };

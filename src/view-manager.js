@@ -94,7 +94,14 @@ genotet.viewManager.closeView = function(view) {
   // Remove the view reference.
   delete genotet.viewManager.views[view.name()];
   genotet.panelManager.removePanel(view.name());
-  delete genotet.linkManager.presetViews[view.name()];
+  console.log(genotet.linkManager.linkViews);
+  for (var type in genotet.linkManager.linkViews) {
+    var viewIndex = genotet.linkManager.linkViews[type].indexOf(view);
+    if (viewIndex != -1) {
+      genotet.linkManager.linkViews[type].splice(viewIndex, 1);
+    }
+  }
+  console.log(genotet.linkManager.linkViews);
 };
 
 /**
@@ -115,7 +122,9 @@ genotet.viewManager.closeAllViews = function() {
   });
   genotet.viewManager.views = {};
   genotet.panelManager.closeAllPanels();
-  genotet.linkManager.presetViews = {};
+  for (var type in genotet.linkManager.linkViews) {
+    genotet.linkManager.linkViews[type] = [];
+  }
 };
 
 /**

@@ -160,6 +160,9 @@ genotet.BindingView = function(viewName, params) {
       this.data.tracks[data.trackIndex].fileName = data.fileName;
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
         this.data.chr, false);
+    }.bind(this))
+    .on('genotet.loadBindingList', function(event, data) {
+      this.loader.loadBindingList();
     }.bind(this));
 
   $(this.loader)
@@ -167,10 +170,10 @@ genotet.BindingView = function(viewName, params) {
       this.panel.updateChr(chr);
     }.bind(this))
     .on('genotet.addTrack', function() {
-      this.loader.loadBindingList();
-    }.bind(this))
-    .on('genotet.updateTrack', function() {
       this.panel.updateTracks();
+    }.bind(this))
+    .on('genotet.updatePanelTracks', function() {
+      this.panel.updateTrackList();
     }.bind(this));
 };
 

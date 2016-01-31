@@ -128,5 +128,6 @@ genotet.preset.loadPreset = function(preset) {
  */
 genotet.preset.createView_ = function(type, viewName, params) {
   genotet.viewManager.createView(type, viewName, params);
-  genotet.linkManager.presetViews[viewName] = type;
+  var view = genotet.viewManager.views[viewName];
+  genotet.linkManager.linkViews[type].push(view);
 };

@@ -219,7 +219,7 @@ genotet.dialog.createExpression_ = function() {
         /** @type {string} */(viewName.val())));
       modal.find('.selectpicker').selectpicker();
       var params = {
-        type: 'list-matrix'
+        type: 'list-expression'
       };
       $.get(genotet.data.serverURL, params, function(data) {
           var matrices = /** @type {genotet.ListedExpression} */(data);

@@ -279,6 +279,6 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
     data.forEach(function(dataInfo) {
       genotet.data.bindingFiles.push(dataInfo);
     });
-    this.signal('updateTrack');
+    this.signal('updatePanelTracks');
   }.bind(this), 'cannot load binding list');
 };
