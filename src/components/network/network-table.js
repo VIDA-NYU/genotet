@@ -50,7 +50,9 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       source: edge.source,
       target: edge.target,
       added: edge.added,
+      // weight is only weight[0]
       weight: edge.weight[0],
+      // originalWeight stores the weight array
       originalWeight: edge.weight
     };
   });
@@ -104,6 +106,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
             }
           });
           this.signal('addEdges', additionEdges);
+          this.signal('highlightEdges', additionEdgeIds);
 
           // refresh the rows
           dt.rows({selected: true}).invalidate();

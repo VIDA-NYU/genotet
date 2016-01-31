@@ -238,7 +238,7 @@ network.getNet_ = function(file, genes) {
   var nodes = [], nodeKeys = {};
   var edges = [];
   genes.forEach(function(gene) {
-    nodeKeys[gene] = true;
+    nodeKeys[gene.toLowerCase()] = true;
   });
 
   var numNode = result.nodes.length;
@@ -296,8 +296,7 @@ network.getIncidentEdges_ = function(file, gene) {
   gene = gene.toLowerCase();
   var edges = [];
   result.edges.forEach(function(edge) {
-    if (edge.source.toLowerCase() == gene ||
-        edge.target.toLowerCase() == gene) {
+    if (edge.source == gene || edge.target == gene) {
       edges.push(edge);
     }
   });
@@ -394,27 +393,27 @@ network.readNetwork_ = function(networkFile) {
     if (source in nodeId) {
       nodes[nodeId[source]].isTF = true;
     } else {
-      names.push(source);
+      names.push(source.toLowerCase());
       nodes.push({
-        id: source,
+        id: source.toLowerCase(),
         label: source,
         isTF: true
       });
       nodeId[source] = nodes.length - 1;
     }
     if (!(target in nodeId)) {
-      names.push(target);
+      names.push(target.toLocaleString());
       nodes.push({
-        id: target,
+        id: target.toLowerCase(),
         label: target,
         isTF: false
       });
       nodeId[target] = nodes.length - 1;
     }
     edges.push({
-      id: source + ',' + target,
-      source: source,
-      target: target,
+      id: source.toLowerCase() + ',' + target.toLowerCase(),
+      source: source.toLowerCase(),
+      target: target.toLowerCase(),
       weight: numbers
     });
   });
