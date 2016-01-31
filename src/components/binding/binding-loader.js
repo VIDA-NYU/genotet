@@ -251,8 +251,10 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
   }, this);
 
   // Overview range may change, then need to reset zoom state.
-  this.data.overviewRangeChanged = overviewXMin != this.data.overviewXMin ||
-    overviewXMax != this.data.overviewXMax;
+  if (overviewXMin != this.data.overviewXMin ||
+    overviewXMax != this.data.overviewXMax) {
+    this.data.overviewRangeChanged = true;
+  }
 
   _.extend(this.data, {
     overviewXMin: overviewXMin,

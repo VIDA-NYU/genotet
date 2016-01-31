@@ -85,12 +85,6 @@ genotet.BindingRenderer = function(container, data) {
   this.zoomTimer_;
 
   /**
-   * Whether the scale is set.
-   * @private {boolean}
-   */
-  this.scaleSet_ = false;
-
-  /**
    * Margins of the bed track.
    * @private @const {!Object<number>}
    */
@@ -192,8 +186,8 @@ genotet.BindingRenderer.prototype.init = function() {
  * @private
  */
 genotet.BindingRenderer.prototype.getBindingRanges_ = function() {
-  if (this.data.overviewRangeChanged || !this.scaleSet_) {
-    this.scaleSet_ = true;
+  if (this.data.overviewRangeChanged) {
+    this.data.overviewRangeChanged = false;
     this.xScaleZoom_
       .domain([this.data.overviewXMin, this.data.overviewXMax])
       .range([0, this.canvasWidth]);
