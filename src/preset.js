@@ -75,9 +75,9 @@ genotet.preset.THREE_TRACK_BINDING_NAME_ = 'My 3-Track Genome Browser';
  */
 genotet.preset.loadPreset = function(preset) {
   genotet.viewManager.closeAllViews();
-  var expressionType = 'expression';
-  var networkType = 'network';
-  var bindingType = 'binding';
+  var expressionType = genotet.data.VIEW_TYPES[0];
+  var networkType = genotet.data.VIEW_TYPES[1];
+  var bindingType = genotet.data.VIEW_TYPES[2];
 
   if (!preset) {
     preset = 'default';

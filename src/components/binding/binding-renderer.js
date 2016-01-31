@@ -85,7 +85,7 @@ genotet.BindingRenderer = function(container, data) {
   this.zoomTimer_;
 
   /**
-   * Timer handle for the zoom interval.
+   * Whether the scale is set.
    * @private {boolean}
    */
   this.scaleSet_ = false;

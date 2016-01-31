@@ -8,7 +8,7 @@ genotet.linkManager = {};
 /**
  * Object that stores the link views by their type.
  */
-/** @type {!Object<string, !Array<genotet.View>>} */
+/** @type {!Object<!Array<genotet.View>>} */
 genotet.linkManager.linkViews = {};
 
 /**
@@ -18,16 +18,10 @@ genotet.linkManager.linkViews = {};
 genotet.linkManager.linkActions = {};
 
 /**
- * Type for views.
- * @private @const {Array<string>}
- */
-genotet.linkManager.VIEW_TYPE_ = ['expression', 'network', 'binding'];
-
-/**
  * Initializes the link manager.
  */
 genotet.linkManager.init = function() {
-  genotet.linkManager.VIEW_TYPE_.forEach(function(type) {
+  genotet.data.VIEW_TYPES.forEach(function(type) {
     genotet.linkManager.linkViews[type] = [];
   });
 };

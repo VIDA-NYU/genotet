@@ -227,6 +227,6 @@ genotet.BindingPanel.prototype.updateTrackList = function() {
     if (!ui.length) {
       this.addTrack_();
     }
-    this.selectGenes_[index].val(track.gene).trigger('change');
+    this.selectGenes_[index].val(track.fileName).trigger('change');
   }, this);
 };

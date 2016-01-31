@@ -94,7 +94,6 @@ genotet.viewManager.closeView = function(view) {
   // Remove the view reference.
   delete genotet.viewManager.views[view.name()];
   genotet.panelManager.removePanel(view.name());
-  console.log(genotet.linkManager.linkViews);
   for (var type in genotet.linkManager.linkViews) {
     var viewIndex = genotet.linkManager.linkViews[type].indexOf(view);
     if (viewIndex != -1) {
