@@ -61,9 +61,16 @@ $gray: #ccc;
 
   #edge-list {
     font-size: .9em;
+    margin-right: 6px;
 
     .pagination > li > a {
       padding: 6px;
+    }
+
+    .dataTables_wrapper {
+      #table-btn .btn {
+        margin-bottom: 10px;
+      }
     }
   }
 }

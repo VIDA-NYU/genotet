@@ -172,11 +172,17 @@ app.get('/genotet', function(req, res) {
     case 'network':
       data = network.query.network(query, networkPath);
       break;
+    case 'network-info':
+      data = network.query.allNodes(query, networkPath);
+      break;
     case 'incident-edges':
       data = network.query.incidentEdges(query, networkPath);
       break;
     case 'combined-regulation':
       data = network.query.combinedRegulation(query, networkPath);
+      break;
+    case 'incremental-edges':
+      data = network.query.incrementalEdges(query, networkPath);
       break;
 
     // Binding data queries
