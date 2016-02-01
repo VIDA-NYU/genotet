@@ -91,8 +91,8 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
           for (var i = 0; i < selectedEdges.length; i++) {
             additionEdges.push({
               id: selectedEdges[i].id,
-              source: selectedEdges[i].source,
-              target: selectedEdges[i].target,
+              source: selectedEdges[i].source.toLowerCase(),
+              target: selectedEdges[i].target.toLowerCase(),
               weight: selectedEdges[i].originalWeight
             });
           }
@@ -126,8 +126,8 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
           for (var i = 0; i < selectedEdges.length; i++) {
             removalEdges.push({
               id: selectedEdges[i].id,
-              source: selectedEdges[i].source,
-              target: selectedEdges[i].target,
+              source: selectedEdges[i].source.toLowerCase(),
+              target: selectedEdges[i].target.toLowerCase(),
               weight: selectedEdges[i].originalWeight
             });
           }
