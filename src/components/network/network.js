@@ -50,33 +50,6 @@ genotet.NetworkView = function(viewName, params) {
   /** @protected {genotet.NetworkRenderer} */
   this.renderer = new genotet.NetworkRenderer(this.container, this.data);
 
-  /**
-   * Encapsulates loader.
-   * @constructor
-   * @return {genotet.NetworkLoader}
-   */
-  this.getLoader = function() {
-    return this.loader;
-  };
-
-  /**
-   * Encapsulates panel.
-   * @constructor
-   * @return {genotet.NetworkPanel}
-   */
-  this.getPanel = function() {
-    return this.panel;
-  };
-
-  /**
-   * Encapsulates renderer.
-   * @constructor
-   * @return {genotet.NetworkRenderer}
-   */
-  this.getRenderer = function() {
-    return this.renderer;
-  };
-
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.fileName, params.geneRegex);
@@ -115,6 +88,10 @@ genotet.NetworkView = function(viewName, params) {
     .on('genotet.nodeClick', function(event, node) {
       this.panel.displayNodeInfo(node);
       this.loader.incidentEdges(node);
+      this.signal('link', {
+        action: 'nodeClick',
+        data: node
+      });
     }.bind(this))
     .on('genotet.nodeHover', function(event, node) {
       this.panel.tooltipNode(node);
@@ -124,6 +101,10 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.edgeClick', function(event, edge) {
       this.panel.displayEdgeInfo(edge);
+      this.signal('link', {
+        action: 'edgeClick',
+        data: edge
+      });
     }.bind(this))
     .on('genotet.edgeHover', function(event, edge) {
       this.panel.tooltipEdge(edge);

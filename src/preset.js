@@ -12,7 +12,7 @@ genotet.preset = {};
  * @private @const {!genotet.NetworkViewParams}
  */
 genotet.preset.NETWORK_PARAMS_ = {
-  fileName: 'th17.tsv',
+  fileName: 'th17-link.tsv',
   geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
 };
 /**
@@ -130,34 +130,27 @@ genotet.preset.loadPreset = function(preset) {
 genotet.preset.createView_ = function(type, viewName, params) {
   genotet.viewManager.createView(type, viewName, params);
 
-  // Store the preset views into view manager.
   var newView = genotet.viewManager.views[viewName];
   switch (type) {
     case 'network':
-      genotet.linkManager.links[viewName] = [];
+      genotet.linkManager.register(newView);
       break;
     case 'expression':
       for (var linkViewName in genotet.linkManager.links) {
+        var sender = genotet.viewManager.views[linkViewName];
         genotet.linkManager.NETWORK_ACTIONS.forEach(function(action) {
           genotet.linkManager.EXPRESSION_ACTIONS.forEach(function(response) {
-            genotet.linkManager.links[linkViewName].push({
-              target: newView,
-              action: action,
-              response: response
-            });
+            genotet.linkManager.register(sender, action, newView, response);
           });
         });
       }
       break;
     case 'binding':
       for (var linkViewName in genotet.linkManager.links) {
+        var sender = genotet.viewManager.views[linkViewName];
         genotet.linkManager.NETWORK_ACTIONS.forEach(function(action) {
           genotet.linkManager.BINDING_ACTIONS.forEach(function(response) {
-            genotet.linkManager.links[linkViewName].push({
-              target: newView,
-              action: action,
-              response: response
-            });
+            genotet.linkManager.register(sender, action, newView, response);
           });
         });
       }

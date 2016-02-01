@@ -34,13 +34,11 @@ genotet.ExpressionMatrix;
 /**
  * @typedef {{
  *   fileName: string,
- *   tfaData: {
- *     geneNames: !Array<string>,
- *     conditionNames: !Array<string>,
- *     tfaValues: !Array<!Object>,
- *     valueMin: number,
- *     valueMax: number
- *   }
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>,
+ *   tfaValues: !Array<!Object>,
+ *   valueMin: number,
+ *   valueMax: number
  * }}
  */
 genotet.ExpressionTfa;
@@ -66,7 +64,10 @@ genotet.ExpressionView = function(viewName, params) {
   genotet.ExpressionView.base.constructor.call(this, viewName);
 
   /**
-   * @protected {!Object}
+   * @protected {{
+   *   matrix: genotet.ExpressionMatrix,
+   *   tfa: genotet.ExpressionTfa
+   * }}
    */
   this.data;
 
@@ -90,42 +91,6 @@ genotet.ExpressionView = function(viewName, params) {
 
   /** @protected {!genotet.ExpressionRenderer} */
   this.renderer = new genotet.ExpressionRenderer(this.container, this.data);
-
-  /**
-   * Encapsulates data.
-   * @constructor
-   * @return {!Object}
-   */
-  this.getData = function() {
-    return this.data;
-  };
-
-  /**
-   * s loader.
-   * @constructor
-   * @return {genotet.ExpressionLoader}
-   */
-  this.getLoader = function() {
-    return this.loader;
-  };
-
-  /**
-   * Encapsulates panel.
-   * @constructor
-   * @return {genotet.ExpressionPanel}
-   */
-  this.getPanel = function() {
-    return this.panel;
-  };
-
-  /**
-   * Encapsulates renderer.
-   * @constructor
-   * @return {genotet.ExpressionRenderer}
-   */
-  this.getRenderer = function() {
-    return this.renderer;
-  };
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
@@ -224,6 +189,19 @@ genotet.ExpressionView = function(viewName, params) {
     .on('genotet.updatePanel', function() {
       this.panel.dataLoaded();
     }.bind(this));
+
+  // Set up link callbacks.
+  $(this).on('genotet.link', function(event, linkData) {
+    switch (linkData.response) {
+      case 'addGeneProfile':
+        var geneName = linkData.data;
+        var geneIndex = this.data.matrix.geneNames.indexOf(geneName);
+        if (geneIndex != -1) {
+          this.panel.signal('addGeneProfile', geneIndex);
+        }
+        break;
+    }
+  }.bind(this));
 };
 
 genotet.utils.inherit(genotet.ExpressionView, genotet.View);

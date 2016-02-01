@@ -629,7 +629,7 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
 
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.dataReady = function() {
-  return this.data.tfa.tfaData != null;
+  return this.data.tfa.tfaValues != null;
 };
 
 /** @inheritDoc */
@@ -1107,7 +1107,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
   }
 
   var heatmapData = this.data.matrix;
-  var tfaData = this.data.tfa.tfaData;
+  var tfaData = this.data.tfa;
   this.svgTfaProfile_.attr('width', this.canvasWidth);
 
   var xScale = d3.scale.linear().range([
