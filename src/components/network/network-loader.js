@@ -19,117 +19,261 @@ genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);
 /**
  * Loads the network data, adding the genes given by geneRegex.
  * @param {string} fileName Network File name.
- * @param {string} geneRegex Regex for gene selection.
+ * @param {string} inputGenes The input genes.
+ * @param {boolean} isRegex Whether inputGene is regex.
  * @override
  */
-genotet.NetworkLoader.prototype.load = function(fileName, geneRegex) {
-  this.loadNetwork_(fileName, geneRegex);
+genotet.NetworkLoader.prototype.load = function(fileName, inputGenes, isRegex) {
+  var genes = this.prepareGenes_(inputGenes, isRegex);
+  this.data.genes = genes;
+  this.loadNetwork_(fileName, genes);
+};
+
+/**
+ * Prepares gene array for the input gene string and isRegex.
+ * @param {string} inputGenes Input string for genes.
+ * @param {boolean} isRegex If inputGene is regex.
+ * @return {!Array<string>}
+ * @private
+ */
+genotet.NetworkLoader.prototype.prepareGenes_ = function(inputGenes, isRegex) {
+  var genes = [];
+  if (isRegex) {
+    var regex;
+    try {
+      regex = RegExp(inputGenes, 'i');
+    } catch (e) {
+      genotet.error('invalid gene regex', inputGenes);
+      return [];
+    }
+    this.data.networkInfo.nodes.forEach(function(node) {
+      if (node.id.match(regex)) {
+        genes.push(node.id);
+      }
+    });
+  } else {
+    genes = inputGenes.split(/[\s,]+/);
+  }
+  return genes;
+};
+
+/**
+ * Gets the network info.
+ * @param {string} fileName File name of the network.
+ */
+genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
+  var params = {
+    type: 'network-info',
+    fileName: fileName
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    this.data.networkInfo = data;
+    this.data.networkInfo.nodeLabel = {};
+    this.data.networkInfo.isTF = {};
+    this.data.networkInfo.nodes.forEach(function(node) {
+      this.data.networkInfo.nodeLabel[node.id] = node.label;
+      this.data.networkInfo.isTF[node.id] = node.label;
+    }, this);
+    this.signal('infoLoaded');
+  }.bind(this), 'cannot load network info');
 };
 
 /**
  * Implements the network loading ajax call.
- * @param {string} fileName FIle Name of the network.
- * @param {string} geneRegex Regex that selects the gene set.
+ * @param {string} fileName File Name of the network.
+ * @param {!Array<string>} genes Genes that selects the gene set.
  * @private
  */
-genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName,
-                                                        geneRegex) {
+genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
   var params = {
     type: 'network',
     fileName: fileName,
-    geneRegex: geneRegex
+    genes: genes
   };
+
   this.get(genotet.data.serverURL, params, function(data) {
-    // Store the last applied fileName and geneRegex.
+    if (!genes.length) {
+      genotet.warning('input gene not found');
+      return;
+    }
+    // Store the last applied fileName and genes.
     _.extend(data, {
       fileName: fileName,
-      geneRegex: geneRegex
+      genes: genes,
+      edgeMap: {}
     });
-    _.extend(this.data, data);
+
+    this.data.network = data;
+    this.buildEdgeMap_();
   }.bind(this), 'cannot load network');
 };
 
 /**
  * Updates the genes in the current network.
  * @param {string} method Update method, either 'set' or 'add'.
- * @param {string} geneRegex Regex that selects the genes to be updated.
+ * @param {string} inputGenes Genes that selects the genes to be updated.
+ * @param {boolean} isRegex Whether update is based on regex.
  */
-genotet.NetworkLoader.prototype.updateGenes = function(method, geneRegex) {
-  var regex = this.data.geneRegex;
-  switch (method) {
-    case 'set':
-      // Totally replace the regex.
-      regex = geneRegex;
-      break;
-    case 'add':
-      // Concat the two regex's. We need to include the previously existing
-      // genes too so as to find the edges between the new genes and old
-      // ones.
-      regex += '|' + geneRegex;
-      break;
-    case 'remove':
-      // Remove genes do not need communication with the server.
-      this.removeGenes_(geneRegex);
-      // Return immediately. No ajax.
-      return;
-  }
-  this.load(this.data.fileName, regex);
-};
-
-
-/**
- * Removes the selected genes from the current network data.
- * @param {string} geneRegex Regex selecting the genes to be removed.
- * @private
- */
-genotet.NetworkLoader.prototype.removeGenes_ = function(geneRegex) {
-  var regex;
-  try {
-    regex = RegExp(geneRegex, 'i');
-  } catch (e) {
-    genotet.error('invalid gene regex', geneRegex);
+genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
+                                                       isRegex) {
+  var genes = this.prepareGenes_(inputGenes, isRegex);
+  if (!genes.length) {
+    genotet.warning('no genes found');
     return;
   }
-  this.data.nodes = _.filter(this.data.nodes, function(node) {
-    return !node.id.match(regex);
-  });
-  this.data.edges = _.filter(this.data.edges, function(edge) {
-    return !edge.source.match(regex) && !edge.target.match(regex);
-  });
 
-  this.updateGeneRegex_();
-  this.signal('geneRemove');
-};
-
-/**
- * Updates the regex that selects the current gene set. Because of gene
- * removal, unlike gene addition, it is hard to incrementally modify the regex.
- * This function sets the gene regex to a verbose concatenation of the gene
- * ids. This is only called in removeGenes_().
- * @private
- */
-genotet.NetworkLoader.prototype.updateGeneRegex_ = function() {
-  var regex = '';
-  this.data.nodes.forEach(function(node, index) {
-    regex += node.id + (index == this.data.nodes.length - 1 ? '' : '|');
-  }, this);
-  this.data.geneRegex = regex;
+  switch (method) {
+    case 'set':
+      this.loadNetwork_(this.data.network.fileName, genes);
+      break;
+    case 'add':
+      this.addGenes_(genes);
+      break;
+    case 'remove':
+      this.deleteGenes_(genes);
+      this.signal('hideNode', genes);
+      break;
+  }
 };
 
 /**
  * Fetches the incident edges of a given node.
- * @param {!Object} node Node of which the incident edges are queried.
+ * @param {!genotet.NetworkNode} node Node of which the incident
+ * edges are queried.
  */
 genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   var params = {
     type: 'incident-edges',
-    fileName: this.data.fileName,
+    fileName: this.data.network.fileName,
     gene: node.id
   };
   this.get(genotet.data.serverURL, params, function(data) {
     this.data.incidentEdges = data;
     this.signal('incidentEdges');
   }.bind(this), 'cannot get incident edges');
+};
+
+/**
+ * Adds genes to the network, and the edges to the original graph.
+ * @param {!Array<string>} genes Names of the genes.
+ * @private
+ */
+genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
+  var oldGenes = genotet.utils.keySet(
+    this.data.network.nodes.map(function(node) {
+      return node.id;
+    }));
+  var newGenes = genes.filter(function(gene) {
+    return !(gene in oldGenes);
+  });
+
+  if (!newGenes.length) {
+    genotet.warning('genes are already in the network');
+    return;
+  }
+
+  var params = {
+    type: 'incremental-edges',
+    fileName: this.data.network.fileName,
+    genes: newGenes,
+    nodes: this.data.network.nodes
+  };
+
+  this.get(genotet.data.serverURL, params, function(data) {
+    this.data.network.nodes = this.data.network.nodes
+      .concat(newGenes.map(function(gene) {
+      return {
+        id: gene,
+        label: this.data.networkInfo.nodeLabel[gene],
+        isTF: this.data.networkInfo.isTF[gene]
+      };
+      }.bind(this)));
+    this.data.network.edges = this.data.network.edges.concat(data.edges);
+  }.bind(this), 'cannot add genes');
+};
+
+/**
+ * Deletes genes from graph and related edges.
+ * @param {!Array<string>} genes Names of the genes.
+ * @private
+ */
+genotet.NetworkLoader.prototype.deleteGenes_ = function(genes) {
+  var geneMap = genotet.utils.keySet(genes);
+  // delete the nodes
+  this.data.network.nodes = this.data.network.nodes.filter(function(node) {
+    return !(node.id in geneMap);
+  });
+  // delete the edges
+  this.data.network.edges = this.data.network.edges.filter(function(edge) {
+    return !(edge.source in geneMap) && !(edge.target in geneMap);
+  });
+};
+
+/**
+ * Adds edges to the network.
+ * @param {!Array<!genotet.NetworkEdge>} edges Edges to be add into network.
+ */
+genotet.NetworkLoader.prototype.addEdges = function(edges) {
+  edges.forEach(function(edge) {
+    var source = edge.source;
+    var target = edge.target;
+    var weight = edge.weight;
+    var sourceExists = false, targetExists = false;
+    this.data.network.nodes.forEach(function(node) {
+      if (source == node.id) {
+        sourceExists = true;
+      }
+      if (target == node.id) {
+        targetExists = true;
+      }
+    });
+    if (!sourceExists) {
+      this.data.network.nodes.push({
+        id: source,
+        label: this.data.networkInfo.nodeLabel[source],
+        isTF: true
+      });
+    }
+    if (!targetExists) {
+      this.data.network.nodes.push({
+        id: target,
+        label: this.data.networkInfo.nodeLabel[target],
+        isTF: this.data.networkInfo.isTF[target]
+      });
+    }
+    this.data.network.edges.push({
+      id: source + ',' + target,
+      source: source,
+      target: target,
+      weight: weight
+    });
+  }, this);
+  this.buildEdgeMap_();
+};
+
+/**
+ * Deletes edges from the network.
+ * @param {!Array<!genotet.NetworkEdge>} edges Edges to be deleted.
+ */
+genotet.NetworkLoader.prototype.deleteEdges = function(edges) {
+  var edgeMap = genotet.utils.keySet(edges.map(function(edge) {
+    return edge.id;
+  }));
+  this.data.network.edges = this.data.network.edges.filter(function(edge) {
+    return !(edge.id in edgeMap);
+  });
+  this.buildEdgeMap_();
+};
+
+/**
+ * Builds the edge map from edge id to edge.
+ * @private
+ */
+genotet.NetworkLoader.prototype.buildEdgeMap_ = function() {
+  this.data.network.edgeMap = {};
+  this.data.network.edges.forEach(function(edge) {
+    this.data.network.edgeMap[edge.id] = edge;
+  }, this);
 };
 
 /*

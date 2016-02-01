@@ -16,7 +16,7 @@ function network() {}
 /**
  * @typedef {{
  *   id: string,
- *   name: string,
+ *   label: string,
  *   isTF: boolean
  * }}
  */
@@ -59,7 +59,7 @@ network.query = {};
 /**
  * @typedef {{
  *   fileName: string,
- *   geneRegex: string
+ *   genes: !Array<string>
  * }}
  */
 network.query.Network;
@@ -80,6 +80,22 @@ network.query.IncidentEdges;
  */
 network.query.CombinedRegulation;
 
+/**
+ * @typedef {{
+ *   fileName: string,
+ *   genes: !Array<string>,
+ *   nodes: !Array<!network.Node>
+ * }}
+ */
+network.query.IncrementalEdges;
+
+/**
+ * @typedef {{
+ *   fileName: string
+ * }}
+ */
+network.query.AllNodes;
+
 // Start public APIs
 /**
  * @param {!network.query.Network} query
@@ -88,10 +104,8 @@ network.query.CombinedRegulation;
  */
 network.query.network = function(query, networkPath) {
   var fileName = query.fileName;
-  var geneRegex = utils.decodeSpecialChar(query.geneRegex);
   var file = networkPath + fileName;
-  geneRegex = geneRegex == '' ? 'a^' : geneRegex;
-  return network.getNet_(file, geneRegex);
+  return network.getNet_(file, query.genes);
 };
 
 /**
@@ -120,14 +134,41 @@ network.query.combinedRegulation = function(query, networkPath) {
 };
 
 /**
- * @param {string} networkAddr
+ * @param {!network.query.IncrementalEdges} query
+ * @param {string} networkPath
+ * @return {{
+ *   edges: !Array<!network.Edge>
+ * }}
+ */
+network.query.incrementalEdges = function(query, networkPath) {
+  var fileName = query.fileName;
+  var genes = query.genes;
+  var file = networkPath + fileName;
+  var nodes = query.nodes;
+  return network.incrementalEdges_(file, genes, nodes);
+};
+
+/**
+ * @param {string} networkPath
  * @return {!Array<{
  *   networkName: string,
  *   description: string
  * }>}
  */
-network.query.list = function(networkAddr) {
-  return network.listNetwork_(networkAddr);
+network.query.list = function(networkPath) {
+  return network.listNetwork_(networkPath);
+};
+
+/**
+ * @param {!network.query.AllNodes} query
+ * @param {string} networkPath
+ * @return {{
+ *   nodes: !Array<!network.Node>
+ * }}
+ */
+network.query.allNodes = function(query, networkPath) {
+  var file = networkPath + query.fileName;
+  return network.allNodes_(file);
 };
 // End public APIs
 
@@ -186,38 +227,35 @@ network.readNet_ = function(buf) {
 /**
  * Gets the network data according to the gene selection.
  * @param {string} file Network file name.
- * @param {string} geneRegex Regex for gene selection.
+ * @param {!Array<string>} genes Genes for gene selection.
  * @return {?network.Network} The network data object.
  * @private
  */
-network.getNet_ = function(file, geneRegex) {
-  console.log('get network', file, geneRegex);
+network.getNet_ = function(file, genes) {
+  console.log('get network', file);
   var result = network.readNetwork_(file);
 
   var nodes = [], nodeKeys = {};
   var edges = [];
-  var regex;
-  try {
-    regex = RegExp(geneRegex, 'i');
-  } catch (e) {
-    regex = 'a^'; // return empty network
-  }
+  genes.forEach(function(gene) {
+    nodeKeys[gene.toLowerCase()] = true;
+  });
 
   var numNode = result.nodes.length;
   var numEdge = result.edges.length;
   for (var i = 0; i < numNode; i++) {
-    if (result.names[i].match(regex) != null) {
+    if (result.nodes[i].id in nodeKeys) {
       var nd = result.nodes[i];
       nodes.push(nd);
-      nodeKeys[result.names[i]] = true;
     }
   }
+
   var wmax = -Infinity, wmin = Infinity;
   for (var i = 0; i < numEdge; i++) {
     var s = result.edges[i].source;
     var t = result.edges[i].target;
     var w = result.edges[i].weight;
-    if (nodeKeys[s] && nodeKeys[t]) {
+    if (s in nodeKeys && t in nodeKeys) {
       for (var j = 0; j < w.length; j++) {
         wmax = Math.max(w[j], wmax);
         wmin = Math.min(w[j], wmin);
@@ -258,8 +296,7 @@ network.getIncidentEdges_ = function(file, gene) {
   gene = gene.toLowerCase();
   var edges = [];
   result.edges.forEach(function(edge) {
-    if (edge.source.toLowerCase() == gene ||
-        edge.target.toLowerCase() == gene) {
+    if (edge.source == gene || edge.target == gene) {
       edges.push(edge);
     }
   });
@@ -290,9 +327,9 @@ network.getComb_ = function(file, exp) {
   }
   var tfs = {}, tfcnt = 0, regcnt = {};
   for (var i = 0; i < result.numNodes; i++) {
-    var name = result.nodes[i].name;
+    var name = result.nodes[i].id;
     regcnt[name] = 0;
-    if (result.nodes[i].name.match(regex)) {
+    if (result.nodes[i].id.match(regex)) {
       if (tfs[name] == null) {
         tfs[name] = true;
         tfcnt++;
@@ -302,8 +339,8 @@ network.getComb_ = function(file, exp) {
   console.log(tfs, tfcnt);
   for (var i = 0; i < result.numEdges; i++) {
     var s = result.edges[i].source, t = result.edges[i].target;
-    if (tfs[result.nodes[s].name] == true) {
-      regcnt[result.nodes[t].name] ++;
+    if (tfs[result.nodes[s].id] == true) {
+      regcnt[result.nodes[t].id]++;
     }
   }
   var nodes = [];
@@ -336,10 +373,7 @@ network.readNetwork_ = function(networkFile) {
       return;
     }
     var parts = line.split(/[\t\s]+/);
-    var source = parts[0];
-    var target = parts[1];
-    if (parts.length < 3) {
-      validFile = false;
+    if (parts.length < 2) {
       return;
     }
     if (isFirst) {
@@ -349,6 +383,14 @@ network.readNetwork_ = function(networkFile) {
       }
       return;
     }
+    var source = parts[0];
+    var target = parts[1];
+    var sourceLowerCase = source.toLowerCase();
+    var targetLowerCase = target.toLowerCase();
+    if (parts.length < 3) {
+      validFile = false;
+      return;
+    }
     var numbers = [];
     for (var i = 2; i < parts.length; i++) {
       numbers.push(parseFloat(parts[i]));
@@ -356,27 +398,27 @@ network.readNetwork_ = function(networkFile) {
     if (source in nodeId) {
       nodes[nodeId[source]].isTF = true;
     } else {
-      names.push(source);
+      names.push(sourceLowerCase);
       nodes.push({
-        id: source,
+        id: sourceLowerCase,
         label: source,
         isTF: true
       });
       nodeId[source] = nodes.length - 1;
     }
     if (!(target in nodeId)) {
-      names.push(target);
+      names.push(targetLowerCase);
       nodes.push({
-        id: target,
+        id: targetLowerCase,
         label: target,
         isTF: false
       });
       nodeId[target] = nodes.length - 1;
     }
     edges.push({
-      id: source + ',' + target,
-      source: source,
-      target: target,
+      id: sourceLowerCase + ',' + targetLowerCase,
+      source: sourceLowerCase,
+      target: targetLowerCase,
       weight: numbers
     });
   });
@@ -419,4 +461,51 @@ network.listNetwork_ = function(networkPath) {
     }
   });
   return ret;
+};
+
+/**
+ * Finds all edges connecting the gene to other existing genes.
+ * @param {string} file Network file path.
+ * @param {!Array<string>} genes Genes to add to the graph.
+ * @param {!Array<!network.Node>} nodes Nodes that are already in the network.
+ * @return {{
+ *   edges: !Array<!network.Edge>
+ * }} Edges between the new gene and the existing network genes.
+ * @private
+ */
+network.incrementalEdges_ = function(file, genes, nodes) {
+  var oldNodes = {};
+  nodes.forEach(function(node) {
+    oldNodes[node.id] = true;
+  });
+  var newNodes = {};
+  genes.forEach(function(gene) {
+    if (!(gene in oldNodes)) {
+      newNodes[gene] = true;
+    }
+  });
+  var result = network.readNetwork_(file);
+  var edges = result.edges.filter(function(edge) {
+    return ((edge.source in newNodes && edge.target in oldNodes) ||
+    (edge.source in oldNodes && edge.target in newNodes) ||
+    (edge.source in newNodes && edge.target in newNodes));
+  });
+  return {
+    edges: edges
+  };
+};
+
+/**
+ * Gets the nodes info for the whole network.
+ * @param {string} file File path of the network.
+ * @return {{
+ *   nodes: !Array<!network.Node>
+ * }} The node info.
+ * @private
+ */
+network.allNodes_ = function(file) {
+  var data = network.readNetwork_(file);
+  return {
+    nodes: data.nodes
+  };
 };

@@ -32,7 +32,7 @@ genotet.NetworkRenderer = function(container, data) {
    * Node objects storing the rendering properties of network nodes.
    * Node objects are used by D3 force-directed layout.
    * The keys of the object is the node IDs. Currently ID is the node name.
-   * @private {!Object<!Object>}
+   * @private {!Object<!genotet.NetworkNode>}
    */
   this.nodes_ = {};
 
@@ -40,7 +40,7 @@ genotet.NetworkRenderer = function(container, data) {
    * Edge objects storing the rendering properties of network edges.
    * Edge objects are used by D3 force-directed layout.
    * The keys of the object is {source node ID} + ',' + {target node ID}
-   * @private {!Object<!Object>}
+   * @private {!Object<!genotet.RenderEdge>}
    */
   this.edges_ = {};
 
@@ -74,14 +74,6 @@ genotet.NetworkRenderer = function(container, data) {
   this.zoomScale_ = 1.0;
   /** @private {genotet.NetworkRenderer.MouseState} */
   this.mouseState_ = genotet.NetworkRenderer.MouseState.NONE;
-
-  /**
-   * @protected {{
-   *   weightMin: number,
-   *   weightMax: number
-   * }}
-   */
-  this.data;
 };
 
 genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
@@ -231,7 +223,7 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
 
 /** @inheritDoc */
 genotet.NetworkRenderer.prototype.dataReady = function() {
-  return this.data.nodes != null;
+  return this.data.network != null;
 };
 
 
@@ -241,7 +233,7 @@ genotet.NetworkRenderer.prototype.dataReady = function() {
  */
 genotet.NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
-    .domain([this.data.weightMin, this.data.weightMax])
+    .domain([this.data.network.weightMin, this.data.network.weightMax])
     .range(genotet.data.redBlueScale);
 
   // Store which nodes exist in the new data.
@@ -249,7 +241,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
   // a new position.
   var nodeIds = {};
 
-  this.data.nodes.forEach(function(node) {
+  this.data.network.nodes.forEach(function(node) {
     if (!this.nodes_[node.id]) {
       this.nodes_[node.id] = _.extend({}, node);
     }
@@ -263,7 +255,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
 
   // Edges do not have position data to keep. Simply reset.
   this.edges_ = {};
-  this.data.edges.forEach(function(edge) {
+  this.data.network.edges.forEach(function(edge) {
     if (!this.nodes_[edge.source] || !this.nodes_[edge.target]) {
       genotet.error('edge contains nodes that do not exist',
           JSON.stringify(edge));
@@ -449,11 +441,13 @@ genotet.NetworkRenderer.prototype.drawEdges_ = function() {
     .style('stroke', getEdgeColor)
     .style('fill', getEdgeColor)
     .on('click', function(edge) {
-      this.signal('edgeClick', edge);
-      this.selectEdge(edge);
+      var networkEdge = this.data.network.edgeMap[edge.id];
+      this.signal('edgeClick', networkEdge);
+      this.selectEdges([edge]);
     }.bind(this))
     .on('mouseenter', function(edge) {
-      this.signal('edgeHover', edge);
+      var networkEdge = this.data.network.edgeMap[edge.id];
+      this.signal('edgeHover', networkEdge);
     }.bind(this))
     .on('mouseleave', function(edge) {
       this.signal('edgeUnhover', edge);
@@ -524,13 +518,27 @@ genotet.NetworkRenderer.prototype.selectNode = function(node) {
 
 /**
  * Selects an edge to highlight it.
- * @param {!Object} edge Edge selected.
+ * @param {!Array<!Object>} edges Edges selected.
  */
-genotet.NetworkRenderer.prototype.selectEdge = function(edge) {
-  this.data.edgeSelected = edge;
-  var idSelected = edge.id;
+genotet.NetworkRenderer.prototype.selectEdges = function(edges) {
+  this.data.edgesSelected = edges;
+  var idsSelected = genotet.utils.keySet(edges.map(function(edge) {
+    return edge.id;
+  }));
   this.svgEdges_.selectAll('g')
     .classed('active', function(edge) {
-      return edge.id == idSelected;
+      return edge.id in idsSelected;
     }.bind(this));
+};
+
+/**
+ * Finds edges and select/highlight it.
+ * @param {!Array<string>} edgeIds The ids of the edge to be found.
+ */
+genotet.NetworkRenderer.prototype.findSelectEdges = function(edgeIds) {
+  var selectedEdges = _.values(_.pick(this.edges_, edgeIds));
+  this.selectEdges(selectedEdges);
+  if (selectedEdges.length > 1) {
+    this.signal('showMultiEdges');
+  }
 };
