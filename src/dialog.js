@@ -296,11 +296,11 @@ genotet.dialog.upload_ = function() {
         var isMapping = selectpicker.val() == 'mapping';
         if (isMapping) {
           console.log(modal.find('#data-name'));
-          modal.find('#data-name-row').prop('style', 'display:none');
-          modal.find('#description-row').prop('style', 'display:none');
+          modal.find('#data-name').closest('tr').css('display', 'none');
+          modal.find('#description').closest('tr').css('display', 'none');
         } else {
-          modal.find('#data-name-row').prop('style', '');
-          modal.find('#description-row').prop('style', '');
+          modal.find('#data-name').closest('tr').css('display', '');
+          modal.find('#description').closest('tr').css('display', '');
         }
       });
 
