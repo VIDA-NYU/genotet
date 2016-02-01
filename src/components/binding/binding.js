@@ -92,6 +92,42 @@ genotet.BindingView = function(viewName, params) {
   /** @protected {genotet.BindingRenderer} */
   this.renderer = new genotet.BindingRenderer(this.container, this.data);
 
+  /**
+   * Encapsulates binding data.
+   * @constructor
+   * @return {genotet.bindingData}
+   */
+  this.getData = function() {
+    return this.data;
+  };
+
+  /**
+   * Encapsulates loader.
+   * @constructor
+   * @return {genotet.BindingLoader}
+   */
+  this.getLoader = function() {
+    return this.loader;
+  };
+
+  /**
+   * Encapsulates panel.
+   * @constructor
+   * @return {genotet.BindingPanel}
+   */
+  this.getPanel = function() {
+    return this.panel;
+  };
+
+  /**
+   * Encapsulates renderer.
+   * @constructor
+   * @return {genotet.BindingRenderer}
+   */
+  this.getRenderer = function() {
+    return this.renderer;
+  };
+
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
     if (params.multipleTracks) {

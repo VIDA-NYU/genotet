@@ -50,6 +50,33 @@ genotet.NetworkView = function(viewName, params) {
   /** @protected {genotet.NetworkRenderer} */
   this.renderer = new genotet.NetworkRenderer(this.container, this.data);
 
+  /**
+   * Encapsulates loader.
+   * @constructor
+   * @return {genotet.NetworkLoader}
+   */
+  this.getLoader = function() {
+    return this.loader;
+  };
+
+  /**
+   * Encapsulates panel.
+   * @constructor
+   * @return {genotet.NetworkPanel}
+   */
+  this.getPanel = function() {
+    return this.panel;
+  };
+
+  /**
+   * Encapsulates renderer.
+   * @constructor
+   * @return {genotet.NetworkRenderer}
+   */
+  this.getRenderer = function() {
+    return this.renderer;
+  };
+
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
     this.loader.load(params.fileName, params.geneRegex);

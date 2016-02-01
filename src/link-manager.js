@@ -41,7 +41,7 @@ genotet.linkManager.link = function() {
   for (var linkViewName in genotet.linkManager.links) {
     var linkView = genotet.viewManager.views[linkViewName];
     genotet.linkManager.links[linkViewName].forEach(function(object) {
-      $(linkView.renderer)
+      $(linkView.getRenderer())
         .on('genotet.' + object.action, function(event, component) {
           switch (object.action) {
             case 'nodeClick':
@@ -53,13 +53,14 @@ genotet.linkManager.link = function() {
               var genes = edge.id.split(',');
               break;
           }
+          var targetView = object.target;
           switch (object.response) {
             case 'addGeneProfile':
-              var matrixGeneNames = object.target.data.matrix.geneNames;
+              var matrixGeneNames = targetView.getData().matrix.geneNames;
               genes.forEach(function(gene) {
                 var geneIndex = matrixGeneNames.indexOf(gene);
                 if (geneIndex != -1) {
-                  object.target.panel.signal(object.response, geneIndex);
+                  targetView.getPanel().signal(object.response, geneIndex);
                 }
               });
               break;
@@ -76,16 +77,18 @@ genotet.linkManager.link = function() {
               // ======================
               var fileName = mappingName[sourceGene];
               if (fileName) {
-                object.target.panel.signal(object.response, {
+                targetView.getPanel().signal(object.response, {
                   trackIndex: 0,
                   fileName: fileName
                 });
-                object.target.loader.signal('updatePanelTracks');
+                targetView.getLoader().signal('updatePanelTracks');
               }
               break;
             case 'locus':
               var targetGene = genes[1];
-              object.target.panel.signal('locus', targetGene);
+              if (targetGene) {
+                targetView.getPanel().signal('locus', targetGene);
+              }
               break;
           }
         });

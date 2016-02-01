@@ -66,6 +66,11 @@ genotet.ExpressionView = function(viewName, params) {
   genotet.ExpressionView.base.constructor.call(this, viewName);
 
   /**
+   * @protected {!Object}
+   */
+  this.data;
+
+  /**
    * @protected {genotet.ExpressionMatrix}
    */
   this.data.matrix;
@@ -85,6 +90,42 @@ genotet.ExpressionView = function(viewName, params) {
 
   /** @protected {!genotet.ExpressionRenderer} */
   this.renderer = new genotet.ExpressionRenderer(this.container, this.data);
+
+  /**
+   * Encapsulates data.
+   * @constructor
+   * @return {!Object}
+   */
+  this.getData = function() {
+    return this.data;
+  };
+
+  /**
+   * s loader.
+   * @constructor
+   * @return {genotet.ExpressionLoader}
+   */
+  this.getLoader = function() {
+    return this.loader;
+  };
+
+  /**
+   * Encapsulates panel.
+   * @constructor
+   * @return {genotet.ExpressionPanel}
+   */
+  this.getPanel = function() {
+    return this.panel;
+  };
+
+  /**
+   * Encapsulates renderer.
+   * @constructor
+   * @return {genotet.ExpressionRenderer}
+   */
+  this.getRenderer = function() {
+    return this.renderer;
+  };
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
