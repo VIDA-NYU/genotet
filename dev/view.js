@@ -18,11 +18,13 @@ genotet.test = function() {
     geneInput: 'sig.*',
     conditionInput: 'si.*'
   });
+  /*
   genotet.viewManager.createView('binding', 'My Genome Browser', {
     fileName: 'b6.bw',
     bedName: 'bed_data.bed',
     chr: '1'
   });
+  */
   genotet.viewManager.createView('network', 'My Network', {
     fileName: 'meishei.tsv',
     inputGenes: 'BATF|RORC|STAT3|IRF4|MAF',
