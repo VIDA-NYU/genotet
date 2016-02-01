@@ -8,6 +8,14 @@
 genotet.preset = {};
 
 /**
+ * Parameters for preset network view.
+ * @private @const {!genotet.NetworkViewParams}
+ */
+genotet.preset.NETWORK_PARAMS_ = {
+  fileName: 'th17.tsv',
+  geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
+};
+/**
  * Parameters for preset expression view.
  * @private @const {!genotet.ExpressionViewParams}
  */
@@ -18,14 +26,6 @@ genotet.preset.EXPRESSION_PARAMS_ = {
   isConditionRegex: true,
   geneInput: 'sig.*',
   conditionInput: 'si.*'
-};
-/**
- * Parameters for preset network view.
- * @private @const {!genotet.NetworkViewParams}
- */
-genotet.preset.NETWORK_PARAMS_ = {
-  fileName: 'th17.tsv',
-  geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
 };
 /**
  * Parameters for preset binding view.
@@ -49,15 +49,15 @@ genotet.preset.THREE_TRACK_BINDING_PARAMS_ = {
 };
 
 /**
- * Name for preset expression view.
- * @private @const {string}
- */
-genotet.preset.EXPRESSION_NAME_ = 'My Expression Matrix';
-/**
  * Name for preset network view.
  * @private @const {string}
  */
 genotet.preset.NETWORK_NAME_ = 'My Network';
+/**
+ * Name for preset expression view.
+ * @private @const {string}
+ */
+genotet.preset.EXPRESSION_NAME_ = 'My Expression Matrix';
 /**
  * Name for preset binding view.
  * @private @const {string}
@@ -67,7 +67,7 @@ genotet.preset.BINDING_NAME_ = 'My Genome Browser';
  * Name for preset 3-track binding view.
  * @private @const {string}
  */
-genotet.preset.THREE_TRACK_BINDING_NAME_ = 'My 3-Track Genome Browser';
+genotet.preset.THREE_TRACK_BINDING_NAME_ = 'My 3 Tracks Genome Browser';
 
 /**
  * Loads a preset with the given name.
@@ -84,10 +84,10 @@ genotet.preset.loadPreset = function(preset) {
   }
   switch (preset) {
     case 'default':
-      genotet.preset.createView_(expressionType,
-        genotet.preset.EXPRESSION_NAME_, genotet.preset.EXPRESSION_PARAMS_);
       genotet.preset.createView_(networkType,
         genotet.preset.NETWORK_NAME_, genotet.preset.NETWORK_PARAMS_);
+      genotet.preset.createView_(expressionType,
+        genotet.preset.EXPRESSION_NAME_, genotet.preset.EXPRESSION_PARAMS_);
       genotet.preset.createView_(bindingType,
         genotet.preset.BINDING_NAME_, genotet.preset.BINDING_PARAMS_);
       break;
@@ -98,16 +98,16 @@ genotet.preset.loadPreset = function(preset) {
         genotet.preset.BINDING_NAME_, genotet.preset.BINDING_PARAMS_);
       break;
     case 'expression':
-      genotet.preset.createView_(expressionType,
-        genotet.preset.EXPRESSION_NAME_, genotet.preset.EXPRESSION_PARAMS_);
       genotet.preset.createView_(networkType,
         genotet.preset.NETWORK_NAME_, genotet.preset.NETWORK_PARAMS_);
+      genotet.preset.createView_(expressionType,
+        genotet.preset.EXPRESSION_NAME_, genotet.preset.EXPRESSION_PARAMS_);
       break;
     case 'binding':
-      genotet.preset.createView_(expressionType,
-        genotet.preset.EXPRESSION_NAME_, genotet.preset.EXPRESSION_PARAMS_);
       genotet.preset.createView_(networkType,
         genotet.preset.NETWORK_NAME_, genotet.preset.NETWORK_PARAMS_);
+      genotet.preset.createView_(expressionType,
+        genotet.preset.EXPRESSION_NAME_, genotet.preset.EXPRESSION_PARAMS_);
       genotet.preset.createView_(bindingType,
         genotet.preset.THREE_TRACK_BINDING_NAME_,
         genotet.preset.THREE_TRACK_BINDING_PARAMS_);
@@ -116,6 +116,7 @@ genotet.preset.loadPreset = function(preset) {
       genotet.error('unknown preset:', preset);
       return;
   }
+  genotet.linkManager.link();
 };
 
 /**
@@ -128,6 +129,38 @@ genotet.preset.loadPreset = function(preset) {
  */
 genotet.preset.createView_ = function(type, viewName, params) {
   genotet.viewManager.createView(type, viewName, params);
-  var view = genotet.viewManager.views[viewName];
-  genotet.linkManager.linkViews[type].push(view);
+
+  // Store the preset views into view manager.
+  var newView = genotet.viewManager.views[viewName];
+  switch (type) {
+    case 'network':
+      genotet.linkManager.links[viewName] = [];
+      break;
+    case 'expression':
+      for (var linkViewName in genotet.linkManager.links) {
+        genotet.linkManager.NETWORK_ACTIONS.forEach(function(action) {
+          genotet.linkManager.EXPRESSION_ACTIONS.forEach(function(response) {
+            genotet.linkManager.links[linkViewName].push({
+              target: newView,
+              action: action,
+              response: response
+            });
+          });
+        });
+      }
+      break;
+    case 'binding':
+      for (var linkViewName in genotet.linkManager.links) {
+        genotet.linkManager.NETWORK_ACTIONS.forEach(function(action) {
+          genotet.linkManager.BINDING_ACTIONS.forEach(function(response) {
+            genotet.linkManager.links[linkViewName].push({
+              target: newView,
+              action: action,
+              response: response
+            });
+          });
+        });
+      }
+      break;
+  }
 };

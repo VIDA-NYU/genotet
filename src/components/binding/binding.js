@@ -156,7 +156,7 @@ genotet.BindingView = function(viewName, params) {
       this.renderer.render();
       this.panel.updateTracks();
     }.bind(this))
-    .on('genotet.gene', function(event, data) {
+    .on('genotet.updateTrack', function(event, data) {
       this.data.tracks[data.trackIndex].fileName = data.fileName;
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
         this.data.chr, false);

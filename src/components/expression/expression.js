@@ -34,14 +34,16 @@ genotet.ExpressionMatrix;
 /**
  * @typedef {{
  *   fileName: string,
- *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>,
- *   tfaValues: !Array<!Object>,
- *   valueMin: number,
- *   valueMax: number
+ *   tfaData: {
+ *     geneNames: !Array<string>,
+ *     conditionNames: !Array<string>,
+ *     tfaValues: !Array<!Object>,
+ *     valueMin: number,
+ *     valueMax: number
+ *   }
  * }}
  */
-genotet.ExpressionTfaData;
+genotet.ExpressionTfa;
 
 /**
  * @typedef {!Array<{
@@ -69,7 +71,7 @@ genotet.ExpressionView = function(viewName, params) {
   this.data.matrix;
 
   /**
-   * @protected {genotet.ExpressionTfaData}
+   * @protected {genotet.ExpressionTfa}
    */
   this.data.tfa;
 

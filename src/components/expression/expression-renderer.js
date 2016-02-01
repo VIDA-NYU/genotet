@@ -19,7 +19,7 @@ genotet.ExpressionRenderer = function(container, data) {
 
   /**
    * TFA data. Each element corresponds to one gene profile line.
-   * @protected {genotet.ExpressionTfaData}
+   * @protected {genotet.ExpressionTfa}
    */
   this.data.tfa;
 
@@ -629,7 +629,7 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
 
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.dataReady = function() {
-  return this.data.tfa.tfaValues != null;
+  return this.data.tfa.tfaData != null;
 };
 
 /** @inheritDoc */
@@ -1107,7 +1107,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
   }
 
   var heatmapData = this.data.matrix;
-  var tfaData = this.data.tfa;
+  var tfaData = this.data.tfa.tfaData;
   this.svgTfaProfile_.attr('width', this.canvasWidth);
 
   var xScale = d3.scale.linear().range([

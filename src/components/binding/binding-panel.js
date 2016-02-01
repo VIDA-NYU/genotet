@@ -173,7 +173,7 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
   var fileNames = genotet.data.bindingFiles.map(function(dataInfo) {
     return {
       id: dataInfo.fileName,
-      text: dataInfo.fileName
+      text: dataInfo.gene + ', ' + dataInfo.fileName
     };
   });
   var fileName = this.data.tracks[trackIndex].fileName;
@@ -194,7 +194,7 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
   // Set track fileName
   select.on('select2:select', function(event) {
     var fileName = event.params.data.id;
-    this.signal('gene', {
+    this.signal('updateTrack', {
       trackIndex: trackIndex,
       fileName: fileName
     });

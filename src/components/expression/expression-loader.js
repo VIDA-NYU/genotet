@@ -17,7 +17,8 @@ genotet.ExpressionLoader = function(data) {
     matrix: null,
     matrixInfo: null,
     tfa: {
-      fileName: null
+      fileName: null,
+      tfaData: null
     },
     matrixGeneNameDict: null,
     matrixConditionNameDict: null,
@@ -165,7 +166,7 @@ genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
       tfaGeneNameDict[geneName] = i;
     }.bind(this));
     this.data.tfaGeneNameDict = tfaGeneNameDict;
-    this.data.tfa = data;
+    this.data.tfa.tfaData = data;
   }.bind(this), 'cannot load expression TFA profiles');
 };
 
