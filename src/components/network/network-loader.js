@@ -103,12 +103,8 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
       edgeMap: {}
     });
 
-    // construct map from edge id to edge
-    data.edges.forEach(function(edge) {
-      data.edgeMap[edge.id] = edge;
-    });
-
     this.data.network = data;
+    this.buildEdgeMap_();
   }.bind(this), 'cannot load network');
 };
 
