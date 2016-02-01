@@ -156,6 +156,9 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     case 'bed':
       prefix = bedPath;
       break;
+    case 'mapping':
+      prefix = mappingPath;
+      break;
   }
   var body = {
     type: req.body.type,

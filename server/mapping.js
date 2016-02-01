@@ -56,7 +56,9 @@ mapping.getMapping_ = function(filePath) {
     .split('\n');
   content.forEach(function(line) {
     var entry = line.split(' ');
-    mappingName[entry[0]] = entry[1];
+    var gene = entry[0];
+    var bindingFile = entry[1];
+    mappingName[gene] = bindingFile;
   });
   return {
     mappingName: mappingName
