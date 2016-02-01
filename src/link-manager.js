@@ -37,7 +37,6 @@ genotet.linkManager.init = function() {
  * Set up the link manager.
  */
 genotet.linkManager.link = function() {
-  console.log(genotet.linkManager.links);
   for (var linkViewName in genotet.linkManager.links) {
     var linkView = genotet.viewManager.views[linkViewName];
     genotet.linkManager.links[linkViewName].forEach(function(object) {

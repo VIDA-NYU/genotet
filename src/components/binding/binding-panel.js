@@ -170,19 +170,6 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
     .attr('id', 'track-' + trackIndex)
     .show();
 
-  var fileNames = genotet.data.bindingFiles.map(function(dataInfo) {
-    return {
-      id: dataInfo.fileName,
-      text: dataInfo.gene + ', ' + dataInfo.fileName
-    };
-  });
-  var fileName = this.data.tracks[trackIndex].fileName;
-  var select = uiTrack.children('select').select2({
-    data: fileNames
-  });
-  select.val(fileName).trigger('change');
-  this.selectGenes_[trackIndex] = select;
-
   uiTrack.find('.select2-container').css({
     width: 'calc(100% - 30px)'
   });
@@ -190,15 +177,6 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
   // Removal button
   uiTrack.find('#remove').click(this.signal.bind(this, 'removeTrack',
     trackIndex));
-
-  // Set track fileName
-  select.on('select2:select', function(event) {
-    var fileName = event.params.data.id;
-    this.signal('updateTrack', {
-      trackIndex: trackIndex,
-      fileName: fileName
-    });
-  }.bind(this));
 };
 
 /**
@@ -213,7 +191,50 @@ genotet.BindingPanel.prototype.updateTracks = function() {
       this.container.find('#genes #track-' + index).remove();
     }
   }
-  this.signal('loadBindingList');
+
+  // Load binding list and update panel tracks.
+  var params = {
+    type: 'list-binding'
+  };
+  $.get(genotet.data.serverURL, params, function(data) {
+    genotet.data.bindingFiles = [];
+    data.forEach(function(dataInfo) {
+      genotet.data.bindingFiles.push(dataInfo);
+    });
+    var fileNames = genotet.data.bindingFiles.map(function(dataInfo) {
+      return {
+        id: dataInfo.fileName,
+        text: 'gene: ' + dataInfo.gene + ' (file: ' + dataInfo.fileName + ')'
+      };
+    });
+
+    this.data.tracks.forEach(function(track, index) {
+      var ui = this.container.find('#genes #track-' + index);
+
+      if (!ui.length) {
+        this.addTrack_();
+        ui = this.container.find('#genes #track-' + index);
+      }
+      var select = ui.children('select').select2({
+        data: fileNames
+      });
+      this.selectGenes_[index] = select;
+      select.val(track.fileName).trigger('change');
+
+      // Set track fileName
+      select.on('select2:select', function(event) {
+        var fileName = event.params.data.id;
+        this.signal('updateTrack', {
+          trackIndex: index,
+          fileName: fileName
+        });
+      }.bind(this));
+    }, this);
+  }.bind(this), 'jsonp')
+    .fail(function() {
+      genotet.error('failed to get binding list');
+    });
+
   this.container.find('#genes .glyphicon-remove')
     .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };
