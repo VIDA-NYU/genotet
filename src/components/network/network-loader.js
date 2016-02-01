@@ -100,13 +100,14 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
     _.extend(data, {
       fileName: fileName,
       genes: genes,
-      edgeIdtoId: {}
+      edgeMap: {}
     });
 
-    // construct edge id string to index.
-    for (var i = 0; i < data.edges.length; i++) {
-      data.edgeIdtoId[data.edges[i].id] = i;
-    }
+    // construct map from edge id to edge
+    data.edges.forEach(function(edge) {
+      data.edgeMap[edge.id] = edge;
+    });
+
     this.data.network = data;
   }.bind(this), 'cannot load network');
 };
@@ -251,6 +252,7 @@ genotet.NetworkLoader.prototype.addEdges = function(edges) {
       weight: weight
     });
   }, this);
+  this.buildEdgeMap_();
 };
 
 /**
@@ -264,6 +266,18 @@ genotet.NetworkLoader.prototype.deleteEdges = function(edges) {
   this.data.network.edges = this.data.network.edges.filter(function(edge) {
     return !(edge.id in edgeMap);
   });
+  this.buildEdgeMap_();
+};
+
+/**
+ * Builds the edge map from edge id to edge.
+ * @private
+ */
+genotet.NetworkLoader.prototype.buildEdgeMap_ = function() {
+  this.data.network.edgeMap = {};
+  this.data.network.edges.forEach(function(edge) {
+    this.data.network.edgeMap[edge.id] = edge;
+  }, this);
 };
 
 /*

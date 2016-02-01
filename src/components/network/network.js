@@ -29,7 +29,7 @@ genotet.NetworkEdge;
  *   id: string,
  *   source: !genotet.NetworkNode,
  *   target: !genotet.NetworkNode,
- *   weight: !Array<number>
+ *   weight: number
  * }}
  */
 genotet.RenderEdge;
@@ -52,6 +52,18 @@ genotet.NetworkData;
  * }}
  */
 genotet.NetworkViewParams;
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   source: string,
+ *   target: string,
+ *   added: boolean,
+ *   weight: number,
+ *   originalWeight: !Array<number>
+ * }}
+ */
+genotet.EdgeForTable;
 
 /**
  * NetworkView extends the base View class, and renders the regulatory network

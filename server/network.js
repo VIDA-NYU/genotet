@@ -373,12 +373,7 @@ network.readNetwork_ = function(networkFile) {
       return;
     }
     var parts = line.split(/[\t\s]+/);
-    var source = parts[0];
-    var target = parts[1];
-    var sourceLowerCase = source.toLowerCase();
-    var targetLowerCase = target.toLowerCase();
-    if (parts.length < 3) {
-      validFile = false;
+    if (parts.length < 2) {
       return;
     }
     if (isFirst) {
@@ -386,6 +381,14 @@ network.readNetwork_ = function(networkFile) {
       for (var i = 2; i < parts.length; i++) {
         valueNames.push(parts[i]);
       }
+      return;
+    }
+    var source = parts[0];
+    var target = parts[1];
+    var sourceLowerCase = source.toLowerCase();
+    var targetLowerCase = target.toLowerCase();
+    if (parts.length < 3) {
+      validFile = false;
       return;
     }
     var numbers = [];

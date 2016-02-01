@@ -4,9 +4,15 @@
 
 /**
  * @constructor
- * @return {!dataTable}
+ * @return {!DataTables}
  */
-function dataTable() {}
+function DataTables() {}
+
+/**
+ * @constructor
+ * @return {!DataTables.Api}
+ */
+DataTables.Api = function() {};
 
 /**
  * @param {Object=} opt_params
@@ -15,10 +21,12 @@ jQuery.prototype.DataTable = function(opt_params) {};
 
 /**
  * @param {Object=} opt_params
+ * @return {DataTables.Api}
  */
-dataTable.prototype.rows = function(opt_params) {};
+DataTables.prototype.rows = function(opt_params) {};
 
 /**
  * @param {Object=} opt_params
+ * @return {DataTables.Api}
  */
-dataTable.prototype.invalidate = function(opt_params) {};
+DataTables.prototype.invalidate = function(opt_params) {};

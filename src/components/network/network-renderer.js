@@ -441,14 +441,12 @@ genotet.NetworkRenderer.prototype.drawEdges_ = function() {
     .style('stroke', getEdgeColor)
     .style('fill', getEdgeColor)
     .on('click', function(edge) {
-      var networkEdge = this.data.network.edges[this.data
-        .network.edgeIdtoId[edge.id]];
+      var networkEdge = this.data.network.edgeMap[edge.id];
       this.signal('edgeClick', networkEdge);
       this.selectEdges([edge]);
     }.bind(this))
     .on('mouseenter', function(edge) {
-      var networkEdge = this.data.network.edges[this.data
-        .network.edgeIdtoId[edge.id]];
+      var networkEdge = this.data.network.edgeMap[edge.id];
       this.signal('edgeHover', networkEdge);
     }.bind(this))
     .on('mouseleave', function(edge) {
