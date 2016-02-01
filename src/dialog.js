@@ -289,8 +289,14 @@ genotet.dialog.upload_ = function() {
 
       selectpicker.change(function() {
         var isMapping = selectpicker.val() == 'mapping';
-        modal.find('#data-name').prop('disabled', isMapping);
-        modal.find('#description').prop('disabled', isMapping);
+        if (isMapping) {
+          console.log(modal.find('#data-name'));
+          modal.find('#data-name-row').prop('style', 'display:none');
+          modal.find('#description-row').prop('style', 'display:none');
+        } else {
+          modal.find('#data-name-row').prop('style', '');
+          modal.find('#description-row').prop('style', '');
+        }
       });
 
       btnFile.click(function() {
