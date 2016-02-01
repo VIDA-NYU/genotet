@@ -375,6 +375,8 @@ network.readNetwork_ = function(networkFile) {
     var parts = line.split(/[\t\s]+/);
     var source = parts[0];
     var target = parts[1];
+    var sourceLowerCase = source.toLowerCase();
+    var targetLowerCase = target.toLowerCase();
     if (parts.length < 3) {
       validFile = false;
       return;
@@ -393,27 +395,27 @@ network.readNetwork_ = function(networkFile) {
     if (source in nodeId) {
       nodes[nodeId[source]].isTF = true;
     } else {
-      names.push(source.toLowerCase());
+      names.push(sourceLowerCase);
       nodes.push({
-        id: source.toLowerCase(),
+        id: sourceLowerCase,
         label: source,
         isTF: true
       });
       nodeId[source] = nodes.length - 1;
     }
     if (!(target in nodeId)) {
-      names.push(target.toLocaleString());
+      names.push(targetLowerCase);
       nodes.push({
-        id: target.toLowerCase(),
+        id: targetLowerCase,
         label: target,
         isTF: false
       });
       nodeId[target] = nodes.length - 1;
     }
     edges.push({
-      id: source.toLowerCase() + ',' + target.toLowerCase(),
-      source: source.toLowerCase(),
-      target: target.toLowerCase(),
+      id: sourceLowerCase + ',' + targetLowerCase,
+      source: sourceLowerCase,
+      target: targetLowerCase,
       weight: numbers
     });
   });
@@ -459,13 +461,13 @@ network.listNetwork_ = function(networkPath) {
 };
 
 /**
- * Finds all edges connecting the gene to other exist genes.
+ * Finds all edges connecting the gene to other existing genes.
  * @param {string} file Network file path.
  * @param {!Array<string>} genes Genes to add to the graph.
- * @param {!Array<!network.Node>} nodes Nodes that already in the network.
+ * @param {!Array<!network.Node>} nodes Nodes that are already in the network.
  * @return {{
  *   edges: !Array<!network.Edge>
- * }} Edges between the new gene and network.
+ * }} Edges between the new gene and the existing network genes.
  * @private
  */
 network.incrementalEdges_ = function(file, genes, nodes) {
