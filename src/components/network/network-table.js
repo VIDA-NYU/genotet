@@ -47,15 +47,15 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
   var edgesForTable = edges.map(function(edge) {
     return {
       id: edge.id,
-      source: edge.source,
-      target: edge.target,
+      source: this.data.networkInfo.nodeLabel[edge.source],
+      target: this.data.networkInfo.nodeLabel[edge.target],
       added: edge.added,
       // weight is only weight[0]
       weight: edge.weight[0],
       // originalWeight stores weight array
       originalWeight: edge.weight
     };
-  });
+  }.bind(this));
   var dataTable = table.DataTable({
     data: edgesForTable,
     columnDefs: [
