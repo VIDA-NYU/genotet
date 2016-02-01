@@ -96,12 +96,12 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               weight: selectedEdges[i].originalWeight
             });
           }
-          var additionEdgeIds = genotet.utils.keySet(additionEdges
-            .map(function(edge) {
-              return edge.id;
-            }));
+          var additionEdgeIds = additionEdges.map(function(edge) {
+            return edge.id;
+          });
+          var additionEdgeIdMap = genotet.utils.keySet(additionEdgeIds);
           edgesForTable.forEach(function(edge) {
-            if (edge.id in additionEdgeIds) {
+            if (edge.id in additionEdgeIdMap) {
               edge.added = true;
             }
           });
@@ -131,12 +131,12 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
               weight: selectedEdges[i].originalWeight
             });
           }
-          var removalEdgeIds = genotet.utils.keySet(removalEdges
-            .map(function(edge) {
-              return edge.id;
-            }));
+          var removalEdgeIds = removalEdges.map(function(edge) {
+            return edge.id;
+          });
+          var removalEdgeIdMap = genotet.utils.keySet(removalEdgeIds);
           edgesForTable.forEach(function(edge) {
-            if (edge.id in removalEdgeIds) {
+            if (edge.id in removalEdgeIdMap) {
               edge.added = false;
             }
           });
