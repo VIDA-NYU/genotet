@@ -29,6 +29,7 @@ genotet.dialog.TEMPLATES_ = {
   network: 'templates/create-network.html',
   binding: 'templates/create-binding.html',
   expression: 'templates/create-expression.html',
+  mapping: 'templates/choose-mapping.html',
   upload: 'templates/upload.html'
 };
 
@@ -56,6 +57,9 @@ genotet.dialog.create = function(type) {
       break;
     case 'organism':
       genotet.dialog.organism_();
+      break;
+    case 'choose-mapping':
+      genotet.dialog.chooseMapping_();
       break;
     case 'upload':
       genotet.dialog.upload_();
@@ -269,6 +273,40 @@ genotet.dialog.createExpression_ = function() {
           geneInput: geneInput,
           conditionInput: conditionInput
         });
+      });
+    });
+};
+
+/**
+ * Choose gene-binding mapping files for link query.
+ * @private
+ */
+genotet.dialog.chooseMapping_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.mapping,
+    function() {
+      modal.modal();
+      modal.find('.selectpicker').selectpicker();
+      var params = {
+        type: 'list-mapping'
+      };
+      $.get(genotet.data.serverURL, params, function(data) {
+          var selectpicker = modal.find('.selectpicker');
+          data.forEach(function(fileName) {
+            $('<option></option>')
+              .text(fileName)
+              .appendTo(selectpicker);
+          });
+          selectpicker.selectpicker('refresh');
+        }.bind(this), 'jsonp')
+        .fail(function() {
+          genotet.error('failed to get binding list');
+        });
+
+      // Create
+      modal.find('#btn-choose').click(function() {
+        var fileName = modal.find('#mapping-file').val();
+        genotet.data.geneBindingMappingFile = /** @type {string} */(fileName);
       });
     });
 };

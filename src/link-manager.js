@@ -25,11 +25,16 @@ genotet.linkManager.NETWORK_ACTIONS = ['nodeClick', 'edgeClick'];
 /** @const {!Array<string>} */
 genotet.linkManager.BINDING_ACTIONS = ['updateTrack', 'locus'];
 
+/** @const {string} */
+genotet.linkManager.DEFAULT_MAPPING_FILENAME = 'namecode';
+
 /**
  * Initializes the link manager.
  */
 genotet.linkManager.init = function() {
   genotet.linkManager.links = {};
+  genotet.data.geneBindingMappingFile =
+    genotet.linkManager.DEFAULT_MAPPING_FILENAME;
 };
 
 
@@ -68,28 +73,39 @@ genotet.linkManager.link = function() {
                 break;
               case 'updateTrack':
                 var sourceGene = genes[0];
-                // TODO(Jiaming): Replace this fake data after finishing
-                // mapping query.
-                // ======================
-                var mappingName = {
-                  'Maf': 'SL971_SL970',
-                  'Mafg': 'SL1851',
-                  'Stat3': 'SL10572_SL10566'
+
+                var params = {
+                  type: 'mapping',
+                  fileName: genotet.data.geneBindingMappingFile
                 };
-                // ======================
-                var fileName = mappingName[sourceGene];
-                if (fileName) {
-                  targetView.signal('link', {
-                    response: object.response,
-                    data: {
-                      trackIndex: 0,
-                      fileName: fileName
-                    }
+                $.get(genotet.data.serverURL, params, function(data) {
+                  // TODO(Jiaming): Replace this fake data after finishing
+                  // mapping query. The return data is empty now.
+                  // ======================
+                  var mappingName = {
+                    'maf': 'SL971_SL970',
+                    'mafg': 'SL1851',
+                    'stat3': 'SL10572_SL10566'
+                  };
+                  // var mappingName = data;
+                  // ======================
+                  var fileName = mappingName[sourceGene];
+                  if (fileName) {
+                    targetView.signal('link', {
+                      response: object.response,
+                      data: {
+                        trackIndex: 0,
+                        fileName: fileName
+                      }
+                    });
+                    targetView.signal('link', {
+                      response: 'updatePanelTracks'
+                    });
+                  }
+                }.bind(this), 'jsonp')
+                  .fail(function() {
+                    genotet.error('failed to get gene-binding mapping file');
                   });
-                  targetView.signal('link', {
-                    response: 'updatePanelTracks'
-                  });
-                }
                 break;
               case 'locus':
                 var targetGene = genes[1];
