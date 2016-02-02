@@ -12,8 +12,9 @@ genotet.preset = {};
  * @private @const {!genotet.NetworkViewParams}
  */
 genotet.preset.NETWORK_PARAMS_ = {
-  fileName: 'th17-link.tsv',
-  geneRegex: 'BATF|RORC|STAT3|IRF4|MAF'
+  fileName: 'th17.tsv',
+  inputGenes: 'BATF|RORC|STAT3|IRF4|MAF',
+  isRegex: true
 };
 /**
  * Parameters for preset expression view.

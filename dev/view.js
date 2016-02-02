@@ -27,7 +27,7 @@ genotet.test = function() {
   });
   genotet.viewManager.createView('network', 'My Network', {
     fileName: 'th17.tsv',
-    geneRegex: 'BATF|RORC|STAT3|IRF4|MAF',
+    inputGenes: 'BATF|RORC|STAT3|IRF4|MAF',
     isRegex: true
   });
 };
