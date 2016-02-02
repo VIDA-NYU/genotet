@@ -292,8 +292,6 @@ genotet.dialog.upload_ = function() {
       var btnFile = modal.find('#btn-file');
       var fileDisplay = modal.find('#file-display');
 
-      modal.find('tr:first').css('white-space', 'nowrap');
-
       selectpicker.change(function() {
         var isMapping = selectpicker.val() == 'mapping';
         if (isMapping) {
