@@ -81,7 +81,7 @@ networkSpec.tests = [
         .get(server.queryURL({
           type: 'network',
           fileName: networkSpec.dataInfo.fileName,
-          geneRegex: 'a|c|e'
+          genes: ['a', 'c', 'e']
         }))
         .expectStatus(200);
     },

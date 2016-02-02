@@ -134,9 +134,10 @@ genotet.dialog.createNetwork_ = function() {
           var selectpicker = modal.find('.selectpicker');
           data.forEach(function(network) {
             $('<option></option>')
-              .text(network.networkName)
+              .text(network.fileName)
               .appendTo(selectpicker);
           });
+          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get network list');
@@ -145,9 +146,12 @@ genotet.dialog.createNetwork_ = function() {
       // Create
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
+        var isRegex = modal.find('#gene-input-type')
+          .children('label[name=regex]').children('input').prop('checked');
         genotet.viewManager.createView('network', viewName, {
-          networkName: modal.find('#network').val(),
-          geneRegex: modal.find('#geneRegex').val()
+          fileName: modal.find('#network').val(),
+          inputGenes: modal.find('#geneRegex').val(),
+          isRegex: isRegex
         });
       });
     });
@@ -175,19 +179,19 @@ genotet.dialog.createBinding_ = function() {
       modal.find('#chr').select2({
         data: chrs
       });
-      var genes = [];
+      var fileNames = [];
       var params = {
         type: 'list-binding'
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(bindingFile) {
-            genes.push({
-              id: bindingFile.gene,
-              text: bindingFile.gene
+            fileNames.push({
+              id: bindingFile.fileName,
+              text: bindingFile.fileName
             });
           });
           modal.find('#gene').select2({
-            data: genes
+            data: fileNames
           });
         }.bind(this), 'jsonp')
         .fail(function() {
@@ -198,7 +202,7 @@ genotet.dialog.createBinding_ = function() {
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
         genotet.viewManager.createView('binding', viewName, {
-          gene: modal.find('#gene').val(),
+          fileName: modal.find('#gene').val(),
           chr: modal.find('#chr').val()
         });
       });
@@ -226,9 +230,10 @@ genotet.dialog.createExpression_ = function() {
           var selectpicker = modal.find('.selectpicker');
           matrices.forEach(function(matrix) {
             $('<option></option>')
-              .text(matrix.matrixName)
+              .text(matrix.fileName)
               .appendTo(selectpicker);
           });
+          selectpicker.selectpicker('refresh');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get expression list');
@@ -277,7 +282,7 @@ genotet.dialog.upload_ = function() {
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.upload,
     function() {
       modal.modal();
-      modal.find('.selectpicker').selectpicker();
+      var selectpicker = modal.find('.selectpicker').selectpicker();
 
       var file = modal.find('#file');
       var fileName = modal.find('#file-name');
@@ -286,6 +291,19 @@ genotet.dialog.upload_ = function() {
       var btnUpload = modal.find('#btn-upload').prop('disabled', true);
       var btnFile = modal.find('#btn-file');
       var fileDisplay = modal.find('#file-display');
+
+      selectpicker.change(function() {
+        var isMapping = selectpicker.val() == 'mapping';
+        if (isMapping) {
+          console.log(modal.find('#data-name'));
+          modal.find('#data-name').closest('tr').css('display', 'none');
+          modal.find('#description').closest('tr').css('display', 'none');
+        } else {
+          modal.find('#data-name').closest('tr').css('display', '');
+          modal.find('#description').closest('tr').css('display', '');
+        }
+      });
+
       btnFile.click(function() {
         file.trigger('click');
       });
@@ -295,7 +313,8 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return fileName.val() && file.val() && dataName.val();
+        return fileName.val() && file.val() && (dataName.val() ||
+          selectpicker.val() == 'mapping');
       };
 
       file.change(function(event) {
