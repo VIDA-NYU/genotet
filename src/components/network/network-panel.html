@@ -4,16 +4,13 @@
     <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
     <input class="form-control input-with-update">
   </div>
-  <div id="input-type" class="panel-section">
-    <div class="item-title">Input Type</div>
-      <div class="input-checkbox" id="gene-input-type">
-        <label class="radio-inline" name="regex"><input type="radio" name="optradio" checked>regex</label>
-        <label class="radio-inline" name="text"><input type="radio" name="optradio">text</label>
-      </div>
-  </div>
   <div id="genes" class="panel-section">
     <div class="item-title">Genes</div>
     <input class="form-control">
+    <div id="gene-input" class="input-checkbox">
+      <label class="radio-inline" name="string"><input type="radio" name="optradio" checked>text</label>
+      <label class="radio-inline" name="regex"><input type="radio" name="optradio">regex</label>
+    </div>
     <div class="sub-buttons">
       <button id="set" class="btn btn-default btn-xs glyphicon glyphicon-refresh" title="set genes"></button>
       <button id="add" class="btn btn-default btn-xs glyphicon glyphicon-plus" title="add genes"></button>

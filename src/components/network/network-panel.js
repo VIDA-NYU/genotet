@@ -63,6 +63,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
         method: method,
         isRegex: isRegex
       });
+      this.container.find('#edge-list').slideUp();
     }.bind(this));
   }, this);
 };
@@ -77,7 +78,7 @@ genotet.NetworkPanel.prototype.dataLoaded = function() {
  * @return {!jQuery} The edge list container.
  */
 genotet.NetworkPanel.prototype.edgeListContainer = function() {
-  var edgeList = this.container.find('#edge-list');
+  var edgeList = this.container.find('#edge-list').hide().slideDown();
   edgeList.html(
     /** @type {string} */(this.container.find('#edge-list-template').html()));
   return edgeList.children('table');
@@ -132,6 +133,7 @@ genotet.NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
       isRegex: false
     });
     this.container.find('#node-info').slideUp();
+    this.container.find('#edge-list').slideUp();
   }.bind(this));
 };
 

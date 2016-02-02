@@ -52,7 +52,7 @@ genotet.NetworkLoader.prototype.prepareGenes_ = function(inputGenes, isRegex) {
       }
     });
   } else {
-    genes = inputGenes.split(/[\s,]+/);
+    genes = inputGenes.toLowerCase().split(/[\s,]+/);
   }
   return genes;
 };
