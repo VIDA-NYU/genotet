@@ -38,6 +38,7 @@ Installation:
     bigWigToWigPath = .../genotet_data/bigWigToWig
     uploadPath = .../genotet_data/upload/
     bedPath = .../genotet_data/bed/
+    mappingPath = .../genotet_data/mapping/
     ```
 
 - Run the setup script.

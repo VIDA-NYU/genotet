@@ -282,7 +282,7 @@ genotet.dialog.upload_ = function() {
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.upload,
     function() {
       modal.modal();
-      modal.find('.selectpicker').selectpicker();
+      var selectpicker = modal.find('.selectpicker').selectpicker();
 
       var file = modal.find('#file');
       var fileName = modal.find('#file-name');
@@ -291,6 +291,19 @@ genotet.dialog.upload_ = function() {
       var btnUpload = modal.find('#btn-upload').prop('disabled', true);
       var btnFile = modal.find('#btn-file');
       var fileDisplay = modal.find('#file-display');
+
+      selectpicker.change(function() {
+        var isMapping = selectpicker.val() == 'mapping';
+        if (isMapping) {
+          console.log(modal.find('#data-name'));
+          modal.find('#data-name').closest('tr').css('display', 'none');
+          modal.find('#description').closest('tr').css('display', 'none');
+        } else {
+          modal.find('#data-name').closest('tr').css('display', '');
+          modal.find('#description').closest('tr').css('display', '');
+        }
+      });
+
       btnFile.click(function() {
         file.trigger('click');
       });
@@ -300,7 +313,8 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return fileName.val() && file.val() && dataName.val();
+        return fileName.val() && file.val() && (dataName.val() ||
+          selectpicker.val() == 'mapping');
       };
 
       file.change(function(event) {
