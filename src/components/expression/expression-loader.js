@@ -23,10 +23,7 @@ genotet.ExpressionLoader = function(data) {
     matrixConditionNameDict: null,
     lowerGeneNames: null,
     lowerConditionNames: null,
-    tfaGeneNameDict: null,
-    profiles: [],
-    tfaProfiles: [],
-    zoomStack: []
+    tfaGeneNameDict: null
   });
 };
 

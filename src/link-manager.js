@@ -98,9 +98,6 @@ genotet.linkManager.link = function() {
                         fileName: fileName
                       }
                     });
-                    targetView.signal('link', {
-                      response: 'updatePanelTracks'
-                    });
                   }
                 }.bind(this), 'jsonp')
                   .fail(function() {

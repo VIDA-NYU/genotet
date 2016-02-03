@@ -160,6 +160,9 @@ genotet.BindingView = function(viewName, params) {
       this.data.tracks[data.trackIndex].fileName = data.fileName;
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
         this.data.chr, false);
+    }.bind(this))
+    .on('genotet.loadBindingList', function() {
+      this.loader.loadBindingList();
     }.bind(this));
 
   $(this.loader)
@@ -168,15 +171,19 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.addPanelTrack', function() {
       this.panel.updateTracks();
+    }.bind(this))
+    .on('genotet.updateTrackList', function() {
+      this.panel.updateTrackList();
     }.bind(this));
 
   // Set up link callbacks.
   $(this).on('genotet.link', function(event, linkData) {
     switch (linkData.response) {
-      default:
-        this.panel.signal(linkData.response, linkData.data);
+      case 'locus':
+        this.panel.signal('locus', linkData.data);
         break;
-      case 'updatePanelTracks':
+      case 'updateTrack':
+        this.panel.signal('updateTrack', linkData.data);
         this.loader.signal('addPanelTrack');
         break;
     }

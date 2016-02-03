@@ -268,3 +268,20 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
     });
   }
 };
+
+/**
+ * Loads binding data list into genotet.data.bindingGenes.
+ */
+genotet.BindingLoader.prototype.loadBindingList = function() {
+  var params = {
+    type: 'list-binding'
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    genotet.data.bindingFiles = [];
+    data.forEach(function(dataInfo) {
+      genotet.data.bindingFiles.push(dataInfo);
+    });
+    this.signal('updateTrackList');
+  }.bind(this), 'cannot load binding list');
+};
+

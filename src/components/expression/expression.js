@@ -81,6 +81,21 @@ genotet.ExpressionView = function(viewName, params) {
    */
   this.data.tfa;
 
+  /**
+   * @protected {!Array<genotet.ExpressionRenderer.Profile>}
+   */
+  this.data.profiles = [];
+
+  /**
+   * @protected {!Array<genotet.ExpressionRenderer.Profile>}
+   */
+  this.data.tfaProfiles = [];
+
+  /**
+   * @protected {!Array<genotet.ExpressionRenderer.ZoomStatus>}
+   */
+  this.data.zoomStack = [];
+
   this.container.addClass('expression');
 
   /** @protected {!genotet.ExpressionLoader} */
@@ -194,10 +209,14 @@ genotet.ExpressionView = function(viewName, params) {
   $(this).on('genotet.link', function(event, linkData) {
     switch (linkData.response) {
       case 'addGeneProfile':
-        var geneName = linkData.data;
+        var geneName = this.data.lowerGeneNames[linkData.data];
         var geneIndex = this.data.matrix.geneNames.indexOf(geneName);
-        if (geneIndex != -1) {
+        var isExistent = $.grep(this.data.profiles, function(obj) {
+          return obj.geneName == geneName;
+        }).length != 0;
+        if (geneIndex != -1 && !isExistent) {
           this.panel.signal('addGeneProfile', geneIndex);
+          this.loader.signal('updatePanel');
         }
         break;
     }
