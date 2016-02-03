@@ -12,6 +12,18 @@
  */
 genotet.NetworkTable = function(data) {
   this.data = data;
+
+  /**
+   * Edges to display in table.
+   * @private {!Array<!genotet.EdgeForTable>}
+   */
+  this.edgesForTable_;
+
+  /**
+   * The DataTable object.
+   * @private {!DataTables}
+   */
+  this.dataTable_;
 };
 
 /**
@@ -44,7 +56,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
   edges.forEach(function(edge) {
     edge.added = edge.id in edgeIds;
   });
-  var edgesForTable = edges.map(function(edge) {
+  this.edgesForTable_ = edges.map(function(edge) {
     return {
       id: edge.id,
       source: this.data.networkInfo.nodeLabel[edge.source],
@@ -56,8 +68,8 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       originalWeight: edge.weight
     };
   }.bind(this));
-  var dataTable = table.DataTable({
-    data: edgesForTable,
+  this.dataTable_ = table.DataTable({
+    data: this.edgesForTable_,
     columnDefs: [
       {
         render: function(added) {
@@ -100,7 +112,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
             return edge.id;
           });
           var additionEdgeIdMap = genotet.utils.keySet(additionEdgeIds);
-          edgesForTable.forEach(function(edge) {
+          this.edgesForTable_.forEach(function(edge) {
             if (edge.id in additionEdgeIdMap) {
               edge.added = true;
             }
@@ -135,7 +147,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
             return edge.id;
           });
           var removalEdgeIdMap = genotet.utils.keySet(removalEdgeIds);
-          edgesForTable.forEach(function(edge) {
+          this.edgesForTable_.forEach(function(edge) {
             if (edge.id in removalEdgeIdMap) {
               edge.added = false;
             }
@@ -164,7 +176,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
 
   table.on('click', function() {
     var data = /** @type {!Array<genotet.EdgeForTable>} */
-      (dataTable.rows({selected: true}).data());
+      (this.dataTable_.rows({selected: true}).data());
     if (data.length > 0) {
       var allSame = true;
       if (data.length > 1) {
@@ -177,11 +189,13 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       }
       if (allSame) {
         var firstEdge = data[0];
-        dataTable.button(0).enable(!firstEdge.added); // the addition button
-        dataTable.button(1).enable(firstEdge.added);  // the removal button
+        // the addition button
+        this.dataTable_.button(0).enable(!firstEdge.added);
+        // the removal button
+        this.dataTable_.button(1).enable(firstEdge.added);
       } else {
-        dataTable.button(0).disable();
-        dataTable.button(1).disable();
+        this.dataTable_.button(0).disable();
+        this.dataTable_.button(1).disable();
       }
       var edgeIds = [];
       for (var i = 0; i < data.length; i++) {
@@ -191,8 +205,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       }
 
       if (edgeIds.length == 1) {
-        var selectedEdge = data[0];
-        var networkEdge = this.data.network.edgeMap[selectedEdge.id];
+        var networkEdge = this.data.network.edgeMap[edgeIds[0]];
         this.signal('showEdgeInfo', networkEdge);
       } else if (edgeIds.length > 1) {
         this.signal('multiEdgeInfo');
@@ -208,4 +221,20 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
 
   table.closest('#edge-list').css('width',
     /** @type {number} */(table.width()));
+};
+
+/**
+ * Change the table for the edge removal.
+ * @param {!genotet.NetworkEdge} edge Edge to be removed.
+ */
+genotet.NetworkTable.prototype.removeEdge = function(edge) {
+  if (!this.edgesForTable_ || !this.dataTable_) {
+    return;
+  }
+  this.edgesForTable_.forEach(function(edgeForTable) {
+    if (edgeForTable.id == edge.id) {
+      edgeForTable.added = false;
+    }
+  });
+  this.dataTable_.rows().invalidate();
 };

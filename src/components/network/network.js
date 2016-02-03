@@ -125,8 +125,9 @@ genotet.NetworkView = function(viewName, params) {
         this.loader.updateGenes(data.method, data.inputGenes, data.isRegex);
         this.renderer.dataLoaded();
         break;
-      case 'delete-edges':
-        this.loader.deleteEdges(data);
+      case 'delete-edge':
+        this.loader.deleteEdges(data.edges);
+        this.table.removeEdge(data.edges[0]);
         this.renderer.dataLoaded();
         break;
       default:

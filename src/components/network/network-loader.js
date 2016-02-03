@@ -52,7 +52,9 @@ genotet.NetworkLoader.prototype.prepareGenes_ = function(inputGenes, isRegex) {
       }
     });
   } else {
-    genes = inputGenes.toLowerCase().split(/[\s,]+/);
+    genes = inputGenes.toLowerCase().split(/[\s,]+/).filter(function(gene) {
+        return gene in this.data.networkInfo.isTF;
+    }.bind(this));
   }
   return genes;
 };
@@ -168,7 +170,7 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
   });
 
   if (!newGenes.length) {
-    genotet.warning('genes are already in the network');
+    genotet.warning('genes are already in the network or not existing');
     return;
   }
 
