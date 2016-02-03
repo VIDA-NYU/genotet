@@ -28,7 +28,9 @@ mapping.query.GetMapping;
  * @return {?Array<string>}
  */
 mapping.query.list = function(mappingPath) {
-  return fs.readdirSync(mappingPath);
+  return fs.readdirSync(mappingPath).filter(function(fileName) {
+    return fileName[0] != '.';
+  });
 };
 
 /**
@@ -51,10 +53,10 @@ mapping.getMapping_ = function(filePath) {
   var content = fs.readFileSync(filePath, 'utf-8').toString()
     .split('\n');
   content.forEach(function(line) {
-    var entry = line.split(' ');
+    var entry = line.split(/[\t\s]+/);
     var gene = entry[0];
     var bindingFile = entry[1];
-    mappingRules[gene] = bindingFile;
+    mappingRules[gene.toLowerCase()] = bindingFile;
   });
   return mappingRules;
 };
