@@ -48,7 +48,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   // Gene update
   ['set', 'add', 'remove'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
-      var isRegex = this.container.find('#gene-input-type')
+      var isRegex = this.container.find('#gene-input')
         .children('label[name=regex]').children('input').prop('checked');
       var input = this.container.find('#genes input');
       var inputGenes = input.val();
@@ -63,6 +63,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
         method: method,
         isRegex: isRegex
       });
+      this.container.find('#edge-list').slideUp();
     }.bind(this));
   }, this);
 };
@@ -77,7 +78,7 @@ genotet.NetworkPanel.prototype.dataLoaded = function() {
  * @return {!jQuery} The edge list container.
  */
 genotet.NetworkPanel.prototype.edgeListContainer = function() {
-  var edgeList = this.container.find('#edge-list');
+  var edgeList = this.container.find('#edge-list').hide().slideDown();
   edgeList.html(
     /** @type {string} */(this.container.find('#edge-list-template').html()));
   return edgeList.children('table');
@@ -132,6 +133,8 @@ genotet.NetworkPanel.prototype.setNodeInfo_ = function(node, container) {
       isRegex: false
     });
     this.container.find('#node-info').slideUp();
+    this.container.find('#edge-list').slideUp();
+    this.hideEdgeInfoByNode_(node.id);
   }.bind(this));
 };
 
@@ -153,7 +156,7 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
   container.children('#edge-sub-info').children('#rm-edge').children('button')
     .click(function() {
     this.signal('update', {
-      type: 'delete-edges',
+      type: 'delete-edge',
       edges: [edge]
     });
     this.container.find('#edge-info').slideUp();
@@ -252,5 +255,20 @@ genotet.NetworkPanel.prototype.hideEdgeInfo = function(edges, force) {
     if (exists) {
       this.hideEdgeInfo_();
     }
+  }
+};
+
+/**
+ * Hides the node-info when the removed node is related to the showing edge.
+ * @param {string} nodeId Id of the removed node.
+ * @private
+ */
+genotet.NetworkPanel.prototype.hideEdgeInfoByNode_ = function(nodeId) {
+  var info = this.container.find('#edge-info');
+  var nodeLabel = this.data.networkInfo.nodeLabel[nodeId];
+  var source = info.children('#source').children('span').text();
+  var target = info.children('#target').children('span').text();
+  if (source == nodeLabel || target == nodeLabel) {
+    this.hideEdgeInfo_();
   }
 };
