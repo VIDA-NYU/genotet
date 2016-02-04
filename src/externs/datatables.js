@@ -9,10 +9,9 @@
 function DataTables() {}
 
 /**
- * @constructor
- * @return {!DataTables.Api}
+ * @typedef {!Array<!Object>}
  */
-DataTables.Api = function() {};
+DataTables.Api;
 
 /**
  * @param {Object=} opt_params
@@ -22,13 +21,13 @@ jQuery.prototype.DataTable = function(opt_params) {};
 
 /**
  * @param {Object=} opt_params
- * @return {DataTables.Api}
+ * @return {!DataTables.Api}
  */
 DataTables.prototype.rows = function(opt_params) {};
 
 /**
  * @param {number} params
- * @return {DataTables.Api}
+ * @return {!DataTables.Api}
  */
 DataTables.prototype.button = function(params) {};
 
@@ -39,6 +38,7 @@ DataTables.Api.prototype.invalidate = function(opt_params) {};
 
 /**
  * @param {Object=} opt_params
+ * @return {!DataTables.Api}
  */
 DataTables.Api.prototype.data = function(opt_params) {};
 
