@@ -120,7 +120,7 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
                                                        isRegex) {
   var genes = this.prepareGenes_(inputGenes, isRegex);
   if (!genes.length) {
-    genotet.warning('no genes found');
+    genotet.warning('no valid genes found');
     return;
   }
 
@@ -170,7 +170,7 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
   });
 
   if (!newGenes.length) {
-    genotet.warning('genes are already in the network or not existing');
+    genotet.warning('genes are already in the network');
     return;
   }
 

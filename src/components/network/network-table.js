@@ -224,7 +224,7 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
 };
 
 /**
- * Change the table for the edge removal.
+ * Updates the table for edge removal.
  * @param {!genotet.NetworkEdge} edge Edge to be removed.
  */
 genotet.NetworkTable.prototype.removeEdge = function(edge) {
