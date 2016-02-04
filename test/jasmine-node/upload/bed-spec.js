@@ -22,7 +22,7 @@ bedSpec.dataInfo = {
 };
 
 /**
- * Test cases of bed data
+ * Test cases of bed data.
  * @type {!Array<{
  *   name: string,
  *   action: function(!frisby),

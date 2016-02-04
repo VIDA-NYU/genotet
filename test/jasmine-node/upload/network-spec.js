@@ -43,7 +43,7 @@ networkSpec.dataInfo = {
 networkSpec.QueryResponse;
 
 /**
- * Test cases of network queries
+ * Test cases of network queries.
  * @type {!Array<{
  *   name: string,
  *   action: function(!frisby),
