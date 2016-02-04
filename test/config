@@ -4,3 +4,4 @@ expressionPath = dist/data/expression/
 bedPath = dist/data/bed/
 uploadPath = dist/data/upload/
 bigWigToWigPath = test/bigWigToWig
+mappingPath = dist/data/mapping/
