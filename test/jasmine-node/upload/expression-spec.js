@@ -8,7 +8,7 @@ var data = require('../data.js');
 var expressionSpec = {};
 
 /**
- * Data information for expression tests
+ * Data information for expression tests.
  * @type {{
  *   name: string,
  *   description: string,
@@ -35,7 +35,7 @@ expressionSpec.dataInfo = {
 expressionSpec.QueryResponse;
 
 /**
- * Test cases for expression queries
+ * Test cases for expression queries.
  * @type {!Array<{
  *   name: string,
  *   action: function(!frisby),

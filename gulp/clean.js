@@ -13,7 +13,8 @@ var dirs = [
   'dist/data/wiggle',
   'dist/data/expression',
   'dist/data/bed',
-  'dist/data/upload'
+  'dist/data/upload',
+  'dist/data/mapping'
 ];
 
 gulp.task('clean', function() {

@@ -12,6 +12,18 @@
  */
 genotet.NetworkTable = function(data) {
   this.data = data;
+
+  /**
+   * Edges to display in table.
+   * @private {!Array<!genotet.EdgeForTable>}
+   */
+  this.edgesForTable_;
+
+  /**
+   * The DataTable object.
+   * @private {!DataTables}
+   */
+  this.dataTable_;
 };
 
 /**
@@ -44,19 +56,20 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
   edges.forEach(function(edge) {
     edge.added = edge.id in edgeIds;
   });
-  var edgesForTable = [];
-  edges.forEach(function(edge) {
-    edgesForTable.push({
+  this.edgesForTable_ = edges.map(function(edge) {
+    return {
       id: edge.id,
-      source: edge.source,
-      target: edge.target,
+      source: this.data.networkInfo.nodeLabel[edge.source],
+      target: this.data.networkInfo.nodeLabel[edge.target],
       added: edge.added,
+      // weight is only weight[0]
       weight: edge.weight[0],
+      // originalWeight stores weight array
       originalWeight: edge.weight
-    });
-  });
-  table.DataTable({
-    data: edgesForTable,
+    };
+  }.bind(this));
+  this.dataTable_ = table.DataTable({
+    data: this.edgesForTable_,
     columnDefs: [
       {
         render: function(added) {
@@ -69,53 +82,159 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
       {title: 'Source', data: 'source'},
       {title: 'Target', data: 'target'},
       {title: 'Weight', data: 'weight'},
-      {title: 'Add', data: 'added'}
+      {title: '', data: 'added'}
     ],
-    select: true,
-    dom: 'Bfrtip',
+    select: {
+      style: 'os',
+      info: false
+    },
+    dom: '<"row"<"#table-btn.col-sm-12"B>>' +
+      '<"row"<"col-sm-5"l><"col-sm-7"f>>' +
+      '<"row"<"col-sm-12"tr>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
     buttons: [
       {
-        extend: 'selectedSingle',
-        text: 'add',
+        text: 'Add',
+        className: 'btn btn-default',
         action: function(e, dt, node, config) {
-          var selectedEdge = dt.rows({selected: true}).data()[0];
-          this.signal('addEdge', {
-            source: selectedEdge.source,
-            target: selectedEdge.target,
-            weight: selectedEdge.originalWeight
+          var selectedEdges = /** @type {!Array<genotet.EdgeForTable>} */
+            (dt.rows({selected: true}).data());
+          var additionEdges = [];
+          for (var i = 0; i < selectedEdges.length; i++) {
+            additionEdges.push({
+              id: selectedEdges[i].id,
+              source: selectedEdges[i].source.toLowerCase(),
+              target: selectedEdges[i].target.toLowerCase(),
+              weight: selectedEdges[i].originalWeight
+            });
+          }
+          var additionEdgeIds = additionEdges.map(function(edge) {
+            return edge.id;
           });
-          edgesForTable.forEach(function(edge) {
-            if (edge.id == selectedEdge.id) {
+          var additionEdgeIdMap = genotet.utils.keySet(additionEdgeIds);
+          this.edgesForTable_.forEach(function(edge) {
+            if (edge.id in additionEdgeIdMap) {
               edge.added = true;
             }
           });
-        }.bind(this)
+          this.signal('addEdges', additionEdges);
+          this.signal('highlightEdges', additionEdgeIds);
+
+          // refresh the rows
+          dt.rows({selected: true}).invalidate();
+          // change the button status
+          dt.buttons(0).enable(false);  // the addition button
+          dt.buttons(1).enable(true);   // the removal button
+        }.bind(this),
+        enabled: false
       },
       {
-        extend: 'selectedSingle',
-        text: 'remove',
+        text: 'Remove',
+        className: 'btn btn-default',
         action: function(e, dt, node, config) {
-          var selectedEdge = dt.rows({selected: true}).data()[0];
-          this.signal('removeEdge', {
-            id: selectedEdge.id,
-            source: selectedEdge.source,
-            target: selectedEdge.target,
-            weight: selectedEdge.originalWeight
+          var selectedEdges = /** @type {!Array<genotet.EdgeForTable>} */
+            (dt.rows({selected: true}).data());
+          var removalEdges = [];
+          for (var i = 0; i < selectedEdges.length; i++) {
+            removalEdges.push({
+              id: selectedEdges[i].id,
+              source: selectedEdges[i].source.toLowerCase(),
+              target: selectedEdges[i].target.toLowerCase(),
+              weight: selectedEdges[i].originalWeight
+            });
+          }
+          var removalEdgeIds = removalEdges.map(function(edge) {
+            return edge.id;
           });
-          edgesForTable.forEach(function(edge) {
-            if (edge.id == selectedEdge.id) {
+          var removalEdgeIdMap = genotet.utils.keySet(removalEdgeIds);
+          this.edgesForTable_.forEach(function(edge) {
+            if (edge.id in removalEdgeIdMap) {
               edge.added = false;
             }
           });
-        }.bind(this)
-      },
-      'pageLength'
+
+          // change panel, renderer and network data in memory
+          this.signal('highlightEdges', []);
+          this.signal('removeEdges', removalEdges);
+          this.signal('hideEdgeInfo', {
+            edges: removalEdges,
+            force: false
+          });
+          // refresh the row
+          dt.rows({selected: true}).invalidate();
+          // change the button status
+          dt.buttons(0).enable(true);   // the addition button
+          dt.buttons(1).enable(false);  // the removal button
+        }.bind(this),
+        enabled: false
+      }
     ],
     lengthMenu: [5, 10, 20, 50],
     pageLength: 5,
     pagingType: 'full'
   });
 
+  table.on('click', function() {
+    var data = /** @type {!Array<genotet.EdgeForTable>} */
+      (this.dataTable_.rows({selected: true}).data());
+    if (data.length > 0) {
+      var allSame = true;
+      if (data.length > 1) {
+        for (var i = 1; i < data.length; i++) {
+          if (data[i].added != data[i - 1].added) {
+            allSame = false;
+            break;
+          }
+        }
+      }
+      if (allSame) {
+        var firstEdge = data[0];
+        // the addition button
+        this.dataTable_.button(0).enable(!firstEdge.added);
+        // the removal button
+        this.dataTable_.button(1).enable(firstEdge.added);
+      } else {
+        this.dataTable_.button(0).disable();
+        this.dataTable_.button(1).disable();
+      }
+      var edgeIds = [];
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].added) {
+          edgeIds.push(data[i].id);
+        }
+      }
+
+      if (edgeIds.length == 1) {
+        var networkEdge = this.data.network.edgeMap[edgeIds[0]];
+        this.signal('showEdgeInfo', networkEdge);
+      } else if (edgeIds.length > 1) {
+        this.signal('multiEdgeInfo');
+      } else {
+        this.signal('hideEdgeInfo', {
+          edges: [],
+          force: true
+        });
+      }
+      this.signal('highlightEdges', edgeIds);
+    }
+  }.bind(this));
+
   table.closest('#edge-list').css('width',
     /** @type {number} */(table.width()));
+};
+
+/**
+ * Updates the table for edge removal.
+ * @param {!genotet.NetworkEdge} edge Edge to be removed.
+ */
+genotet.NetworkTable.prototype.removeEdge = function(edge) {
+  if (!this.edgesForTable_ || !this.dataTable_) {
+    return;
+  }
+  this.edgesForTable_.forEach(function(edgeForTable) {
+    if (edgeForTable.id == edge.id) {
+      edgeForTable.added = false;
+    }
+  });
+  this.dataTable_.rows().invalidate();
 };

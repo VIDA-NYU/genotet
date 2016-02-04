@@ -13,6 +13,7 @@ var binding = require('./binding.js');
 var expression = require('./expression.js');
 var uploader = require('./uploader.js');
 var bed = require('./bed.js');
+var mapping = require('./mapping.js');
 
 // Application
 var app = express();
@@ -62,6 +63,11 @@ var uploadPath;
  */
 var bedPath;
 /**
+ * Path of mapping files.
+ * @type {string}
+ */
+var mappingPath;
+/**
  * Path of config file.
  * @type {string}
  */
@@ -110,6 +116,9 @@ function config() {
       case 'bedPath':
         bedPath = value;
         break;
+      case 'mappingPath':
+        mappingPath = value;
+        break;
     }
   }
 }
@@ -147,8 +156,10 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     case 'bed':
       prefix = bedPath;
       break;
+    case 'mapping':
+      prefix = mappingPath;
+      break;
   }
-  console.log(req);
   var body = {
     type: req.body.type,
     name: req.body.name,
@@ -211,6 +222,11 @@ app.get('/genotet', function(req, res) {
       data = bed.query.motifs(query, bedPath);
       break;
 
+    // Mapping data queries
+    case 'mapping':
+      data = mapping.query.getMapping(query, mappingPath);
+      break;
+
     // Data listing
     case 'list-network':
       data = network.query.list(networkPath);
@@ -223,6 +239,9 @@ app.get('/genotet', function(req, res) {
       break;
     case 'list-bed':
       data = bed.query.list(bedPath);
+      break;
+    case 'list-mapping':
+      data = mapping.query.list(mappingPath);
       break;
 
     // Undefined type, error

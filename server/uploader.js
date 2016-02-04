@@ -43,6 +43,7 @@ uploader.DOUBLE_SIZE_ = 8;
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
   var fileName = file.originalname;
+  console.log('i am ' + file.originalname);
   if (fs.existsSync(prefix + fileName) ||
     fs.existsSync(prefix + fileName + '_chr')) {
     return {
@@ -73,11 +74,13 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
       };
     });
 
-  // write down the network name and description
-  var fd = fs.openSync(prefix + fileName + '.txt', 'w');
-  fs.writeSync(fd, desc.name + '\n');
-  fs.writeSync(fd, desc.description);
-  fs.closeSync(fd);
+  if (desc.type != 'mapping') {
+    // write down the data name and description
+    var fd = fs.openSync(prefix + fileName + '.txt', 'w');
+    fs.writeSync(fd, desc.name + '\n');
+    fs.writeSync(fd, desc.description);
+    fs.closeSync(fd);
+  }
   return {};
 };
 

@@ -32,7 +32,7 @@ genotet.NetworkRenderer = function(container, data) {
    * Node objects storing the rendering properties of network nodes.
    * Node objects are used by D3 force-directed layout.
    * The keys of the object is the node IDs. Currently ID is the node name.
-   * @private {!Object<!Object>}
+   * @private {!Object<!genotet.NetworkNode>}
    */
   this.nodes_ = {};
 
@@ -40,7 +40,7 @@ genotet.NetworkRenderer = function(container, data) {
    * Edge objects storing the rendering properties of network edges.
    * Edge objects are used by D3 force-directed layout.
    * The keys of the object is {source node ID} + ',' + {target node ID}
-   * @private {!Object<!Object>}
+   * @private {!Object<!genotet.RenderEdge>}
    */
   this.edges_ = {};
 
@@ -441,11 +441,13 @@ genotet.NetworkRenderer.prototype.drawEdges_ = function() {
     .style('stroke', getEdgeColor)
     .style('fill', getEdgeColor)
     .on('click', function(edge) {
-      this.signal('edgeClick', edge);
-      this.selectEdge(edge);
+      var networkEdge = this.data.network.edgeMap[edge.id];
+      this.signal('edgeClick', networkEdge);
+      this.selectEdges([edge]);
     }.bind(this))
     .on('mouseenter', function(edge) {
-      this.signal('edgeHover', edge);
+      var networkEdge = this.data.network.edgeMap[edge.id];
+      this.signal('edgeHover', networkEdge);
     }.bind(this))
     .on('mouseleave', function(edge) {
       this.signal('edgeUnhover', edge);
@@ -516,13 +518,27 @@ genotet.NetworkRenderer.prototype.selectNode = function(node) {
 
 /**
  * Selects an edge to highlight it.
- * @param {!Object} edge Edge selected.
+ * @param {!Array<!Object>} edges Edges selected.
  */
-genotet.NetworkRenderer.prototype.selectEdge = function(edge) {
-  this.data.edgeSelected = edge;
-  var idSelected = edge.id;
+genotet.NetworkRenderer.prototype.selectEdges = function(edges) {
+  this.data.edgesSelected = edges;
+  var idsSelected = genotet.utils.keySet(edges.map(function(edge) {
+    return edge.id;
+  }));
   this.svgEdges_.selectAll('g')
     .classed('active', function(edge) {
-      return edge.id == idSelected;
+      return edge.id in idsSelected;
     }.bind(this));
+};
+
+/**
+ * Finds edges and select/highlight it.
+ * @param {!Array<string>} edgeIds The ids of the edge to be found.
+ */
+genotet.NetworkRenderer.prototype.findSelectEdges = function(edgeIds) {
+  var selectedEdges = _.values(_.pick(this.edges_, edgeIds));
+  this.selectEdges(selectedEdges);
+  if (selectedEdges.length > 1) {
+    this.signal('showMultiEdges');
+  }
 };

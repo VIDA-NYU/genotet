@@ -4,16 +4,13 @@
     <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
     <input class="form-control input-with-update">
   </div>
-  <div id="input-type" class="panel-section">
-    <div class="item-title">Input Type</div>
-      <div class="input-checkbox" id="gene-input-type">
-        <label class="radio-inline"><input type="radio" name="regex">regex</label>
-        <label class="radio-inline"><input type="radio" name="string">string</label>
-      </div>
-  </div>
   <div id="genes" class="panel-section">
     <div class="item-title">Genes</div>
     <input class="form-control">
+    <div id="gene-input" class="input-checkbox">
+      <label class="radio-inline" name="string"><input type="radio" name="optradio" checked>text</label>
+      <label class="radio-inline" name="regex"><input type="radio" name="optradio">regex</label>
+    </div>
     <div class="sub-buttons">
       <button id="set" class="btn btn-default btn-xs glyphicon glyphicon-refresh" title="set genes"></button>
       <button id="add" class="btn btn-default btn-xs glyphicon glyphicon-plus" title="add genes"></button>
@@ -78,8 +75,13 @@
     <div id="is-tf">
       Transcription Factor
     </div>
-    <div id="subtiwiki">
-      <a target="_blank">subtiwiki</a>
+    <div id="node-sub-info" class="row">
+      <div id="subtiwiki" class="col-xs-6">
+        <a target="_blank">subtiwiki</a>
+      </div>
+      <div id="rm-gene" class="sub-buttons col-xs-6">
+        <button type="button" class="btn btn-default btn-xs glyphicon glyphicon-minus"></button>
+      </div>
     </div>
   </div>
   <div id="edge-info-template" style="display: none;">
@@ -92,12 +94,18 @@
       <label>Target</label>
       <span></span>
     </div>
-    <div id="weight">
-      <label>Weight</label>
-      <span></span>
+    <div id="edge-sub-info" class="row">
+      <div id="weight" class="col-xs-6">
+        <label>Weight</label>
+        <span></span>
+      </div>
+      <div id="rm-edge" class="sub-buttons col-xs-6">
+        <button type="button" class="btn btn-default btn-xs glyphicon glyphicon-minus"></button>
+      </div>
     </div>
-    <div id="rm-edge">
-      <button type="button" class="btn btn-primary">remove</button>
-    </div>
+  </div>
+  <div id="edge-info-multi-template" style="display: none;">
+    <button type="button" class="close">&times;</button>
+    <p>Multiple edges selected.</p>
   </div>
 </div>
