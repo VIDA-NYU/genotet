@@ -29,6 +29,7 @@ mapping.query.GetMapping;
  */
 mapping.query.list = function(mappingPath) {
   return fs.readdirSync(mappingPath).filter(function(fileName) {
+    // filter the files starting with '.' which are hidden files
     return fileName[0] != '.';
   });
 };

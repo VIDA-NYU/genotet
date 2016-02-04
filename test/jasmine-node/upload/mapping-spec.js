@@ -15,7 +15,7 @@ mappingSpec.dataInfo = {
 };
 
 /**
- * Test cases of mapping data.
+ * Test cases for mapping queries.
  * @type {!Array<{
  *   name: string,
  *   action: function(!frisby),

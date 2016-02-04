@@ -8,7 +8,7 @@ var data = require('../data.js');
 var bedSpec = {};
 
 /**
- * Data information of test cases.
+ * Data information for test cases.
  * @type {{
  *   name: string,
  *   description: string,
@@ -22,7 +22,7 @@ bedSpec.dataInfo = {
 };
 
 /**
- * Test cases of bed data.
+ * Test cases for bed queries.
  * @type {!Array<{
  *   name: string,
  *   action: function(!frisby),

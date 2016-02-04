@@ -9,7 +9,7 @@ var data = require('../data.js');
 var networkSpec = {};
 
 /**
- * Data information of network tests.
+ * Data information for network tests.
  * @type {{
  *   name: string,
  *   description: string,
@@ -43,7 +43,7 @@ networkSpec.dataInfo = {
 networkSpec.QueryResponse;
 
 /**
- * Test cases of network queries.
+ * Test cases for network queries.
  * @type {!Array<{
  *   name: string,
  *   action: function(!frisby),
