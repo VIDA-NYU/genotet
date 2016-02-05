@@ -190,15 +190,10 @@ genotet.BindingView = function(viewName, params) {
           fileName: mappingFileName
         };
         $.get(genotet.data.serverURL, params, function(data) {
-            var mappingName = {
-              'maf': 'SL971_SL970',
-              'mafg': 'SL1851',
-              'stat3': 'SL10572_SL10566'
-            };
-            // var mappingName = data;
-            var fileName = mappingName[sourceGene];
-            this.signal('updateLinkTrack', fileName);
-          }.bind(this), 'jsonp')
+          var mappingName = data;
+          var fileName = mappingName[sourceGene];
+          this.signal('updateLinkTrack', fileName);
+        }.bind(this), 'jsonp')
           .fail(function() {
             genotet.error('failed to get gene-binding mapping file');
           });

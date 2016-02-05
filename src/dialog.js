@@ -294,11 +294,16 @@ genotet.dialog.mapping_ = function() {
           var selectpicker = modal.find('.selectpicker');
           data.push('Direct Mapping');
           data.forEach(function(fileName) {
-            $('<option></option>')
-              .text(fileName)
-              .appendTo(selectpicker);
+            var option = $('<option></option>')
+              .text(fileName);
+            option.appendTo(selectpicker);
+            if (fileName == genotet.data.mappingFile['gene-binding']) {
+              option.prop('selected', true);
+            }
           });
           selectpicker.selectpicker('refresh');
+          selectpicker.val(genotet.data.mappingFile['gene-binding'])
+            .trigger('change');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get binding list');
