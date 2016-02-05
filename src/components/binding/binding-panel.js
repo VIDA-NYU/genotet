@@ -179,15 +179,6 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
  * Updates the gene selected for each track.
  */
 genotet.BindingPanel.prototype.updateTracks = function() {
-  var numTracks = this.data.tracks.length;
-  var uiTracks = this.container.find('#genes .track-gene');
-  if (uiTracks.length > numTracks) {
-    // Track has been removed.
-    for (var index = uiTracks.length - 1; index >= numTracks; index--) {
-      this.container.find('#genes #track-' + index).remove();
-    }
-  }
-
   this.signal('loadBindingList');
 
   this.container.find('#genes .glyphicon-remove')
@@ -198,6 +189,15 @@ genotet.BindingPanel.prototype.updateTracks = function() {
  * Updates the track list for panel.
  */
 genotet.BindingPanel.prototype.updateTrackList = function() {
+  var numTracks = this.data.tracks.length;
+  var uiTracks = this.container.find('#genes .track-gene');
+  if (uiTracks.length > numTracks) {
+    // Track has been removed.
+    for (var index = uiTracks.length - 1; index >= numTracks; index--) {
+      this.container.find('#genes #track-' + index).remove();
+    }
+  }
+
   var fileNames = genotet.data.bindingFiles.map(function(dataInfo) {
     return {
       id: dataInfo.fileName,

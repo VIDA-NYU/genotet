@@ -8,10 +8,10 @@
 genotet.options = {};
 
 /**
- * Genes-binding mapping file.
- * @type {string}
+ * Mapping files.
+ * @type {!Object<string>}
  */
-genotet.data.geneBindingMappingFile;
+genotet.data.mappingFile = {};
 
 /**
  * Whether to allow the message bar to popup.

@@ -206,20 +206,19 @@ genotet.ExpressionView = function(viewName, params) {
     }.bind(this));
 
   // Set up link callbacks.
-  $(this).on('genotet.link', function(event, linkData) {
-    switch (linkData.response) {
-      case 'addGeneProfile':
-        var geneName = this.data.lowerGeneNames[linkData.data];
-        var geneIndex = this.data.matrix.geneNames.indexOf(geneName);
-        var isExistent = $.grep(this.data.profiles, function(obj) {
+  $(this).on('genotet.addProfile', function(event, data) {
+    var genes = data.id.split(',');
+    genes.forEach(function(gene) {
+      var geneName = this.data.lowerGeneNames[gene];
+      var geneIndex = this.data.matrix.geneNames.indexOf(geneName);
+      var isExistent = this.data.profiles.filter(function(obj) {
           return obj.geneName == geneName;
         }).length != 0;
-        if (geneIndex != -1 && !isExistent) {
-          this.panel.signal('addGeneProfile', geneIndex);
-          this.loader.signal('updatePanel');
-        }
-        break;
-    }
+      if (geneIndex != -1 && !isExistent) {
+        this.panel.signal('addGeneProfile', geneIndex);
+        this.loader.signal('updatePanel');
+      }
+    }, this);
   }.bind(this));
 };
 

@@ -94,7 +94,7 @@ genotet.viewManager.closeView = function(view) {
   // Remove the view reference.
   delete genotet.viewManager.views[view.name()];
   genotet.panelManager.removePanel(view.name());
-  genotet.linkManager.removeLink(view.name());
+  genotet.linkManager.removeLinks(view.name());
 };
 
 /**

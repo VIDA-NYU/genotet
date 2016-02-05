@@ -177,17 +177,50 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this));
 
   // Set up link callbacks.
-  $(this).on('genotet.link', function(event, linkData) {
-    switch (linkData.response) {
-      case 'locus':
-        this.panel.signal('locus', linkData.data);
-        break;
-      case 'updateTrack':
-        this.panel.signal('updateTrack', linkData.data);
-        this.loader.signal('addPanelTrack');
-        break;
-    }
-  }.bind(this));
+  $(this)
+    .on('genotet.updateTrack', function(event, data) {
+      var sourceGene = data.id.split(',')[0];
+      var mappingFileName = genotet.data.mappingFile['gene-binding'];
+      if (mappingFileName == 'Direct Mapping') {
+        var fileName = sourceGene + '.bw';
+        this.signal('updateLinkTrack', fileName);
+      } else {
+        var params = {
+          type: 'mapping',
+          fileName: mappingFileName
+        };
+        $.get(genotet.data.serverURL, params, function(data) {
+            var mappingName = {
+              'maf': 'SL971_SL970',
+              'mafg': 'SL1851',
+              'stat3': 'SL10572_SL10566'
+            };
+            // var mappingName = data;
+            var fileName = mappingName[sourceGene];
+            this.signal('updateLinkTrack', fileName);
+          }.bind(this), 'jsonp')
+          .fail(function() {
+            genotet.error('failed to get gene-binding mapping file');
+          });
+      }
+    }.bind(this))
+    .on('genotet.updateLinkTrack', function(event, fileName) {
+      if (!fileName) {
+        genotet.warning('mapping file not found');
+        return;
+      }
+      this.panel.signal('updateTrack', {
+        trackIndex: 0,
+        fileName: fileName
+      });
+      this.loader.signal('addPanelTrack');
+    }.bind(this))
+    .on('genotet.locus', function(event, data) {
+      var targetGene = data.id.split(',')[1];
+      if (targetGene) {
+        this.panel.signal('locus', targetGene);
+      }
+    }.bind(this));
 };
 
 genotet.utils.inherit(genotet.BindingView, genotet.View);

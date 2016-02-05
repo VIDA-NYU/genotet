@@ -29,7 +29,7 @@ genotet.dialog.TEMPLATES_ = {
   network: 'templates/create-network.html',
   binding: 'templates/create-binding.html',
   expression: 'templates/create-expression.html',
-  mapping: 'templates/choose-mapping.html',
+  mapping: 'templates/mapping.html',
   upload: 'templates/upload.html'
 };
 
@@ -59,7 +59,7 @@ genotet.dialog.create = function(type) {
       genotet.dialog.organism_();
       break;
     case 'choose-mapping':
-      genotet.dialog.chooseMapping_();
+      genotet.dialog.mapping_();
       break;
     case 'upload':
       genotet.dialog.upload_();
@@ -278,10 +278,10 @@ genotet.dialog.createExpression_ = function() {
 };
 
 /**
- * Choose gene-binding mapping files for link query.
+ * Shows a dialog for the user to choose mapping files for linked queries.
  * @private
  */
-genotet.dialog.chooseMapping_ = function() {
+genotet.dialog.mapping_ = function() {
   var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.mapping,
     function() {
@@ -292,6 +292,7 @@ genotet.dialog.chooseMapping_ = function() {
       };
       $.get(genotet.data.serverURL, params, function(data) {
           var selectpicker = modal.find('.selectpicker');
+          data.push('Direct Mapping');
           data.forEach(function(fileName) {
             $('<option></option>')
               .text(fileName)
@@ -306,7 +307,8 @@ genotet.dialog.chooseMapping_ = function() {
       // Create
       modal.find('#btn-choose').click(function() {
         var fileName = modal.find('#mapping-file').val();
-        genotet.data.geneBindingMappingFile = /** @type {string} */(fileName);
+        genotet.data.mappingFile['gene-binding'] =
+        /** @type {string} */(fileName);
       });
     });
 };

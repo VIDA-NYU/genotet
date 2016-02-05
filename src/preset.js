@@ -117,7 +117,7 @@ genotet.preset.loadPreset = function(preset) {
       genotet.error('unknown preset:', preset);
       return;
   }
-  genotet.linkManager.link();
+  genotet.linkManager.registerAllViews();
 };
 
 /**
@@ -130,31 +130,4 @@ genotet.preset.loadPreset = function(preset) {
  */
 genotet.preset.createView_ = function(type, viewName, params) {
   genotet.viewManager.createView(type, viewName, params);
-
-  var newView = genotet.viewManager.views[viewName];
-  switch (type) {
-    case 'network':
-      genotet.linkManager.register(newView);
-      break;
-    case 'expression':
-      for (var linkViewName in genotet.linkManager.links) {
-        var sender = genotet.viewManager.views[linkViewName];
-        genotet.linkManager.NETWORK_ACTIONS.forEach(function(action) {
-          genotet.linkManager.EXPRESSION_ACTIONS.forEach(function(response) {
-            genotet.linkManager.register(sender, action, newView, response);
-          });
-        });
-      }
-      break;
-    case 'binding':
-      for (var linkViewName in genotet.linkManager.links) {
-        var sender = genotet.viewManager.views[linkViewName];
-        genotet.linkManager.NETWORK_ACTIONS.forEach(function(action) {
-          genotet.linkManager.BINDING_ACTIONS.forEach(function(response) {
-            genotet.linkManager.register(sender, action, newView, response);
-          });
-        });
-      }
-      break;
-  }
 };
