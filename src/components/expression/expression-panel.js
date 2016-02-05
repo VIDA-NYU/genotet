@@ -19,7 +19,7 @@ genotet.ExpressionPanel = function(data) {
     showGeneLabels: true,
     showConditionLabels: true,
     showProfiles: true,
-    showTfaProfiles: true,
+    showTfaProfiles: false,
     autoScaleGradient: true
   });
 

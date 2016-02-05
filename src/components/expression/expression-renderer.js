@@ -309,6 +309,13 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
     .classed('profile-content', true);
 
   /**
+   * SVG group for profile point.
+   * @private {!d3}
+   */
+  this.profilePoint_ = this.svgProfile_.append('g')
+    .classed('profile-point', true);
+
+  /**
    * SVG group for TFA profile plot (line charts).
    * @private {!d3}
    */
@@ -335,6 +342,13 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
    */
   this.tfaProfileContent_ = this.svgTfaProfile_.append('g')
     .classed('profile-content', true);
+
+  /**
+   * SVG group for TFA profile point.
+   * @private {!d3}
+   */
+  this.tfaProfilePoint_ = this.svgTfaProfile_.append('g')
+    .classed('profile-point', true);
 
   /**
    * SVG group for the heatmap plot.
@@ -1024,10 +1038,13 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     this.profileHeight_ - this.profileMargins_.bottom,
     yScaleTop
   ]).domain([heatmapData.valueMin, heatmapData.valueMax]);
+  var yAxisLength = this.profileHeight_ - this.profileMargins_.bottom -
+    yScaleTop;
   var xAxis = d3.svg.axis()
     .scale(xScale).orient('bottom');
   var yAxis = d3.svg.axis()
-    .scale(yScale).orient('left');
+    .scale(yScale).orient('left')
+    .ticks(Math.floor(yAxisLength / this.TEXT_HEIGHT));
   this.svgProfileXAxis_.call(xAxis);
   this.svgProfileYAxis_.call(yAxis);
 
@@ -1125,10 +1142,13 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
     this.tfaProfileHeight_ - this.profileMargins_.bottom,
     yScaleTop
   ]).domain([tfaData.valueMin, tfaData.valueMax]);
+  var yAxisLength = this.tfaProfileHeight_ - this.profileMargins_.bottom -
+    yScaleTop;
   var xAxis = d3.svg.axis()
     .scale(xScale).orient('bottom');
   var yAxis = d3.svg.axis()
-    .scale(yScale).orient('left');
+    .scale(yScale).orient('left')
+    .ticks(Math.floor(yAxisLength / this.TEXT_HEIGHT));
   this.svgTfaProfileXAxis_.call(xAxis);
   this.svgTfaProfileYAxis_.call(yAxis);
 

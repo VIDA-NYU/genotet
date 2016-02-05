@@ -139,6 +139,11 @@ d3.axis.prototype.orient = function(dir) {};
  */
 d3.axis.prototype.scale = function(scale) {};
 
+/**
+ * @param {!Array<number>} arg
+ */
+d3.axis.prototype.ticks = function(arg) {};
+
 
 /** @typedef {Function} */
 d3.line;
