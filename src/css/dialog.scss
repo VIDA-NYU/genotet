@@ -57,6 +57,16 @@
     }
   }
 
+  .input-checkbox {
+    float: left;
+    font-size: 12px;
+
+    input {
+      height: 10px;
+      width: 100%;
+    }
+  }
+
   .btn-organism {
     height: 50px;
     width: 100px;
