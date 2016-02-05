@@ -9,7 +9,7 @@ var floats = require('../floats.js');
 var bindingSpec = {};
 
 /**
- * Data information for tests
+ * Data information for tests.
  * @type {{
  *   name: string,
  *   description: string,
