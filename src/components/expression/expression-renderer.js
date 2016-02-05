@@ -234,6 +234,9 @@ genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN = 10;
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_MARGIN = 40;
 
 /** @const {number} */
+genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_CIRCLE_SIZE = 1;
+
+/** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_HEATMAP_GRADIENT_HEIGHT = 20;
 
 /** @const {number} */
@@ -1107,6 +1110,33 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
       this.signal('expressionClick', this.clickedObject_);
     }.bind(this));
   profilePath.exit().remove();
+
+  var profilePointGroup = this.profilePoint_.selectAll('g')
+    .data(this.data.profiles);
+  profilePointGroup.enter().append('g');
+  profilePointGroup.exit().remove();
+  var profilePoint = profilePointGroup.selectAll('circle')
+    .data(function(profile) {
+      console.log(profile);
+      return heatmapData.values[profile.row];
+    });
+  profilePoint.enter().append('circle');
+  profilePoint
+    .attr('r', this.DEFAULT_PROFILE_CIRCLE_SIZE)
+    .attr('cx', function(value, i) {
+      return xScale(i + 0.5);
+    })
+    .attr('cy', function(value) {
+      return yScale(value);
+    });
+  profilePoint.exit().remove();
+  //profilePointGroup.selectAll('circle')
+  //  .style('fill', function(profile) {
+  //    return profile.color;
+  //  })
+  //  .style('stroke', function(profile) {
+  //    return profile.color;
+  //  });
 };
 
 /**

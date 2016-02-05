@@ -64,7 +64,7 @@ d3.prototype.empty = function() {};
 d3.prototype.filter = function(selector) {};
 
 /**
- * @param {!Array<*>} arg
+ * @param {Array<*>=} arg
  * @param {Function=} opt_mapping
  */
 d3.prototype.data = function(arg, opt_mapping) {};
