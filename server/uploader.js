@@ -30,13 +30,27 @@ uploader.ENTRY_SIZE_ = 12;
 uploader.DOUBLE_SIZE_ = 8;
 
 /**
+ * @typedef {{
+ *   filedname: string,
+ *   originalname: string,
+ *   encoding: string,
+ *   mimetype: string,
+ *   destination: string,
+ *   path: string,
+ *   filename: string,
+ *   size: number
+ * }}
+ */
+uploader.MulterFile;
+
+/**
  * Uploads a file or a directory to server.
  * @param {{
  *   type: string,
  *   name: string,
- *   description: string
+ *   description: string,
  * }} desc File description.
- * @param {!Object} file File object received from multer.
+ * @param {!uploader.MulterFile} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
  * @return {Object} Success or not as a JS Object.

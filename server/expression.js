@@ -19,7 +19,7 @@ function expression() {}
  *   numcols: number,
  *   rownames: !Array<string>,
  *   colnames: !Array<string>,
- *   values: !Array<!Array<number>>
+ *   values: !Array<number>
  * }}
  */
 expression.RawMatrix;
@@ -173,33 +173,34 @@ expression.readMatrix_ = function(buf) {
 
 /**
  * Reads the TFA matrix data from the given buffer.
- * @param {!Buffer} buf Buffer of the TFA matrix data file.
+ * @param {string} fileName Name of the TFA matrix data file.
  * @return {!expression.RawMatrix} The TFA matrix data as a JS object.
  * @private
  */
-expression.readTFAmat_ = function(buf) {
-  var result = {};
-  var offset = 0;
-  var n = buf.readInt32LE(0);
-  var m = buf.readInt32LE(4);
-  var lrows = buf.readInt32LE(8);
-  var lcols = buf.readInt32LE(12);
-  offset += 16;
-  var rowstr = buf.toString('utf8', offset, offset + lrows); offset += lrows;
-  var colstr = buf.toString('utf8', offset, offset + lcols); offset += lcols;
-  result.numrows = n;
-  result.numcols = m;
-  result.rownames = rowstr.split(' ');
-  result.colnames = colstr.split(' ');
-  result.values = [];
-  for (var i = 0; i < n; i++) {
-    for (var j = 0; j < m; j++) {
-      var val = buf.readDoubleLE(offset);
-      offset += 8;
-      result.values.push(val);
-    }
+expression.readTFAmat_ = function(fileName) {
+  var lines = fs.readFileSync(fileName).toString().split('\n');
+  var parts = lines[0].split(/[\t\s]+/);
+  var n = parseInt(parts[0], 10);
+  var m = parseInt(parts[1], 10);
+  var rownames = [];
+  for (var i = 1; i <= n; i++) {
+    rownames.push(lines[i]);
   }
-  return result;
+  var colnames = [];
+  for (var i = n + 1; i <= n + m; i++) {
+    colnames.push(lines[i]);
+  }
+  var values = [];
+  for (var i = n + m + 1; i <= n + m + n * m; i++) {
+    values.push(parseFloat(lines[i]));
+  }
+  return {
+    numrows: n,
+    numcols: m,
+    rownames: rownames,
+    colnames: colnames,
+    values: values
+  };
 };
 
 /**
@@ -211,13 +212,8 @@ expression.readTFAmat_ = function(buf) {
  * @private
  */
 expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
-  var bufTfa = utils.readFileToBuf(fileName);
-  if (bufTfa == null) {
-    console.error('cannot read file', fileName);
-    return null;
-  }
-  var resultTfa = expression.readTFAmat_(/** @type {!Buffer} */(bufTfa));
-
+  var resultTfa = expression.readTFAmat_(fileName);
+  console.log(resultTfa.values.length);
   var allTfaValues = [];
   var allGeneNames = {};
   var allConditionNames = {};

@@ -129,7 +129,6 @@ network.query.combinedRegulation = function(query, networkPath) {
   var fileName = query.fileName;
   var geneRegex = utils.decodeSpecialChar(query.geneRegex);
   var file = networkPath + fileName;
-  // TODO(jiaming): fix old file read
   return network.getComb_(file, geneRegex);
 };
 
@@ -312,12 +311,7 @@ network.getIncidentEdges_ = function(file, gene) {
  */
 network.getComb_ = function(file, exp) {
   console.log('get combination', file, exp);
-  var buf = utils.readFileToBuf(file);
-  if (buf == null) {
-    console.error('cannot read file', file);
-    return [];
-  }
-  var result = network.readNet_(buf);
+  var result = network.readNetwork_(file);
   var regex;
   try {
     regex = RegExp(exp, 'i');
