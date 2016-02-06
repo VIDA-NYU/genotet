@@ -187,6 +187,7 @@ genotet.BindingRenderer.prototype.init = function() {
  */
 genotet.BindingRenderer.prototype.getBindingRanges_ = function() {
   if (this.data.overviewRangeChanged) {
+    this.data.overviewRangeChanged = false;
     this.xScaleZoom_
       .domain([this.data.overviewXMin, this.data.overviewXMax])
       .range([0, this.canvasWidth]);

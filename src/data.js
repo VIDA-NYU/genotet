@@ -21,9 +21,9 @@ genotet.data.uploadURL;
 
 /**
  * Genes with binding data available in the Genotet system.
- * @type {!Array<string>}
+ * @type {!Array}
  */
-genotet.data.bindingGenes = [];
+genotet.data.bindingFiles = [];
 
 /**
  * Binding data chromosomes. The array is created upon Data initialization.

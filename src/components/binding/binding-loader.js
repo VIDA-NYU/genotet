@@ -37,10 +37,30 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
 genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
                                                 opt_track) {
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
+  var isAddTrack = !opt_track;
   this.data.chr = chr;
-  this.loadFullTrack(trackIndex, fileName, chr);
+  this.loadFullTrack(trackIndex, fileName, chr, isAddTrack);
   this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
   this.loadExons_(chr);
+};
+
+/**
+ * Loads the binding data for multiple genes and chromosome in preset mode,
+ * and the genes are added at the end of the tracks list.
+ * @param {!Array<string>} fileNames Binding file names.
+ * @param {string} bedName Bed name of the bed binding track.
+ * @param {string} chr ID of the chromosome.
+ */
+genotet.BindingLoader.prototype.loadMultipleTracks = function(fileNames,
+                                                              bedName, chr) {
+  var trackIndex = this.data.tracks.length;
+  this.data.chr = chr;
+  this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
+  this.loadExons_(chr);
+
+  fileNames.forEach(function(fileName, i) {
+    this.loadFullTrack(trackIndex + i, fileName, chr, true);
+  }, this);
 };
 
 /**
@@ -77,9 +97,10 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
  * @param {number} trackIndex Track index.
  * @param {string} fileName Binding file name.
  * @param {string} chr Chromosome.
+ * @param {boolean} isAddTrack Whether it is adding a new track.
  */
 genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
-                                                         chr) {
+                                                         chr, isAddTrack) {
   var params = {
     type: 'binding',
     fileName: fileName,
@@ -87,16 +108,16 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
   };
   this.get(genotet.data.serverURL, params, function(data) {
     var track = {
+      gene: data.gene,
       fileName: fileName,
       overview: data,
       detail: data
     };
-    var addTrack = trackIndex == this.data.tracks.length;
     this.data.tracks[trackIndex] = track;
     this.updateRanges_();
-    if (addTrack) {
-      // Add one more track.
-      this.loadBindingList();
+    if (isAddTrack) {
+      // Add one more panel track.
+      this.signal('addPanelTrack');
     }
   }.bind(this), 'cannot load binding overview');
 
@@ -230,8 +251,10 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
   }, this);
 
   // Overview range may change, then need to reset zoom state.
-  this.data.overviewRangeChanged = overviewXMin != this.data.overviewXMin ||
-    overviewXMax != this.data.overviewXMax;
+  if (overviewXMin != this.data.overviewXMin ||
+    overviewXMax != this.data.overviewXMax) {
+    this.data.overviewRangeChanged = true;
+  }
 
   _.extend(this.data, {
     overviewXMin: overviewXMin,
@@ -254,10 +277,29 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
     type: 'list-binding'
   };
   this.get(genotet.data.serverURL, params, function(data) {
-    genotet.data.bindingGenes = [];
+    genotet.data.bindingFiles = [];
     data.forEach(function(dataInfo) {
-      genotet.data.bindingGenes.push(dataInfo.gene);
+      genotet.data.bindingFiles.push(dataInfo);
     });
-    this.signal('track');
+    this.signal('updateTracksAfterLoading');
   }.bind(this), 'cannot load binding list');
 };
+
+/**
+ * Loads gene-binding mapping data, and maps the gene to binding track
+ * file name.
+ * @param {string} mappingFileName File name of mapping file.
+ * @param {string} gene Gene name of mapping gene.
+ */
+genotet.BindingLoader.prototype.loadMapping = function(mappingFileName, gene) {
+  var params = {
+    type: 'mapping',
+    fileName: mappingFileName
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    var mappingName = data;
+    var fileName = mappingName[gene];
+    this.signal('updateTrackWithMapping', fileName);
+  }.bind(this), 'cannot load mapping file');
+};
+
