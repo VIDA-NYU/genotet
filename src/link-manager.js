@@ -60,7 +60,7 @@ genotet.linkManager.init = function() {
  * Registers link action and response for all the views.
  * @param {!Array<genotet.LinkDef>} links Link definition for all the views.
  */
-genotet.linkManager.registerAllViews = function(links) {
+genotet.linkManager.registerLinks = function(links) {
   links.forEach(function(link) {
     var sourceView = genotet.viewManager.views[link.sourceViewName];
     var targetView = genotet.viewManager.views[link.targetViewName];
@@ -81,7 +81,8 @@ genotet.linkManager.registerAllViews = function(links) {
 };
 
 /**
- * Registers link action and response for views.
+ * Registers one link. Pushes the link to adjacency list and sets up event
+ * listener.
  * @param {!genotet.Link} link Link for the views.
  * @private
  */

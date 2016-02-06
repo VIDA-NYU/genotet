@@ -12,7 +12,7 @@ genotet.preset = {};
  * @private @const {!genotet.NetworkViewParams}
  */
 genotet.preset.NETWORK_PARAMS_ = {
-  fileName: 'th17-link.tsv',
+  fileName: 'th17.tsv',
   inputGenes: 'BATF|RORC|STAT3|IRF4|MAF',
   isRegex: true
 };
@@ -124,7 +124,7 @@ genotet.preset.PRESETS = {
       }
     ]
   },
-  network: {
+  'network': {
     views: [
       {
         viewName: 'My Network',
@@ -164,7 +164,7 @@ genotet.preset.PRESETS = {
       }
     ]
   },
-  expression: {
+  'expression': {
     views: [
       {
         viewName: 'My Network',
@@ -192,7 +192,7 @@ genotet.preset.PRESETS = {
       }
     ]
   },
-  binding: {
+  'binding': {
     views: [
       {
         viewName: 'My Network',
@@ -269,6 +269,6 @@ genotet.preset.loadPreset = function(preset) {
   genotet.preset.PRESETS[preset].views.forEach(function(view) {
     genotet.viewManager.createView(view.viewType, view.viewName, view.params);
   });
-  genotet.linkManager.registerAllViews(
+  genotet.linkManager.registerLinks(
     genotet.preset.PRESETS[preset].links);
 };
