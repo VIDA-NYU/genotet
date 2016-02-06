@@ -66,25 +66,13 @@ genotet.ExpressionView = function(viewName, params) {
   /**
    * @protected {{
    *   matrix: genotet.ExpressionMatrix,
-   *   tfa: genotet.ExpressionTfa
+   *   tfa: genotet.ExpressionTfa,
+   *   profiles: !Array<genotet.ExpressionRenderer.Profile>,
+   *   tfaProfiles: !Array<genotet.ExpressionRenderer.Profile>,
+   *   zoomStack: !Array<genotet.ExpressionRenderer.ZoomStatus>
    * }}
    */
   this.data;
-
-  /**
-   * @protected {!Array<genotet.ExpressionRenderer.Profile>}
-   */
-  this.data.profiles = [];
-
-  /**
-   * @protected {!Array<genotet.ExpressionRenderer.Profile>}
-   */
-  this.data.tfaProfiles = [];
-
-  /**
-   * @protected {!Array<genotet.ExpressionRenderer.ZoomStatus>}
-   */
-  this.data.zoomStack = [];
 
   this.container.addClass('expression');
 
@@ -198,16 +186,22 @@ genotet.ExpressionView = function(viewName, params) {
   // Set up link callbacks.
   $(this)
     .on('genotet.addProfile', function(event, data) {
-      var genes = /** @type {!Array<string>} */ (data);
+      /**
+       * The genes array contains source and target genes of the clicked edge
+       * or the gene of the clicked node.
+       * @type {!Array<string>}
+       */
+      var genes = /** @type {!Array<string>} */(data);
       genes.forEach(function(gene) {
         var geneName = this.data.lowerGeneNames[gene];
-        var geneIndex = this.data.matrix.geneNames.indexOf(geneName);
+        var geneIndex = this.data.matrixGeneNameDict[geneName];
         var isExistent = this.data.profiles.filter(function(obj) {
             return obj.geneName == geneName;
-          }).length != 0;
+          }).length;
         if (geneIndex != -1 && !isExistent) {
-          this.panel.signal('addGeneProfile', geneIndex);
-          this.loader.signal('updatePanel');
+          this.renderer.addGeneProfile(geneIndex);
+          this.renderer.addTfaProfile(geneIndex);
+          this.panel.dataLoaded();
         }
       }, this);
     }.bind(this));

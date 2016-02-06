@@ -35,8 +35,8 @@ genotet.menu.init = function() {
 
   // Options section.
   // TODO(bowen): Add system options.
-  $('#option-mapping').click(function() {
-    genotet.dialog.create('choose-mapping');
+  $('#mapping').click(function() {
+    genotet.dialog.create('mapping');
   });
 
   // Help document.

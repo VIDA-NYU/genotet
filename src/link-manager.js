@@ -4,13 +4,23 @@
 
 /**
  * @typedef {{
- *   source: string,
+ *   sourceViewName: string,
  *   action: string,
- *   target: string,
+ *   targetViewName: string,
  *   response: string
  * }}
  */
-genotet.LinkSetting;
+genotet.LinkDef;
+
+/**
+ * @typedef {{
+ *   source: !genotet.View,
+ *   action: string,
+ *   target: !genotet.View,
+ *   response: string
+ * }}
+ */
+genotet.Link;
 
 /** @const */
 genotet.linkManager = {};
@@ -42,59 +52,55 @@ genotet.linkManager.DEFAULT_MAPPING = 'Direct Mapping';
  */
 genotet.linkManager.init = function() {
   genotet.linkManager.links = {};
-  genotet.data.mappingFile['gene-binding'] =
+  genotet.data.mappingFiles['gene-binding'] =
     genotet.linkManager.DEFAULT_MAPPING;
 };
 
 /**
  * Registers link action and response for all the views.
- * @param {!Array<genotet.LinkSetting>} linkSetting Link setting for all the
- * views.
+ * @param {!Array<genotet.LinkDef>} links Link definition for all the views.
  */
-genotet.linkManager.registerAllViews = function(linkSetting) {
-  linkSetting.forEach(function(object) {
-    var sourceView = genotet.viewManager.views[object.source];
-    var targetView = genotet.viewManager.views[object.target];
+genotet.linkManager.registerAllViews = function(links) {
+  links.forEach(function(link) {
+    var sourceView = genotet.viewManager.views[link.sourceViewName];
+    var targetView = genotet.viewManager.views[link.targetViewName];
     /*
      * TODO(Liana): Next version plans.
      * Link settings will be extended to user self-defined in next version.
-     * We need check whether the view is existed,
-     * because link settings are defined as constant in this version,
-     * which cannot be revised corresponding to views.
+     * We need check whether the view is existed, because link settings
+     * are defined as constant in this version, which cannot be revised
+     * corresponding to views.
      */
-    if (!sourceView || !targetView) {
-      return;
-    }
-    genotet.linkManager.register_(sourceView, object.action, targetView,
-      object.response);
+    genotet.linkManager.register_({
+      source: sourceView,
+      action: link.action,
+      target: targetView,
+      response: link.response
+    });
   });
 };
 
 /**
  * Registers link action and response for views.
- * @param {genotet.View} sender
- * @param {string} actionType
- * @param {genotet.View} receiver
- * @param {string} responseType
+ * @param {!genotet.Link} link Link for the views.
  * @private
  */
-genotet.linkManager.register_ = function(sender, actionType, receiver,
-                                        responseType) {
-  var senderName = sender.name();
+genotet.linkManager.register_ = function(link) {
+  var senderName = link.source.name();
   if (!(senderName in genotet.linkManager.links)) {
     genotet.linkManager.links[senderName] = {};
   }
-  if (!(actionType in genotet.linkManager.links[senderName])) {
-    genotet.linkManager.links[senderName][actionType] = [];
+  if (!(link.action in genotet.linkManager.links[senderName])) {
+    genotet.linkManager.links[senderName][link.action] = [];
   }
-  genotet.linkManager.links[senderName][actionType].push({
-    target: receiver,
-    response: responseType
+  genotet.linkManager.links[senderName][link.action].push({
+    target: link.target,
+    response: link.response
   });
 
   // Link the views.
-  $(sender).on('genotet.' + actionType, function(event, data) {
-    receiver.signal(responseType, data);
+  $(link.source).on('genotet.' + link.action, function(event, data) {
+    link.target.signal(link.response, data);
   });
 };
 

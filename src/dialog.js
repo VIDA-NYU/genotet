@@ -58,7 +58,7 @@ genotet.dialog.create = function(type) {
     case 'organism':
       genotet.dialog.organism_();
       break;
-    case 'choose-mapping':
+    case 'mapping':
       genotet.dialog.mapping_();
       break;
     case 'upload':
@@ -297,12 +297,12 @@ genotet.dialog.mapping_ = function() {
             var option = $('<option></option>')
               .text(fileName);
             option.appendTo(selectpicker);
-            if (fileName == genotet.data.mappingFile['gene-binding']) {
+            if (fileName == genotet.data.mappingFiles['gene-binding']) {
               option.prop('selected', true);
             }
           });
           selectpicker.selectpicker('refresh');
-          selectpicker.val(genotet.data.mappingFile['gene-binding'])
+          selectpicker.val(genotet.data.mappingFiles['gene-binding'])
             .trigger('change');
         }.bind(this), 'jsonp')
         .fail(function() {
@@ -312,7 +312,7 @@ genotet.dialog.mapping_ = function() {
       // Create
       modal.find('#btn-choose').click(function() {
         var fileName = modal.find('#mapping-file').val();
-        genotet.data.mappingFile['gene-binding'] =
+        genotet.data.mappingFiles['gene-binding'] =
         /** @type {string} */(fileName);
       });
     });

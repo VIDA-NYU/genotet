@@ -153,8 +153,8 @@ genotet.NetworkView = function(viewName, params) {
     .on('genotet.nodeClick', function(event, node) {
       this.panel.displayNodeInfo(node);
       this.loader.incidentEdges(node);
-      var genes = node.id.split(',');
-      this.signal('nodeClick', genes);
+      var gene = [node.id];
+      this.signal('nodeClick', gene);
     }.bind(this))
     .on('genotet.nodeHover', function(event, node) {
       this.panel.tooltipNode(node);

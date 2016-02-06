@@ -281,13 +281,13 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
     data.forEach(function(dataInfo) {
       genotet.data.bindingFiles.push(dataInfo);
     });
-    this.signal('updateTrackList');
+    this.signal('updateTracksAfterLoading');
   }.bind(this), 'cannot load binding list');
 };
 
 /**
- * Loads gene-binding mapping data,
- * and maps the gene to binding track file name.
+ * Loads gene-binding mapping data, and maps the gene to binding track
+ * file name.
  * @param {string} mappingFileName File name of mapping file.
  * @param {string} gene Gene name of mapping gene.
  */
@@ -299,7 +299,7 @@ genotet.BindingLoader.prototype.loadMapping = function(mappingFileName, gene) {
   this.get(genotet.data.serverURL, params, function(data) {
     var mappingName = data;
     var fileName = mappingName[gene];
-    this.signal('updateLinkTrack', fileName);
+    this.signal('updateTrackWithMapping', fileName);
   }.bind(this), 'cannot load mapping file');
 };
 

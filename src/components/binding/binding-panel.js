@@ -183,9 +183,9 @@ genotet.BindingPanel.prototype.updateTracks = function() {
 };
 
 /**
- * Updates the track list for panel.
+ * Updates the track list for panel after loading binding list.
  */
-genotet.BindingPanel.prototype.updateTrackList = function() {
+genotet.BindingPanel.prototype.updateTracksAfterLoading = function() {
   var numTracks = this.data.tracks.length;
   var uiTracks = this.container.find('#genes .track-gene');
   if (uiTracks.length > numTracks) {
@@ -224,7 +224,4 @@ genotet.BindingPanel.prototype.updateTrackList = function() {
       });
     }.bind(this));
   }, this);
-
-  this.container.find('#genes .glyphicon-remove')
-    .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };

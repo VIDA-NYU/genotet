@@ -49,16 +49,6 @@ genotet.data.redBlueScale = ['#ab1e1e', 'gray', '#1e6eab'];
 genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 
 /**
- * Type for views.
- * @const {!Object<string>}
- */
-genotet.data.VIEW_TYPES = {
-  expressionType: 'expression',
-  networkType: 'network',
-  bindingType: 'binding'
-};
-
-/**
  * Initializes Data properties.
  */
 genotet.data.init = function() {
