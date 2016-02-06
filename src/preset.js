@@ -87,39 +87,39 @@ genotet.preset.PRESETS = {
     ],
     links: [
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Expression Matrix',
+        targetViewName: 'My Expression Matrix',
         response: 'addProfile'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Expression Matrix',
+        targetViewName: 'My Expression Matrix',
         response: 'addProfile'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'updateTrack'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'locus'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'updateTrack'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'locus'
       }
     ]
@@ -139,27 +139,27 @@ genotet.preset.PRESETS = {
     ],
     links: [
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'updateTrack'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'locus'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'updateTrack'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'locus'
       }
     ]
@@ -179,15 +179,15 @@ genotet.preset.PRESETS = {
     ],
     links: [
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Expression Matrix',
+        targetViewName: 'My Expression Matrix',
         response: 'addProfile'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Expression Matrix',
+        targetViewName: 'My Expression Matrix',
         response: 'addProfile'
       }
     ]
@@ -212,39 +212,39 @@ genotet.preset.PRESETS = {
     ],
     links: [
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Expression Matrix',
+        targetViewName: 'My Expression Matrix',
         response: 'addProfile'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Expression Matrix',
+        targetViewName: 'My Expression Matrix',
         response: 'addProfile'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'updateTrack'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'nodeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'locus'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'updateTrack'
       },
       {
-        source: 'My Network',
+        sourceViewName: 'My Network',
         action: 'edgeClick',
-        target: 'My Genome Browser',
+        targetViewName: 'My Genome Browser',
         response: 'locus'
       }
     ]

@@ -198,7 +198,7 @@ genotet.ExpressionView = function(viewName, params) {
         var isExistent = this.data.profiles.filter(function(obj) {
             return obj.geneName == geneName;
           }).length;
-        if (geneIndex != -1 && !isExistent) {
+        if (geneIndex && !isExistent) {
           this.renderer.addGeneProfile(geneIndex);
           this.renderer.addTfaProfile(geneIndex);
           this.panel.dataLoaded();
