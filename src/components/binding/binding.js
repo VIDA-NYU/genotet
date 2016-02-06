@@ -163,6 +163,9 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.loadBindingList', function() {
       this.loader.loadBindingList();
+    }.bind(this))
+    .on('genotet.loadMapping', function(event, data) {
+      this.loader.loadMapping(data.mappingFileName, data.gene);
     }.bind(this));
 
   $(this.loader)
@@ -174,44 +177,35 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.updateTrackList', function() {
       this.panel.updateTrackList();
+    }.bind(this))
+    .on('genotet.updateLinkTrack', function(event, fileName) {
+      this.updateLinkTrack_(fileName);
     }.bind(this));
 
   // Set up link callbacks.
   $(this)
     .on('genotet.updateTrack', function(event, data) {
-      var sourceGene = data.id.split(',')[0];
+      var genes = /** @type {!Array<string>} */ (data);
+
+      // Get the gene from the clicked node,
+      // or the source gene from the clicked edge.
+      var sourceGene = genes[0];
       var mappingFileName = genotet.data.mappingFile['gene-binding'];
       if (mappingFileName == 'Direct Mapping') {
         var fileName = sourceGene + '.bw';
-        this.signal('updateLinkTrack', fileName);
+        this.loader.signal('updateLinkTrack', fileName);
       } else {
-        var params = {
-          type: 'mapping',
-          fileName: mappingFileName
-        };
-        $.get(genotet.data.serverURL, params, function(data) {
-          var mappingName = data;
-          var fileName = mappingName[sourceGene];
-          this.signal('updateLinkTrack', fileName);
-        }.bind(this), 'jsonp')
-          .fail(function() {
-            genotet.error('failed to get gene-binding mapping file');
-          });
+        this.panel.signal('loadMapping', {
+          mappingFileName: mappingFileName,
+          gene: sourceGene
+        });
       }
-    }.bind(this))
-    .on('genotet.updateLinkTrack', function(event, fileName) {
-      if (!fileName) {
-        genotet.warning('mapping file not found');
-        return;
-      }
-      this.panel.signal('updateTrack', {
-        trackIndex: 0,
-        fileName: fileName
-      });
-      this.loader.signal('addPanelTrack');
     }.bind(this))
     .on('genotet.locus', function(event, data) {
-      var targetGene = data.id.split(',')[1];
+      var genes = /** @type {!Array<string>} */ (data);
+
+      // Get the target gene from the clicked edge.
+      var targetGene = genes[1];
       if (targetGene) {
         this.panel.signal('locus', targetGene);
       }
@@ -229,4 +223,21 @@ genotet.BindingView.prototype.defaultWidth = function() {
 /** @override */
 genotet.BindingView.prototype.defaultHeight = function() {
   return 200;
+};
+
+/**
+ * Updates link binding track for panel.
+ * @param {string} fileName File name of the updated link track.
+ * @private
+ * */
+genotet.BindingView.prototype.updateLinkTrack_ = function(fileName) {
+  if (!fileName) {
+    genotet.warning('mapping file not found');
+    return;
+  }
+  this.panel.signal('updateTrack', {
+    trackIndex: 0,
+    fileName: fileName
+  });
+  this.loader.signal('addPanelTrack');
 };

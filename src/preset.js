@@ -71,14 +71,138 @@ genotet.preset.BINDING_NAME_ = 'My Genome Browser';
 genotet.preset.THREE_TRACK_BINDING_NAME_ = 'My 3 Tracks Genome Browser';
 
 /**
+ * Settings for link preset views.
+ * This part will be extended to user self-defined in next version.
+ * @const {!Object<!Array<!genotet.LinkSetting>>}
+ * */
+genotet.preset.LINK_SETTINGS = {
+  'default': [
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My Expression Matrix',
+      response: 'addProfile'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My Expression Matrix',
+      response: 'addProfile'
+    },
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My Genome Browser',
+      response: 'updateTrack'
+    },
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My Genome Browser',
+      response: 'locus'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My Genome Browser',
+      response: 'updateTrack'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My Genome Browser',
+      response: 'locus'
+    }
+  ],
+  network: [
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My Genome Browser',
+      response: 'updateTrack'
+    },
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My Genome Browser',
+      response: 'locus'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My Genome Browser',
+      response: 'updateTrack'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My Genome Browser',
+      response: 'locus'
+    }
+  ],
+  expression: [
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My Expression Matrix',
+      response: 'addProfile'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My Expression Matrix',
+      response: 'addProfile'
+    }
+  ],
+  binding: [
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My Expression Matrix',
+      response: 'addProfile'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My Expression Matrix',
+      response: 'addProfile'
+    },
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My 3 Tracks Genome Browser',
+      response: 'updateTrack'
+    },
+    {
+      source: 'My Network',
+      action: 'nodeClick',
+      target: 'My 3 Tracks Genome Browser',
+      response: 'locus'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My 3 Tracks Genome Browser',
+      response: 'updateTrack'
+    },
+    {
+      source: 'My Network',
+      action: 'edgeClick',
+      target: 'My 3 Tracks Genome Browser',
+      response: 'locus'
+    }
+  ]
+};
+
+/**
  * Loads a preset with the given name.
  * @param {string} preset
  */
 genotet.preset.loadPreset = function(preset) {
   genotet.viewManager.closeAllViews();
-  var expressionType = genotet.data.VIEW_TYPES[0];
-  var networkType = genotet.data.VIEW_TYPES[1];
-  var bindingType = genotet.data.VIEW_TYPES[2];
+  var expressionType = genotet.data.VIEW_TYPES.expressionType;
+  var networkType = genotet.data.VIEW_TYPES.networkType;
+  var bindingType = genotet.data.VIEW_TYPES.bindingType;
 
   if (!preset) {
     preset = 'default';
@@ -117,7 +241,8 @@ genotet.preset.loadPreset = function(preset) {
       genotet.error('unknown preset:', preset);
       return;
   }
-  genotet.linkManager.registerAllViews();
+  genotet.linkManager.registerAllViews(
+    genotet.preset.LINK_SETTINGS[preset]);
 };
 
 /**

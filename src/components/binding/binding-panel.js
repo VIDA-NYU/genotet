@@ -180,9 +180,6 @@ genotet.BindingPanel.prototype.addTrack_ = function() {
  */
 genotet.BindingPanel.prototype.updateTracks = function() {
   this.signal('loadBindingList');
-
-  this.container.find('#genes .glyphicon-remove')
-    .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };
 
 /**
@@ -227,4 +224,7 @@ genotet.BindingPanel.prototype.updateTrackList = function() {
       });
     }.bind(this));
   }, this);
+
+  this.container.find('#genes .glyphicon-remove')
+    .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };

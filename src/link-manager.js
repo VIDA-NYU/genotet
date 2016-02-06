@@ -2,6 +2,16 @@
  * @fileoverview Link manager for controlling the link query.
  */
 
+/**
+ * @typedef {{
+ *   source: string,
+ *   action: string,
+ *   target: string,
+ *   response: string
+ * }}
+ */
+genotet.LinkSetting;
+
 /** @const */
 genotet.linkManager = {};
 
@@ -24,82 +34,8 @@ genotet.linkManager.NETWORK_ACTIONS = ['nodeClick', 'edgeClick'];
 /** @const {!Array<string>} */
 genotet.linkManager.BINDING_ACTIONS = ['updateTrack', 'locus'];
 
-
-/**
- * Settings for link views.
- * This part will be extended to user self-defined in next version.
- * @const {!Array<!Object<{
- *    source: string,
- *    action: string,
- *    target: string,
- *    response: string
- *  }>>}
- * */
-genotet.linkManager.LINK_SETTINGS = [
-  {
-    source: 'My Network',
-    action: 'nodeClick',
-    target: 'My Expression Matrix',
-    response: 'addProfile'
-  },
-  {
-    source: 'My Network',
-    action: 'edgeClick',
-    target: 'My Expression Matrix',
-    response: 'addProfile'
-  },
-  {
-    source: 'My Network',
-    action: 'nodeClick',
-    target: 'My Genome Browser',
-    response: 'updateTrack'
-  },
-  {
-    source: 'My Network',
-    action: 'nodeClick',
-    target: 'My Genome Browser',
-    response: 'locus'
-  },
-  {
-    source: 'My Network',
-    action: 'edgeClick',
-    target: 'My Genome Browser',
-    response: 'updateTrack'
-  },
-  {
-    source: 'My Network',
-    action: 'edgeClick',
-    target: 'My Genome Browser',
-    response: 'locus'
-  },
-  {
-    source: 'My Network',
-    action: 'nodeClick',
-    target: 'My 3 Tracks Genome Browser',
-    response: 'updateTrack'
-  },
-  {
-    source: 'My Network',
-    action: 'nodeClick',
-    target: 'My 3 Tracks Genome Browser',
-    response: 'locus'
-  },
-  {
-    source: 'My Network',
-    action: 'edgeClick',
-    target: 'My 3 Tracks Genome Browser',
-    response: 'updateTrack'
-  },
-  {
-    source: 'My Network',
-    action: 'edgeClick',
-    target: 'My 3 Tracks Genome Browser',
-    response: 'locus'
-  }
-];
-
 /** @const {string} */
-genotet.linkManager.DEFAULT_MAPPING_FILENAME = 'Direct Mapping';
+genotet.linkManager.DEFAULT_MAPPING = 'Direct Mapping';
 
 /**
  * Initializes the link manager.
@@ -107,39 +43,20 @@ genotet.linkManager.DEFAULT_MAPPING_FILENAME = 'Direct Mapping';
 genotet.linkManager.init = function() {
   genotet.linkManager.links = {};
   genotet.data.mappingFile['gene-binding'] =
-    genotet.linkManager.DEFAULT_MAPPING_FILENAME;
+    genotet.linkManager.DEFAULT_MAPPING;
 };
 
 /**
- * Set up the link manager.
- * @private
+ * Registers link action and response for all the views.
+ * @param {!Array<genotet.LinkSetting>} linkSetting Link setting for all the
+ * views.
  */
-genotet.linkManager.link_ = function() {
-  for (var linkViewName in genotet.linkManager.links) {
-    var linkView = genotet.viewManager.views[linkViewName];
-    var actions = genotet.linkManager.links[linkViewName];
-    $(linkView)
-      .on('genotet.nodeClick', function(event, node) {
-        actions['nodeClick'].forEach(function(obj) {
-          obj.target.signal(obj.response, node);
-        });
-      })
-      .on('genotet.edgeClick', function(event, edge) {
-        actions['edgeClick'].forEach(function(obj) {
-          obj.target.signal(obj.response, edge);
-        });
-      });
-  }
-};
-
-/**
- * Register link action and response for all the views.
- */
-genotet.linkManager.registerAllViews = function() {
-  genotet.linkManager.LINK_SETTINGS.forEach(function(object) {
+genotet.linkManager.registerAllViews = function(linkSetting) {
+  linkSetting.forEach(function(object) {
     var sourceView = genotet.viewManager.views[object.source];
     var targetView = genotet.viewManager.views[object.target];
     /*
+     * TODO(Liana): Next version plans.
      * Link settings will be extended to user self-defined in next version.
      * We need check whether the view is existed,
      * because link settings are defined as constant in this version,
@@ -151,15 +68,14 @@ genotet.linkManager.registerAllViews = function() {
     genotet.linkManager.register_(sourceView, object.action, targetView,
       object.response);
   });
-  genotet.linkManager.link_();
 };
 
 /**
- * Register link action and response for views.
+ * Registers link action and response for views.
  * @param {genotet.View} sender
- * @param {string=} actionType
- * @param {genotet.View=} receiver
- * @param {string=} responseType
+ * @param {string} actionType
+ * @param {genotet.View} receiver
+ * @param {string} responseType
  * @private
  */
 genotet.linkManager.register_ = function(sender, actionType, receiver,
@@ -175,10 +91,15 @@ genotet.linkManager.register_ = function(sender, actionType, receiver,
     target: receiver,
     response: responseType
   });
+
+  // Link the views.
+  $(sender).on('genotet.' + actionType, function(event, data) {
+    receiver.signal(responseType, data);
+  });
 };
 
 /**
- * Remove links of the removed view.
+ * Removes links of the removed view.
  * @param {string} viewName Name of the removed view.
  */
 genotet.linkManager.removeLinks = function(viewName) {

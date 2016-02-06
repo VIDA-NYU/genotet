@@ -72,16 +72,6 @@ genotet.ExpressionView = function(viewName, params) {
   this.data;
 
   /**
-   * @protected {genotet.ExpressionMatrix}
-   */
-  this.data.matrix;
-
-  /**
-   * @protected {genotet.ExpressionTfa}
-   */
-  this.data.tfa;
-
-  /**
    * @protected {!Array<genotet.ExpressionRenderer.Profile>}
    */
   this.data.profiles = [];
@@ -206,20 +196,21 @@ genotet.ExpressionView = function(viewName, params) {
     }.bind(this));
 
   // Set up link callbacks.
-  $(this).on('genotet.addProfile', function(event, data) {
-    var genes = data.id.split(',');
-    genes.forEach(function(gene) {
-      var geneName = this.data.lowerGeneNames[gene];
-      var geneIndex = this.data.matrix.geneNames.indexOf(geneName);
-      var isExistent = this.data.profiles.filter(function(obj) {
-          return obj.geneName == geneName;
-        }).length != 0;
-      if (geneIndex != -1 && !isExistent) {
-        this.panel.signal('addGeneProfile', geneIndex);
-        this.loader.signal('updatePanel');
-      }
-    }, this);
-  }.bind(this));
+  $(this)
+    .on('genotet.addProfile', function(event, data) {
+      var genes = /** @type {!Array<string>} */ (data);
+      genes.forEach(function(gene) {
+        var geneName = this.data.lowerGeneNames[gene];
+        var geneIndex = this.data.matrix.geneNames.indexOf(geneName);
+        var isExistent = this.data.profiles.filter(function(obj) {
+            return obj.geneName == geneName;
+          }).length != 0;
+        if (geneIndex != -1 && !isExistent) {
+          this.panel.signal('addGeneProfile', geneIndex);
+          this.loader.signal('updatePanel');
+        }
+      }, this);
+    }.bind(this));
 };
 
 genotet.utils.inherit(genotet.ExpressionView, genotet.View);
