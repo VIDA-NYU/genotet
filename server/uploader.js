@@ -57,7 +57,6 @@ uploader.MulterFile;
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
   var fileName = file.originalname;
-  console.log('i am ' + file.originalname);
   if (fs.existsSync(prefix + fileName) ||
     fs.existsSync(prefix + fileName + '_chr')) {
     return {
