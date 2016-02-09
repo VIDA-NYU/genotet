@@ -75,7 +75,7 @@ network.query.IncidentEdges;
 /**
  * @typedef {{
  *   fileName: string,
- *   geneRegex: string
+ *   genes: !Array<string>
  * }}
  */
 network.query.CombinedRegulation;
@@ -123,13 +123,12 @@ network.query.incidentEdges = function(query, networkPath) {
 /**
  * @param {!network.query.CombinedRegulation} query
  * @param {string} networkPath
- * @return {!Array<!network.Node>}
+ * @return {!Array<string>}
  */
 network.query.combinedRegulation = function(query, networkPath) {
   var fileName = query.fileName;
-  var geneRegex = utils.decodeSpecialChar(query.geneRegex);
   var file = networkPath + fileName;
-  return network.getComb_(file, geneRegex);
+  return network.getCombination_(file, query.genes);
 };
 
 /**
@@ -305,38 +304,34 @@ network.getIncidentEdges_ = function(file, gene) {
 /**
  * Finds the genes regulated by all the given TFs.
  * @param {string} file Network file name.
- * @param {string} exp Regex selecting the regulated targets.
- * @return {!Array<!network.Node>} The combined regulators.
+ * @param {!Array<string>} genes Genes selecting the regulated targets.
+ * @return {!Array<string>} The combined regulators.
  * @private
  */
-network.getComb_ = function(file, exp) {
-  console.log('get combination', file, exp);
+network.getCombination_ = function(file, genes) {
+  console.log('get combination', file);
   var result = network.readNetwork_(file);
-  var regex;
-  try {
-    regex = RegExp(exp, 'i');
-  } catch (e) {
-    console.error('incorrect regular expression');
-    return [];
-  }
+  var geneMap = {};
+  genes.forEach(function(gene) {
+    geneMap[gene] = true;
+  });
   var tfs = {}, tfcnt = 0, regcnt = {};
-  for (var i = 0; i < result.numNodes; i++) {
-    var name = result.nodes[i].id;
-    regcnt[name] = 0;
-    if (result.nodes[i].id.match(regex)) {
-      if (tfs[name] == null) {
-        tfs[name] = true;
-        tfcnt++;
-      }
+  result.nodes.forEach(function(node) {
+    var nodeId = node.id;
+    regcnt[nodeId] = 0;
+    if (nodeId in geneMap) {
+      tfs[nodeId] = true;
+      tfcnt++;
     }
-  }
-  console.log(tfs, tfcnt);
-  for (var i = 0; i < result.numEdges; i++) {
-    var s = result.edges[i].source, t = result.edges[i].target;
-    if (tfs[result.nodes[s].id] == true) {
-      regcnt[result.nodes[t].id]++;
+  });
+  result.edges.forEach(function(edge) {
+    var source = edge.source;
+    var target = edge.target;
+    if (source in tfs) {
+      console.log(source + ' ' + target);
+      regcnt[target]++;
     }
-  }
+  });
   var nodes = [];
   for (var name in regcnt) {
     if (regcnt[name] == tfcnt) {

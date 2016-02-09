@@ -74,6 +74,21 @@ $gray: #ccc;
     }
   }
 
+  #combined-regulation #combined-input {
+    float: left;
+    font-size: 12px;
+    margin-top: 4px;
+
+    input {
+      height: 10px;
+      width: 100%;
+    }
+
+    label {
+      margin-left: 0;
+    }
+  }
+
   #edge-list {
     font-size: .9em;
     margin-right: 6px;

@@ -278,28 +278,26 @@ genotet.NetworkLoader.prototype.buildEdgeMap_ = function() {
   }, this);
 };
 
-/*
-LoaderGraph.prototype.loadComb = function(net, exp) {
-    var loader = this;
-  var oexp = exp;
-  exp = utils.encodeSpecialChar(exp);
-  $.ajax({
-    type: 'GET', url: addr, dataType: 'jsonp',
-    data: {
-      args: 'type=comb&net=' + net + '&exp=' + exp
-    },
-    success: function(result) {
-      var data = JSON.parse(result, Utils.parse);
-        if (data.length == 0) {
-        options.alert('There is no common targets.');
-        return;
-      }
-      var addexp = 'a^';
-      for (var i = 0; i < data.length; i++) addexp += '|^'+ data[i] + '$';
-      //console.log(oexp);
-      addexp += '|'+ oexp;
-      loader.addNodes(addexp);
-    }
-  });
+/**
+ * Finds the combined regulation genes and adds them into the network.
+ * @param {string} inputGenes Input genes for combined regulation.
+ * @param {boolean} isRegex Whether combined regulation is based on regex.
+ */
+genotet.NetworkLoader.prototype.loadCombination = function(inputGenes,
+                                                           isRegex) {
+  var genes = this.prepareGenes_(inputGenes, isRegex);
+  var params = {
+    type: 'combined-regulation',
+    fileName: this.data.network.fileName,
+    genes: genes
+  };
+
+  if (!genes.length) {
+    genotet.warning('cannot find genes in the network');
+    return;
+  }
+
+  this.get(genotet.data.serverURL, params, function(data) {
+    this.addGenes_(data);
+  }.bind(this), 'can not get combined regulation');
 };
-*/

@@ -112,28 +112,33 @@ genotet.NetworkView = function(viewName, params) {
   }.bind(this));
 
   // Set up rendering update.
-  $(this.panel).on('genotet.update', function(event, data) {
-    switch (data.type) {
-      case 'label':
-        this.renderer.update();
-        break;
-      case 'visibility':
-        this.renderer.updateVisibility();
-        this.renderer.update();
-        break;
-      case 'gene':
-        this.loader.updateGenes(data.method, data.inputGenes, data.isRegex);
-        this.renderer.dataLoaded();
-        break;
-      case 'delete-edge':
-        this.loader.deleteEdges(data.edges);
-        this.table.removeEdge(data.edges[0]);
-        this.renderer.dataLoaded();
-        break;
-      default:
-        genotet.error('unknown update type', data.type);
-    }
-  }.bind(this));
+  $(this.panel)
+    .on('genotet.update', function(event, data) {
+      switch (data.type) {
+        case 'label':
+          this.renderer.update();
+          break;
+        case 'visibility':
+          this.renderer.updateVisibility();
+          this.renderer.update();
+          break;
+        case 'gene':
+          this.loader.updateGenes(data.method, data.inputGenes, data.isRegex);
+          this.renderer.dataLoaded();
+          break;
+        case 'delete-edge':
+          this.loader.deleteEdges(data.edges);
+          this.table.removeEdge(data.edges[0]);
+          this.renderer.dataLoaded();
+          break;
+        default:
+          genotet.error('unknown update type', data.type);
+      }
+    }.bind(this))
+    .on('genotet.combined-regulation', function(event, data) {
+      this.loader.loadCombination(data.inputGenes, data.isRegex);
+      this.renderer.dataLoaded();
+    }.bind(this));
 
   // Gene removal update.
   $(this.loader)

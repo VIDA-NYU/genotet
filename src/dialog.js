@@ -295,7 +295,6 @@ genotet.dialog.upload_ = function() {
       selectpicker.change(function() {
         var isMapping = selectpicker.val() == 'mapping';
         if (isMapping) {
-          console.log(modal.find('#data-name'));
           modal.find('#data-name').closest('tr').css('display', 'none');
           modal.find('#description').closest('tr').css('display', 'none');
         } else {

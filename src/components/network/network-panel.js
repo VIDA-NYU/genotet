@@ -66,6 +66,24 @@ genotet.NetworkPanel.prototype.initPanel = function() {
       this.container.find('#edge-list').slideUp();
     }.bind(this));
   }, this);
+
+  // Combined Regulation
+  this.container.find('#combined-regulation #refresh-combined')
+    .click(function() {
+      var isRegex = this.container.find('#combined-input')
+        .children('label[name=regex]').children('input').prop('checked');
+      var input = this.container.find('#combined-regulation input');
+      var inputGenes = input.val();
+      if (inputGenes == '') {
+        genotet.warning('missing input gene selection');
+        return;
+      }
+      input.val('');
+      this.signal('combined-regulation', {
+        inputGenes: inputGenes,
+        isRegex: isRegex
+      });
+    }.bind(this));
 };
 
 /** @inheritDoc */
