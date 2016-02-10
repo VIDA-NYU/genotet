@@ -26,6 +26,7 @@ genotet.init = function() {
   genotet.data.init();
   genotet.panelManager.init();
   genotet.viewManager.init();
+  genotet.linkManager.init();
   genotet.menu.init();
   genotet.options.init();
   genotet.tooltip.init();

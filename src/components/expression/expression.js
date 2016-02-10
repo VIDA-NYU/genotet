@@ -7,6 +7,7 @@
 /**
  * @typedef {{
  *   fileName: string,
+ *   tfaFileName: string,
  *   isGeneRegex: boolean,
  *   isConditionRegex: boolean,
  *   geneInput: string,
@@ -32,6 +33,7 @@ genotet.ExpressionMatrix;
 
 /**
  * @typedef {{
+ *   fileName: string,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
  *   tfaValues: !Array<!Object>,
@@ -39,7 +41,7 @@ genotet.ExpressionMatrix;
  *   valueMax: number
  * }}
  */
-genotet.ExpressionTfaData;
+genotet.ExpressionTfa;
 
 /**
  * @typedef {!Array<{
@@ -62,9 +64,15 @@ genotet.ExpressionView = function(viewName, params) {
   genotet.ExpressionView.base.constructor.call(this, viewName);
 
   /**
-   * @protected {genotet.ExpressionMatrix}
+   * @protected {{
+   *   matrix: genotet.ExpressionMatrix,
+   *   tfa: genotet.ExpressionTfa,
+   *   profiles: !Array<genotet.ExpressionRenderer.Profile>,
+   *   tfaProfiles: !Array<genotet.ExpressionRenderer.Profile>,
+   *   zoomStack: !Array<genotet.ExpressionRenderer.ZoomStatus>
+   * }}
    */
-  this.data.matrix;
+  this.data;
 
   this.container.addClass('expression');
 
@@ -79,11 +87,13 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
+    this.data.tfa.fileName = params.tfaFileName;
     this.loader.loadExpressionMatrixInfo(params.fileName);
   }.bind(this));
 
   // Format gene and condition input to list.
-  $(this.loader).on('genotet.matrixInfoLoaded', function() {
+  $(this.loader)
+    .on('genotet.matrixInfoLoaded', function() {
     var geneNames = this.panel.formatGeneInput(params.isGeneRegex,
       params.geneInput);
     var conditionNames = this.panel.formatConditionInput(
@@ -171,6 +181,29 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.loader)
     .on('genotet.updatePanel', function() {
       this.panel.dataLoaded();
+    }.bind(this));
+
+  // Set up link callbacks.
+  $(this)
+    .on('genotet.addProfile', function(event, data) {
+      /**
+       * The genes array contains source and target genes of the clicked edge
+       * or the gene of the clicked node.
+       * @type {!Array<string>}
+       */
+      var genes = /** @type {!Array<string>} */(data);
+      genes.forEach(function(gene) {
+        var geneName = this.data.lowerGeneNames[gene];
+        var geneIndex = this.data.matrixGeneNameDict[geneName];
+        var isExistent = this.data.profiles.filter(function(obj) {
+            return obj.geneName == geneName;
+          }).length;
+        if (geneIndex != null && !isExistent) {
+          this.renderer.addGeneProfile(geneIndex);
+          this.renderer.addTfaProfile(geneIndex);
+          this.panel.dataLoaded();
+        }
+      }, this);
     }.bind(this));
 };
 
