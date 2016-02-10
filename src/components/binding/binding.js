@@ -57,8 +57,10 @@ genotet.bindingData;
 
 /**
  * @typedef {{
- *   fileName: string,
- *   chr: string
+ *   fileNames: (!Array<string>|string),
+ *   bedName: string,
+ *   chr: string,
+ *   multipleTracks: boolean
  * }}
  */
 genotet.BindingViewParams;
@@ -92,7 +94,14 @@ genotet.BindingView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    this.loader.load(params.fileName, params.bedName, params.chr);
+    if (params.multipleTracks) {
+      this.loader.loadMultipleTracks(
+        /** @type {!Array<string>} */(params.fileNames), params.bedName,
+        params.chr);
+    } else {
+      this.loader.load(/** @type {string} */(params.fileNames),
+        params.bedName, params.chr);
+    }
   }.bind(this));
 
   $(this.renderer)
@@ -140,25 +149,70 @@ genotet.BindingView = function(viewName, params) {
     .on('genotet.addTrack', function() {
       var track = this.data.tracks.slice(-1).pop();
       this.loader.loadFullTrack(this.data.tracks.length, track.fileName,
-        this.data.chr);
+        this.data.chr, true);
     }.bind(this))
     .on('genotet.removeTrack', function(event, trackIndex) {
       this.data.tracks.splice(trackIndex, 1);
       this.renderer.render();
       this.panel.updateTracks();
     }.bind(this))
-    .on('genotet.gene', function(event, data) {
+    .on('genotet.updateTrack', function(event, data) {
       this.data.tracks[data.trackIndex].fileName = data.fileName;
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
-        this.data.chr);
+        this.data.chr, false);
+    }.bind(this))
+    .on('genotet.loadBindingList', function() {
+      this.loader.loadBindingList();
     }.bind(this));
 
   $(this.loader)
     .on('genotet.chr', function(event, chr) {
       this.panel.updateChr(chr);
     }.bind(this))
-    .on('genotet.track', function() {
+    .on('genotet.addPanelTrack', function() {
       this.panel.updateTracks();
+    }.bind(this))
+    .on('genotet.updateTracksAfterLoading', function() {
+      this.panel.updateTracksAfterLoading();
+    }.bind(this))
+    .on('genotet.updateTrackWithMapping', function(event, fileName) {
+      this.updateTrackWithMapping_(fileName);
+    }.bind(this));
+
+  // Set up link callbacks.
+  $(this)
+    .on('genotet.updateTrack', function(event, data) {
+      /**
+       * The genes array contains source and target genes of the clicked edge
+       * or the gene of the clicked node.
+       * @type {!Array<string>}
+       */
+      var genes = /** @type {!Array<string>} */(data);
+
+      // Get the gene from the clicked node,
+      // or the source gene from the clicked edge.
+      var sourceGene = genes[0];
+      var mappingFileName = genotet.data.mappingFiles['gene-binding'];
+      if (mappingFileName == 'Direct Mapping') {
+        var fileName = sourceGene + '.bw';
+        this.updateTrackWithMapping_(fileName);
+      } else {
+        this.loader.loadMapping(mappingFileName, sourceGene);
+      }
+    }.bind(this))
+    .on('genotet.locus', function(event, data) {
+      /**
+       * The genes array contains source and target genes of the clicked edge
+       * or the gene of the clicked node.
+       * @type {!Array<string>}
+       */
+      var genes = /** @type {!Array<string>} */(data);
+
+      // Get the target gene from the clicked edge.
+      var targetGene = genes[1];
+      if (targetGene) {
+        this.loader.findLocus(targetGene);
+      }
     }.bind(this));
 };
 
@@ -173,4 +227,22 @@ genotet.BindingView.prototype.defaultWidth = function() {
 /** @override */
 genotet.BindingView.prototype.defaultHeight = function() {
   return 200;
+};
+
+/**
+ * Updates binding track for panel with mapping.
+ * @param {string} fileName File name of the updated link track.
+ * @private
+ * */
+genotet.BindingView.prototype.updateTrackWithMapping_ = function(fileName) {
+  if (!fileName) {
+    genotet.warning('mapping file not found');
+    return;
+  }
+
+  // Updates the 1st binding track for panel.
+  this.data.tracks[0].fileName = fileName;
+  this.loader.loadFullTrack(0, fileName, this.data.chr, false);
+
+  this.panel.updateTracks();
 };

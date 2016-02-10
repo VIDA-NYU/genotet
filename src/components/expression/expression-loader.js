@@ -16,7 +16,9 @@ genotet.ExpressionLoader = function(data) {
   _.extend(this.data, {
     matrix: null,
     matrixInfo: null,
-    tfaData: null,
+    tfa: {
+      fileName: null
+    },
     matrixGeneNameDict: null,
     matrixConditionNameDict: null,
     lowerGeneNames: null,
@@ -132,7 +134,8 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
       });
     this.data.lowerConditionNames = lowerConditionNames;
 
-    this.loadTfaProfile_(fileName, geneNames, conditionNames);
+    this.loadTfaProfile_(this.data.tfa.fileName, this.data.matrix.geneNames,
+      this.data.matrix.conditionNames);
   }.bind(this), 'cannot load expression matrix');
 };
 
@@ -162,7 +165,7 @@ genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
       tfaGeneNameDict[geneName] = i;
     }.bind(this));
     this.data.tfaGeneNameDict = tfaGeneNameDict;
-    this.data.tfaData = data;
+    this.data.tfa = $.extend({}, this.data.tfa, data);
   }.bind(this), 'cannot load expression TFA profiles');
 };
 

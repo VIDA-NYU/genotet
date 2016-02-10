@@ -29,6 +29,7 @@ genotet.dialog.TEMPLATES_ = {
   network: 'templates/create-network.html',
   binding: 'templates/create-binding.html',
   expression: 'templates/create-expression.html',
+  mapping: 'templates/mapping.html',
   upload: 'templates/upload.html'
 };
 
@@ -56,6 +57,9 @@ genotet.dialog.create = function(type) {
       break;
     case 'organism':
       genotet.dialog.organism_();
+      break;
+    case 'mapping':
+      genotet.dialog.mapping_();
       break;
     case 'upload':
       genotet.dialog.upload_();
@@ -223,7 +227,7 @@ genotet.dialog.createExpression_ = function() {
         /** @type {string} */(viewName.val())));
       modal.find('.selectpicker').selectpicker();
       var params = {
-        type: 'list-matrix'
+        type: 'list-expression'
       };
       $.get(genotet.data.serverURL, params, function(data) {
           var matrices = /** @type {genotet.ListedExpression} */(data);
@@ -269,6 +273,47 @@ genotet.dialog.createExpression_ = function() {
           geneInput: geneInput,
           conditionInput: conditionInput
         });
+      });
+    });
+};
+
+/**
+ * Shows a dialog for the user to choose mapping files for linked queries.
+ * @private
+ */
+genotet.dialog.mapping_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.mapping,
+    function() {
+      modal.modal();
+      modal.find('.selectpicker').selectpicker();
+      var params = {
+        type: 'list-mapping'
+      };
+      $.get(genotet.data.serverURL, params, function(data) {
+          var selectpicker = modal.find('.selectpicker');
+          data.push('Direct Mapping');
+          data.forEach(function(fileName) {
+            var option = $('<option></option>')
+              .text(fileName);
+            option.appendTo(selectpicker);
+            if (fileName == genotet.data.mappingFiles['gene-binding']) {
+              option.prop('selected', true);
+            }
+          });
+          selectpicker.selectpicker('refresh');
+          selectpicker.val(genotet.data.mappingFiles['gene-binding'])
+            .trigger('change');
+        }.bind(this), 'jsonp')
+        .fail(function() {
+          genotet.error('failed to get binding list');
+        });
+
+      // Create
+      modal.find('#btn-choose').click(function() {
+        var fileName = modal.find('#mapping-file').val();
+        genotet.data.mappingFiles['gene-binding'] =
+        /** @type {string} */(fileName);
       });
     });
 };
