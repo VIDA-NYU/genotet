@@ -148,7 +148,7 @@ genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
     geneNames, conditionNames) {
   var tfaParams = {
     type: 'tfa-profile',
-    fileName: 'tfa.matrix2',
+    fileName: 'tfa.mat.tsv',
     geneNames: geneNames,
     conditionNames: conditionNames
   };
