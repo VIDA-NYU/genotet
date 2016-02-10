@@ -136,7 +136,7 @@ genotet.NetworkView = function(viewName, params) {
       }
     }.bind(this))
     .on('genotet.combined-regulation', function(event, data) {
-      this.loader.loadCombination(data.inputGenes, data.isRegex);
+      this.loader.loadCombinedRegulation(data.inputGenes, data.isRegex);
       this.renderer.dataLoaded();
     }.bind(this));
 

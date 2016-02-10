@@ -128,7 +128,7 @@ network.query.incidentEdges = function(query, networkPath) {
 network.query.combinedRegulation = function(query, networkPath) {
   var fileName = query.fileName;
   var file = networkPath + fileName;
-  return network.getCombination_(file, query.genes);
+  return network.getCombinedRegulation_(file, query.genes);
 };
 
 /**
@@ -169,58 +169,6 @@ network.query.allNodes = function(query, networkPath) {
   return network.allNodes_(file);
 };
 // End public APIs
-
-/**
- * Reads the entire network data from the buffer.
- * @param {!Buffer} buf File buffer of the network data.
- * @return {!network.RawNetwork}
- * @private
- */
-network.readNet_ = function(buf) {
-  // Read number of nodes, number of TFs, and number of bytes for node names.
-  var numNodes = buf.readInt32LE(0);
-  var numTFs = buf.readInt32LE(4);
-  var nameBytes = buf.readInt32LE(8);
-
-  var offset = 12;
-  var namestr = buf.toString('utf8', offset, offset + nameBytes);
-  var names = namestr.split(' '); // read node names
-  offset += nameBytes;
-
-  var nodes = [];
-  for (var i = 0; i < numNodes; i++) {
-    nodes.push({
-      id: names[i],
-      name: names[i],
-      isTF: i < numTFs ? true : false
-    });
-  }
-  var numEdges = buf.readInt32LE(offset);
-  offset += 4;
-
-  var edges = [];
-  for (var i = 0; i < numEdges; i++) {
-    var s = buf.readInt32LE(offset);
-    var t = buf.readInt32LE(offset + 4);
-    var w = buf.readDoubleLE(offset + 8);
-    offset += 16;
-    var weight = [];
-    weight.push(w);
-    edges.push({
-      id: names[s] + ',' + names[t],
-      source: names[s],
-      target: names[t],
-      weight: weight
-    });
-  }
-  return {
-    numNodes: numNodes,
-    numEdges: numEdges,
-    nodes: nodes,
-    edges: edges,
-    names: names
-  };
-};
 
 /**
  * Gets the network data according to the gene selection.
@@ -308,7 +256,7 @@ network.getIncidentEdges_ = function(file, gene) {
  * @return {!Array<string>} The combined regulators.
  * @private
  */
-network.getCombination_ = function(file, genes) {
+network.getCombinedRegulation_ = function(file, genes) {
   console.log('get combination', file);
   var result = network.readNetwork_(file);
   var geneMap = {};

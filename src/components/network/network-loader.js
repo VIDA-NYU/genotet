@@ -283,7 +283,7 @@ genotet.NetworkLoader.prototype.buildEdgeMap_ = function() {
  * @param {string} inputGenes Input genes for combined regulation.
  * @param {boolean} isRegex Whether combined regulation is based on regex.
  */
-genotet.NetworkLoader.prototype.loadCombination = function(inputGenes,
+genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
                                                            isRegex) {
   var genes = this.prepareGenes_(inputGenes, isRegex);
   var params = {

@@ -68,9 +68,9 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   }, this);
 
   // Combined Regulation
-  this.container.find('#combined-regulation #refresh-combined')
+  this.container.find('#combined-regulation #refresh')
     .click(function() {
-      var isRegex = this.container.find('#combined-input')
+      var isRegex = this.container.find('#input')
         .children('label[name=regex]').children('input').prop('checked');
       var input = this.container.find('#combined-regulation input');
       var inputGenes = input.val();
