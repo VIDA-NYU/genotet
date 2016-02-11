@@ -34,31 +34,34 @@ uploader.DOUBLE_SIZE_ = 8;
  * @param {{
  *   type: string,
  *   name: string,
- *   fileName: string,
- *   description: string
+ *   description: string,
  * }} desc File description.
- * @param {Object} file File object received from multer.
+ * @param {!multer.File} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
  * @return {Object} Success or not as a JS Object.
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
+  var fileName = file.originalname;
+  if (fs.existsSync(prefix + fileName)) {
+    fs.unlinkSync(prefix + fileName);
+  }
   var source = fs.createReadStream(file.path);
-  var dest = fs.createWriteStream(prefix + desc.fileName);
+  var dest = fs.createWriteStream(prefix + fileName);
   source.pipe(dest);
   source
     .on('end', function() {
-      fs.unlink(file.path);
+      fs.unlinkSync(file.path);
       if (desc.type == 'binding') {
-        uploader.bigWigToBCWig(prefix, desc.fileName, bigWigToWigAddr);
+        uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr);
       } else if (desc.type == 'bed') {
-        uploader.bedSort(prefix, desc.fileName);
+        uploader.bedSort(prefix, fileName);
       }
     })
     .on('err', function(err) {
       return {
         error: {
-          type: 'upload file copying',
+          type: 'copyFailed',
           message: 'upload file copy failed'
         }
       };
@@ -66,7 +69,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
 
   if (desc.type != 'mapping') {
     // write down the data name and description
-    var fd = fs.openSync(prefix + desc.fileName + '.txt', 'w');
+    var fd = fs.openSync(prefix + fileName + '.txt', 'w');
     fs.writeSync(fd, desc.name + '\n');
     fs.writeSync(fd, desc.description);
     fs.closeSync(fd);
@@ -139,8 +142,12 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
     // if the folder already exists, then delete it
     var folder = prefix + bwFile + '_chr';
     if (fs.existsSync(folder)) {
-      fs.rmdirSync(folder);
-      console.log('Wiggle file ' + bwFile + ' is replaced.');
+      cmd = [
+        'rm',
+        '-r',
+        folder
+      ].join(' ');
+      childProcess.execSync(cmd);
     }
     fs.mkdirSync(folder);
 

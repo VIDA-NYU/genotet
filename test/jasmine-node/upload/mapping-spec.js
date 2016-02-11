@@ -28,7 +28,6 @@ mappingSpec.tests = [
     action: function(frisby) {
       var form = new formData();
       form.append('type', 'mapping');
-      form.append('fileName', mappingSpec.dataInfo.fileName);
       var fileInfo = data.getFile('mapping', mappingSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {
         knownLength: fileInfo.size

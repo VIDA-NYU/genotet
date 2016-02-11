@@ -36,7 +36,6 @@ bedSpec.tests = [
       var form = new formData();
       form.append('type', 'bed');
       form.append('name', bedSpec.dataInfo.name);
-      form.append('fileName', bedSpec.dataInfo.fileName);
       form.append('description', bedSpec.dataInfo.description);
       var fileInfo = data.getFile('bed', bedSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {

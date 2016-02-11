@@ -163,48 +163,29 @@ genotet.BindingPanel.prototype.initChrs_ = function() {
  * @private
  */
 genotet.BindingPanel.prototype.addTrack_ = function() {
-  var trackIndex = this.data.tracks.length - 1;
   var ui = this.container.find('#genes #tracks');
+  var trackIndex = ui.children().length - 1;
   var uiTrack = ui.find('#track-template').clone()
     .appendTo(ui)
     .attr('id', 'track-' + trackIndex)
     .show();
 
-  var genes = genotet.data.bindingGenes.map(function(gene) {
-    return {
-      id: gene,
-      text: gene
-    };
-  });
-  var fileName = this.data.tracks[trackIndex].fileName;
-  var select = uiTrack.children('select').select2({
-    data: genes
-  });
-  select.val(fileName).trigger('change');
-  this.selectGenes_[trackIndex] = select;
-
-  uiTrack.find('.select2-container').css({
-    width: 'calc(100% - 30px)'
-  });
-
   // Removal button
   uiTrack.find('#remove').click(this.signal.bind(this, 'removeTrack',
     trackIndex));
-
-  // Set track fileName
-  select.on('select2:select', function(event) {
-    var fileName = event.params.data.id;
-    this.signal('gene', {
-      trackIndex: trackIndex,
-      fileName: fileName
-    });
-  }.bind(this));
 };
 
 /**
  * Updates the gene selected for each track.
  */
 genotet.BindingPanel.prototype.updateTracks = function() {
+  this.signal('loadBindingList');
+};
+
+/**
+ * Updates the track list for panel after loading binding list.
+ */
+genotet.BindingPanel.prototype.updateTracksAfterLoading = function() {
   var numTracks = this.data.tracks.length;
   var uiTracks = this.container.find('#genes .track-gene');
   if (uiTracks.length > numTracks) {
@@ -213,13 +194,34 @@ genotet.BindingPanel.prototype.updateTracks = function() {
       this.container.find('#genes #track-' + index).remove();
     }
   }
+
+  var fileNames = genotet.data.bindingFiles.map(function(dataInfo) {
+    return {
+      id: dataInfo.fileName,
+      text: dataInfo.gene + ' (' + dataInfo.fileName + ')'
+    };
+  });
   this.data.tracks.forEach(function(track, index) {
     var ui = this.container.find('#genes #track-' + index);
+
     if (!ui.length) {
       this.addTrack_();
+      ui = this.container.find('#genes #track-' + index);
     }
-    this.selectGenes_[index].val(track.fileName).trigger('change');
+    var select = ui.children('select').select2({
+      data: fileNames,
+      width: 'calc(100% - 30px)'
+    });
+    this.selectGenes_[index] = select;
+    select.val(track.fileName).trigger('change');
+
+    // Set track fileName
+    select.on('select2:select', function(event) {
+      var fileName = event.params.data.id;
+      this.signal('updateTrack', {
+        trackIndex: index,
+        fileName: fileName
+      });
+    }.bind(this));
   }, this);
-  this.container.find('#genes .glyphicon-remove')
-    .css('display', this.data.tracks.length == 1 ? 'none' : '');
 };

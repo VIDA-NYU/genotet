@@ -57,7 +57,6 @@ networkSpec.tests = [
       var form = new formData();
       form.append('type', 'network');
       form.append('name', networkSpec.dataInfo.name);
-      form.append('fileName', networkSpec.dataInfo.fileName);
       form.append('description', networkSpec.dataInfo.description);
       var fileInfo = data.getFile('network', networkSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {

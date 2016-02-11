@@ -29,6 +29,7 @@ genotet.dialog.TEMPLATES_ = {
   network: 'templates/create-network.html',
   binding: 'templates/create-binding.html',
   expression: 'templates/create-expression.html',
+  mapping: 'templates/mapping.html',
   upload: 'templates/upload.html'
 };
 
@@ -56,6 +57,9 @@ genotet.dialog.create = function(type) {
       break;
     case 'organism':
       genotet.dialog.organism_();
+      break;
+    case 'mapping':
+      genotet.dialog.mapping_();
       break;
     case 'upload':
       genotet.dialog.upload_();
@@ -223,7 +227,7 @@ genotet.dialog.createExpression_ = function() {
         /** @type {string} */(viewName.val())));
       modal.find('.selectpicker').selectpicker();
       var params = {
-        type: 'list-matrix'
+        type: 'list-expression'
       };
       $.get(genotet.data.serverURL, params, function(data) {
           var matrices = /** @type {genotet.ListedExpression} */(data);
@@ -274,6 +278,47 @@ genotet.dialog.createExpression_ = function() {
 };
 
 /**
+ * Shows a dialog for the user to choose mapping files for linked queries.
+ * @private
+ */
+genotet.dialog.mapping_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.mapping,
+    function() {
+      modal.modal();
+      modal.find('.selectpicker').selectpicker();
+      var params = {
+        type: 'list-mapping'
+      };
+      $.get(genotet.data.serverURL, params, function(data) {
+          var selectpicker = modal.find('.selectpicker');
+          data.push('Direct Mapping');
+          data.forEach(function(fileName) {
+            var option = $('<option></option>')
+              .text(fileName);
+            option.appendTo(selectpicker);
+            if (fileName == genotet.data.mappingFiles['gene-binding']) {
+              option.prop('selected', true);
+            }
+          });
+          selectpicker.selectpicker('refresh');
+          selectpicker.val(genotet.data.mappingFiles['gene-binding'])
+            .trigger('change');
+        }.bind(this), 'jsonp')
+        .fail(function() {
+          genotet.error('failed to get binding list');
+        });
+
+      // Create
+      modal.find('#btn-choose').click(function() {
+        var fileName = modal.find('#mapping-file').val();
+        genotet.data.mappingFiles['gene-binding'] =
+        /** @type {string} */(fileName);
+      });
+    });
+};
+
+/**
  * Creates a dialog for uploading data.
  * @private
  */
@@ -285,7 +330,6 @@ genotet.dialog.upload_ = function() {
       var selectpicker = modal.find('.selectpicker').selectpicker();
 
       var file = modal.find('#file');
-      var fileName = modal.find('#file-name');
       var dataName = modal.find('#data-name');
 
       var btnUpload = modal.find('#btn-upload').prop('disabled', true);
@@ -295,7 +339,6 @@ genotet.dialog.upload_ = function() {
       selectpicker.change(function() {
         var isMapping = selectpicker.val() == 'mapping';
         if (isMapping) {
-          console.log(modal.find('#data-name'));
           modal.find('#data-name').closest('tr').css('display', 'none');
           modal.find('#description').closest('tr').css('display', 'none');
         } else {
@@ -313,16 +356,13 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return fileName.val() && file.val() && (dataName.val() ||
+        return file.val() && (dataName.val() ||
           selectpicker.val() == 'mapping');
       };
 
       file.change(function(event) {
         var fileName = event.target.files[0].name;
         fileDisplay.text(fileName);
-        btnUpload.prop('disabled', !uploadReady());
-      });
-      fileName.keyup(function() {
         btnUpload.prop('disabled', !uploadReady());
       });
 
@@ -334,8 +374,6 @@ genotet.dialog.upload_ = function() {
           /** @type {string} */(dataName.val()));
         formData.append('description',
           /** @type {string} */(modal.find('#description').val()));
-        formData.append('fileName',
-          /** @type {string} */(fileName.val()));
         formData.append('file', file[0].files[0]);
 
         $.ajax({

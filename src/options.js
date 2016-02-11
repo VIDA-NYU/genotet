@@ -8,6 +8,12 @@
 genotet.options = {};
 
 /**
+ * Mapping files.
+ * @type {!Object<string>}
+ */
+genotet.data.mappingFiles = {};
+
+/**
  * Whether to allow the message bar to popup.
  * @type {boolean}
  */

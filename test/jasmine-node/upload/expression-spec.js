@@ -49,7 +49,6 @@ expressionSpec.tests = [
       var form = new formData();
       form.append('type', 'expression');
       form.append('name', expressionSpec.dataInfo.name);
-      form.append('fileName', expressionSpec.dataInfo.fileName);
       form.append('description', expressionSpec.dataInfo.description);
       var fileInfo = data.getFile('expression',
         expressionSpec.dataInfo.fileName);

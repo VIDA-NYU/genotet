@@ -112,28 +112,33 @@ genotet.NetworkView = function(viewName, params) {
   }.bind(this));
 
   // Set up rendering update.
-  $(this.panel).on('genotet.update', function(event, data) {
-    switch (data.type) {
-      case 'label':
-        this.renderer.update();
-        break;
-      case 'visibility':
-        this.renderer.updateVisibility();
-        this.renderer.update();
-        break;
-      case 'gene':
-        this.loader.updateGenes(data.method, data.inputGenes, data.isRegex);
-        this.renderer.dataLoaded();
-        break;
-      case 'delete-edge':
-        this.loader.deleteEdges(data.edges);
-        this.table.removeEdge(data.edges[0]);
-        this.renderer.dataLoaded();
-        break;
-      default:
-        genotet.error('unknown update type', data.type);
-    }
-  }.bind(this));
+  $(this.panel)
+    .on('genotet.update', function(event, data) {
+      switch (data.type) {
+        case 'label':
+          this.renderer.update();
+          break;
+        case 'visibility':
+          this.renderer.updateVisibility();
+          this.renderer.update();
+          break;
+        case 'gene':
+          this.loader.updateGenes(data.method, data.inputGenes, data.isRegex);
+          this.renderer.dataLoaded();
+          break;
+        case 'delete-edge':
+          this.loader.deleteEdges(data.edges);
+          this.table.removeEdge(data.edges[0]);
+          this.renderer.dataLoaded();
+          break;
+        default:
+          genotet.error('unknown update type', data.type);
+      }
+    }.bind(this))
+    .on('genotet.combined-regulation', function(event, data) {
+      this.loader.loadCombinedRegulation(data.inputGenes, data.isRegex);
+      this.renderer.dataLoaded();
+    }.bind(this));
 
   // Gene removal update.
   $(this.loader)
@@ -153,6 +158,8 @@ genotet.NetworkView = function(viewName, params) {
     .on('genotet.nodeClick', function(event, node) {
       this.panel.displayNodeInfo(node);
       this.loader.incidentEdges(node);
+      var gene = [node.id];
+      this.signal('nodeClick', gene);
     }.bind(this))
     .on('genotet.nodeHover', function(event, node) {
       this.panel.tooltipNode(node);
@@ -162,6 +169,8 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.edgeClick', function(event, edge) {
       this.panel.displayEdgeInfo(edge);
+      var genes = edge.id.split(',');
+      this.signal('edgeClick', genes);
     }.bind(this))
     .on('genotet.edgeHover', function(event, edge) {
       this.panel.tooltipEdge(edge);
