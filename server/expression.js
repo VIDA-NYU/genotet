@@ -134,33 +134,93 @@ expression.query.list = function(expressionPath) {
  */
 expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
   // TFA profile has the same format as an expression matrix.
-  var result = expression.readExpression_(fileName, geneNames, conditionNames);
+  var result = expression.readTfaMatrix_(fileName);
   var allTfaValues = [];
   var valueMin = Infinity;
   var valueMax = -Infinity;
-  geneNames.forEach(function(geneName, i) {
-    var tfaValues = [];
-    conditionNames.forEach(function(conditionName, j) {
-      var tfaValue = result.values[i][j];
-      if (tfaValue) {
-        tfaValues.push({
-          value: tfaValue,
-          index: j
-        });
-        valueMin = Math.min(valueMin, tfaValue);
-        valueMax = Math.max(valueMax, tfaValue);
-      }
-    });
-    tfaValues.sort(function(a, b) {
-      return a.index - b.index;
-    });
-    allTfaValues.push(tfaValues);
+  var allGeneNames = {};
+  var allConditionNames = {};
+
+  result.geneNames.forEach(function(gene, index) {
+    allGeneNames[gene] = index;
+  });
+  result.conditionNames.forEach(function(condition, index) {
+    allConditionNames[condition] = index;
+  });
+  geneNames.forEach(function(geneName) {
+    if (geneName in allGeneNames) {
+      var rowNum = allGeneNames[geneName];
+      var tfaValues = [];
+      conditionNames.forEach(function(conditionName, j) {
+        if (conditionName in allConditionNames) {
+          var colNum = allConditionNames[conditionName];
+          var tfaValue = result.values[rowNum][colNum];
+          if (tfaValue) {
+            tfaValues.push({
+              value: tfaValue,
+              index: colNum
+            });
+            valueMin = Math.min(valueMin, tfaValue);
+            valueMax = Math.max(valueMax, tfaValue);
+          }
+        }
+      });
+      tfaValues.sort(function(a, b) {
+        return a.index - b.index;
+      });
+      allTfaValues.push(tfaValues);
+    }
   });
   console.log('returning TFA line', geneNames.join(','));
   return {
     geneNames: geneNames,
     conditionNames: conditionNames,
     tfaValues: allTfaValues,
+    valueMin: valueMin,
+    valueMax: valueMax
+  };
+};
+
+/**
+ * Reads the TFA matrix in text file.
+ * @param {string} fileName Path to the TFA matrix file.
+ * @return {!expression.Matrix}
+ * @private
+ */
+expression.readTfaMatrix_ = function(fileName) {
+  var isFirstCol = true;
+  var conditionNames = [];
+  var geneNames = [];
+  var values = [];
+  var valueMin = Infinity;
+  var valueMax = -Infinity;
+  var lines = fs.readFileSync(fileName).toString().split('\n');
+  lines.forEach(function(line, lineIndex) {
+    var parts = line.split(/[\t\s]+/);
+    if (parts.length == 0) {
+      return;
+    }
+    if (isFirstCol) {
+      isFirstCol = false;
+      for (var i = 1; i < parts.length; i++) {
+        conditionNames.push(parts[i]);
+      }
+    } else {
+      geneNames.push(parts[0]);
+      var lineValues = [];
+      for (var i = 1; i < parts.length; i++) {
+        var value = parseFloat(parts[i]);
+        lineValues.push(value);
+        valueMin = Math.min(valueMin, value);
+        valueMax = Math.max(valueMax, value);
+      }
+      values.push(lineValues);
+    }
+  });
+  return {
+    values: values,
+    geneNames: geneNames,
+    conditionNames: conditionNames,
     valueMin: valueMin,
     valueMax: valueMax
   };
@@ -199,14 +259,14 @@ expression.listMatrix_ = function(expressionPath) {
 };
 
 /**
- * Reads expression matrix from text file.
- * @param {string} expressionFile Path to the expression file.
+ * Reads matrix from text file.
+ * @param {string} fileName Path to the matrix file.
  * @param {!Array<string>} geneNames Names for gene selection.
  * @param {!Array<string>} conditionNames Names for condition selection.
  * @return {expression.Matrix}
  * @private
  */
-expression.readExpression_ = function(expressionFile, geneNames,
+expression.readExpression_ = function(fileName, geneNames,
                                       conditionNames) {
   var values = [];
   var isFirstRow = true;
@@ -216,7 +276,7 @@ expression.readExpression_ = function(expressionFile, geneNames,
   var valueMax = -Infinity;
   var valueMin = Infinity;
 
-  var lines = fs.readFileSync(expressionFile).toString().split('\n');
+  var lines = fs.readFileSync(fileName).toString().split('\n');
   lines.forEach(function(line, lineIndex) {
     var parts = line.split(/[\t\s]+/);
     if (parts.length == 0) {
@@ -253,7 +313,6 @@ expression.readExpression_ = function(expressionFile, geneNames,
       values.push(tmpLine);
     }
   });
-  console.log('returning tfa line', geneNames.join(','));
   return {
     values: values,
     geneNames: geneNames,
