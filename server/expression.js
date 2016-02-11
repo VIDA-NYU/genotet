@@ -445,7 +445,7 @@ expression.getMatrixInfo_ = function(expressionFile) {
 
   var lines = fs.readFileSync(expressionFile).toString().split('\n');
   lines.forEach(function(line, lineIndex) {
-    var parts = line.split('\t');
+    var parts = line.split(/[\t\s]+/);
     if (isFirstRow) {
       // first row contains the conditions
       isFirstRow = false;
