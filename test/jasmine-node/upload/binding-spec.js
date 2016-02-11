@@ -85,7 +85,8 @@ bindingSpec.tests = [
         expect(data[0]).toEqual({
           gene: bindingSpec.dataInfo.name,
           fileName: bindingSpec.dataInfo.fileName,
-          description: bindingSpec.dataInfo.description
+          description: bindingSpec.dataInfo.description,
+          chrs: ['chr1', 'chr2', 'chr3']
         });
       });
     }

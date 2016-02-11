@@ -531,18 +531,31 @@ binding.listBindingGenes_ = function(bindingPath) {
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
     if (file.indexOf('.txt') != -1) {
-      var fname = file.substr(0, file.length - 4);
+      var fileName = file.substr(0, file.length - 4);
       var content = fs.readFileSync(folder + file, 'utf8')
         .toString().split('\n');
       var gene = content[0];
       var description = content.slice(1).join('');
+      var chrFolder = bindingPath + fileName + '_chr/';
+      var chrFiles = fs.readdirSync(chrFolder);
+      var chrs = [];
+      chrFiles.forEach(function(file) {
+        if (file.indexOf('bcwig') != -1) {
+          var nameParts = file.split('_');
+          var lastParts = nameParts[nameParts.length - 1].split('.');
+          var chr = lastParts[0];
+          chrs.push(chr);
+        }
+      });
       ret.push({
-        fileName: fname,
+        fileName: fileName,
         gene: gene,
+        chrs: chrs,
         description: description
       });
     }
   });
+  console.log(ret);
   return ret;
 };
 
