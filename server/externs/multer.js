@@ -26,4 +26,4 @@ multer.prototype.single = function(arg) {};
  *   size: number
  * }}
  */
-multer.prototype.file;
+multer.File;

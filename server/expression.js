@@ -15,17 +15,6 @@ function expression() {}
 
 /**
  * @typedef {{
- *   numrows: number,
- *   numcols: number,
- *   rownames: !Array<string>,
- *   colnames: !Array<string>,
- *   values: !Array<number>
- * }}
- */
-expression.RawMatrix;
-
-/**
- * @typedef {{
  *   allGeneNames: !Object<string>,
  *   allConditionNames: !Object<string>,
  *   allValueMin: number,

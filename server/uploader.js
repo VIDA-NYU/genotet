@@ -36,28 +36,22 @@ uploader.DOUBLE_SIZE_ = 8;
  *   name: string,
  *   description: string,
  * }} desc File description.
- * @param {!Object} file File object received from multer.
+ * @param {!multer.File} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
  * @return {Object} Success or not as a JS Object.
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
   var fileName = file.originalname;
-  if (fs.existsSync(prefix + fileName) ||
-    fs.existsSync(prefix + fileName + '_chr')) {
-    return {
-      error: {
-        type: 'file already exists',
-        message: 'file already exists'
-      }
-    };
+  if (fs.existsSync(prefix + fileName)) {
+    fs.unlinkSync(prefix + fileName);
   }
   var source = fs.createReadStream(file.path);
   var dest = fs.createWriteStream(prefix + fileName);
   source.pipe(dest);
   source
     .on('end', function() {
-      fs.unlink(file.path);
+      fs.unlinkSync(file.path);
       if (desc.type == 'binding') {
         uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr);
       } else if (desc.type == 'bed') {
@@ -67,7 +61,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
     .on('err', function(err) {
       return {
         error: {
-          type: 'upload file copying',
+          type: 'copyFailed',
           message: 'upload file copy failed'
         }
       };
@@ -148,8 +142,12 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
     // if the folder already exists, then delete it
     var folder = prefix + bwFile + '_chr';
     if (fs.existsSync(folder)) {
-      fs.rmdirSync(folder);
-      console.log('Wiggle file ' + bwFile + ' is replaced.');
+      cmd = [
+        'rm',
+        '-r',
+        folder
+      ].join(' ');
+      childProcess.execSync(cmd);
     }
     fs.mkdirSync(folder);
 
