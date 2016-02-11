@@ -312,13 +312,6 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
     .classed('profile-content', true);
 
   /**
-   * SVG group for profile point.
-   * @private {!d3}
-   */
-  this.profilePoint_ = this.svgProfile_.append('g')
-    .classed('profile-point', true);
-
-  /**
    * SVG group for TFA profile plot (line charts).
    * @private {!d3}
    */
@@ -1058,8 +1051,25 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .y(yScale)
     .interpolate('linear');
 
-  var profilePath = this.profileContent_.selectAll('path')
+  var profileGroup = this.profileContent_.selectAll('g')
     .data(this.data.profiles);
+  profileGroup.enter().append('g');
+  profileGroup
+    .style('fill', function(profile) {
+      return 'none';
+    })
+    .style('stroke', function(profile, i) {
+      var pathColor = this.COLOR_CATEGORY[genotet.utils.hashString(
+        profile.geneName) % this.COLOR_CATEGORY_SIZE];
+      this.data.profiles[i].color = pathColor;
+      return pathColor;
+    }.bind(this));
+  profileGroup.exit().remove();
+
+  var profilePath = profileGroup.selectAll('path')
+    .data(function(profile) {
+      return [profile]
+    });
   profilePath.enter().append('path');
   profilePath
     .classed('profile', true)
@@ -1070,13 +1080,11 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
       this.heatmapWidth_ / (heatmapData.conditionNames.length * 2),
       0
     ]))
-    .style('stroke', function(profile, i) {
-      var pathColor = this.COLOR_CATEGORY[genotet.utils.hashString(
-        profile.geneName) % this.COLOR_CATEGORY_SIZE];
-      this.data.profiles[i].color = pathColor;
-      return pathColor;
+    .style('stroke', function(profile) {
+      return profile.color
     }.bind(this))
     .on('mousemove', function(profile, i) {
+      d3.select(d3.event.target).classed('path-highlighted', true);
       var conditionIndex = Math.floor(
         xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5
       );
@@ -1092,32 +1100,30 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     .on('mouseout', function(profile, i) {
       this.data.profiles[i].container = d3.event.target;
       this.signal('pathUnhover', this.data.profiles[i]);
+      d3.select(d3.event.target).classed('path-highlighted', false);
     }.bind(this))
     .on('click', function(profile, i) {
-      var conditionIndex = Math.floor(
-        xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
-      var geneIndex = this.data.matrixGeneNameDict[
-        this.data.profiles[i].geneName];
-      var value = heatmapData.values[geneIndex][conditionIndex];
-      _.extend(this.clickedObject_, {
-        container: d3.event.target,
-        geneName: heatmapData.geneNames[geneIndex],
-        conditionName: heatmapData.conditionNames[conditionIndex],
-        row: geneIndex,
-        column: conditionIndex,
-        value: value
-      });
-      this.signal('expressionClick', this.clickedObject_);
+
+      d3.select(d3.event.target).classed('path-highlighted', true);
+      //var conditionIndex = Math.floor(
+      //  xScale.invert(d3.mouse(d3.event.target)[0]) + 0.5);
+      //var geneIndex = this.data.matrixGeneNameDict[
+      //  this.data.profiles[i].geneName];
+      //var value = heatmapData.values[geneIndex][conditionIndex];
+      //_.extend(this.clickedObject_, {
+      //  container: d3.event.target,
+      //  geneName: heatmapData.geneNames[geneIndex],
+      //  conditionName: heatmapData.conditionNames[conditionIndex],
+      //  row: geneIndex,
+      //  column: conditionIndex,
+      //  value: value
+      //});
+      //this.signal('expressionClick', this.clickedObject_);
     }.bind(this));
   profilePath.exit().remove();
 
-  var profilePointGroup = this.profilePoint_.selectAll('g')
-    .data(this.data.profiles);
-  profilePointGroup.enter().append('g');
-  profilePointGroup.exit().remove();
-  var profilePoint = profilePointGroup.selectAll('circle')
+  var profilePoint = profileGroup.selectAll('circle')
     .data(function(profile) {
-      console.log(profile);
       return heatmapData.values[profile.row];
     });
   profilePoint.enter().append('circle');
@@ -1128,15 +1134,18 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     })
     .attr('cy', function(value) {
       return yScale(value);
+    })
+    .on('mouseover', function(value, i) {
+      console.log(d3.select(d3.event.target.parentNode).datum().geneName);
+      d3.select(d3.event.target).classed('circle-highlighted', true);
+    }.bind(this))
+    .on('mouseout', function() {
+      d3.select(this).classed('circle-highlighted', false);
+    })
+    .on('click', function() {
+
     });
   profilePoint.exit().remove();
-  //profilePointGroup.selectAll('circle')
-  //  .style('fill', function(profile) {
-  //    return profile.color;
-  //  })
-  //  .style('stroke', function(profile) {
-  //    return profile.color;
-  //  });
 };
 
 /**
@@ -1406,7 +1415,7 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverCell = function(cell) {
 genotet.ExpressionRenderer.prototype.highlightHoverPath = function(profile) {
   if (profile.container) {
     var pathSelection = d3.select(profile.container);
-    pathSelection.classed('highlighted', true);
+    pathSelection.classed('path-highlighted', true);
   }
   this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
     return profile.row == i;
@@ -1424,7 +1433,7 @@ genotet.ExpressionRenderer.prototype.highlightHoverPath = function(profile) {
 genotet.ExpressionRenderer.prototype.unhighlightHoverPath = function(profile) {
   if (profile.container) {
     var pathSelection = d3.select(profile.container);
-    pathSelection.classed('highlighted', false);
+    pathSelection.classed('path-highlighted', false);
   }
   this.svgGeneLabels_.selectAll('text').classed('highlighted', false);
   this.svgConditionLabels_.selectAll('text').classed('highlighted', false);
