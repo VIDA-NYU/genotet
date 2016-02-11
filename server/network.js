@@ -75,7 +75,7 @@ network.query.IncidentEdges;
 /**
  * @typedef {{
  *   fileName: string,
- *   geneRegex: string
+ *   genes: !Array<string>
  * }}
  */
 network.query.CombinedRegulation;
@@ -123,14 +123,12 @@ network.query.incidentEdges = function(query, networkPath) {
 /**
  * @param {!network.query.CombinedRegulation} query
  * @param {string} networkPath
- * @return {!Array<!network.Node>}
+ * @return {!Array<string>}
  */
 network.query.combinedRegulation = function(query, networkPath) {
   var fileName = query.fileName;
-  var geneRegex = utils.decodeSpecialChar(query.geneRegex);
   var file = networkPath + fileName;
-  // TODO(jiaming): fix old file read
-  return network.getComb_(file, geneRegex);
+  return network.getCombinedRegulation_(file, query.genes);
 };
 
 /**
@@ -171,58 +169,6 @@ network.query.allNodes = function(query, networkPath) {
   return network.allNodes_(file);
 };
 // End public APIs
-
-/**
- * Reads the entire network data from the buffer.
- * @param {!Buffer} buf File buffer of the network data.
- * @return {!network.RawNetwork}
- * @private
- */
-network.readNet_ = function(buf) {
-  // Read number of nodes, number of TFs, and number of bytes for node names.
-  var numNodes = buf.readInt32LE(0);
-  var numTFs = buf.readInt32LE(4);
-  var nameBytes = buf.readInt32LE(8);
-
-  var offset = 12;
-  var namestr = buf.toString('utf8', offset, offset + nameBytes);
-  var names = namestr.split(' '); // read node names
-  offset += nameBytes;
-
-  var nodes = [];
-  for (var i = 0; i < numNodes; i++) {
-    nodes.push({
-      id: names[i],
-      name: names[i],
-      isTF: i < numTFs ? true : false
-    });
-  }
-  var numEdges = buf.readInt32LE(offset);
-  offset += 4;
-
-  var edges = [];
-  for (var i = 0; i < numEdges; i++) {
-    var s = buf.readInt32LE(offset);
-    var t = buf.readInt32LE(offset + 4);
-    var w = buf.readDoubleLE(offset + 8);
-    offset += 16;
-    var weight = [];
-    weight.push(w);
-    edges.push({
-      id: names[s] + ',' + names[t],
-      source: names[s],
-      target: names[t],
-      weight: weight
-    });
-  }
-  return {
-    numNodes: numNodes,
-    numEdges: numEdges,
-    nodes: nodes,
-    edges: edges,
-    names: names
-  };
-};
 
 /**
  * Gets the network data according to the gene selection.
@@ -306,43 +252,34 @@ network.getIncidentEdges_ = function(file, gene) {
 /**
  * Finds the genes regulated by all the given TFs.
  * @param {string} file Network file name.
- * @param {string} exp Regex selecting the regulated targets.
- * @return {!Array<!network.Node>} The combined regulators.
+ * @param {!Array<string>} genes Genes selecting the regulated targets.
+ * @return {!Array<string>} The combined regulators.
  * @private
  */
-network.getComb_ = function(file, exp) {
-  console.log('get combination', file, exp);
-  var buf = utils.readFileToBuf(file);
-  if (buf == null) {
-    console.error('cannot read file', file);
-    return [];
-  }
-  var result = network.readNet_(buf);
-  var regex;
-  try {
-    regex = RegExp(exp, 'i');
-  } catch (e) {
-    console.error('incorrect regular expression');
-    return [];
-  }
+network.getCombinedRegulation_ = function(file, genes) {
+  console.log('get combination', file);
+  var result = network.readNetwork_(file);
+  var geneMap = {};
+  genes.forEach(function(gene) {
+    geneMap[gene] = true;
+  });
   var tfs = {}, tfcnt = 0, regcnt = {};
-  for (var i = 0; i < result.numNodes; i++) {
-    var name = result.nodes[i].id;
-    regcnt[name] = 0;
-    if (result.nodes[i].id.match(regex)) {
-      if (tfs[name] == null) {
-        tfs[name] = true;
-        tfcnt++;
-      }
+  result.nodes.forEach(function(node) {
+    var nodeId = node.id;
+    regcnt[nodeId] = 0;
+    if (nodeId in geneMap) {
+      tfs[nodeId] = true;
+      tfcnt++;
     }
-  }
-  console.log(tfs, tfcnt);
-  for (var i = 0; i < result.numEdges; i++) {
-    var s = result.edges[i].source, t = result.edges[i].target;
-    if (tfs[result.nodes[s].id] == true) {
-      regcnt[result.nodes[t].id]++;
+  });
+  result.edges.forEach(function(edge) {
+    var source = edge.source;
+    var target = edge.target;
+    if (source in tfs) {
+      console.log(source + ' ' + target);
+      regcnt[target]++;
     }
-  }
+  });
   var nodes = [];
   for (var name in regcnt) {
     if (regcnt[name] == tfcnt) {
