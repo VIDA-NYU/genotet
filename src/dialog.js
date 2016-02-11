@@ -330,7 +330,6 @@ genotet.dialog.upload_ = function() {
       var selectpicker = modal.find('.selectpicker').selectpicker();
 
       var file = modal.find('#file');
-      var fileName = modal.find('#file-name');
       var dataName = modal.find('#data-name');
 
       var btnUpload = modal.find('#btn-upload').prop('disabled', true);
@@ -340,7 +339,6 @@ genotet.dialog.upload_ = function() {
       selectpicker.change(function() {
         var isMapping = selectpicker.val() == 'mapping';
         if (isMapping) {
-          console.log(modal.find('#data-name'));
           modal.find('#data-name').closest('tr').css('display', 'none');
           modal.find('#description').closest('tr').css('display', 'none');
         } else {
@@ -358,16 +356,13 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return fileName.val() && file.val() && (dataName.val() ||
+        return file.val() && (dataName.val() ||
           selectpicker.val() == 'mapping');
       };
 
       file.change(function(event) {
         var fileName = event.target.files[0].name;
         fileDisplay.text(fileName);
-        btnUpload.prop('disabled', !uploadReady());
-      });
-      fileName.keyup(function() {
         btnUpload.prop('disabled', !uploadReady());
       });
 
@@ -379,8 +374,6 @@ genotet.dialog.upload_ = function() {
           /** @type {string} */(dataName.val()));
         formData.append('description',
           /** @type {string} */(modal.find('#description').val()));
-        formData.append('fileName',
-          /** @type {string} */(fileName.val()));
         formData.append('file', file[0].files[0]);
 
         $.ajax({
