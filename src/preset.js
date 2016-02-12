@@ -22,12 +22,12 @@ genotet.preset.NETWORK_PARAMS_ = {
  * @private @const {!genotet.ExpressionViewParams}
  */
 genotet.preset.EXPRESSION_PARAMS_ = {
-  fileName: 'expressionMatrix',
-  tfaFileName: 'tfa.matrix2.bin',
+  fileName: 'rnaseq',
+  tfaFileName: 'tfa.mat.tsv',
   isGeneRegex: true,
   isConditionRegex: true,
-  geneInput: 'sig.*',
-  conditionInput: 'si.*'
+  geneInput: 'BATF|RORC|STAT3|IRF4|MAF',
+  conditionInput: 'SL18.*'
 };
 
 /**
