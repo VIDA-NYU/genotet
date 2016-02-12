@@ -340,13 +340,6 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
     .classed('profile-content', true);
 
   /**
-   * SVG group for TFA profile point.
-   * @private {!d3}
-   */
-  this.tfaProfilePoint_ = this.svgTfaProfile_.append('g')
-    .classed('profile-point', true);
-
-  /**
    * SVG group for the heatmap plot.
    * @private {!d3}
    */
@@ -623,9 +616,9 @@ genotet.ExpressionRenderer.prototype.dataLoaded = function() {
   i = 0;
   profileCount = this.data.tfaProfiles.length;
   while (i < profileCount) {
-    var geneIndex = this.data.matrixGeneNameDict[
+    var geneIndex = this.data.tfaGeneNameDict[
       this.data.tfaProfiles[i].geneName];
-    if (!(this.data.tfaProfiles[i].geneName in this.data.matrixGeneNameDict)) {
+    if (!(this.data.tfaProfiles[i].geneName in this.data.tfaGeneNameDict)) {
       this.data.tfaProfiles.splice(i, 1);
       profileCount--;
     } else {
@@ -1246,7 +1239,6 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
   var profilePoint = profileGroup.selectAll('circle')
     .data(function(tfaProfile) {
       var geneIndex = this.data.matrixGeneNameDict[tfaProfile.geneName];
-      console.log(tfaData);
       return tfaData.tfaValues[geneIndex];
     }.bind(this));
   profilePoint.enter().append('circle');
