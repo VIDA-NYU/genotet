@@ -6,30 +6,34 @@ $white: #fff;
 
 .view.expression {
   .profiles {
-    stroke-width: 1.5;
-
-    .profile {
+    .profile-content {
       fill: none;
+      stroke-width: 1.5;
     }
 
-    .highlighted {
+    .path-highlighted {
       stroke-width: 3;
     }
-  }
 
-  .axis {
-    fill: none;
-    shape-rendering: crispEdges;
-    stroke: $black;
-    stroke-width: 1;
-
-    &.x .tick {
-      display: none;
+    .circle-highlighted {
+      stroke-opacity: .8;
+      stroke-width: 8;
     }
 
-    text {
-      fill: $black;
-      stroke: none;
+    .axis {
+      fill: none;
+      shape-rendering: crispEdges;
+      stroke: $black;
+
+      &.x .tick {
+        display: none;
+      }
+
+      text {
+        fill: $black;
+        font-size: 11px;
+        stroke: none;
+      }
     }
   }
 
@@ -112,10 +116,6 @@ $white: #fff;
     float: left;
     font-size: 12px;
     margin-top: 4px;
-
-    label {
-      margin-left: 0;
-    }
 
     input {
       height: 10px;
