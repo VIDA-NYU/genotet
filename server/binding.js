@@ -555,7 +555,6 @@ binding.listBindingGenes_ = function(bindingPath) {
       });
     }
   });
-  console.log(ret);
   return ret;
 };
 
