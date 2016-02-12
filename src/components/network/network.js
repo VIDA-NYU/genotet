@@ -66,6 +66,15 @@ genotet.NetworkViewParams;
 genotet.EdgeForTable;
 
 /**
+ * @typedef {!Array<{
+ *   networkName: string,
+ *   fileName: string,
+ *   description: string
+ * }>}
+ */
+genotet.ListedNetwork;
+
+/**
  * NetworkView extends the base View class, and renders the regulatory network
  * topology.
  * @param {string} viewName Name of the view.
@@ -108,6 +117,7 @@ genotet.NetworkView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
+    this.data.networkInfo.fileName = params.fileName;
     this.loader.loadNetworkInfo(params.fileName);
   }.bind(this));
 
@@ -138,6 +148,12 @@ genotet.NetworkView = function(viewName, params) {
     .on('genotet.combined-regulation', function(event, data) {
       this.loader.loadCombinedRegulation(data.inputGenes, data.isRegex);
       this.renderer.dataLoaded();
+    }.bind(this))
+    .on('genotet.updateNetwork', function(event, data) {
+      this.loader.loadNetworkInfo(data.fileName);
+    }.bind(this))
+    .on('genotet.loadNetworkList', function() {
+      this.loader.loadNetworkList();
     }.bind(this));
 
   // Gene removal update.
@@ -177,6 +193,12 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.edgeUnhover', function(event, edge) {
       genotet.tooltip.hideAll();
+    }.bind(this));
+
+  // Update network panel.
+  $(this.loader)
+    .on('genotet.updateFileListAfterLoading', function() {
+      this.panel.updateFileListAfterLoading();
     }.bind(this));
 
   // Table

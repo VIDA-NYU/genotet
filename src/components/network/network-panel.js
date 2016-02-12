@@ -12,6 +12,12 @@
  */
 genotet.NetworkPanel = function(data) {
   genotet.NetworkPanel.base.constructor.call(this, data);
+
+  /**
+   * Flag of matrix file select is open or not.
+   * @private {boolean}
+   */
+  this.fileSelectIsOpen_ = false;
 };
 
 genotet.utils.inherit(genotet.NetworkPanel, genotet.ViewPanel);
@@ -84,6 +90,9 @@ genotet.NetworkPanel.prototype.initPanel = function() {
         isRegex: isRegex
       });
     }.bind(this));
+
+  // Load network list
+  this.signal('loadNetworkList');
 };
 
 /** @inheritDoc */
@@ -100,6 +109,40 @@ genotet.NetworkPanel.prototype.edgeListContainer = function() {
   edgeList.html(
     /** @type {string} */(this.container.find('#edge-list-template').html()));
   return edgeList.children('table');
+};
+
+/**
+ * Updates the network list for panel after loading network list.
+ */
+genotet.NetworkPanel.prototype.updateFileListAfterLoading = function() {
+  if (!this.fileSelectIsOpen_) {
+    var fileNames = genotet.data.networkFiles.map(function(dataInfo) {
+      return {
+        id: dataInfo.fileName,
+        text: dataInfo.networkName + ' (' + dataInfo.fileName + ')'
+      };
+    });
+    var select = this.container.find('#network select').select2({
+      data: fileNames,
+      width: '100%'
+    });
+    select.val(this.data.networkInfo.fileName).trigger('change');
+
+    // Set matrix fileName
+    select.on('select2:select', function(event) {
+      this.fileSelectIsOpen_ = false;
+      var fileName = event.params.data.id;
+      this.data.networkInfo.fileName = fileName;
+      this.signal('updateNetwork', {
+        fileName: fileName
+      });
+    }.bind(this));
+
+    select.on('select2:open', function() {
+      this.fileSelectIsOpen_ = true;
+      this.signal('loadNetworkList');
+    }.bind(this));
+  }
 };
 
 /**

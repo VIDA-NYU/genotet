@@ -149,6 +149,7 @@ network.query.incrementalEdges = function(query, networkPath) {
 /**
  * @param {string} networkPath
  * @return {!Array<{
+ *   fileName: string,
  *   networkName: string,
  *   description: string
  * }>}

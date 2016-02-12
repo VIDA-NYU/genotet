@@ -224,7 +224,7 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
 };
 
 /**
- * Updates the track list for panel after loading binding list.
+ * Updates the matrix list for panel after loading expression list.
  */
 genotet.ExpressionPanel.prototype.updateFileListAfterLoading = function() {
   if (!this.fileSelectIsOpen_) {

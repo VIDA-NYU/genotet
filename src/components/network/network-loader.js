@@ -12,6 +12,13 @@
  */
 genotet.NetworkLoader = function(data) {
   genotet.NetworkLoader.base.constructor.call(this, data);
+
+  _.extend(this.data, {
+    network: null,
+    networkInfo: {
+      fileName: null
+    }
+  });
 };
 
 genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);
@@ -69,7 +76,7 @@ genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
     fileName: fileName
   };
   this.get(genotet.data.serverURL, params, function(data) {
-    this.data.networkInfo = data;
+    this.data.networkInfo = $.extend({}, this.data.networkInfo, data);
     this.data.networkInfo.nodeLabel = {};
     this.data.networkInfo.isTF = {};
     this.data.networkInfo.nodes.forEach(function(node) {
@@ -126,7 +133,7 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
 
   switch (method) {
     case 'set':
-      this.loadNetwork_(this.data.network.fileName, genes);
+      this.loadNetwork_(this.data.networkInfo.fileName, genes);
       break;
     case 'add':
       this.addGenes_(genes);
@@ -146,7 +153,7 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
 genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   var params = {
     type: 'incident-edges',
-    fileName: this.data.network.fileName,
+    fileName: this.data.networkInfo.fileName,
     gene: node.id
   };
   this.get(genotet.data.serverURL, params, function(data) {
@@ -176,7 +183,7 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
 
   var params = {
     type: 'incremental-edges',
-    fileName: this.data.network.fileName,
+    fileName: this.data.networkInfo.fileName,
     genes: newGenes,
     nodes: this.data.network.nodes
   };
@@ -288,7 +295,7 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
   var genes = this.prepareGenes_(inputGenes, isRegex);
   var params = {
     type: 'combined-regulation',
-    fileName: this.data.network.fileName,
+    fileName: this.data.networkInfo.fileName,
     genes: genes
   };
 
@@ -300,4 +307,20 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
   this.get(genotet.data.serverURL, params, function(data) {
     this.addGenes_(data);
   }.bind(this), 'can not get combined regulation');
+};
+
+/**
+ * Loads network data list into genotet.data.networkFiles.
+ */
+genotet.NetworkLoader.prototype.loadNetworkList = function() {
+  var params = {
+    type: 'list-network'
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    genotet.data.networkFiles = [];
+    data.forEach(function(dataInfo) {
+      genotet.data.networkFiles.push(dataInfo);
+    });
+    this.signal('updateFileListAfterLoading');
+  }.bind(this), 'cannot load network list', true);
 };

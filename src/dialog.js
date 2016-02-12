@@ -316,9 +316,9 @@ genotet.dialog.mapping_ = function() {
           fileNames.push('Direct Mapping');
           modal.find('#mapping-file').select2({
             data: fileNames
-          });
-          modal.find('#mapping-file').select2('val',
-            genotet.data.mappingFiles['gene-binding']);
+          })
+            .val(genotet.data.mappingFiles['gene-binding'])
+            .trigger('change');
         }.bind(this), 'jsonp')
         .fail(function() {
           genotet.error('failed to get mapping list');
