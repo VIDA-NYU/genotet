@@ -113,8 +113,15 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
     }.bind(this));
 
   // Input type update
+  var viewName = this.container.attr('id').replace('panel-view-', '');
+  this.container.find('#gene-input input')
+    .attr('name', viewName + '-gene-optradio');
+  this.container.find('#condition-input input')
+    .attr('name', viewName + '-condition-optradio');
+
   this.container.find('#gene-input label[name=regex] input')
     .click(function() {
+      console.log(this.container.attr('id').replace('panel-view-', ''));
       this.isGeneRegex_ = true;
     }.bind(this));
   this.container.find('#gene-input label[name=string] input')
@@ -143,7 +150,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
 
       var geneNames = this.formatGeneInput(this.isGeneRegex_, geneInput);
       if (geneNames.length == 0) {
-        genotet.warning('invalid input gene selection');
+        genotet.warning('no genes found');
         return;
       }
       this.signal('update', {
@@ -168,7 +175,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       var conditionNames = this.formatConditionInput(this.isConditionRegex_,
         conditionInput);
       if (conditionNames.length == 0) {
-        genotet.warning('invalid input condition selection');
+        genotet.warning('no conditions found');
         return;
       }
       this.signal('update', {
@@ -217,9 +224,9 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
 /**
  * Adds the cell info into a given container.
  * @param {string} geneName Gene name of which info is to be displayed.
- * @param {string} conditionName Condition name of which info is to be
+ * @param {?|string} conditionName Condition name of which info is to be
  *     displayed.
- * @param {number} value Value of which info is to be displayed.
+ * @param {?|number} value Value of which info is to be displayed.
  * @param {!jQuery} container Info container.
  * @private
  */
@@ -233,6 +240,13 @@ genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName,
     .text(conditionName);
   container.children('#value').children('span')
     .text(value + '');
+
+  container.children('#condition').css('display', function() {
+    return conditionName ? 'inline' : 'none';
+  });
+  container.children('#number').css('display', function() {
+    return value != null ? 'inline' : 'none';
+  });
 };
 
 /**

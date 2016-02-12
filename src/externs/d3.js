@@ -9,7 +9,7 @@
 function d3() {}
 
 /**
- * @param {!d3|string|Element|null} arg
+ * @param {!d3|string|Element|Node|null} arg
  * @return {!d3}
  */
 d3.select = function(arg) {};
@@ -68,6 +68,12 @@ d3.prototype.filter = function(selector) {};
  * @param {Function=} opt_mapping
  */
 d3.prototype.data = function(arg, opt_mapping) {};
+
+/**
+ * @param {Array<*>=} arg
+ * @param {Function=} opt_mapping
+ */
+d3.prototype.datum = function(arg, opt_mapping) {};
 
 /**
  * @param {string} classes

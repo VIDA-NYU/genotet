@@ -156,12 +156,10 @@ genotet.ExpressionView = function(viewName, params) {
   // Path hover in expression.
   $(this.renderer)
     .on('genotet.pathHover', function(event, profile) {
-      this.renderer.highlightHoverPath(profile);
       this.panel.tooltipHeatmap(profile.geneName,
         profile.hoverConditionName, profile.hoverValue);
     }.bind(this))
-    .on('genotet.pathUnhover', function(event, profile) {
-      this.renderer.unhighlightHoverPath(profile);
+    .on('genotet.pathUnhover', function() {
       genotet.tooltip.hideAll();
     }.bind(this));
 

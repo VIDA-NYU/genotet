@@ -45,6 +45,13 @@ genotet.NetworkPanel.prototype.initPanel = function() {
         }.bind(this));
   }, this);
 
+  // Input type update
+  var viewName = this.container.attr('id').replace('panel-view-', '');
+  this.container.find('#gene-input input')
+    .attr('name', viewName + '-gene-optradio');
+  this.container.find('#input input')
+    .attr('name', viewName + '-regulator-optradio');
+
   // Gene update
   ['set', 'add', 'remove'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
