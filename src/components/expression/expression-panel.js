@@ -113,6 +113,7 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
     }.bind(this));
 
   // Input type update
+  // TODO(Liana): Get view name by view object directly.
   var viewName = this.container.attr('id').replace('panel-view-', '');
   this.container.find('#gene-input input')
     .attr('name', viewName + '-gene-optradio');
@@ -121,7 +122,6 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
 
   this.container.find('#gene-input label[name=regex] input')
     .click(function() {
-      console.log(this.container.attr('id').replace('panel-view-', ''));
       this.isGeneRegex_ = true;
     }.bind(this));
   this.container.find('#gene-input label[name=string] input')
@@ -224,9 +224,9 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
 /**
  * Adds the cell info into a given container.
  * @param {string} geneName Gene name of which info is to be displayed.
- * @param {?|string} conditionName Condition name of which info is to be
+ * @param {string} conditionName Condition name of which info is to be
  *     displayed.
- * @param {?|number} value Value of which info is to be displayed.
+ * @param {number} value Value of which info is to be displayed.
  * @param {!jQuery} container Info container.
  * @private
  */
@@ -240,13 +240,20 @@ genotet.ExpressionPanel.prototype.setCellInfo_ = function(geneName,
     .text(conditionName);
   container.children('#value').children('span')
     .text(value + '');
+};
 
-  container.children('#condition').css('display', function() {
-    return conditionName ? 'inline' : 'none';
-  });
-  container.children('#number').css('display', function() {
-    return value != null ? 'inline' : 'none';
-  });
+/**
+ * Adds the cell info into a given container.
+ * @param {string} geneName Gene name of which info is to be displayed.
+ * @param {!jQuery} container Info container.
+ * @private
+ */
+genotet.ExpressionPanel.prototype.setProfileInfo_ = function(geneName,
+                                                          container) {
+  container.html(/** @type {string} */
+    (this.container.find('#profile-info-template').html()));
+  container.children('#profile-gene').children('span')
+    .text(geneName);
 };
 
 /**
@@ -266,6 +273,16 @@ genotet.ExpressionPanel.prototype.tooltipHeatmap = function(geneName,
     conditionName, value) {
   var tooltip = genotet.tooltip.create();
   this.setCellInfo_(geneName, conditionName, value, tooltip);
+  tooltip.find('.close').remove();
+};
+
+/**
+ * Displays a tooltip around cursor about a hovered profile.
+ * @param {string} geneName Gene Name being hovered.
+ */
+genotet.ExpressionPanel.prototype.tooltipProfile = function(geneName) {
+  var tooltip = genotet.tooltip.create();
+  this.setProfileInfo_(geneName, tooltip);
   tooltip.find('.close').remove();
 };
 

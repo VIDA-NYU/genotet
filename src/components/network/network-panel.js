@@ -46,6 +46,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   }, this);
 
   // Input type update
+  // TODO(Liana): Get view name by view object directly.
   var viewName = this.container.attr('id').replace('panel-view-', '');
   this.container.find('#gene-input input')
     .attr('name', viewName + '-gene-optradio');
