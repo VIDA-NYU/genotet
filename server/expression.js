@@ -134,8 +134,8 @@ expression.query.list = function(expressionPath) {
  */
 expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
   // TFA profile has the same format as an expression matrix.
-  // With empty geneNames and conditionNames input, returns the whole matrix.
-  var result = expression.readMatrix_(fileName, [], []);
+  // With null geneNames and conditionNames input, returns the whole matrix.
+  var result = expression.readMatrix_(fileName, null, null);
   var allTfaValues = [];
   var valueMin = Infinity;
   var valueMax = -Infinity;
@@ -216,15 +216,15 @@ expression.listMatrix_ = function(expressionPath) {
 
 /**
  * Reads matrix from text file, returns the whole matrix when input genes and
- * conditions are empty.
+ * conditions are null.
  * @param {string} fileName Path to the matrix file.
- * @param {!Array<string>} geneNames Names for gene selection.
- * @param {!Array<string>} conditionNames Names for condition selection.
- * @return {expression.Matrix}
+ * @param {Array<string>} inputGenes Names for gene selection.
+ * @param {Array<string>} inputConditions Names for condition selection.
+ * @return {!expression.Matrix}
  * @private
  */
-expression.readMatrix_ = function(fileName, geneNames,
-                                      conditionNames) {
+expression.readMatrix_ = function(fileName, inputGenes,
+                                      inputConditions) {
   var values = [];
   var isFirstRow = true;
   var conditions = [];
@@ -232,6 +232,8 @@ expression.readMatrix_ = function(fileName, geneNames,
   var allConditionNames = {};
   var valueMax = -Infinity;
   var valueMin = Infinity;
+  var geneNames = [];
+  var conditionNames = [];
 
   var lines = fs.readFileSync(fileName).toString().split('\n');
   lines.forEach(function(line, lineIndex) {
@@ -245,10 +247,14 @@ expression.readMatrix_ = function(fileName, geneNames,
       for (var i = 1; i < parts.length; i++) {
         allConditionNames[parts[i]] = i;
       }
-      if (!conditionNames.length) {
+      if (!conditionNames) {
         for (var i = 1; i < parts.length; i++) {
           conditionNames.push(parts[i]);
         }
+      } else {
+        inputConditions.forEach(function(condition) {
+          conditionNames.push(condition);
+        });
       }
       conditionNames.forEach(function(conditionName) {
         var conditionIndex = allConditionNames[conditionName];
@@ -261,10 +267,14 @@ expression.readMatrix_ = function(fileName, geneNames,
       allGeneNames[parts[0]] = lineIndex;
     }
   });
-  if (!geneNames.length) {
+  if (!geneNames) {
     for (var gene in allGeneNames) {
       geneNames.push(gene);
     }
+  } else {
+    inputGenes.forEach(function(gene) {
+      geneNames.push(gene);
+    });
   }
   geneNames.forEach(function(geneName) {
     var geneIndex = allGeneNames[geneName];
