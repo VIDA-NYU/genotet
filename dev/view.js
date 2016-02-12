@@ -13,7 +13,7 @@ genotet.test = function() {
 
   genotet.viewManager.createView('expression', 'My Expression Matrix', {
     fileName: 'expressionMatrix',
-    tfaFileName: 'tfa.matrix2.bin',
+    tfaFileName: 'tfa.mat.tsv',
     isGeneRegex: true,
     isConditionRegex: true,
     geneInput: 'sig.*',

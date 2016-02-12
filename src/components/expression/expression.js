@@ -88,6 +88,7 @@ genotet.ExpressionView = function(viewName, params) {
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
     this.data.tfa.fileName = params.tfaFileName;
+    this.data.matrixInfo.fileName = params.fileName;
     this.loader.loadExpressionMatrixInfo(params.fileName);
   }.bind(this));
 
@@ -131,6 +132,12 @@ genotet.ExpressionView = function(viewName, params) {
     .on('genotet.removeGeneProfile', function(event, geneIndex) {
       this.renderer.removeGeneProfile(geneIndex);
       this.renderer.removeTfaProfile(geneIndex);
+    }.bind(this))
+    .on('genotet.updateMatrix', function(event, data) {
+      this.loader.loadExpressionMatrixInfo(data.fileName);
+    }.bind(this))
+    .on('genotet.loadExpressionList', function() {
+      this.loader.loadExpressionList();
     }.bind(this));
 
   // Cell hover in expression.
@@ -181,6 +188,9 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.loader)
     .on('genotet.updatePanel', function() {
       this.panel.dataLoaded();
+    }.bind(this))
+    .on('genotet.updateFileListAfterLoading', function() {
+      this.panel.updateFileListAfterLoading();
     }.bind(this));
 
   // Set up link callbacks.

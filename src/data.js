@@ -20,6 +20,18 @@ genotet.data.serverURL;
 genotet.data.uploadURL;
 
 /**
+ * Genes with expression data available in the Genotet system.
+ * @type {!Array}
+ */
+genotet.data.expressionFiles = [];
+
+/**
+ * Genes with network data available in the Genotet system.
+ * @type {!Array}
+ */
+genotet.data.networkFiles = [];
+
+/**
  * Genes with binding data available in the Genotet system.
  * @type {!Array}
  */
@@ -35,6 +47,18 @@ genotet.data.bindingChrs = [];
  * @type {string}
  */
 genotet.data.organism = 'th17';
+
+/**
+ * Current bed.
+ * @type {string}
+ */
+genotet.data.bedName = 'bed_data.bed';
+
+/**
+ * Current TFA.
+ * @type {string}
+ */
+genotet.data.tfaFileName = 'tfa.mat.tsv';
 
 /**
  * Color scale from red to blue.

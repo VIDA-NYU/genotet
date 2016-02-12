@@ -374,6 +374,7 @@ network.readNetwork_ = function(networkFile) {
  * Lists all the networks in the server.
  * @param {string} networkPath Folder of the network in the server.
  * @return {!Array<{
+ *   fileName: string,
  *   networkName: string,
  *   description: string
  * }>} Array of network file info.

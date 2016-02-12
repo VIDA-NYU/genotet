@@ -74,15 +74,23 @@ genotet.ViewLoader.prototype.signal = function(eventType, opt_data) {
  * @param {!Object} params Query parameters of the get request.
  * @param {function(*)} callback Callback function when the request is done.
  * @param {string} errorMessage Error message to show when the request failed.
+ * @param {boolean=} opt_block Flag that block the loader or not.
  */
 genotet.ViewLoader.prototype.get = function(url, params, callback,
-                                            errorMessage) {
-  this.signal('loadStart');
-  $.get(url, params, function(data) {
-    callback(data);
-    this.signal('loadComplete');
-  }.bind(this), 'jsonp')
-    .fail(this.fail.bind(this, errorMessage, params));
+                                            errorMessage, opt_block) {
+  if (!opt_block) {
+    this.signal('loadStart');
+    $.get(url, params, function(data) {
+        callback(data);
+        this.signal('loadComplete');
+      }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, errorMessage, params));
+  } else {
+    $.get(url, params, function(data) {
+        callback(data);
+      }.bind(this), 'jsonp')
+      .fail(this.fail.bind(this, errorMessage, params));
+  }
 };
 
 /**

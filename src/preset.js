@@ -23,7 +23,7 @@ genotet.preset.NETWORK_PARAMS_ = {
  */
 genotet.preset.EXPRESSION_PARAMS_ = {
   fileName: 'expressionMatrix',
-  tfaFileName: 'tfa.matrix2.bin',
+  tfaFileName: 'tfa.mat.tsv',
   isGeneRegex: true,
   isConditionRegex: true,
   geneInput: 'sig.*',

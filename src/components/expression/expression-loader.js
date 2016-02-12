@@ -15,7 +15,9 @@ genotet.ExpressionLoader = function(data) {
 
   _.extend(this.data, {
     matrix: null,
-    matrixInfo: null,
+    matrixInfo: {
+      fileName: null
+    },
     tfa: {
       fileName: null
     },
@@ -58,11 +60,6 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
   };
 
   this.get(genotet.data.serverURL, params, function(data) {
-    // Store the last applied data selectors.
-    _.extend(data, {
-      fileName: fileName
-    });
-
     if (Object.keys(data.allGeneNames).length == 0) {
       genotet.warning('input gene not found');
       return;
@@ -72,7 +69,9 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
       return;
     }
 
-    this.data.matrixInfo = data;
+    // Store the last applied data selectors.
+    this.data.matrixInfo = $.extend({}, this.data.matrixInfo, data);
+
     this.signal('matrixInfoLoaded');
   }.bind(this), 'cannot load expression matrix');
 };
@@ -167,6 +166,22 @@ genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
     this.data.tfaGeneNameDict = tfaGeneNameDict;
     this.data.tfa = $.extend({}, this.data.tfa, data);
   }.bind(this), 'cannot load expression TFA profiles');
+};
+
+/**
+ * Loads expression data list into genotet.data.expressionFiles.
+ */
+genotet.ExpressionLoader.prototype.loadExpressionList = function() {
+  var params = {
+    type: 'list-expression'
+  };
+  this.get(genotet.data.serverURL, params, function(data) {
+    genotet.data.bindingFiles = [];
+    data.forEach(function(dataInfo) {
+      genotet.data.expressionFiles.push(dataInfo);
+    });
+    this.signal('updateFileListAfterLoading');
+  }.bind(this), 'cannot load expression list', true);
 };
 
 /**

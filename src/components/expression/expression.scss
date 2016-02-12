@@ -98,6 +98,10 @@ $white: #fff;
 }
 
 #side-panel .expression {
+  .selection {
+    margin-top: 3px;
+  }
+
   .box {
     border: 1px solid $gray;
     border-radius: 4px;
