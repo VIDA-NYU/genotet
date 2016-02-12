@@ -247,7 +247,7 @@ expression.readMatrix_ = function(fileName, inputGenes,
       for (var i = 1; i < parts.length; i++) {
         allConditionNames[parts[i]] = i;
       }
-      if (!conditionNames) {
+      if (!inputConditions) {
         for (var i = 1; i < parts.length; i++) {
           conditionNames.push(parts[i]);
         }
@@ -267,7 +267,7 @@ expression.readMatrix_ = function(fileName, inputGenes,
       allGeneNames[parts[0]] = lineIndex;
     }
   });
-  if (!geneNames) {
+  if (!inputGenes) {
     for (var gene in allGeneNames) {
       geneNames.push(gene);
     }
