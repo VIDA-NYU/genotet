@@ -9,7 +9,7 @@
 function d3() {}
 
 /**
- * @param {!d3|string|Element|null} arg
+ * @param {!d3|string|Element|Node|null} arg
  * @return {!d3}
  */
 d3.select = function(arg) {};
@@ -64,10 +64,16 @@ d3.prototype.empty = function() {};
 d3.prototype.filter = function(selector) {};
 
 /**
- * @param {!Array<*>} arg
+ * @param {Array<*>=} arg
  * @param {Function=} opt_mapping
  */
 d3.prototype.data = function(arg, opt_mapping) {};
+
+/**
+ * @param {Array<*>=} arg
+ * @param {Function=} opt_mapping
+ */
+d3.prototype.datum = function(arg, opt_mapping) {};
 
 /**
  * @param {string} classes
@@ -138,6 +144,11 @@ d3.axis.prototype.orient = function(dir) {};
  * @param {!d3.scale} scale
  */
 d3.axis.prototype.scale = function(scale) {};
+
+/**
+ * @param {!Array<number>} arg
+ */
+d3.axis.prototype.ticks = function(arg) {};
 
 
 /** @typedef {Function} */

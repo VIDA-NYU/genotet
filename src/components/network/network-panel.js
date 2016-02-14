@@ -45,6 +45,14 @@ genotet.NetworkPanel.prototype.initPanel = function() {
         }.bind(this));
   }, this);
 
+  // Input type update
+  // TODO(Liana): Get view name by view object directly.
+  var viewName = this.container.attr('id').replace('panel-view-', '');
+  this.container.find('#gene-input input')
+    .attr('name', viewName + '-gene-optradio');
+  this.container.find('#input input')
+    .attr('name', viewName + '-regulator-optradio');
+
   // Gene update
   ['set', 'add', 'remove'].forEach(function(method) {
     this.container.find('#genes #' + method).click(function() {
@@ -66,6 +74,24 @@ genotet.NetworkPanel.prototype.initPanel = function() {
       this.container.find('#edge-list').slideUp();
     }.bind(this));
   }, this);
+
+  // Combined Regulation
+  this.container.find('#combined-regulation #refresh')
+    .click(function() {
+      var isRegex = this.container.find('#input')
+        .children('label[name=regex]').children('input').prop('checked');
+      var input = this.container.find('#combined-regulation input');
+      var inputGenes = input.val();
+      if (inputGenes == '') {
+        genotet.warning('missing input gene selection');
+        return;
+      }
+      input.val('');
+      this.signal('combined-regulation', {
+        inputGenes: inputGenes,
+        isRegex: isRegex
+      });
+    }.bind(this));
 };
 
 /** @inheritDoc */

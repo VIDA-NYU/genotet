@@ -55,7 +55,6 @@ bindingSpec.tests = [
       var form = new formData();
       form.append('type', 'binding');
       form.append('name', bindingSpec.dataInfo.name);
-      form.append('fileName', bindingSpec.dataInfo.fileName);
       form.append('description', bindingSpec.dataInfo.description);
       var fileInfo = data.getFile('wiggle', bindingSpec.dataInfo.fileName);
       form.append('file', fileInfo.stream, {
@@ -86,7 +85,8 @@ bindingSpec.tests = [
         expect(data[0]).toEqual({
           gene: bindingSpec.dataInfo.name,
           fileName: bindingSpec.dataInfo.fileName,
-          description: bindingSpec.dataInfo.description
+          description: bindingSpec.dataInfo.description,
+          chrs: ['chr1', 'chr2', 'chr3']
         });
       });
     }
