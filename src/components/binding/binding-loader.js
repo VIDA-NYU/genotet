@@ -209,7 +209,7 @@ genotet.BindingLoader.prototype.findLocus = function(gene) {
     gene: gene
   };
   this.get(genotet.data.serverURL, params, function(res) {
-    if (!res.success) {
+    if (!res) {
       genotet.warning('gene locus not found');
     } else {
       var span = res.txEnd - res.txStart;

@@ -72,9 +72,9 @@ genotet.ViewLoader.prototype.signal = function(eventType, opt_data) {
  * Sends a get request to the url with given params and callback.
  * @param {string} url URL to which the get request is sent.
  * @param {!Object} params Query parameters of the get request.
- * @param {function(*)} callback Callback function when the request is done.
+ * @param {Function} callback Callback function when the request is done.
  * @param {string} errorMessage Error message to show when the request failed.
- * @param {boolean=} opt_block Flag that block the loader or not.
+ * @param {boolean=} opt_block Flag indicating whether the request blocks.
  */
 genotet.ViewLoader.prototype.get = function(url, params, callback,
                                             errorMessage, opt_block) {

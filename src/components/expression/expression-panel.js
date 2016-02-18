@@ -17,7 +17,7 @@ genotet.ExpressionPanel = function(data) {
   _.extend(this.data.options, {
     showTFA: true,
     showGeneLabels: true,
-    showConditionLabels: true,
+    showConditionLabels: false,
     showProfiles: true,
     showTfaProfiles: false,
     autoScaleGradient: true
@@ -234,34 +234,35 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
  * Updates the matrix list for panel after loading expression list.
  */
 genotet.ExpressionPanel.prototype.updateFileListAfterLoading = function() {
-  if (!this.fileSelectIsOpen_) {
-    var fileNames = genotet.data.expressionFiles.map(function(dataInfo) {
-      return {
-        id: dataInfo.fileName,
-        text: dataInfo.matrixName + ' (' + dataInfo.fileName + ')'
-      };
-    });
-    var select = this.container.find('#matrix select').select2({
-      data: fileNames,
-      width: '100%'
-    });
-    select.val(this.data.matrixInfo.fileName).trigger('change');
-
-    // Set matrix fileName
-    select.on('select2:select', function(event) {
-      this.fileSelectIsOpen_ = false;
-      var fileName = event.params.data.id;
-      this.data.matrixInfo.fileName = fileName;
-      this.signal('updateMatrix', {
-        fileName: fileName
-      });
-    }.bind(this));
-
-    select.on('select2:open', function() {
-      this.fileSelectIsOpen_ = true;
-      this.signal('loadExpressionList');
-    }.bind(this));
+  if (this.fileSelectIsOpen_) {
+    return;
   }
+  var fileNames = genotet.data.expressionFiles.map(function(dataInfo) {
+    return {
+      id: dataInfo.fileName,
+      text: dataInfo.matrixName + ' (' + dataInfo.fileName + ')'
+    };
+  });
+  var select = this.container.find('#matrix select').select2({
+    data: fileNames,
+    width: '100%'
+  });
+  select.val(this.data.matrixInfo.fileName).trigger('change');
+
+  // Set matrix fileName
+  select.on('select2:select', function(event) {
+    this.fileSelectIsOpen_ = false;
+    var fileName = event.params.data.id;
+    this.data.matrixInfo.fileName = fileName;
+    this.signal('updateMatrix', {
+      fileName: fileName
+    });
+  }.bind(this));
+
+  select.on('select2:open', function() {
+    this.fileSelectIsOpen_ = true;
+    this.signal('loadExpressionList');
+  }.bind(this));
 };
 
 /**

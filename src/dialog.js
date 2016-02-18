@@ -101,13 +101,13 @@ genotet.dialog.createView_ = function() {
     modal.find('#btn-next').click(function() {
       var type = /** @type {string} */(modal.find('#type').val());
       switch (type) {
-      case 'network':
+      case genotet.ViewType.NETWORK:
         genotet.dialog.create('create-network');
         break;
-      case 'binding':
+      case genotet.ViewType.BINDING:
         genotet.dialog.create('create-binding');
         break;
-      case 'expression':
+      case genotet.ViewType.EXPRESSION:
         genotet.dialog.create('create-expression');
         break;
       default:
@@ -138,11 +138,11 @@ genotet.dialog.createNetwork_ = function() {
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(networkFile) {
-            fileNames.push({
-              id: networkFile.fileName,
-              text: networkFile.networkName + ' (' +
-              networkFile.fileName + ')'
-            });
+              fileNames.push({
+                id: networkFile.fileName,
+                text: networkFile.networkName + ' (' +
+                networkFile.fileName + ')'
+              });
           });
           modal.find('#network').select2({
             data: fileNames
@@ -157,7 +157,7 @@ genotet.dialog.createNetwork_ = function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
         var isRegex = modal.find('#gene-input-type')
           .children('label[name=regex]').children('input').prop('checked');
-        genotet.viewManager.createView('network', viewName, {
+        genotet.viewManager.createView(genotet.ViewType.NETWORK, viewName, {
           fileName: modal.find('#network').val(),
           inputGenes: modal.find('#geneRegex').val(),
           isRegex: isRegex
@@ -212,7 +212,7 @@ genotet.dialog.createBinding_ = function() {
       // Create
       modal.find('#btn-create').click(function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
-        genotet.viewManager.createView('binding', viewName, {
+        genotet.viewManager.createView(genotet.ViewType.BINDING, viewName, {
           fileNames: modal.find('#gene').val(),
           bedName: genotet.data.bedName,
           chr: modal.find('#chr').val(),
@@ -260,11 +260,11 @@ genotet.dialog.createExpression_ = function() {
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(expressionFile) {
-            fileNames.push({
-              id: expressionFile.fileName,
-              text: expressionFile.matrixName + ' (' +
-              expressionFile.fileName + ')'
-            });
+              fileNames.push({
+                id: expressionFile.fileName,
+                text: expressionFile.matrixName + ' (' +
+                expressionFile.fileName + ')'
+              });
           });
           modal.find('#matrix').select2({
             data: fileNames
@@ -279,7 +279,7 @@ genotet.dialog.createExpression_ = function() {
         var viewName = /** @type {string} */(modal.find('#view-name').val());
         var geneInput = modal.find('#gene-input').val();
         var conditionInput = modal.find('#cond-input').val();
-        genotet.viewManager.createView('expression', viewName, {
+        genotet.viewManager.createView(genotet.ViewType.EXPRESSION, viewName, {
           fileName: modal.find('#matrix').val(),
           tfaFileName: genotet.data.tfaFileName,
           isGeneRegex: genotet.dialog.isGeneRegex_,
@@ -353,7 +353,8 @@ genotet.dialog.upload_ = function() {
       var fileDisplay = modal.find('#file-display');
 
       typeSelection.on('change', function() {
-        var isMapping = /** @type {string} */(typeSelection.val()) == 'mapping';
+        var isMapping = /** @type {string} */(typeSelection.val()) ==
+          genotet.FileType.MAPPING;
         if (isMapping) {
           modal.find('#data-name').closest('tr').css('display', 'none');
           modal.find('#description').closest('tr').css('display', 'none');
@@ -373,7 +374,7 @@ genotet.dialog.upload_ = function() {
       // Checks if all required fields are filled.
       var uploadReady = function() {
         return file.val() && (dataName.val() ||
-          typeSelection.val() == 'mapping');
+          typeSelection.val() == genotet.FileType.MAPPING);
       };
 
       file.change(function(event) {

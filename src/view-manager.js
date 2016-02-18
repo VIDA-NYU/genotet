@@ -42,7 +42,7 @@ genotet.viewManager.init = function() {
 
 /**
  * Creates a view with the given type and name.
- * @param {string} type Type of the view.
+ * @param {genotet.ViewType} type Type of the view.
  * @param {string} viewName Name of the view.
  * @param {*} params Additional parameters passed to the view.
  */
@@ -61,15 +61,15 @@ genotet.viewManager.createView = function(type, viewName, params) {
 
   var newView;
   switch (type) {
-    case 'network':
+    case genotet.ViewType.NETWORK:
       newView = new genotet.NetworkView(viewName,
         /** @type {genotet.NetworkViewParams} */(params));
       break;
-    case 'expression':
+    case genotet.ViewType.EXPRESSION:
       newView = new genotet.ExpressionView(viewName,
         /** @type {genotet.ExpressionViewParams} */(params));
       break;
-    case 'binding':
+    case genotet.ViewType.BINDING:
       newView = new genotet.BindingView(viewName,
         /** @type {genotet.BindingViewParams} */(params));
       break;

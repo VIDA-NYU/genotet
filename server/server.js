@@ -144,19 +144,19 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
 
   var prefix = '';
   switch (req.body.type) {
-    case 'network':
+    case genotet.FileType.NETWORK:
       prefix = networkPath;
       break;
-    case 'binding':
+    case genotet.FileType.BINDING:
       prefix = bindingPath;
       break;
-    case 'expression':
+    case genotet.FileType.EXPRESSION:
       prefix = expressionPath;
       break;
-    case 'bed':
+    case genotet.FileType.BED:
       prefix = bedPath;
       break;
-    case 'mapping':
+    case genotet.FileType.MAPPING:
       prefix = mappingPath;
       break;
   }

@@ -60,17 +60,17 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
   };
 
   this.get(genotet.data.serverURL, params, function(data) {
-    if (Object.keys(data.allGeneNames).length == 0) {
+    if ($.isEmptyObject(data.allGeneNames)) {
       genotet.warning('input gene not found');
       return;
     }
-    if (Object.keys(data.allConditionNames).length == 0) {
+    if ($.isEmptyObject(data.allConditionNames)) {
       genotet.warning('input condition not found');
       return;
     }
 
     // Store the last applied data selectors.
-    this.data.matrixInfo = $.extend({}, this.data.matrixInfo, data);
+    this.data.matrixInfo = _.extend({}, this.data.matrixInfo, data);
 
     this.signal('matrixInfoLoaded');
   }.bind(this), 'cannot load expression matrix');
@@ -164,7 +164,7 @@ genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
       tfaGeneNameDict[geneName] = i;
     }.bind(this));
     this.data.tfaGeneNameDict = tfaGeneNameDict;
-    this.data.tfa = $.extend({}, this.data.tfa, data);
+    this.data.tfa = _.extend({}, this.data.tfa, data);
   }.bind(this), 'cannot load expression TFA profiles');
 };
 

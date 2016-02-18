@@ -11,7 +11,7 @@ genotet.test = function() {
   // Implement test sequences here. This is intended for manual testing,
   // e.g. the following lines create a few views.
 
-  genotet.viewManager.createView('expression', 'My Expression Matrix', {
+  genotet.viewManager.createView(genotet.ViewType.EXPRESSION, 'My Expression Matrix', {
     fileName: 'expressionMatrix',
     tfaFileName: 'tfa.mat.tsv',
     isGeneRegex: true,
@@ -19,13 +19,13 @@ genotet.test = function() {
     geneInput: 'sig.*',
     conditionInput: 'si.*'
   });
-  genotet.viewManager.createView('binding', 'My Genome Browser', {
+  genotet.viewManager.createView(genotet.ViewType.BINDING, 'My Genome Browser', {
     fileNames: 'SL971_SL970',
     bedName: 'bed_data.bed',
     chr: '1',
     multipleTracks: false
   });
-  genotet.viewManager.createView('network', 'My Network', {
+  genotet.viewManager.createView(genotet.ViewType.NETWORK, 'My Network', {
     fileName: 'th17.tsv',
     inputGenes: 'BATF|RORC|STAT3|IRF4|MAF',
     isRegex: true

@@ -32,7 +32,7 @@ uploader.DOUBLE_SIZE_ = 8;
 /**
  * Uploads a file or a directory to server.
  * @param {{
- *   type: string,
+ *   type: genotet.FileType,
  *   name: string,
  *   description: string,
  * }} desc File description.
@@ -52,9 +52,9 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
   source
     .on('end', function() {
       fs.unlinkSync(file.path);
-      if (desc.type == 'binding') {
+      if (desc.type == genotet.FileType.BINDING) {
         uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr);
-      } else if (desc.type == 'bed') {
+      } else if (desc.type == genotet.FileType.BED) {
         uploader.bedSort(prefix, fileName);
       }
     })
@@ -67,7 +67,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
       };
     });
 
-  if (desc.type != 'mapping') {
+  if (desc.type != genotet.FileType.MAPPING) {
     // write down the data name and description
     var fd = fs.openSync(prefix + fileName + '.txt', 'w');
     fs.writeSync(fd, desc.name + '\n');

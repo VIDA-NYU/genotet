@@ -17,6 +17,22 @@ var genotet = {};
  */
 genotet.test = function() {};
 
+/** @enum {string} */
+genotet.FileType = {
+  NETWORK: 'network',
+  EXPRESSION: 'expression',
+  BINDING: 'binding',
+  BED: 'bed',
+  MAPPING: 'mapping'
+};
+
+/** @enum {string} */
+genotet.ViewType = {
+  NETWORK: 'network',
+  EXPRESSION: 'expression',
+  BINDING: 'binding'
+};
+
 /**
  * Initializes the system components.
  * Run tests in the development environment.
