@@ -160,7 +160,6 @@ genotet.BindingLoader.prototype.loadBed = function(fileName, chr, xl, xr) {
     this.data.bed = data;
     this.data.bedName = fileName;
     this.data.bed.aggregatedChanged = this.data.bed.aggregated != isAggregated;
-    console.log(this.data.bed.aggregatedChanged);
   }.bind(this), 'cannot load binding data');
 };
 
