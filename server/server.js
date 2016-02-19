@@ -24,15 +24,6 @@ var app = express();
  */
 var genotet = {};
 
-/** @enum {string} */
-genotet.FileType = {
-  NETWORK: 'network',
-  EXPRESSION: 'expression',
-  BINDING: 'binding',
-  BED: 'bed',
-  MAPPING: 'mapping'
-};
-
 /**
  * @typedef {{
  *   type: string,
@@ -153,19 +144,19 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
 
   var prefix = '';
   switch (req.body.type) {
-    case genotet.FileType.NETWORK:
+    case uploader.FileType.NETWORK:
       prefix = networkPath;
       break;
-    case genotet.FileType.BINDING:
+    case uploader.FileType.BINDING:
       prefix = bindingPath;
       break;
-    case genotet.FileType.EXPRESSION:
+    case uploader.FileType.EXPRESSION:
       prefix = expressionPath;
       break;
-    case genotet.FileType.BED:
+    case uploader.FileType.BED:
       prefix = bedPath;
       break;
-    case genotet.FileType.MAPPING:
+    case uploader.FileType.MAPPING:
       prefix = mappingPath;
       break;
   }

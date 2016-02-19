@@ -17,6 +17,15 @@ module.exports = uploader;
  */
 function uploader() {}
 
+/** @enum {string} */
+uploader.FileType = {
+  NETWORK: 'network',
+  EXPRESSION: 'expression',
+  BINDING: 'binding',
+  BED: 'bed',
+  MAPPING: 'mapping'
+};
+
 /**
  * Size of a binding entry, one int, one double.
  * @private @const {number}
@@ -32,7 +41,7 @@ uploader.DOUBLE_SIZE_ = 8;
 /**
  * Uploads a file or a directory to server.
  * @param {{
- *   type: genotet.FileType,
+ *   type: uploader.FileType,
  *   name: string,
  *   description: string,
  * }} desc File description.
@@ -52,9 +61,9 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
   source
     .on('end', function() {
       fs.unlinkSync(file.path);
-      if (desc.type == genotet.FileType.BINDING) {
+      if (desc.type == uploader.FileType.BINDING) {
         uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr);
-      } else if (desc.type == genotet.FileType.BED) {
+      } else if (desc.type == uploader.FileType.BED) {
         uploader.bedSort(prefix, fileName);
       }
     })
@@ -67,7 +76,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
       };
     });
 
-  if (desc.type != genotet.FileType.MAPPING) {
+  if (desc.type != uploader.FileType.MAPPING) {
     // write down the data name and description
     var fd = fs.openSync(prefix + fileName + '.txt', 'w');
     fs.writeSync(fd, desc.name + '\n');
