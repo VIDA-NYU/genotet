@@ -255,7 +255,7 @@ genotet.BindingView.prototype.defaultWidth = function() {
 
 /** @override */
 genotet.BindingView.prototype.defaultHeight = function() {
-  return 200;
+  return 320;
 };
 
 /**

@@ -131,7 +131,7 @@ genotet.BindingRenderer.prototype.BED_MIN_WIDTH = 3;
 /** @const {number} */
 genotet.BindingRenderer.prototype.BED_MIN_HEIGHT = 3;
 /** @const {number} */
-genotet.BindingRenderer.prototype.BED_HEIGHT_PROPORTION = 0.8;
+genotet.BindingRenderer.prototype.BED_HEIGHT_EXTENSION = 200;
 
 /** @const {!Array<number>} */
 genotet.BindingRenderer.ZOOM_EXTENT = [1, 20000000];
@@ -776,12 +776,27 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
   var exonsHeight = this.data.options.showExons ?
     this.EXON_HEIGHT : 0;
   if (this.data.bed.aggregated) {
+    if (this.data.bed.aggregatedChanged) {
+      this.canvasHeight -= this.bedHeight_;
+      var containerHeight = this.container.height() - this.bedHeight_;
+      this.container.height(containerHeight);
+      this.canvas.attr('height', this.canvasHeight);
+    }
     this.bedHeight_ = this.BED_HEIGHT;
   } else {
-    this.bedHeight_ = this.data.options.showBed ?
-    (this.canvasHeight - exonsHeight - overviewHeight) *
-    this.BED_HEIGHT_PROPORTION : 0;
+    if (!this.data.options.showBed) {
+      this.bedHeight_ = 0;
+    }
+    if (this.data.bed.aggregatedChanged) {
+      this.bedHeight_ = this.data.options.showBed ?
+      this.bedHeight_ + this.BED_HEIGHT_EXTENSION : 0;
+      this.canvasHeight += this.BED_HEIGHT_EXTENSION;
+      var containerHeight = this.container.height() + this.BED_HEIGHT_EXTENSION;
+      this.container.height(containerHeight);
+      this.canvas.attr('height', this.canvasHeight);
+    }
   }
+  this.data.bed.aggregatedChanged = false;
   var totalDetailHeight = this.canvasHeight - exonsHeight -
     overviewHeight;
   if (this.data.options.showBed) {
