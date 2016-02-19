@@ -39,13 +39,19 @@ uploader.DOUBLE_SIZE_ = 8;
  * @param {!multer.File} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
+ * @param {string} uploadPath Directory of temporary files.
  * @return {Object} Success or not as a JS Object.
  */
-uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
+uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
+                               uploadPath) {
   var fileName = file.originalname;
   if (fs.existsSync(prefix + fileName)) {
     fs.unlinkSync(prefix + fileName);
   }
+  // create a pending file.
+  var fd = fs.openSync(uploadPath + fileName + '.pending', 'w');
+  fs.writeSync(fd, 'pending');
+  fs.closeSync(fd);
   var source = fs.createReadStream(file.path);
   var dest = fs.createWriteStream(prefix + fileName);
   source.pipe(dest);
@@ -53,9 +59,19 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
     .on('end', function() {
       fs.unlinkSync(file.path);
       if (desc.type == 'binding') {
-        uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr);
+        uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr, uploadPath);
       } else if (desc.type == 'bed') {
-        uploader.bedSort(prefix, fileName);
+        uploader.bedSort(prefix, fileName, uploadPath);
+      } else {
+        // remove it when finished.
+        fs.unlinkSync(uploadPath + fileName + '.pending');
+      }
+      if (desc.type != 'mapping') {
+        // write down the data name and description
+        var fd = fs.openSync(prefix + fileName + '.txt', 'w');
+        fs.writeSync(fd, desc.name + '\n');
+        fs.writeSync(fd, desc.description);
+        fs.closeSync(fd);
       }
     })
     .on('err', function(err) {
@@ -66,24 +82,17 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
         }
       };
     });
-
-  if (desc.type != 'mapping') {
-    // write down the data name and description
-    var fd = fs.openSync(prefix + fileName + '.txt', 'w');
-    fs.writeSync(fd, desc.name + '\n');
-    fs.writeSync(fd, desc.description);
-    fs.closeSync(fd);
-  }
   return {};
 };
 
 /**
-* Converts bigwig file to bcwig file and construct segment trees.
-* @param {string} prefix Folder that contains the bw file.
-* @param {string} bwFile Name of the bigwig file (without prefix).
-* @param {string} bigWigToWigAddr The convention script path.
-*/
-uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
+ * Converts bigwig file to bcwig file and construct segment trees.
+ * @param {string} prefix Folder that contains the bw file.
+ * @param {string} bwFile Name of the bigwig file (without prefix).
+ * @param {string} bigWigToWigAddr The convention script path.
+ * @param {string} uploadPath Directory of temporary files.
+ */
+uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
   // convert *.bw into *.wig
   var wigFileName = bwFile + '.wig';
   console.log('start transfer');
@@ -178,6 +187,9 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       fs.writeSync(fd, segBuf, 0, offset, 0);
       fs.closeSync(fd);
     }
+
+    fs.unlinkSync(uploadPath + bwFile + '.pending');
+    console.log('binding data separate done.');
   });
 };
 
@@ -185,8 +197,9 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
  * Sorts bed data segments and write it into separate files.
  * @param {string} prefix Folder to the bed files.
  * @param {string} bedFile File name of the bed file.
+ * @param {string} uploadPath Directory of temporary files.
  */
-uploader.bedSort = function(prefix, bedFile) {
+uploader.bedSort = function(prefix, bedFile, uploadPath) {
   var lines = readline.createInterface({
     input: fs.createReadStream(prefix + bedFile),
     terminal: false
@@ -211,6 +224,14 @@ uploader.bedSort = function(prefix, bedFile) {
   lines.on('close', function() {
     console.log('writing bed data...');
     var folder = prefix + bedFile + '_chr';
+    if (fs.existsSync(folder)) {
+      var cmd = [
+        'rm',
+        '-r',
+        folder
+      ].join(' ');
+      childProcess.execSync(cmd);
+    }
     fs.mkdirSync(folder);
     for (var chr in data) {
       data[chr].sort(function(a, b) {
@@ -230,6 +251,21 @@ uploader.bedSort = function(prefix, bedFile) {
       }
       fs.closeSync(fd);
     }
+
+    fs.unlinkSync(uploadPath + bedFile + '.pending');
     console.log('bed chromosome data finish.');
   });
+};
+
+/**
+ * Checks whether the file has been uploaded and processed.
+ * @param {{
+ *  fileName: string
+ * }} query Parameters for file checking.
+ * @param {string} prefix Path to the folder.
+ * @return {boolean} File exists or not
+ */
+uploader.checkFinish = function(query, prefix) {
+  var isFinish = !fs.existsSync(prefix + query.fileName + '.pending');
+  return isFinish;
 };
