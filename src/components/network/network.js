@@ -65,14 +65,15 @@ genotet.NetworkViewParams;
  */
 genotet.EdgeForTable;
 
-/**
- * @typedef {!Array<{
- *   networkName: string,
- *   fileName: string,
- *   description: string
- * }>}
- */
-genotet.ListedNetwork;
+/** @enum {string} */
+genotet.network.QueryType = {
+  NETWORK: 'network',
+  NETWORK_INFO: 'network-info',
+  INCIDENT_EDGES: 'incident-edges',
+  COMBINED_REGULATION: 'combined-regulation',
+  INCREMENTAL_EDGES: 'incremental-edges',
+  LIST_NETWORK: 'list-network'
+};
 
 /**
  * NetworkView extends the base View class, and renders the regulatory network

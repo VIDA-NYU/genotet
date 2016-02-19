@@ -55,7 +55,7 @@ genotet.ExpressionLoader.prototype.load = function(fileName, geneNames,
 genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
     fileName) {
   var params = {
-    type: genotet.QueryType.EXPRESSION_INFO,
+    type: genotet.expression.QueryType.EXPRESSION_INFO,
     fileName: fileName
   };
 
@@ -87,7 +87,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
 genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     geneNames, conditionNames) {
   var params = {
-    type: genotet.QueryType.EXPRESSION,
+    type: genotet.expression.QueryType.EXPRESSION,
     fileName: fileName,
     geneNames: geneNames,
     conditionNames: conditionNames
@@ -149,7 +149,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
 genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
     geneNames, conditionNames) {
   var tfaParams = {
-    type: genotet.QueryType.TFA_PROFILE,
+    type: genotet.expression.QueryType.TFA_PROFILE,
     fileName: genotet.data.tfaFileName,
     geneNames: geneNames,
     conditionNames: conditionNames

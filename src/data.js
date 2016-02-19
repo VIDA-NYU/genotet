@@ -31,6 +31,42 @@ genotet.data.serverURL;
 genotet.data.uploadURL;
 
 /**
+ * @typedef {!Array<{
+ *   matrixName: string,
+ *   fileName: string,
+ *   description: string
+ * }>}
+ */
+genotet.ListedExpression;
+
+/**
+ * @typedef {!Array<{
+ *   networkName: string,
+ *   fileName: string,
+ *   description: string
+ * }>}
+ */
+genotet.ListedNetwork;
+
+/**
+ * @typedef {!Array<{
+ *   fileName: string,
+ *   gene: string,
+ *   chrs: string,
+ *   description: string
+ * }>}
+ */
+genotet.ListedBinding;
+
+/**
+ * @typedef {!Array<{
+ *   bedName: string,
+ *   description: string
+ * }>}
+ */
+genotet.ListedBed;
+
+/**
  * Genes with expression data available in the Genotet system.
  * @type {!genotet.Files}
  */
@@ -103,55 +139,14 @@ genotet.data.init = function() {
  * @this {genotet.Files}
  */
 genotet.data.loadList = function(view, fileType) {
-  switch (fileType) {
-    case genotet.FileType.NETWORK:
-      var params = {
-        type: genotet.QueryType.LIST_NETWORK
-      };
-      $.get(genotet.data.serverURL, params, function(data) {
-          genotet.data.files.networkFiles = [];
-          data.forEach(function(dataInfo) {
-            genotet.data.files.networkFiles.push(dataInfo);
-          });
-          view.signal('updateFileListAfterLoading');
-      }.bind(this), 'jsonp')
-        .fail(function() {
-          genotet.error('failed to get network list');
-        });
-      break;
-    case genotet.FileType.EXPRESSION:
-      var params = {
-        type: genotet.QueryType.LIST_EXPRESSION
-      };
-      $.get(genotet.data.serverURL, params, function(data) {
-          genotet.data.files.expressionFiles = [];
-          data.forEach(function(dataInfo) {
-            genotet.data.files.expressionFiles.push(dataInfo);
-          });
-          view.signal('updateFileListAfterLoading');
-        }.bind(this), 'jsonp')
-        .fail(function() {
-          genotet.error('failed to get expression list');
-        });
-      break;
-    case genotet.FileType.BINDING:
-      var params = {
-        type: genotet.QueryType.LIST_BINDING
-      };
-      $.get(genotet.data.serverURL, params, function(data) {
-          genotet.data.files.bindingFiles = [];
-          data.forEach(function(dataInfo) {
-            genotet.data.files.bindingFiles.push(dataInfo);
-          });
-          view.signal('updateTracksAfterLoading');
-        }.bind(this), 'jsonp')
-        .fail(function() {
-          genotet.error('failed to get binding list');
-        });
-      break;
-    case genotet.FileType.BED:
-      break;
-    case genotet.FileType.MAPPING:
-      break;
-  }
+  var params = {
+    type: 'list-' + fileType
+  };
+  $.get(genotet.data.serverURL, params, function(data) {
+      genotet.data.files[fileType + 'Files'] = data;
+      view.signal('updateFileListAfterLoading');
+    }.bind(this), 'jsonp')
+    .fail(function() {
+      genotet.error('failed to get file list', fileType);
+    });
 };

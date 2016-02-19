@@ -13,6 +13,16 @@ module.exports = network;
  */
 function network() {}
 
+/** @enum {string} */
+network.QueryType = {
+  NETWORK: 'network',
+  NETWORK_INFO: 'network-info',
+  INCIDENT_EDGES: 'incident-edges',
+  COMBINED_REGULATION: 'combined-regulation',
+  INCREMENTAL_EDGES: 'incremental-edges',
+  LIST_NETWORK: 'list-network'
+};
+
 /**
  * @typedef {{
  *   id: string,

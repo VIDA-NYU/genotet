@@ -71,7 +71,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
   this.data.tracks.forEach(function(track) {
     // First send query for the overview (without detail range).
     var params = {
-      type: genotet.QueryType.BINDING,
+      type: genotet.binding.QueryType.BINDING,
       fileName: track.fileName,
       chr: this.data.chr
     };
@@ -102,7 +102,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
 genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
                                                          chr, isAddTrack) {
   var params = {
-    type: genotet.QueryType.BINDING,
+    type: genotet.binding.QueryType.BINDING,
     fileName: fileName,
     chr: chr
   };
@@ -149,7 +149,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
  */
 genotet.BindingLoader.prototype.loadBed = function(fileName, chr, xl, xr) {
   var params = {
-    type: genotet.QueryType.BED,
+    type: genotet.bed.QueryType.BED,
     fileName: fileName,
     chr: chr,
     xl: xl,
@@ -171,7 +171,7 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
   this.data.detailXMax = xr;
   this.data.tracks.forEach(function(track) {
     var params = {
-      type: genotet.QueryType.BINDING,
+      type: genotet.binding.QueryType.BINDING,
       fileName: track.fileName,
       chr: this.data.chr,
       xl: xl,
@@ -190,7 +190,7 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
  */
 genotet.BindingLoader.prototype.loadExons_ = function(chr) {
   var params = {
-    type: genotet.QueryType.EXONS,
+    type: genotet.binding.QueryType.EXONS,
     chr: chr
   };
   this.get(genotet.data.serverURL, params, function(data) {
@@ -205,7 +205,7 @@ genotet.BindingLoader.prototype.loadExons_ = function(chr) {
  */
 genotet.BindingLoader.prototype.findLocus = function(gene) {
   var params = {
-    type: genotet.QueryType.LOCUS,
+    type: genotet.binding.QueryType.LOCUS,
     gene: gene
   };
   this.get(genotet.data.serverURL, params, function(res) {
@@ -277,7 +277,7 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
  */
 genotet.BindingLoader.prototype.loadMapping = function(mappingFileName, gene) {
   var params = {
-    type: genotet.QueryType.MAPPING,
+    type: genotet.mapping.QueryType.MAPPING,
     fileName: mappingFileName
   };
   this.get(genotet.data.serverURL, params, function(data) {

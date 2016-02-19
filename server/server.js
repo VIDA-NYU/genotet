@@ -33,28 +33,6 @@ genotet.FileType = {
   MAPPING: 'mapping'
 };
 
-/** @enum {string} */
-genotet.QueryType = {
-  NETWORK: 'network',
-  NETWORK_INFO: 'network-info',
-  INCIDENT_EDGES: 'incident-edges',
-  COMBINED_REGULATION: 'combined-regulation',
-  INCREMENTAL_EDGES: 'incremental-edges',
-  BINDING: 'binding',
-  EXONS: 'exons',
-  LOCUS: 'locus',
-  EXPRESSION: 'expression',
-  EXPRESSION_INFO: 'expression-info',
-  TFA_PROFILE: 'tfa-profile',
-  BED: 'bed',
-  MAPPING: 'mapping',
-  LIST_NETWORK: 'list-network',
-  LIST_BINDING: 'list-binding',
-  LIST_EXPRESSION: 'list-expression',
-  LIST_BED: 'list-bed',
-  LIST_MAPPING: 'list-mapping'
-};
-
 /**
  * @typedef {{
  *   type: string,
@@ -211,67 +189,67 @@ app.get('/genotet', function(req, res) {
   console.log('GET', type);
   switch (type) {
     // Network data queries
-    case genotet.QueryType.NETWORK:
+    case network.QueryType.NETWORK:
       data = network.query.network(query, networkPath);
       break;
-    case genotet.QueryType.NETWORK_INFO:
+    case network.QueryType.NETWORK_INFO:
       data = network.query.allNodes(query, networkPath);
       break;
-    case genotet.QueryType.INCIDENT_EDGES:
+    case network.QueryType.INCIDENT_EDGES:
       data = network.query.incidentEdges(query, networkPath);
       break;
-    case genotet.QueryType.COMBINED_REGULATION:
+    case network.QueryType.COMBINED_REGULATION:
       data = network.query.combinedRegulation(query, networkPath);
       break;
-    case genotet.QueryType.INCREMENTAL_EDGES:
+    case network.QueryType.INCREMENTAL_EDGES:
       data = network.query.incrementalEdges(query, networkPath);
       break;
 
     // Binding data queries
-    case genotet.QueryType.BINDING:
+    case binding.QueryType.BINDING:
       data = binding.query.histogram(query, bindingPath);
       break;
-    case genotet.QueryType.EXONS:
+    case binding.QueryType.EXONS:
       data = binding.query.exons(query, exonFile);
       break;
-    case genotet.QueryType.LOCUS:
+    case binding.QueryType.LOCUS:
       data = binding.query.locus(query, exonFile);
       break;
 
-    case genotet.QueryType.EXPRESSION:
+    case expression.QueryType.EXPRESSION:
       data = expression.query.matrix(query, expressionPath);
       break;
-    case genotet.QueryType.EXPRESSION_INFO:
+    case expression.QueryType.EXPRESSION_INFO:
       data = expression.query.matrixInfo(query, expressionPath);
       break;
-    case genotet.QueryType.TFA_PROFILE:
+    case expression.QueryType.TFA_PROFILE:
       data = expression.query.tfaProfile(query, expressionPath);
       break;
 
     // Bed data queries
-    case genotet.QueryType.BED:
+    case bed.QueryType.BED:
       data = bed.query.motifs(query, bedPath);
       break;
 
     // Mapping data queries
-    case genotet.QueryType.MAPPING:
+    case mapping.QueryType.MAPPING:
       data = mapping.query.getMapping(query, mappingPath);
       break;
 
     // Data listing
-    case genotet.QueryType.LIST_NETWORK:
+    case network.QueryType.LIST_NETWORK:
       data = network.query.list(networkPath);
       break;
-    case genotet.QueryType.LIST_BINDING:
+    case binding.QueryType.LIST_BINDING:
       data = binding.query.list(bindingPath);
       break;
-    case genotet.QueryType.LIST_EXPRESSION:
+    case expression.QueryType.LIST_EXPRESSION:
       data = expression.query.list(expressionPath);
       break;
-    case genotet.QueryType.LIST_BED:
+    case bed.QueryType.LIST_BED:
       data = bed.query.list(bedPath);
       break;
-    case genotet.QueryType.LIST_MAPPING:
+    case mapping.QueryType.LIST_MAPPING:
       data = mapping.query.list(mappingPath);
       break;
 

@@ -12,6 +12,12 @@ module.exports = mapping;
  */
 function mapping() {}
 
+/** @enum {string} */
+mapping.QueryType = {
+  MAPPING: 'mapping',
+  LIST_MAPPING: 'list-mapping'
+};
+
 /** @const */
 mapping.query = {};
 

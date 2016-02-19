@@ -17,6 +17,31 @@ var genotet = {};
  */
 genotet.test = function() {};
 
+/**
+ * Network extern.
+ */
+genotet.network = {};
+
+/**
+ * Expression extern.
+ */
+genotet.expression = {};
+
+/**
+ * Binding extern.
+ */
+genotet.binding = {};
+
+/**
+ * Bed extern.
+ */
+genotet.bed = {};
+
+/**
+ * Mapping extern.
+ */
+genotet.mapping = {};
+
 /** @enum {string} */
 genotet.FileType = {
   NETWORK: 'network',
@@ -34,23 +59,10 @@ genotet.ViewType = {
 };
 
 /** @enum {string} */
-genotet.QueryType = {
-  NETWORK: 'network',
-  NETWORK_INFO: 'network-info',
-  INCIDENT_EDGES: 'incident-edges',
-  COMBINED_REGULATION: 'combined-regulation',
-  INCREMENTAL_EDGES: 'incremental-edges',
-  BINDING: 'binding',
-  EXONS: 'exons',
-  LOCUS: 'locus',
-  EXPRESSION: 'expression',
-  EXPRESSION_INFO: 'expression-info',
-  TFA_PROFILE: 'tfa-profile',
-  BED: 'bed',
-  MAPPING: 'mapping',
+genotet.ListQueryType = {
   LIST_NETWORK: 'list-network',
-  LIST_BINDING: 'list-binding',
   LIST_EXPRESSION: 'list-expression',
+  LIST_BINDING: 'list-binding',
   LIST_BED: 'list-bed',
   LIST_MAPPING: 'list-mapping'
 };

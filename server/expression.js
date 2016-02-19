@@ -13,6 +13,14 @@ module.exports = expression;
  */
 function expression() {}
 
+/** @enum {string} */
+expression.QueryType = {
+  EXPRESSION: 'expression',
+  EXPRESSION_INFO: 'expression-info',
+  TFA_PROFILE: 'tfa-profile',
+  LIST_EXPRESSION: 'list-expression'
+};
+
 /**
  * @typedef {{
  *   allGeneNames: !Object<string>,

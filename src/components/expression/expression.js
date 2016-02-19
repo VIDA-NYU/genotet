@@ -43,14 +43,13 @@ genotet.ExpressionMatrix;
  */
 genotet.ExpressionTfa;
 
-/**
- * @typedef {!Array<{
- *   matrixName: string,
- *   fileName: string,
- *   description: string
- * }>}
- */
-genotet.ListedExpression;
+/** @enum {string} */
+genotet.expression.QueryType = {
+  EXPRESSION: 'expression',
+  EXPRESSION_INFO: 'expression-info',
+  TFA_PROFILE: 'tfa-profile',
+  LIST_EXPRESSION: 'list-expression'
+};
 
 /**
  * View extends the base View class, and renders the expression matrix
