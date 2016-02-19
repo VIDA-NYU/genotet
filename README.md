@@ -6,6 +6,8 @@ Genotet
 
 **Development Build Status**
 [![Development Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg?branch=refactor)](https://travis-ci.org/ViDA-NYU/genotet)
+[![Code Climate](https://codeclimate.com/github/ViDA-NYU/genotet/badges/gpa.svg)](https://codeclimate.com/github/ViDA-NYU/genotet)
+[![Test Coverage](https://codeclimate.com/github/ViDA-NYU/genotet/badges/coverage.svg)](https://codeclimate.com/github/ViDA-NYU/genotet/coverage)
 
 An Interactive Web-based Visual Exploration Framework to Support Validation of Gene Regulatory Networks
 
