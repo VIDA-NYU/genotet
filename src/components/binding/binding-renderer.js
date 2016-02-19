@@ -110,6 +110,12 @@ genotet.BindingRenderer.prototype.OVERVIEW_HEIGHT = 25;
 genotet.BindingRenderer.prototype.BED_HEIGHT = 25;
 /** @const {number} */
 genotet.BindingRenderer.prototype.BED_SHALLOW_WIDTH = 1;
+/** @const {number} */
+genotet.BindingRenderer.prototype.TRACK_NAME_HEIGHT = 50;
+/** @const {number} */
+genotet.BindingRenderer.prototype.TRACK_NAME_TEXT_OFFSET = 10;
+/** @const {number} */
+genotet.BindingRenderer.prototype.TRACK_NAME_TEXT_HEIGHT = 10;
 
 /**
  * When there are more than this limit number of exons, we draw exons as
@@ -294,6 +300,13 @@ genotet.BindingRenderer.prototype.initLayout = function() {
     .classed('content', true);
 
   /**
+   * SVG group for the data name and file name with detailed binding tracks.
+   * @private {!d3}
+   */
+  this.detailName_ = this.svgDetail_.append('g')
+    .classed('file-names', true);
+
+  /**
    * SVG rect for overview range.
    * @private {!d3}
    */
@@ -374,6 +387,10 @@ genotet.BindingRenderer.prototype.layout = function() {
     return 'track-' + index;
   };
 
+  var trackNameID = function(track, index) {
+    return 'track-name-' + index;
+  };
+
   // Set up overview tracks.
   var overviews = this.overviewContent_.selectAll('g')
     .data(this.data.tracks);
@@ -394,6 +411,18 @@ genotet.BindingRenderer.prototype.layout = function() {
   details.exit().remove();
   details
     .attr('height', this.detailHeight_)
+    .attr('transform', function(track, index) {
+      return genotet.utils.getTransform([0, this.detailHeight_ * index]);
+    }.bind(this));
+
+  // Set up data name and file name container for detail tracks.
+  var detailNames = this.detailName_.selectAll('g')
+    .data(this.data.tracks);
+  detailNames.enter().append('g')
+    .attr('id', trackNameID);
+  detailNames.exit().remove();
+  detailNames
+    .attr('height', this.TRACK_NAME_HEIGHT)
     .attr('transform', function(track, index) {
       return genotet.utils.getTransform([0, this.detailHeight_ * index]);
     }.bind(this));
@@ -461,6 +490,23 @@ genotet.BindingRenderer.prototype.drawDetails_ = function() {
     // We use overviewScale because histogram zooming is handled by applying
     // the translate and scale of xScaleZoom_ to the SVG group.
     this.drawHistogram_(svg, track.detail, this.xScaleOverview_);
+
+    // Display the data name and file name for each track
+    var names = [
+      'Data Name: ' + track.gene,
+      'File Name: ' + track.fileName
+    ];
+    var nameSvg = this.detailName_.select('#track-name-' + index);
+    var nameGroups = nameSvg.selectAll('text').data(names);
+    nameGroups.enter().append('text');
+    nameGroups.exit().remove();
+    nameGroups
+      .text(_.identity)
+      .attr('x', this.TRACK_NAME_TEXT_OFFSET)
+      .attr('y', function(name, i) {
+        return i * this.TRACK_NAME_TEXT_HEIGHT;
+      }.bind(this))
+      .attr('dy', this.TRACK_NAME_TEXT_HEIGHT);
   }, this);
 };
 
@@ -784,9 +830,6 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
     }
     this.bedHeight_ = this.BED_HEIGHT;
   } else {
-    if (!this.data.options.showBed) {
-      this.bedHeight_ = 0;
-    }
     if (this.data.bed.aggregatedChanged) {
       this.bedHeight_ = this.data.options.showBed ?
       this.bedHeight_ + this.BED_HEIGHT_EXTENSION : 0;
@@ -794,6 +837,11 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
       var containerHeight = this.container.height() + this.BED_HEIGHT_EXTENSION;
       this.container.height(containerHeight);
       this.canvas.attr('height', this.canvasHeight);
+    } else {
+      this.bedHeight_ = this.canvasHeight - exonsHeight - overviewHeight -
+        this.detailHeight_ * (numTracks ? numTracks : 1);
+      this.data.bed.aggregatedChanged = false;
+      return;
     }
   }
   this.data.bed.aggregatedChanged = false;
