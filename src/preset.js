@@ -7,6 +7,14 @@
 /** @const */
 genotet.preset = {};
 
+/** @enum {string} */
+genotet.preset.PresetType = {
+  DEFAULT: 'default',
+  NETWORK: 'network',
+  EXPRESSION: 'expression',
+  BINDING: 'binding'
+};
+
 /**
  * Parameters for preset network view.
  * @private @const {!genotet.NetworkViewParams}

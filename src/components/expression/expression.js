@@ -47,8 +47,7 @@ genotet.ExpressionTfa;
 genotet.expression.QueryType = {
   EXPRESSION: 'expression',
   EXPRESSION_INFO: 'expression-info',
-  TFA_PROFILE: 'tfa-profile',
-  LIST_EXPRESSION: 'list-expression'
+  TFA_PROFILE: 'tfa-profile'
 };
 
 /**
@@ -98,7 +97,7 @@ genotet.ExpressionView = function(viewName, params) {
       params.geneInput);
     var conditionNames = this.panel.formatConditionInput(
       params.isConditionRegex, params.conditionInput);
-    this.loader.load(params.fileName, geneNames, conditionNames);
+    this.loader.load(this.data.matrixInfo.fileName, geneNames, conditionNames);
   }.bind(this));
 
   // Set up rendering update.

@@ -71,8 +71,7 @@ genotet.network.QueryType = {
   NETWORK_INFO: 'network-info',
   INCIDENT_EDGES: 'incident-edges',
   COMBINED_REGULATION: 'combined-regulation',
-  INCREMENTAL_EDGES: 'incremental-edges',
-  LIST_NETWORK: 'list-network'
+  INCREMENTAL_EDGES: 'incremental-edges'
 };
 
 /**

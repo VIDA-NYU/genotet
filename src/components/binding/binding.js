@@ -69,20 +69,17 @@ genotet.BindingViewParams;
 genotet.binding.QueryType = {
   BINDING: 'binding',
   EXONS: 'exons',
-  LOCUS: 'locus',
-  LIST_BINDING: 'list-binding'
+  LOCUS: 'locus'
 };
 
 /** @enum {string} */
 genotet.bed.QueryType = {
-  BED: 'bed',
-  LIST_BED: 'list-bed'
+  BED: 'bed'
 };
 
 /** @enum {string} */
 genotet.mapping.QueryType = {
-  MAPPING: 'mapping',
-  LIST_MAPPING: 'list-mapping'
+  MAPPING: 'mapping'
 };
 
 /**

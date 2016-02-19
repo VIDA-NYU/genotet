@@ -17,29 +17,19 @@ var genotet = {};
  */
 genotet.test = function() {};
 
-/**
- * Network extern.
- */
+/** @const */
 genotet.network = {};
 
-/**
- * Expression extern.
- */
+/** @const */
 genotet.expression = {};
 
-/**
- * Binding extern.
- */
+/** @const */
 genotet.binding = {};
 
-/**
- * Bed extern.
- */
+/** @const */
 genotet.bed = {};
 
-/**
- * Mapping extern.
- */
+/** @const */
 genotet.mapping = {};
 
 /** @enum {string} */
@@ -53,23 +43,6 @@ genotet.FileType = {
 
 /** @enum {string} */
 genotet.ViewType = {
-  NETWORK: 'network',
-  EXPRESSION: 'expression',
-  BINDING: 'binding'
-};
-
-/** @enum {string} */
-genotet.ListQueryType = {
-  LIST_NETWORK: 'list-network',
-  LIST_EXPRESSION: 'list-expression',
-  LIST_BINDING: 'list-binding',
-  LIST_BED: 'list-bed',
-  LIST_MAPPING: 'list-mapping'
-};
-
-/** @enum {string} */
-genotet.PresetType = {
-  DEFAULT: 'default',
   NETWORK: 'network',
   EXPRESSION: 'expression',
   BINDING: 'binding'

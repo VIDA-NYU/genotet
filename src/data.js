@@ -78,6 +78,15 @@ genotet.data.files = {
   mappingFiles: []
 };
 
+/** @enum {string} */
+genotet.data.ListQueryType = {
+  NETWORK: 'list-network',
+  EXPRESSION: 'list-expression',
+  BINDING: 'list-binding',
+  BED: 'list-bed',
+  MAPPING: 'list-mapping'
+};
+
 /**
  * Binding data chromosomes. The array is created upon Data initialization.
  */

@@ -134,7 +134,7 @@ genotet.dialog.createNetwork_ = function() {
       // Load network list.
       var fileNames = [];
       var params = {
-        type: genotet.network.QueryType.LIST_NETWORK
+        type: genotet.data.ListQueryType.NETWORK
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(networkFile) {
@@ -192,7 +192,7 @@ genotet.dialog.createBinding_ = function() {
       // Load binding list.
       var fileNames = [];
       var params = {
-        type: genotet.binding.QueryType.LIST_BINDING
+        type: genotet.data.ListQueryType.BINDING
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(bindingFile) {
@@ -256,7 +256,7 @@ genotet.dialog.createExpression_ = function() {
       // Load expression list.
       var fileNames = [];
       var params = {
-        type: genotet.expression.QueryType.LIST_EXPRESSION
+        type: genotet.data.ListQueryType.EXPRESSION
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(expressionFile) {
@@ -304,7 +304,7 @@ genotet.dialog.mapping_ = function() {
       // Load mapping list.
       var fileNames = [];
       var params = {
-        type: genotet.mapping.QueryType.LIST_MAPPING
+        type: genotet.data.ListQueryType.MAPPING
       };
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(fileName) {
