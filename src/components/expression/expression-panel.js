@@ -237,7 +237,7 @@ genotet.ExpressionPanel.prototype.updateFileListAfterLoading = function() {
   if (this.fileSelectIsOpen_) {
     return;
   }
-  var fileNames = genotet.data.expressionFiles.map(function(dataInfo) {
+  var fileNames = genotet.data.files.expressionFiles.map(function(dataInfo) {
     return {
       id: dataInfo.fileName,
       text: dataInfo.matrixName + ' (' + dataInfo.fileName + ')'

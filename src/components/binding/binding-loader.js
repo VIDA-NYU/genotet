@@ -71,7 +71,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
   this.data.tracks.forEach(function(track) {
     // First send query for the overview (without detail range).
     var params = {
-      type: 'binding',
+      type: genotet.QueryType.BINDING,
       fileName: track.fileName,
       chr: this.data.chr
     };
@@ -102,7 +102,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
 genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
                                                          chr, isAddTrack) {
   var params = {
-    type: 'binding',
+    type: genotet.QueryType.BINDING,
     fileName: fileName,
     chr: chr
   };
@@ -149,7 +149,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
  */
 genotet.BindingLoader.prototype.loadBed = function(fileName, chr, xl, xr) {
   var params = {
-    type: 'bed',
+    type: genotet.QueryType.BED,
     fileName: fileName,
     chr: chr,
     xl: xl,
@@ -171,7 +171,7 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
   this.data.detailXMax = xr;
   this.data.tracks.forEach(function(track) {
     var params = {
-      type: 'binding',
+      type: genotet.QueryType.BINDING,
       fileName: track.fileName,
       chr: this.data.chr,
       xl: xl,
@@ -190,7 +190,7 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
  */
 genotet.BindingLoader.prototype.loadExons_ = function(chr) {
   var params = {
-    type: 'exons',
+    type: genotet.QueryType.EXONS,
     chr: chr
   };
   this.get(genotet.data.serverURL, params, function(data) {
@@ -205,7 +205,7 @@ genotet.BindingLoader.prototype.loadExons_ = function(chr) {
  */
 genotet.BindingLoader.prototype.findLocus = function(gene) {
   var params = {
-    type: 'locus',
+    type: genotet.QueryType.LOCUS,
     gene: gene
   };
   this.get(genotet.data.serverURL, params, function(res) {
@@ -270,22 +270,6 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
 };
 
 /**
- * Loads binding data list into genotet.data.bindingGenes.
- */
-genotet.BindingLoader.prototype.loadBindingList = function() {
-  var params = {
-    type: 'list-binding'
-  };
-  this.get(genotet.data.serverURL, params, function(data) {
-    genotet.data.bindingFiles = [];
-    data.forEach(function(dataInfo) {
-      genotet.data.bindingFiles.push(dataInfo);
-    });
-    this.signal('updateTracksAfterLoading');
-  }.bind(this), 'cannot load binding list');
-};
-
-/**
  * Loads gene-binding mapping data, and maps the gene to binding track
  * file name.
  * @param {string} mappingFileName File name of mapping file.
@@ -293,7 +277,7 @@ genotet.BindingLoader.prototype.loadBindingList = function() {
  */
 genotet.BindingLoader.prototype.loadMapping = function(mappingFileName, gene) {
   var params = {
-    type: 'mapping',
+    type: genotet.QueryType.MAPPING,
     fileName: mappingFileName
   };
   this.get(genotet.data.serverURL, params, function(data) {

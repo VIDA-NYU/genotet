@@ -130,7 +130,7 @@ genotet.NetworkPanel.prototype.updateFileListAfterLoading = function() {
   if (this.fileSelectIsOpen_) {
     return;
   }
-  var fileNames = genotet.data.networkFiles.map(function(dataInfo) {
+  var fileNames = genotet.data.files.networkFiles.map(function(dataInfo) {
     return {
       id: dataInfo.fileName,
       text: dataInfo.networkName + ' (' + dataInfo.fileName + ')'

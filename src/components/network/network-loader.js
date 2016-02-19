@@ -72,7 +72,7 @@ genotet.NetworkLoader.prototype.prepareGenes_ = function(inputGenes, isRegex) {
  */
 genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
   var params = {
-    type: 'network-info',
+    type: genotet.QueryType.NETWORK_INFO,
     fileName: fileName
   };
   this.get(genotet.data.serverURL, params, function(data) {
@@ -95,7 +95,7 @@ genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
  */
 genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
   var params = {
-    type: 'network',
+    type: genotet.QueryType.NETWORK,
     fileName: fileName,
     genes: genes
   };
@@ -152,7 +152,7 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
  */
 genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   var params = {
-    type: 'incident-edges',
+    type: genotet.QueryType.INCIDENT_EDGES,
     fileName: this.data.networkInfo.fileName,
     gene: node.id
   };
@@ -182,7 +182,7 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
   }
 
   var params = {
-    type: 'incremental-edges',
+    type: genotet.QueryType.INCREMENTAL_EDGES,
     fileName: this.data.networkInfo.fileName,
     genes: newGenes,
     nodes: this.data.network.nodes
@@ -294,7 +294,7 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
                                                            isRegex) {
   var genes = this.prepareGenes_(inputGenes, isRegex);
   var params = {
-    type: 'combined-regulation',
+    type: genotet.QueryType.COMBINED_REGULATION,
     fileName: this.data.networkInfo.fileName,
     genes: genes
   };
@@ -307,20 +307,4 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
   this.get(genotet.data.serverURL, params, function(data) {
     this.addGenes_(data);
   }.bind(this), 'can not get combined regulation');
-};
-
-/**
- * Loads network data list into genotet.data.networkFiles.
- */
-genotet.NetworkLoader.prototype.loadNetworkList = function() {
-  var params = {
-    type: 'list-network'
-  };
-  this.get(genotet.data.serverURL, params, function(data) {
-    genotet.data.networkFiles = [];
-    data.forEach(function(dataInfo) {
-      genotet.data.networkFiles.push(dataInfo);
-    });
-    this.signal('updateFileListAfterLoading');
-  }.bind(this), 'cannot load network list', true);
 };

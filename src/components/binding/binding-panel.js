@@ -195,7 +195,7 @@ genotet.BindingPanel.prototype.updateTracksAfterLoading = function() {
     }
   }
 
-  var fileNames = genotet.data.bindingFiles.map(function(dataInfo) {
+  var fileNames = genotet.data.files.bindingFiles.map(function(dataInfo) {
     return {
       id: dataInfo.fileName,
       text: dataInfo.gene + ' (' + dataInfo.fileName + ')'

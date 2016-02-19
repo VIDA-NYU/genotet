@@ -137,7 +137,7 @@ genotet.ExpressionView = function(viewName, params) {
       this.loader.loadExpressionMatrixInfo(data.fileName);
     }.bind(this))
     .on('genotet.loadExpressionList', function() {
-      this.loader.loadExpressionList();
+      genotet.data.loadList(this, genotet.FileType.EXPRESSION);
     }.bind(this));
 
   // Cell hover in expression.
@@ -189,7 +189,10 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.loader)
     .on('genotet.updatePanel', function() {
       this.panel.dataLoaded();
-    }.bind(this))
+    }.bind(this));
+
+  // Update panel after loading file list.
+  $(this)
     .on('genotet.updateFileListAfterLoading', function() {
       this.panel.updateFileListAfterLoading();
     }.bind(this));

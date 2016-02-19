@@ -153,7 +153,7 @@ genotet.NetworkView = function(viewName, params) {
       this.loader.loadNetworkInfo(data.fileName);
     }.bind(this))
     .on('genotet.loadNetworkList', function() {
-      this.loader.loadNetworkList();
+      genotet.data.loadList(this, genotet.FileType.NETWORK);
     }.bind(this));
 
   // Gene removal update.
@@ -195,12 +195,6 @@ genotet.NetworkView = function(viewName, params) {
       genotet.tooltip.hideAll();
     }.bind(this));
 
-  // Update network panel.
-  $(this.loader)
-    .on('genotet.updateFileListAfterLoading', function() {
-      this.panel.updateFileListAfterLoading();
-    }.bind(this));
-
   // Table
   $(this.table)
     .on('genotet.addEdges', function(event, edges) {
@@ -222,6 +216,12 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.showEdgeInfo', function(event, edge) {
       this.panel.displayEdgeInfo(edge);
+    }.bind(this));
+
+  // Update panel after loading file list.
+  $(this)
+    .on('genotet.updateFileListAfterLoading', function() {
+      this.panel.updateFileListAfterLoading();
     }.bind(this));
 };
 

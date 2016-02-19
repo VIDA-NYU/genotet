@@ -117,7 +117,9 @@ binding.query.locus = function(query, exonFile) {
 /**
  * @param {string} bindingPath
  * @return {!Array<{
- *   geneName: string,
+ *   fileName: string,
+ *   gene: string,
+ *   chrs: string,
  *   description: string
  * }>}
  */

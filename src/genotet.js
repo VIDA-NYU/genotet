@@ -33,6 +33,36 @@ genotet.ViewType = {
   BINDING: 'binding'
 };
 
+/** @enum {string} */
+genotet.QueryType = {
+  NETWORK: 'network',
+  NETWORK_INFO: 'network-info',
+  INCIDENT_EDGES: 'incident-edges',
+  COMBINED_REGULATION: 'combined-regulation',
+  INCREMENTAL_EDGES: 'incremental-edges',
+  BINDING: 'binding',
+  EXONS: 'exons',
+  LOCUS: 'locus',
+  EXPRESSION: 'expression',
+  EXPRESSION_INFO: 'expression-info',
+  TFA_PROFILE: 'tfa-profile',
+  BED: 'bed',
+  MAPPING: 'mapping',
+  LIST_NETWORK: 'list-network',
+  LIST_BINDING: 'list-binding',
+  LIST_EXPRESSION: 'list-expression',
+  LIST_BED: 'list-bed',
+  LIST_MAPPING: 'list-mapping'
+};
+
+/** @enum {string} */
+genotet.PresetType = {
+  DEFAULT: 'default',
+  NETWORK: 'network',
+  EXPRESSION: 'expression',
+  BINDING: 'binding'
+};
+
 /**
  * Initializes the system components.
  * Run tests in the development environment.

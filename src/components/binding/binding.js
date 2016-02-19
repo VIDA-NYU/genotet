@@ -66,6 +66,24 @@ genotet.bindingData;
 genotet.BindingViewParams;
 
 /**
+ * @typedef {!Array<{
+ *   fileName: string,
+ *   gene: string,
+ *   chrs: string,
+ *   description: string
+ * }>}
+ */
+genotet.ListedBinding;
+
+/**
+ * @typedef {!Array<{
+ *   bedName: string,
+ *   description: string
+ * }>}
+ */
+genotet.ListedBed;
+
+/**
  * BindingView extends the base View class, and renders the binding data
  * associated with the regulatory Binding.
  * @param {string} viewName Name of the view.
@@ -162,7 +180,7 @@ genotet.BindingView = function(viewName, params) {
         this.data.chr, false);
     }.bind(this))
     .on('genotet.loadBindingList', function() {
-      this.loader.loadBindingList();
+      genotet.data.loadList(this, genotet.FileType.BINDING);
     }.bind(this));
 
   $(this.loader)
@@ -171,7 +189,10 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.addPanelTrack', function() {
       this.panel.updateTracks();
-    }.bind(this))
+    }.bind(this));
+
+  // Update panel after loading file list.
+  $(this)
     .on('genotet.updateTracksAfterLoading', function() {
       this.panel.updateTracksAfterLoading();
     }.bind(this))

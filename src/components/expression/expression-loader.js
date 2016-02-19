@@ -55,7 +55,7 @@ genotet.ExpressionLoader.prototype.load = function(fileName, geneNames,
 genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
     fileName) {
   var params = {
-    type: 'expression-info',
+    type: genotet.QueryType.EXPRESSION_INFO,
     fileName: fileName
   };
 
@@ -87,7 +87,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
 genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     geneNames, conditionNames) {
   var params = {
-    type: 'expression',
+    type: genotet.QueryType.EXPRESSION,
     fileName: fileName,
     geneNames: geneNames,
     conditionNames: conditionNames
@@ -149,8 +149,8 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
 genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
     geneNames, conditionNames) {
   var tfaParams = {
-    type: 'tfa-profile',
-    fileName: 'tfa.mat.tsv',
+    type: genotet.QueryType.TFA_PROFILE,
+    fileName: genotet.data.tfaFileName,
     geneNames: geneNames,
     conditionNames: conditionNames
   };
@@ -166,22 +166,6 @@ genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
     this.data.tfaGeneNameDict = tfaGeneNameDict;
     this.data.tfa = _.extend({}, this.data.tfa, data);
   }.bind(this), 'cannot load expression TFA profiles');
-};
-
-/**
- * Loads expression data list into genotet.data.expressionFiles.
- */
-genotet.ExpressionLoader.prototype.loadExpressionList = function() {
-  var params = {
-    type: 'list-expression'
-  };
-  this.get(genotet.data.serverURL, params, function(data) {
-    genotet.data.bindingFiles = [];
-    data.forEach(function(dataInfo) {
-      genotet.data.expressionFiles.push(dataInfo);
-    });
-    this.signal('updateFileListAfterLoading');
-  }.bind(this), 'cannot load expression list', true);
 };
 
 /**
