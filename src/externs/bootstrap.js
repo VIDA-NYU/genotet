@@ -9,6 +9,7 @@
 jQuery.prototype.tab = function(arg) {};
 
 /**
+ * @param {Object=} opt_params
  * @return {!jQuery}
  */
-jQuery.prototype.modal = function() {};
+jQuery.prototype.modal = function(opt_params) {};

@@ -20,6 +20,12 @@ genotet.dialog.isGeneRegex_ = false;
 genotet.dialog.isConditionRegex_ = false;
 
 /**
+ * Length of time interval for queries of uploading result, in milliseconds.
+ * @private {number}
+ */
+genotet.dialog.queryInterval_ = 3 * 1000;
+
+/**
  * Template paths.
  * @private {!Object<string>}
  */
@@ -30,7 +36,8 @@ genotet.dialog.TEMPLATES_ = {
   binding: 'templates/create-binding.html',
   expression: 'templates/create-expression.html',
   mapping: 'templates/mapping.html',
-  upload: 'templates/upload.html'
+  upload: 'templates/upload.html',
+  progress: 'templates/upload-progress.html'
 };
 
 /**
@@ -341,7 +348,12 @@ genotet.dialog.upload_ = function() {
   var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.upload,
     function() {
-      modal.modal();
+      // Because we don't destroy the modal, we make it static at first.
+      // It needs to be static as a progress bar.
+      modal.modal({
+        backdrop: 'static',
+        keyboard: false
+      });
       var typeSelection = modal.find('#type');
       typeSelection.select2();
 
@@ -377,16 +389,17 @@ genotet.dialog.upload_ = function() {
           typeSelection.val() == genotet.FileType.MAPPING);
       };
 
+      var fileName;
       file.change(function(event) {
-        var fileName = event.target.files[0].name;
+        fileName = event.target.files[0].name;
         fileDisplay.text(fileName);
         btnUpload.prop('disabled', !uploadReady());
       });
 
       btnUpload.click(function() {
         var formData = new FormData();
-        formData.append('type',
-          /** @type {string} */(typeSelection.val()));
+        var fileType = /** @type {string} */(modal.find('#type').val());
+        formData.append('type', fileType);
         formData.append('name',
           /** @type {string} */(dataName.val()));
         formData.append('description',
@@ -410,6 +423,44 @@ genotet.dialog.upload_ = function() {
           .fail(function(res) {
             genotet.error('failed to upload data');
           });
+        genotet.dialog.uploadProgress_(fileName);
       });
+    });
+};
+
+/**
+ * Creates a dialog for uploading progress.
+ * @param {string} fileName File name of the upload file.
+ * @private
+ */
+genotet.dialog.uploadProgress_ = function(fileName) {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.progress,
+    function() {
+      modal.modal();
+      var number = 0;
+      modal.find('#btn-ok').prop('disabled', true);
+      var interval = setInterval(function() {
+        number++;
+        // This is a fake progress bar.
+        // Increase 3% for the progress bar every 3 seconds.
+        // When reaching 99, do not increase it any more.
+        var widthPercent = Math.min(number * 3, 99) + '%';
+        var params = {
+          type: 'check-finish',
+          fileName: fileName
+        };
+        $.get(genotet.data.serverURL, params, function(data) {
+          if (data) {
+            clearInterval(interval);
+            widthPercent = '100%';
+            modal.find('#btn-ok').prop('disabled', false);
+            modal.find('.progress').children('.progress-bar')
+              .css('width', widthPercent);
+          }
+        }, 'jsonp');
+        modal.find('.progress').children('.progress-bar')
+          .css('width', widthPercent);
+      }, genotet.dialog.queryInterval_);
     });
 };
