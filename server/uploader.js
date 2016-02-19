@@ -48,6 +48,10 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
   if (fs.existsSync(prefix + fileName)) {
     fs.unlinkSync(prefix + fileName);
   }
+  // create a pending file.
+  var fd = fs.openSync(uploadPath + fileName + '.pending', 'w');
+  fs.writeSync(fd, 'pending');
+  fs.closeSync(fd);
   var source = fs.createReadStream(file.path);
   var dest = fs.createWriteStream(prefix + fileName);
   source.pipe(dest);
@@ -59,9 +63,8 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
       } else if (desc.type == 'bed') {
         uploader.bedSort(prefix, fileName, uploadPath);
       } else {
-        var fd = fs.openSync(uploadPath + fileName + '.finish', 'w');
-        fs.writeSync(fd, 'finished');
-        fs.closeSync(fd);
+        // remove it when finished.
+        fs.unlinkSync(uploadPath + fileName + '.pending');
       }
       if (desc.type != 'mapping') {
         // write down the data name and description
@@ -185,9 +188,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
       fs.closeSync(fd);
     }
 
-    var fd = fs.openSync(uploadPath + bwFile + '.finish', 'w');
-    fs.writeSync(fd, 'finished');
-    fs.closeSync(fd);
+    fs.unlinkSync(uploadPath + bwFile + '.pending');
     console.log('binding data separate done.');
   });
 };
@@ -224,7 +225,7 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
     console.log('writing bed data...');
     var folder = prefix + bedFile + '_chr';
     if (fs.existsSync(folder)) {
-      cmd = [
+      var cmd = [
         'rm',
         '-r',
         folder
@@ -251,15 +252,13 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
       fs.closeSync(fd);
     }
 
-    var fd = fs.openSync(uploadPath + bedFile + '.finish', 'w');
-    fs.writeSync(fd, 'finished');
-    fs.closeSync(fd);
+    fs.unlinkSync(uploadPath + bedFile + '.pending');
     console.log('bed chromosome data finish.');
   });
 };
 
 /**
- * Checks whether the file uploaded.
+ * Checks whether the file has been uploaded and processed.
  * @param {{
  *  fileName: string
  * }} query Parameters for file checking.
@@ -267,9 +266,6 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
  * @return {boolean} File exists or not
  */
 uploader.checkFinish = function(query, prefix) {
-  var isFinish = fs.existsSync(prefix + query.fileName + '.finish');
-  if (isFinish) {
-    fs.unlinkSync(prefix + query.fileName + '.finish');
-  }
+  var isFinish = !fs.existsSync(prefix + query.fileName + '.pending');
   return isFinish;
 };

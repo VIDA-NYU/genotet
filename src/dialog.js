@@ -20,6 +20,12 @@ genotet.dialog.isGeneRegex_ = false;
 genotet.dialog.isConditionRegex_ = false;
 
 /**
+ * Length of time interval for queries of uploading result, in milliseconds.
+ * @private {number}
+ */
+genotet.dialog.queryInterval_ = 3 * 1000;
+
+/**
  * Template paths.
  * @private {!Object<string>}
  */
@@ -406,7 +412,7 @@ genotet.dialog.upload_ = function() {
 };
 
 /**
- * Create a dialog for uploading progress.
+ * Creates a dialog for uploading progress.
  * @param {string} fileName File name of the upload file.
  * @private
  */
@@ -419,6 +425,9 @@ genotet.dialog.uploadProgress_ = function(fileName) {
       modal.find('#btn-ok').prop('disabled', true);
       var interval = setInterval(function() {
         number++;
+        // This is a fake progress bar.
+        // Increase 3% for the progress bar every 3 seconds.
+        // When reaching 99, do not increase it any more.
         var widthPercent = Math.min(number * 3, 99) + '%';
         var params = {
           type: 'check-finish',
@@ -435,6 +444,6 @@ genotet.dialog.uploadProgress_ = function(fileName) {
         }, 'jsonp');
         modal.find('.progress').children('.progress-bar')
           .css('width', widthPercent);
-      }, 3 * 1000);
+      }, genotet.dialog.queryInterval_);
     });
 };
