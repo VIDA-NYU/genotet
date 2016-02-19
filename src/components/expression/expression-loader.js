@@ -15,7 +15,9 @@ genotet.ExpressionLoader = function(data) {
 
   _.extend(this.data, {
     matrix: null,
-    matrixInfo: null,
+    matrixInfo: {
+      fileName: null
+    },
     tfa: {
       fileName: null
     },
@@ -53,26 +55,23 @@ genotet.ExpressionLoader.prototype.load = function(fileName, geneNames,
 genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
     fileName) {
   var params = {
-    type: 'expression-info',
+    type: genotet.expression.QueryType.EXPRESSION_INFO,
     fileName: fileName
   };
 
   this.get(genotet.data.serverURL, params, function(data) {
-    // Store the last applied data selectors.
-    _.extend(data, {
-      fileName: fileName
-    });
-
-    if (Object.keys(data.allGeneNames).length == 0) {
+    if ($.isEmptyObject(data.allGeneNames)) {
       genotet.warning('input gene not found');
       return;
     }
-    if (Object.keys(data.allConditionNames).length == 0) {
+    if ($.isEmptyObject(data.allConditionNames)) {
       genotet.warning('input condition not found');
       return;
     }
 
-    this.data.matrixInfo = data;
+    // Store the last applied data selectors.
+    this.data.matrixInfo = _.extend({}, this.data.matrixInfo, data);
+
     this.signal('matrixInfoLoaded');
   }.bind(this), 'cannot load expression matrix');
 };
@@ -88,7 +87,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
 genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     geneNames, conditionNames) {
   var params = {
-    type: 'expression',
+    type: genotet.expression.QueryType.EXPRESSION,
     fileName: fileName,
     geneNames: geneNames,
     conditionNames: conditionNames
@@ -150,8 +149,8 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
 genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
     geneNames, conditionNames) {
   var tfaParams = {
-    type: 'tfa-profile',
-    fileName: 'tfa.mat.tsv',
+    type: genotet.expression.QueryType.TFA_PROFILE,
+    fileName: genotet.data.tfaFileName,
     geneNames: geneNames,
     conditionNames: conditionNames
   };
@@ -165,7 +164,7 @@ genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
       tfaGeneNameDict[geneName] = i;
     }.bind(this));
     this.data.tfaGeneNameDict = tfaGeneNameDict;
-    this.data.tfa = $.extend({}, this.data.tfa, data);
+    this.data.tfa = _.extend({}, this.data.tfa, data);
   }.bind(this), 'cannot load expression TFA profiles');
 };
 

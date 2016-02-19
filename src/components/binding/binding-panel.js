@@ -185,7 +185,7 @@ genotet.BindingPanel.prototype.updateTracks = function() {
 /**
  * Updates the track list for panel after loading binding list.
  */
-genotet.BindingPanel.prototype.updateTracksAfterLoading = function() {
+genotet.BindingPanel.prototype.updateFileListAfterLoading = function() {
   var numTracks = this.data.tracks.length;
   var uiTracks = this.container.find('#genes .track-gene');
   if (uiTracks.length > numTracks) {
@@ -195,7 +195,7 @@ genotet.BindingPanel.prototype.updateTracksAfterLoading = function() {
     }
   }
 
-  var fileNames = genotet.data.bindingFiles.map(function(dataInfo) {
+  var fileNames = genotet.data.files.bindingFiles.map(function(dataInfo) {
     return {
       id: dataInfo.fileName,
       text: dataInfo.gene + ' (' + dataInfo.fileName + ')'

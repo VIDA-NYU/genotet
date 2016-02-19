@@ -16,8 +16,12 @@
 }
 
 #dialog {
+  #type,
   #gene,
-  #chr {
+  #chr,
+  #matrix,
+  #network,
+  #mapping-file {
     width: 220px;
   }
 

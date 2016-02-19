@@ -21,16 +21,16 @@ genotet.menu.init = function() {
 
   // Preset section.
   $('#preset-default').click(function() {
-    genotet.preset.loadPreset('default');
+    genotet.preset.loadPreset(genotet.preset.PresetType.DEFAULT);
   });
   $('#preset-network').click(function() {
-    genotet.preset.loadPreset('network');
+    genotet.preset.loadPreset(genotet.preset.PresetType.NETWORK);
   });
   $('#preset-expression').click(function() {
-    genotet.preset.loadPreset('expression');
+    genotet.preset.loadPreset(genotet.preset.PresetType.EXPRESSION);
   });
   $('#preset-binding').click(function() {
-    genotet.preset.loadPreset('binding');
+    genotet.preset.loadPreset(genotet.preset.PresetType.BINDING);
   });
 
   // Options section.

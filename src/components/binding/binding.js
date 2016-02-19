@@ -65,6 +65,32 @@ genotet.bindingData;
  */
 genotet.BindingViewParams;
 
+/** @const */
+genotet.binding = {};
+
+/** @const */
+genotet.bed = {};
+
+/** @const */
+genotet.mapping = {};
+
+/** @enum {string} */
+genotet.binding.QueryType = {
+  BINDING: 'binding',
+  EXONS: 'exons',
+  LOCUS: 'locus'
+};
+
+/** @enum {string} */
+genotet.bed.QueryType = {
+  BED: 'bed'
+};
+
+/** @enum {string} */
+genotet.mapping.QueryType = {
+  MAPPING: 'mapping'
+};
+
 /**
  * BindingView extends the base View class, and renders the binding data
  * associated with the regulatory Binding.
@@ -162,7 +188,7 @@ genotet.BindingView = function(viewName, params) {
         this.data.chr, false);
     }.bind(this))
     .on('genotet.loadBindingList', function() {
-      this.loader.loadBindingList();
+      genotet.data.loadList(this, genotet.FileType.BINDING);
     }.bind(this));
 
   $(this.loader)
@@ -171,9 +197,12 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.addPanelTrack', function() {
       this.panel.updateTracks();
-    }.bind(this))
-    .on('genotet.updateTracksAfterLoading', function() {
-      this.panel.updateTracksAfterLoading();
+    }.bind(this));
+
+  // Update panel after loading file list.
+  $(this)
+    .on('genotet.updateFileListAfterLoading', function() {
+      this.panel.updateFileListAfterLoading();
     }.bind(this))
     .on('genotet.updateTrackWithMapping', function(event, fileName) {
       this.updateTrackWithMapping_(fileName);

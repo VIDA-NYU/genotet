@@ -13,6 +13,16 @@ module.exports = network;
  */
 function network() {}
 
+/** @enum {string} */
+network.QueryType = {
+  NETWORK: 'network',
+  NETWORK_INFO: 'network-info',
+  INCIDENT_EDGES: 'incident-edges',
+  COMBINED_REGULATION: 'combined-regulation',
+  INCREMENTAL_EDGES: 'incremental-edges',
+  LIST_NETWORK: 'list-network'
+};
+
 /**
  * @typedef {{
  *   id: string,
@@ -149,6 +159,7 @@ network.query.incrementalEdges = function(query, networkPath) {
 /**
  * @param {string} networkPath
  * @return {!Array<{
+ *   fileName: string,
  *   networkName: string,
  *   description: string
  * }>}
@@ -374,6 +385,7 @@ network.readNetwork_ = function(networkFile) {
  * Lists all the networks in the server.
  * @param {string} networkPath Folder of the network in the server.
  * @return {!Array<{
+ *   fileName: string,
  *   networkName: string,
  *   description: string
  * }>} Array of network file info.

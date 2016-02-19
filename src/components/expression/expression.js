@@ -43,14 +43,15 @@ genotet.ExpressionMatrix;
  */
 genotet.ExpressionTfa;
 
-/**
- * @typedef {!Array<{
- *   matrixName: string,
- *   fileName: string,
- *   description: string
- * }>}
- */
-genotet.ListedExpression;
+/** @const */
+genotet.expression = {};
+
+/** @enum {string} */
+genotet.expression.QueryType = {
+  EXPRESSION: 'expression',
+  EXPRESSION_INFO: 'expression-info',
+  TFA_PROFILE: 'tfa-profile'
+};
 
 /**
  * View extends the base View class, and renders the expression matrix
@@ -88,6 +89,7 @@ genotet.ExpressionView = function(viewName, params) {
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
     this.data.tfa.fileName = params.tfaFileName;
+    this.data.matrixInfo.fileName = params.fileName;
     this.loader.loadExpressionMatrixInfo(params.fileName);
   }.bind(this));
 
@@ -98,7 +100,7 @@ genotet.ExpressionView = function(viewName, params) {
       params.geneInput);
     var conditionNames = this.panel.formatConditionInput(
       params.isConditionRegex, params.conditionInput);
-    this.loader.load(params.fileName, geneNames, conditionNames);
+    this.loader.load(this.data.matrixInfo.fileName, geneNames, conditionNames);
   }.bind(this));
 
   // Set up rendering update.
@@ -131,6 +133,12 @@ genotet.ExpressionView = function(viewName, params) {
     .on('genotet.removeGeneProfile', function(event, geneIndex) {
       this.renderer.removeGeneProfile(geneIndex);
       this.renderer.removeTfaProfile(geneIndex);
+    }.bind(this))
+    .on('genotet.updateMatrix', function(event, data) {
+      this.loader.loadExpressionMatrixInfo(data.fileName);
+    }.bind(this))
+    .on('genotet.loadExpressionList', function() {
+      genotet.data.loadList(this, genotet.FileType.EXPRESSION);
     }.bind(this));
 
   // Cell hover in expression.
@@ -182,6 +190,12 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.loader)
     .on('genotet.updatePanel', function() {
       this.panel.dataLoaded();
+    }.bind(this));
+
+  // Update panel after loading file list.
+  $(this)
+    .on('genotet.updateFileListAfterLoading', function() {
+      this.panel.updateFileListAfterLoading();
     }.bind(this));
 
   // Set up link callbacks.

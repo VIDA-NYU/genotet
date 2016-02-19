@@ -144,19 +144,19 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
 
   var prefix = '';
   switch (req.body.type) {
-    case 'network':
+    case uploader.FileType.NETWORK:
       prefix = networkPath;
       break;
-    case 'binding':
+    case uploader.FileType.BINDING:
       prefix = bindingPath;
       break;
-    case 'expression':
+    case uploader.FileType.EXPRESSION:
       prefix = expressionPath;
       break;
-    case 'bed':
+    case uploader.FileType.BED:
       prefix = bedPath;
       break;
-    case 'mapping':
+    case uploader.FileType.MAPPING:
       prefix = mappingPath;
       break;
   }
@@ -180,67 +180,67 @@ app.get('/genotet', function(req, res) {
   console.log('GET', type);
   switch (type) {
     // Network data queries
-    case 'network':
+    case network.QueryType.NETWORK:
       data = network.query.network(query, networkPath);
       break;
-    case 'network-info':
+    case network.QueryType.NETWORK_INFO:
       data = network.query.allNodes(query, networkPath);
       break;
-    case 'incident-edges':
+    case network.QueryType.INCIDENT_EDGES:
       data = network.query.incidentEdges(query, networkPath);
       break;
-    case 'combined-regulation':
+    case network.QueryType.COMBINED_REGULATION:
       data = network.query.combinedRegulation(query, networkPath);
       break;
-    case 'incremental-edges':
+    case network.QueryType.INCREMENTAL_EDGES:
       data = network.query.incrementalEdges(query, networkPath);
       break;
 
     // Binding data queries
-    case 'binding':
+    case binding.QueryType.BINDING:
       data = binding.query.histogram(query, bindingPath);
       break;
-    case 'exons':
+    case binding.QueryType.EXONS:
       data = binding.query.exons(query, exonFile);
       break;
-    case 'locus':
+    case binding.QueryType.LOCUS:
       data = binding.query.locus(query, exonFile);
       break;
 
-    case 'expression':
+    case expression.QueryType.EXPRESSION:
       data = expression.query.matrix(query, expressionPath);
       break;
-    case 'expression-info':
+    case expression.QueryType.EXPRESSION_INFO:
       data = expression.query.matrixInfo(query, expressionPath);
       break;
-    case 'tfa-profile':
+    case expression.QueryType.TFA_PROFILE:
       data = expression.query.tfaProfile(query, expressionPath);
       break;
 
     // Bed data queries
-    case 'bed':
+    case bed.QueryType.BED:
       data = bed.query.motifs(query, bedPath);
       break;
 
     // Mapping data queries
-    case 'mapping':
+    case mapping.QueryType.MAPPING:
       data = mapping.query.getMapping(query, mappingPath);
       break;
 
     // Data listing
-    case 'list-network':
+    case network.QueryType.LIST_NETWORK:
       data = network.query.list(networkPath);
       break;
-    case 'list-binding':
+    case binding.QueryType.LIST_BINDING:
       data = binding.query.list(bindingPath);
       break;
-    case 'list-expression':
+    case expression.QueryType.LIST_EXPRESSION:
       data = expression.query.list(expressionPath);
       break;
-    case 'list-bed':
+    case bed.QueryType.LIST_BED:
       data = bed.query.list(bedPath);
       break;
-    case 'list-mapping':
+    case mapping.QueryType.LIST_MAPPING:
       data = mapping.query.list(mappingPath);
       break;
 

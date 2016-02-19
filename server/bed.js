@@ -12,6 +12,11 @@ module.exports = bed;
  */
 function bed() {}
 
+/** @enum {string} */
+bed.QueryType = {
+  BED: 'bed',
+  LIST_BED: 'list-bed'
+};
 
 /**
  * @typedef {{
