@@ -30,7 +30,8 @@ genotet.dialog.TEMPLATES_ = {
   binding: 'templates/create-binding.html',
   expression: 'templates/create-expression.html',
   mapping: 'templates/mapping.html',
-  upload: 'templates/upload.html'
+  upload: 'templates/upload.html',
+  progress: 'templates/upload-progress.html'
 };
 
 /**
@@ -326,7 +327,12 @@ genotet.dialog.upload_ = function() {
   var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.upload,
     function() {
-      modal.modal();
+      // Because we don't destroy the modal, we make it static at first.
+      // It needs to be static as a progress bar.
+      modal.modal({
+        backdrop: 'static',
+        keyboard: false
+      });
       var selectpicker = modal.find('.selectpicker').selectpicker();
 
       var file = modal.find('#file');
@@ -360,16 +366,17 @@ genotet.dialog.upload_ = function() {
           selectpicker.val() == 'mapping');
       };
 
+      var fileName;
       file.change(function(event) {
-        var fileName = event.target.files[0].name;
+        fileName = event.target.files[0].name;
         fileDisplay.text(fileName);
         btnUpload.prop('disabled', !uploadReady());
       });
 
       btnUpload.click(function() {
         var formData = new FormData();
-        formData.append('type',
-          /** @type {string} */(modal.find('#type').val()));
+        var fileType = /** @type {string} */(modal.find('#type').val());
+        formData.append('type', fileType);
         formData.append('name',
           /** @type {string} */(dataName.val()));
         formData.append('description',
@@ -393,6 +400,41 @@ genotet.dialog.upload_ = function() {
           .fail(function(res) {
             genotet.error('failed to upload data');
           });
+        genotet.dialog.uploadProgress_(fileName);
       });
+    });
+};
+
+/**
+ * Create a dialog for uploading progress.
+ * @param {string} fileName File name of the upload file.
+ * @private
+ */
+genotet.dialog.uploadProgress_ = function(fileName) {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.progress,
+    function() {
+      modal.modal();
+      var number = 0;
+      modal.find('#btn-ok').prop('disabled', true);
+      var interval = setInterval(function() {
+        number++;
+        var widthPercent = Math.min(number * 3, 99) + '%';
+        var params = {
+          type: 'check-finish',
+          fileName: fileName
+        };
+        $.get(genotet.data.serverURL, params, function(data) {
+          if (data) {
+            clearInterval(interval);
+            widthPercent = '100%';
+            modal.find('#btn-ok').prop('disabled', false);
+            modal.find('.progress').children('.progress-bar')
+              .css('width', widthPercent);
+          }
+        }, 'jsonp');
+        modal.find('.progress').children('.progress-bar')
+          .css('width', widthPercent);
+      }, 3 * 1000);
     });
 };
