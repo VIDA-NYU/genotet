@@ -129,6 +129,8 @@ genotet.BindingRenderer.prototype.BED_LABEL_SIZE = 13;
 /** @const {number} */
 genotet.BindingRenderer.prototype.BED_MIN_WIDTH = 3;
 /** @const {number} */
+genotet.BindingRenderer.prototype.BED_MIN_HEIGHT = 3;
+/** @const {number} */
 genotet.BindingRenderer.prototype.BED_HEIGHT_PROPORTION = 0.8;
 
 /** @const {!Array<number>} */
@@ -725,7 +727,7 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
       return rectWidth < this.BED_MIN_WIDTH ? this.BED_MIN_WIDTH :
         rectWidth;
     }.bind(this))
-    .attr('height', this.bedRectHeight_ > 0 ? this.bedRectHeight_ : 0)
+    .attr('height', Math.max(this.bedRectHeight_, this.BED_MIN_HEIGHT))
     .attr('x', function(data) {
       var range = [data.chrStart, data.chrEnd];
       opt_range = this.bindingCoordinatesToScreenRange_(range);
