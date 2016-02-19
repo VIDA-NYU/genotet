@@ -65,6 +65,15 @@ genotet.bindingData;
  */
 genotet.BindingViewParams;
 
+/** @const */
+genotet.binding = {};
+
+/** @const */
+genotet.bed = {};
+
+/** @const */
+genotet.mapping = {};
+
 /** @enum {string} */
 genotet.binding.QueryType = {
   BINDING: 'binding',

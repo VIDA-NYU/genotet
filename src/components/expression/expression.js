@@ -43,6 +43,9 @@ genotet.ExpressionMatrix;
  */
 genotet.ExpressionTfa;
 
+/** @const */
+genotet.expression = {};
+
 /** @enum {string} */
 genotet.expression.QueryType = {
   EXPRESSION: 'expression',

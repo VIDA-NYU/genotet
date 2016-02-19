@@ -17,21 +17,6 @@ var genotet = {};
  */
 genotet.test = function() {};
 
-/** @const */
-genotet.network = {};
-
-/** @const */
-genotet.expression = {};
-
-/** @const */
-genotet.binding = {};
-
-/** @const */
-genotet.bed = {};
-
-/** @const */
-genotet.mapping = {};
-
 /** @enum {string} */
 genotet.FileType = {
   NETWORK: 'network',

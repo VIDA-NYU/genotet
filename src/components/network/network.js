@@ -65,6 +65,9 @@ genotet.NetworkViewParams;
  */
 genotet.EdgeForTable;
 
+/** @const */
+genotet.network = {};
+
 /** @enum {string} */
 genotet.network.QueryType = {
   NETWORK: 'network',
