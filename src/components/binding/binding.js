@@ -137,8 +137,16 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.coordinates', function(event, data) {
       var coordinateDifference = Math.floor(data.end - data.start);
-      this.updateCoordinateDifferenceInHearder_(coordinateDifference);
+      var headerExtraInfo = '(Coordinate Difference: ' +
+        coordinateDifference + ')';
+      this.headerExtraInfo(headerExtraInfo);
       this.panel.updateCoordinates(data.start, data.end);
+    }.bind(this))
+    .on('genotet.updateContainerSize', function(event, data) {
+      this.updateContainerSize(data.containerWidth, data.containerHeight);
+    }.bind(this))
+    .on('genotet.updateCanvasSize', function(event, data) {
+      this.renderer.updateCanvasSize(data.canvasWidth, data.canvasHeight);
     }.bind(this));
 
   $(this.panel)
@@ -283,16 +291,3 @@ genotet.BindingView.prototype.updateTrackWithMapping_ = function(fileName) {
 
   this.panel.updateTracks();
 };
-
-/**
- * Updates coordinate difference in header.
- * @param {number} coordinateDifference Coordinate difference of binding
- * tracks.
- * @private
- * */
-genotet.BindingView.prototype.updateCoordinateDifferenceInHearder_ =
-  function(coordinateDifference) {
-    this.container.find('.extra-info')
-      .text('(Coordinate Difference: ' +
-      coordinateDifference + ')');
-  };

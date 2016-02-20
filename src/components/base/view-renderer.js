@@ -136,3 +136,13 @@ genotet.ViewRenderer.prototype.hideFailure = function() {
 genotet.ViewRenderer.prototype.signal = function(eventType, opt_data) {
   $(this).trigger('genotet.' + eventType, [opt_data]);
 };
+
+/**
+ * Sets the size of canvas.
+ * @param {number} canvasWidth Width of canvas.
+ * @param {number} canvasHeight Height of canvas.
+ */
+genotet.ViewRenderer.prototype.updateCanvasSize = function(canvasWidth,
+                                                           canvasHeight) {
+  this.canvas.attr('height', canvasHeight);
+};

@@ -34,6 +34,12 @@ genotet.BindingRenderer = function(container, data) {
    */
   this.bedRectHeight_ = 0;
 
+  /**
+   * Height of a single bed unit. This is re-computed upon resize event.
+   * @private {number}
+   */
+  this.bedUnitHeight_ = 0;
+
   // Navigation state.
   /** @private {!Array<number>} */
   this.zoomTranslate_ = [0, 0];
@@ -120,8 +126,7 @@ genotet.BindingRenderer.prototype.TRACK_NAME_TEXT_HEIGHT_ = 10;
 /**
  * When there are more than this limit number of exons, we draw exons as
  * abstract rectangles.
- * @private
- * @type {number}
+ * @private {number}
  */
 genotet.BindingRenderer.prototype.EXON_ABSTRACT_LIMIT_ = 200;
 
@@ -427,6 +432,16 @@ genotet.BindingRenderer.prototype.layout = function() {
     .attr('transform', function(track, index) {
       return genotet.utils.getTransform([0, this.detailHeight_ * index]);
     }.bind(this));
+
+  // Set up bed unit height and rect height.
+  var bedData = this.bedPositions_;
+  this.bedRectHeight_ = (this.bedHeight_ - this.BED_MARGINS_.TOP -
+    this.BED_MARGINS_.BOTTOM) / bedData.length;
+  this.bedUnitHeight_ = this.bedRectHeight_;
+  if (!this.data.bed.aggregated && this.data.options.showBedLabels) {
+    this.bedRectHeight_ -= this.BED_LABEL_SIZE_;
+  }
+  this.bedRectHeight_ = Math.max(this.bedRectHeight_, this.BED_MIN_HEIGHT_);
 
   // Set up bed shallow line.
   var lineParameters = {
@@ -754,12 +769,6 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
     this.bedContent_.style('display', 'inline');
   }
   var bedData = this.bedPositions_;
-  this.bedRectHeight_ = (this.bedHeight_ - this.BED_MARGINS_.TOP -
-    this.BED_MARGINS_.BOTTOM) / bedData.length;
-  var unitHeight = this.bedRectHeight_;
-  if (!this.data.bed.aggregated && this.data.options.showBedLabels) {
-    this.bedRectHeight_ -= this.BED_LABEL_SIZE_;
-  }
   var opt_range = [];
   var bedRows = this.bedContent_.selectAll('g').data(bedData);
   bedRows.enter().append('g');
@@ -774,14 +783,14 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
       return rectWidth < this.BED_MIN_WIDTH_ ? this.BED_MIN_WIDTH_ :
         rectWidth;
     }.bind(this))
-    .attr('height', Math.max(this.bedRectHeight_, this.BED_MIN_HEIGHT_))
+    .attr('height', this.bedRectHeight_)
     .attr('x', function(data) {
       var range = [data.chrStart, data.chrEnd];
       opt_range = this.bindingCoordinatesToScreenRange_(range);
       return opt_range[0];
     }.bind(this))
     .attr('y', function(data, i, j) {
-      return j * unitHeight;
+      return j * this.bedUnitHeight_;
     }.bind(this));
   bedRects.exit().remove();
 
@@ -802,7 +811,8 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
         return opt_range[0] + rectWidth / 2;
       }.bind(this))
       .attr('y', function(data, i, j) {
-        return j * unitHeight + this.bedRectHeight_ + this.BED_LABEL_SIZE_ / 2;
+        return j * this.bedUnitHeight_ + this.bedRectHeight_ +
+          this.BED_LABEL_SIZE_ / 2;
       }.bind(this))
       .attr('transform',
         genotet.utils.getTransform([0, this.BED_MARGINS_.TOP]));
@@ -826,18 +836,31 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
     if (this.data.bed.aggregatedChanged) {
       this.canvasHeight -= this.bedHeight_;
       var containerHeight = this.container.height() - this.bedHeight_;
-      this.container.height(containerHeight);
-      this.canvas.attr('height', this.canvasHeight);
+      this.signal('updateContainerSize', {
+        containerWidth: this.container.width(),
+        containerHeight: containerHeight
+      });
+      this.signal('updateCanvasSize', {
+        canvasWidth: this.canvasWidth,
+        canvasHeight: this.canvasHeight
+      });
     }
     this.bedHeight_ = this.BED_HEIGHT_;
   } else {
     if (this.data.bed.aggregatedChanged) {
       this.bedHeight_ = this.data.options.showBed ?
-      this.bedHeight_ + this.BED_HEIGHT_EXTENSION_ : 0;
+        this.bedHeight_ + this.BED_HEIGHT_EXTENSION_ : 0;
       this.canvasHeight += this.BED_HEIGHT_EXTENSION_;
-      var containerHeight = this.container.height() + this.BED_HEIGHT_EXTENSION_;
-      this.container.height(containerHeight);
-      this.canvas.attr('height', this.canvasHeight);
+      var containerHeight = this.container.height() +
+        this.BED_HEIGHT_EXTENSION_;
+      this.signal('updateContainerSize', {
+        containerWidth: this.container.width(),
+        containerHeight: containerHeight
+      });
+      this.signal('updateCanvasSize', {
+        canvasWidth: this.canvasWidth,
+        canvasHeight: this.canvasHeight
+      });
     } else {
       this.bedHeight_ = this.canvasHeight - exonsHeight - overviewHeight -
         this.detailHeight_ * (numTracks ? numTracks : 1);

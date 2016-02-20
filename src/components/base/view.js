@@ -26,6 +26,9 @@ genotet.View = function(viewName) {
   /** @private {string} */
   this.headerText_ = '';
 
+  /** @private {string} */
+  this.headerExtraInfo_ = '';
+
   /** @private {boolean} */
   this.sendSignal_ = true;
 
@@ -160,6 +163,21 @@ genotet.View.prototype.headerText = function(headerText) {
 };
 
 /**
+ * Sets header extra information of the view. If null, return the current
+ * header.
+ * @param {?string} extraInfo Extra information in the header.
+ * @return {?string}
+ */
+genotet.View.prototype.headerExtraInfo = function(extraInfo) {
+  if (!extraInfo) {
+    return this.headerExtraInfo_;
+  }
+  this.headerExtraInfo_ = extraInfo;
+  this.container.find('.extra-info')
+    .text(this.headerExtraInfo_);
+};
+
+/**
  * Makes the view appear focused.
  * @param {boolean=} sendSignal Flag of sending signal.
  */
@@ -230,4 +248,15 @@ genotet.View.prototype.createPanel = function(container) {
  */
 genotet.View.prototype.signal = function(eventType, opt_data) {
   $(this).trigger('genotet.' + eventType, [opt_data]);
+};
+
+/**
+ * Sets the size of container.
+ * @param {number} containerWidth Width of container.
+ * @param {number} containerHeight Height of container.
+ */
+genotet.View.prototype.updateContainerSize = function(containerWidth,
+                                                      containerHeight) {
+  this.container.width(containerWidth);
+  this.container.height(containerHeight);
 };

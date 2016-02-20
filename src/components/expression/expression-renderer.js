@@ -223,16 +223,16 @@ genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT_PERCENTAGE_ = 0.2;
 genotet.ExpressionRenderer.prototype.DEFAULT_TFA_PROFILE_HEIGHT_PERCENTAGE_ =
   0.2;
 /** @private @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_HEIGHT_ = 25;
+genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_HEIGHT_ = 25;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN_ = 10;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_MARGIN_ = 40;
 /** @private @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_CIRCLE_SIZE_ = 1;
+genotet.ExpressionRenderer.prototype.PROFILE_CIRCLE_SIZE_ = 1;
 
 /** @private @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_HEATMAP_GRADIENT_HEIGHT_ = 20;
+genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_HEIGHT_ = 20;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.GENE_LABEL_WIDTH_FACTOR_ = 8.725;
 /** @private @const {number} */
@@ -244,7 +244,7 @@ genotet.ExpressionRenderer.prototype.LABEL_DIFFERENCE_ = 10;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.HEATMAP_LEGEND_MARGIN_ = 1;
 /** @private @const {number} */
-genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_MARGIN = 5;
+genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_MARGIN_ = 5;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.TEXT_HEIGHT_ = 9.66;
 
@@ -427,7 +427,7 @@ genotet.ExpressionRenderer.prototype.heatmapLayout_ = function() {
     this.heatmapWidth_ -= this.DEFAULT_PROFILE_MARGIN_;
   }
   this.heatmapHeight_ = this.canvasHeight -
-    this.DEFAULT_HEATMAP_GRADIENT_HEIGHT_;
+    this.HEATMAP_GRADIENT_HEIGHT_;
 
   if (this.data.options.showProfiles) {
     this.heatmapHeight_ -= this.profileHeight_;
@@ -955,15 +955,15 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
   var marginRight = scaleMax.toString().length *
     this.CONDITION_LABEL_HEIGHT_FACTOR_;
 
-  var gradientHeight = this.DEFAULT_HEATMAP_GRADIENT_HEIGHT_ -
+  var gradientHeight = this.HEATMAP_GRADIENT_HEIGHT_ -
     this.HEATMAP_GRADIENT_MARGINS_.TOP -
     this.HEATMAP_GRADIENT_MARGINS_.BOTTOM;
   var gradientWidth = this.heatmapWidth_ - marginLeft - marginRight -
     this.HEATMAP_GRADIENT_MARGINS_.LEFT - this.HEATMAP_GRADIENT_MARGINS_.RIGHT -
-    this.HEATMAP_GRADIENT_MARGIN * 2;
+    this.HEATMAP_GRADIENT_MARGIN_ * 2;
   this.gradientRect_
     .attr('transform', genotet.utils.getTransform([
-      marginLeft + this.HEATMAP_GRADIENT_MARGIN +
+      marginLeft + this.HEATMAP_GRADIENT_MARGIN_ +
       this.HEATMAP_GRADIENT_MARGINS_.LEFT,
       this.HEATMAP_GRADIENT_MARGINS_.TOP
     ]))
@@ -1005,9 +1005,9 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     this.canvasWidth - this.profileMargins_.right
   ]).domain([0, heatmapData.conditionNames.length]);
   var yScaleTop = this.profileMargins_.top +
-    this.DEFAULT_PROFILE_LEGEND_HEIGHT_;
+    this.PROFILE_LEGEND_HEIGHT_;
   if (this.data.profiles.length == 0) {
-    yScaleTop -= this.DEFAULT_PROFILE_LEGEND_HEIGHT_;
+    yScaleTop -= this.PROFILE_LEGEND_HEIGHT_;
   }
   var yScale = d3.scale.linear().range([
     this.profileHeight_ - this.profileMargins_.bottom,
@@ -1081,7 +1081,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles_ = function() {
     });
   profilePoint.enter().append('circle');
   profilePoint
-    .attr('r', this.DEFAULT_PROFILE_CIRCLE_SIZE_)
+    .attr('r', this.PROFILE_CIRCLE_SIZE_)
     .attr('cx', function(value, i) {
       return xScale(i);
     })
@@ -1149,10 +1149,10 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
     this.canvasWidth - this.profileMargins_.right
   ]).domain([0, heatmapData.conditionNames.length]);
   var yScaleTop = this.profileMargins_.top +
-    this.DEFAULT_PROFILE_LEGEND_HEIGHT_;
+    this.PROFILE_LEGEND_HEIGHT_;
   if (!this.data.tfaProfiles.length ||
     this.data.options.showProfiles) {
-    yScaleTop -= this.DEFAULT_PROFILE_LEGEND_HEIGHT_;
+    yScaleTop -= this.PROFILE_LEGEND_HEIGHT_;
   }
   var yScale = d3.scale.linear().range([
     this.tfaProfileHeight_ - this.profileMargins_.bottom,
@@ -1228,7 +1228,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles_ = function() {
     }.bind(this));
   profilePoint.enter().append('circle');
   profilePoint
-    .attr('r', this.DEFAULT_PROFILE_CIRCLE_SIZE_)
+    .attr('r', this.PROFILE_CIRCLE_SIZE_)
     .attr('cx', function(object) {
       return xScale(object.index);
     })
@@ -1285,7 +1285,7 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
   } else {
     this.svgLegend_.selectAll('*').attr('display', 'inline');
   }
-  var legendHeight = this.DEFAULT_PROFILE_LEGEND_HEIGHT_ -
+  var legendHeight = this.PROFILE_LEGEND_HEIGHT_ -
     this.DEFAULT_PROFILE_LEGEND_MARGIN_;
 
   var legendRect = this.svgLegend_.selectAll('rect')
