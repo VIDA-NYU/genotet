@@ -235,7 +235,6 @@ genotet.BindingPanel.prototype.updateFileListAfterLoading = function() {
       }.bind(this));
     ui.find('.selection span')
       .on('mouseenter', function(event) {
-        console.log('in');
         this.signal('highlightTrack', index);
       }.bind(this))
       .on('mouseleave', function(event) {
