@@ -18,14 +18,27 @@ genotet.ExpressionLoader = function(data) {
     matrixInfo: {
       fileName: null
     },
+    profile: {
+      values: [],
+      geneNames: [],
+      conditionNames: [],
+      valueMin: Infinity,
+      valueMax: -Infinity
+    },
     tfa: {
-      fileName: null
+      fileName: null,
+      tfaValues: [],
+      geneNames: [],
+      conditionNames: [],
+      valueMin: Infinity,
+      valueMax: -Infinity
     },
     matrixGeneNameDict: null,
     matrixConditionNameDict: null,
     lowerGeneNames: null,
     lowerConditionNames: null,
-    tfaGeneNameDict: null,
+    profileGeneNameDict: {},
+    tfaGeneNameDict: {},
     profiles: [],
     tfaProfiles: [],
     zoomStack: []
@@ -109,6 +122,8 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     }
 
     this.data.matrix = data;
+    this.data.profile.conditionNames = data.conditionNames;
+    this.data.tfa.conditionNames = data.conditionNames;
 
     var matrixGeneNameDict = {};
     data.geneNames.forEach(function(geneName, i) {
@@ -133,40 +148,103 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
       });
     this.data.lowerConditionNames = lowerConditionNames;
 
-    this.loadTfaProfile_(this.data.tfa.fileName, this.data.matrix.geneNames,
-      this.data.matrix.conditionNames);
+    if (this.data.profile.geneNames.length != 0) {
+      this.loadProfile(fileName, this.data.profile.geneNames,
+        data.conditionNames, false);
+    }
+    if (this.data.tfa.geneNames.length != 0) {
+      this.loadTfaProfile(fileName, this.data.tfa.geneNames,
+        data.conditionNames, false);
+    }
   }.bind(this), 'cannot load expression matrix');
 };
 
 /**
- * Loads the TFA for selected genes.
+ * Loads the profile for selected genes.
  * @param {string} fileName Name of the expression matrix.
- * @param {!Array<string>} geneNames Names for gene selection.
+ * @param {!Array<string>} geneNames Name for gene selection.
  * @param {!Array<string>} conditionNames Names for experiment condition
  *      selection.
- * @private
+ * @param {boolean} isAddProfile Whether it is adding a new profile.
  */
-genotet.ExpressionLoader.prototype.loadTfaProfile_ = function(fileName,
-    geneNames, conditionNames) {
-  var tfaParams = {
-    type: genotet.expression.QueryType.TFA_PROFILE,
-    fileName: genotet.data.tfaFileName,
-    geneNames: geneNames,
-    conditionNames: conditionNames
+genotet.ExpressionLoader.prototype.loadProfile =
+  function(fileName, geneNames, conditionNames, isAddProfile) {
+    var params = {
+      type: genotet.expression.QueryType.PROFILE,
+      fileName: fileName,
+      geneNames: geneNames,
+      conditionNames: conditionNames
+    };
+    this.get(genotet.data.serverURL, params, function(data) {
+      // Store the last applied data selectors.
+      if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
+        return;
+      }
+      if (isAddProfile) {
+        var geneName = geneNames[0];
+        var geneIndex = this.data.profiles.length;
+        this.data.profileGeneNameDict[geneName] = geneIndex;
+        this.data.profile.geneNames.push(geneName);
+        this.data.profile.values = this.data.profile.values.concat(
+          data.values);
+        this.data.profile.valueMin = Math.min(this.data.profile.valueMin,
+          data.valueMin);
+        this.data.profile.valueMax = Math.max(this.data.profile.valueMax,
+          data.valueMax);
+        this.signal('newProfileLoaded', {
+          geneName: geneName,
+          geneIndex: geneIndex
+        });
+      } else {
+        this.data.profile = data;
+        this.signal('profileLoaded');
+      }
+    }.bind(this), 'cannot load expression profiles', true);
   };
-  this.get(genotet.data.serverURL, tfaParams, function(data) {
-    // Store the last applied data selectors.
-    if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
-      return;
-    }
-    var tfaGeneNameDict = {};
-    data.geneNames.forEach(function(geneName, i) {
-      tfaGeneNameDict[geneName] = i;
-    }.bind(this));
-    this.data.tfaGeneNameDict = tfaGeneNameDict;
-    this.data.tfa = _.extend({}, this.data.tfa, data);
-  }.bind(this), 'cannot load expression TFA profiles');
-};
+
+/**
+ * Loads the TFA for selected genes.
+ * @param {string} fileName Name of the TFA file.
+ * @param {!Array<string>} geneNames Names for gene selection.
+ * @param {!Array<string>} conditionNames Names for TFA experiment condition
+ *      selection.
+ * @param {boolean} isAddProfile Whether it is adding a new TFA profile.
+ */
+genotet.ExpressionLoader.prototype.loadTfaProfile =
+  function(fileName, geneNames, conditionNames, isAddProfile) {
+    var tfaParams = {
+      type: genotet.expression.QueryType.TFA_PROFILE,
+      fileName: genotet.data.tfaFileName,
+      geneNames: geneNames,
+      conditionNames: conditionNames
+    };
+    this.get(genotet.data.serverURL, tfaParams, function(data) {
+      // Store the last applied data selectors.
+      if (data.tfaValues.length == 0) {
+        genotet.warning('TFA not found');
+        return;
+      }
+      if (isAddProfile) {
+        var geneName = geneNames[0];
+        var geneIndex = this.data.tfaProfiles.length;
+        this.data.tfaGeneNameDict[geneName] = geneIndex;
+        this.data.tfa.geneNames.push(geneName);
+        this.data.tfa.tfaValues = this.data.tfa.tfaValues.concat(
+          data.tfaValues);
+        this.data.tfa.valueMin = Math.min(this.data.tfa.valueMin,
+          data.valueMin);
+        this.data.tfa.valueMax = Math.max(this.data.tfa.valueMax,
+          data.valueMax);
+        this.signal('newTfaProfileLoaded', {
+          geneName: geneName,
+          geneIndex: geneIndex
+        });
+      } else {
+        this.data.tfa = _.extend({}, this.data.tfa, data);
+        this.signal('tfaProfileLoaded');
+      }
+    }.bind(this), 'cannot load TFA profiles', true);
+  };
 
 /**
  * Updates the genes in the current expression.

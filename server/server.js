@@ -213,6 +213,9 @@ app.get('/genotet', function(req, res) {
     case expression.QueryType.EXPRESSION_INFO:
       data = expression.query.matrixInfo(query, expressionPath);
       break;
+    case expression.QueryType.PROFILE:
+      data = expression.query.profile(query, expressionPath);
+      break;
     case expression.QueryType.TFA_PROFILE:
       data = expression.query.tfaProfile(query, expressionPath);
       break;
