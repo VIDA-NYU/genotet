@@ -491,7 +491,7 @@ genotet.BindingRenderer.prototype.drawDetails_ = function() {
     // the translate and scale of xScaleZoom_ to the SVG group.
     this.drawHistogram_(svg, track.detail, this.xScaleOverview_);
 
-    // Display the data name and file name for each track
+    // Display the data name and file name for each track.
     var names = [
       'Data Name: ' + track.gene,
       'File Name: ' + track.fileName
@@ -1001,6 +1001,32 @@ genotet.BindingRenderer.prototype.zoomTransform = function(range) {
     .translate(translate);
   this.detailContent_.attr('transform', genotet.utils.getTransform(translate,
     [scale, 1]));
+};
+
+/**
+ * Highlights the track hovered in panel.
+ * @param {number} trackIndex Index of the highlighted track.
+ */
+genotet.BindingRenderer.prototype.highlightTrack = function(trackIndex) {
+  var overviewSvg = this.overviewContent_.select('#track-' + trackIndex);
+  var detailSvg = this.detailContent_.select('#track-' + trackIndex);
+  var nameSvg = this.detailName_.select('#track-name-' + trackIndex);
+  overviewSvg.select('path').classed('highlighted', true);
+  detailSvg.select('path').classed('highlighted', true);
+  nameSvg.selectAll('text').classed('highlighted', true);
+};
+
+/**
+ * Unhighlights the track hovered in panel.
+ * @param {number} trackIndex Index of the unhighlighted track.
+ */
+genotet.BindingRenderer.prototype.unhighlightTrack = function(trackIndex) {
+  var overviewSvg = this.overviewContent_.select('#track-' + trackIndex);
+  var detailSvg = this.detailContent_.select('#track-' + trackIndex);
+  var nameSvg = this.detailName_.select('#track-name-' + trackIndex);
+  overviewSvg.select('path').classed('highlighted', false);
+  detailSvg.select('path').classed('highlighted', false);
+  nameSvg.selectAll('text').classed('highlighted', false);
 };
 
 /** @inheritDoc */

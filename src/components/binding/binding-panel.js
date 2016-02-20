@@ -215,13 +215,20 @@ genotet.BindingPanel.prototype.updateFileListAfterLoading = function() {
     this.selectGenes_[index] = select;
     select.val(track.fileName).trigger('change');
 
-    // Set track fileName
-    select.on('select2:select', function(event) {
-      var fileName = event.params.data.id;
-      this.signal('updateTrack', {
-        trackIndex: index,
-        fileName: fileName
-      });
-    }.bind(this));
+    // Set track fileName and highlight the track hovered in panel.
+    select
+      .on('select2:select', function(event) {
+        var fileName = event.params.data.id;
+        this.signal('updateTrack', {
+          trackIndex: index,
+          fileName: fileName
+        });
+      }.bind(this))
+      .off().on('select2:open', function(event) {
+        this.signal('highlightTrack', index);
+      }.bind(this))
+      .on('select2:close', function(event) {
+        this.signal('unhighlightTrack', index);
+      }.bind(this));
   }, this);
 };

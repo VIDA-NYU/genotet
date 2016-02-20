@@ -187,6 +187,12 @@ genotet.BindingView = function(viewName, params) {
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
         this.data.chr, false);
     }.bind(this))
+    .on('genotet.highlightTrack', function(event, trackIndex) {
+      this.renderer.highlightTrack(trackIndex);
+    }.bind(this))
+    .on('genotet.unhighlightTrack', function(event, trackIndex) {
+      this.renderer.unhighlightTrack(trackIndex);
+    }.bind(this))
     .on('genotet.loadBindingList', function() {
       genotet.data.loadList(this, genotet.FileType.BINDING);
     }.bind(this));
