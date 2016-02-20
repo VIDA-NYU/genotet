@@ -142,11 +142,11 @@ genotet.BindingView = function(viewName, params) {
       this.headerExtraInfo(headerExtraInfo);
       this.panel.updateCoordinates(data.start, data.end);
     }.bind(this))
-    .on('genotet.updateContainerSize', function(event, data) {
-      this.updateContainerSize(data.containerWidth, data.containerHeight);
+    .on('genotet.resizeContainer', function(event, data) {
+      this.resize(data.containerWidth, data.containerHeight);
     }.bind(this))
-    .on('genotet.updateCanvasSize', function(event, data) {
-      this.renderer.updateCanvasSize(data.canvasWidth, data.canvasHeight);
+    .on('genotet.resizeCanvas', function(event, data) {
+      this.renderer.resizeCanvas(data.canvasWidth, data.canvasHeight);
     }.bind(this));
 
   $(this.panel)

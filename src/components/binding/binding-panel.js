@@ -224,7 +224,7 @@ genotet.BindingPanel.prototype.updateFileListAfterLoading = function() {
           fileName: fileName
         });
       }.bind(this))
-      .off().on('select2:open', function(event) {
+      .on('select2:open', function(event) {
         this.signal('highlightTrack', index);
       }.bind(this))
       .on('select2:close', function(event) {

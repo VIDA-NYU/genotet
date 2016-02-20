@@ -142,7 +142,8 @@ genotet.ViewRenderer.prototype.signal = function(eventType, opt_data) {
  * @param {number} canvasWidth Width of canvas.
  * @param {number} canvasHeight Height of canvas.
  */
-genotet.ViewRenderer.prototype.updateCanvasSize = function(canvasWidth,
+genotet.ViewRenderer.prototype.resizeCanvas = function(canvasWidth,
                                                            canvasHeight) {
+  this.canvas.attr('width', canvasWidth);
   this.canvas.attr('height', canvasHeight);
 };

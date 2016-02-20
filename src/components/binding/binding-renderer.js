@@ -146,9 +146,9 @@ genotet.BindingRenderer.prototype.BED_MIN_HEIGHT_ = 3;
 genotet.BindingRenderer.prototype.BED_HEIGHT_EXTENSION_ = 200;
 
 /** @private @const {!Array<number>} */
-genotet.BindingRenderer.ZOOM_EXTENT_ = [1, 20000000];
+genotet.BindingRenderer.prototype.ZOOM_EXTENT_ = [1, 20000000];
 /** @private @const {number} */
-genotet.BindingRenderer.ZOOM_INTERVAL_ = 500;
+genotet.BindingRenderer.prototype.ZOOM_INTERVAL_ = 500;
 
 /**
  * Initializes the BindingRenderer properties.
@@ -836,11 +836,11 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
     if (this.data.bed.aggregatedChanged) {
       this.canvasHeight -= this.bedHeight_;
       var containerHeight = this.container.height() - this.bedHeight_;
-      this.signal('updateContainerSize', {
+      this.signal('resizeContainer', {
         containerWidth: this.container.width(),
         containerHeight: containerHeight
       });
-      this.signal('updateCanvasSize', {
+      this.signal('resizeCanvas', {
         canvasWidth: this.canvasWidth,
         canvasHeight: this.canvasHeight
       });
@@ -853,11 +853,11 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
       this.canvasHeight += this.BED_HEIGHT_EXTENSION_;
       var containerHeight = this.container.height() +
         this.BED_HEIGHT_EXTENSION_;
-      this.signal('updateContainerSize', {
+      this.signal('resizeContainer', {
         containerWidth: this.container.width(),
         containerHeight: containerHeight
       });
-      this.signal('updateCanvasSize', {
+      this.signal('resizeCanvas', {
         canvasWidth: this.canvasWidth,
         canvasHeight: this.canvasHeight
       });

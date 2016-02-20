@@ -255,7 +255,7 @@ genotet.View.prototype.signal = function(eventType, opt_data) {
  * @param {number} containerWidth Width of container.
  * @param {number} containerHeight Height of container.
  */
-genotet.View.prototype.updateContainerSize = function(containerWidth,
+genotet.View.prototype.resize = function(containerWidth,
                                                       containerHeight) {
   this.container.width(containerWidth);
   this.container.height(containerHeight);
