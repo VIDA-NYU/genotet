@@ -96,53 +96,54 @@ genotet.BindingRenderer = function(container, data) {
 
 genotet.utils.inherit(genotet.BindingRenderer, genotet.ViewRenderer);
 
-/** @const {number} */
-genotet.BindingRenderer.prototype.EXON_HEIGHT = 35;
-/** @const {number} */
-genotet.BindingRenderer.prototype.EXON_SIZE = 10;
-/** @const {number} */
-genotet.BindingRenderer.prototype.EXON_CENTER_Y = 20;
-/** @const {number} */
-genotet.BindingRenderer.prototype.EXON_LABEL_OFFSET = 3;
-/** @const {number} */
-genotet.BindingRenderer.prototype.OVERVIEW_HEIGHT = 25;
-/** @const {number} */
-genotet.BindingRenderer.prototype.BED_HEIGHT = 25;
-/** @const {number} */
-genotet.BindingRenderer.prototype.BED_SHALLOW_WIDTH = 1;
-/** @const {number} */
-genotet.BindingRenderer.prototype.TRACK_NAME_HEIGHT = 50;
-/** @const {number} */
-genotet.BindingRenderer.prototype.TRACK_NAME_TEXT_OFFSET = 10;
-/** @const {number} */
-genotet.BindingRenderer.prototype.TRACK_NAME_TEXT_HEIGHT = 10;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.EXON_HEIGHT_ = 35;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.EXON_SIZE_ = 10;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.EXON_CENTER_Y_ = 20;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.EXON_LABEL_OFFSET_ = 3;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.OVERVIEW_HEIGHT_ = 25;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.BED_HEIGHT_ = 25;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.BED_SHALLOW_WIDTH_ = 1;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.TRACK_NAME_HEIGHT_ = 50;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.TRACK_NAME_TEXT_OFFSET_ = 10;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.TRACK_NAME_TEXT_HEIGHT_ = 10;
 
 /**
  * When there are more than this limit number of exons, we draw exons as
  * abstract rectangles.
+ * @private
  * @type {number}
  */
-genotet.BindingRenderer.prototype.EXON_ABSTRACT_LIMIT = 200;
+genotet.BindingRenderer.prototype.EXON_ABSTRACT_LIMIT_ = 200;
 
-/** @const {number} */
-genotet.BindingRenderer.prototype.STRAND_HORIZONTAL_SIZE = 5;
-/** @const {number} */
-genotet.BindingRenderer.prototype.STRAND_VERTICAL_SIZE = 3;
-/** @const {number} */
-genotet.BindingRenderer.prototype.EXON_LABEL_SIZE = 6;
-/** @const {number} */
-genotet.BindingRenderer.prototype.BED_LABEL_SIZE = 13;
-/** @const {number} */
-genotet.BindingRenderer.prototype.BED_MIN_WIDTH = 3;
-/** @const {number} */
-genotet.BindingRenderer.prototype.BED_MIN_HEIGHT = 3;
-/** @const {number} */
-genotet.BindingRenderer.prototype.BED_HEIGHT_EXTENSION = 200;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.STRAND_HORIZONTAL_SIZE_ = 5;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.STRAND_VERTICAL_SIZE_ = 3;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.EXON_LABEL_SIZE_ = 6;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.BED_LABEL_SIZE_ = 13;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.BED_MIN_WIDTH_ = 3;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.BED_MIN_HEIGHT_ = 3;
+/** @private @const {number} */
+genotet.BindingRenderer.prototype.BED_HEIGHT_EXTENSION_ = 200;
 
-/** @const {!Array<number>} */
-genotet.BindingRenderer.ZOOM_EXTENT = [1, 20000000];
-/** @const {number} */
-genotet.BindingRenderer.ZOOM_INTERVAL = 500;
+/** @private @const {!Array<number>} */
+genotet.BindingRenderer.ZOOM_EXTENT_ = [1, 20000000];
+/** @private @const {number} */
+genotet.BindingRenderer.ZOOM_INTERVAL_ = 500;
 
 /**
  * Initializes the BindingRenderer properties.
@@ -152,7 +153,7 @@ genotet.BindingRenderer.prototype.init = function() {
 
   // Set up the detailed histogram zoom.
   this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(genotet.BindingRenderer.ZOOM_EXTENT)
+    .scaleExtent(genotet.BindingRenderer.ZOOM_EXTENT_)
     .on('zoom', this.zoomHandler_.bind(this))
     .on('zoomend', this.zoomEndHandler_.bind(this));
   this.detailHandle_.call(this.zoom_);
@@ -363,11 +364,11 @@ genotet.BindingRenderer.prototype.layout = function() {
 
   // Compute translate values.
   this.detailTranslateY_ = this.data.options.showOverview ?
-    numTracks * this.OVERVIEW_HEIGHT : 0;
-  this.exonsTranslateY_ = this.canvasHeight - this.EXON_HEIGHT;
+    numTracks * this.OVERVIEW_HEIGHT_ : 0;
+  this.exonsTranslateY_ = this.canvasHeight - this.EXON_HEIGHT_;
   this.bedTranslateY_ = this.canvasHeight - this.bedHeight_;
   if (this.data.options.showExons) {
-    this.bedTranslateY_ -= this.EXON_HEIGHT + this.BED_SHALLOW_WIDTH;
+    this.bedTranslateY_ -= this.EXON_HEIGHT_ + this.BED_SHALLOW_WIDTH_;
   }
 
   // Translate SVG groups to place.
@@ -398,9 +399,9 @@ genotet.BindingRenderer.prototype.layout = function() {
     .attr('id', trackID);
   overviews.exit().remove();
   overviews
-    .attr('height', this.OVERVIEW_HEIGHT)
+    .attr('height', this.OVERVIEW_HEIGHT_)
     .attr('transform', function(track, index) {
-      return genotet.utils.getTransform([0, this.OVERVIEW_HEIGHT * index]);
+      return genotet.utils.getTransform([0, this.OVERVIEW_HEIGHT_ * index]);
     }.bind(this));
 
   // Set up detail tracks.
@@ -422,7 +423,7 @@ genotet.BindingRenderer.prototype.layout = function() {
     .attr('id', trackNameID);
   detailNames.exit().remove();
   detailNames
-    .attr('height', this.TRACK_NAME_HEIGHT)
+    .attr('height', this.TRACK_NAME_HEIGHT_)
     .attr('transform', function(track, index) {
       return genotet.utils.getTransform([0, this.detailHeight_ * index]);
     }.bind(this));
@@ -502,11 +503,11 @@ genotet.BindingRenderer.prototype.drawDetails_ = function() {
     nameGroups.exit().remove();
     nameGroups
       .text(_.identity)
-      .attr('x', this.TRACK_NAME_TEXT_OFFSET)
+      .attr('x', this.TRACK_NAME_TEXT_OFFSET_)
       .attr('y', function(name, i) {
-        return i * this.TRACK_NAME_TEXT_HEIGHT;
+        return i * this.TRACK_NAME_TEXT_HEIGHT_;
       }.bind(this))
-      .attr('dy', this.TRACK_NAME_TEXT_HEIGHT);
+      .attr('dy', this.TRACK_NAME_TEXT_HEIGHT_);
   }, this);
 };
 
@@ -571,7 +572,7 @@ genotet.BindingRenderer.prototype.drawOverviewRange_ = function(opt_range) {
   var numTracks = this.data.tracks.length;
   var xScale = this.xScaleOverview_;
   this.overviewRange_
-    .attr('height', this.OVERVIEW_HEIGHT * numTracks)
+    .attr('height', this.OVERVIEW_HEIGHT_ * numTracks)
     .attr('x', xScale(range[0]))
     .attr('width', xScale(range[1]) - xScale(range[0]));
 };
@@ -599,7 +600,7 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
 
   var getLabelRange = function(exon) {
     var mid = xScale((exon.txStart + exon.txEnd) / 2);
-    var span = exon.name2.length / 2 * this.EXON_LABEL_SIZE;
+    var span = exon.name2.length / 2 * this.EXON_LABEL_SIZE_;
     return [mid - span, mid + span];
   }.bind(this);
   exons.sort(function(exon1, exon2) {
@@ -608,11 +609,11 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
     return range1[0] - range2[0] || range1[1] - range2[1];
   });
 
-  var exonCenterY = this.EXON_CENTER_Y;
-  var exonHalfY = exonCenterY - this.EXON_SIZE / 4;
-  var exonY = exonCenterY - this.EXON_SIZE / 2;
+  var exonCenterY = this.EXON_CENTER_Y_;
+  var exonHalfY = exonCenterY - this.EXON_SIZE_ / 4;
+  var exonY = exonCenterY - this.EXON_SIZE_ / 2;
 
-  if (exons.length > this.EXON_ABSTRACT_LIMIT) {
+  if (exons.length > this.EXON_ABSTRACT_LIMIT_) {
     // Render the exons in abstract shapes.
 
     // First remove detailed exons.
@@ -629,7 +630,7 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
       .attr('width', function(exon) {
         return xScale(exon.txEnd) - xScale(exon.txStart);
       })
-      .attr('height', this.EXON_SIZE);
+      .attr('height', this.EXON_SIZE_);
   } else {
     // Render detailed exons.
 
@@ -666,7 +667,7 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
     txs.enter().append('rect')
       .classed('txbox', true)
       .attr('y', exonHalfY)
-      .attr('height', this.EXON_SIZE / 2);
+      .attr('height', this.EXON_SIZE_ / 2);
     txs.exit().remove();
     txs
       .attr('x', function(range) {
@@ -683,7 +684,7 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
     exs.enter().append('rect')
       .classed('box', true)
       .attr('y', exonY)
-      .attr('height', this.EXON_SIZE);
+      .attr('height', this.EXON_SIZE_);
     exs.exit().remove();
     exs
       .attr('x', function(range) {
@@ -711,11 +712,11 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
     strands.attr('d', function(strand) {
       var x = xScale(strand.x);
       var dx = strand.direction == '+' ?
-          this.STRAND_HORIZONTAL_SIZE : -this.STRAND_HORIZONTAL_SIZE;
+          this.STRAND_HORIZONTAL_SIZE_ : -this.STRAND_HORIZONTAL_SIZE_;
       return line([
         [x + dx, exonCenterY],
-        [x, exonCenterY + this.STRAND_VERTICAL_SIZE],
-        [x, exonCenterY - this.STRAND_VERTICAL_SIZE]
+        [x, exonCenterY + this.STRAND_VERTICAL_SIZE_],
+        [x, exonCenterY - this.STRAND_VERTICAL_SIZE_]
       ]);
     }.bind(this));
 
@@ -723,7 +724,7 @@ genotet.BindingRenderer.prototype.drawExons_ = function() {
     // Greedily layout the labels so that they are not overlapping.
     // Labels are sorted by their left & right endpoints. We add the label only
     // when it does not overlap with the previous label.
-    var labelY = exonY - this.EXON_LABEL_OFFSET;
+    var labelY = exonY - this.EXON_LABEL_OFFSET_;
     var lastLabelRight = -Infinity;
     gs.select('text')
       .attr('y', labelY)
@@ -757,7 +758,7 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
     this.BED_MARGINS_.BOTTOM) / bedData.length;
   var unitHeight = this.bedRectHeight_;
   if (!this.data.bed.aggregated && this.data.options.showBedLabels) {
-    this.bedRectHeight_ -= this.BED_LABEL_SIZE;
+    this.bedRectHeight_ -= this.BED_LABEL_SIZE_;
   }
   var opt_range = [];
   var bedRows = this.bedContent_.selectAll('g').data(bedData);
@@ -770,10 +771,10 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
       var range = [data.chrStart, data.chrEnd];
       opt_range = this.bindingCoordinatesToScreenRange_(range);
       var rectWidth = opt_range[1] - opt_range[0];
-      return rectWidth < this.BED_MIN_WIDTH ? this.BED_MIN_WIDTH :
+      return rectWidth < this.BED_MIN_WIDTH_ ? this.BED_MIN_WIDTH_ :
         rectWidth;
     }.bind(this))
-    .attr('height', Math.max(this.bedRectHeight_, this.BED_MIN_HEIGHT))
+    .attr('height', Math.max(this.bedRectHeight_, this.BED_MIN_HEIGHT_))
     .attr('x', function(data) {
       var range = [data.chrStart, data.chrEnd];
       opt_range = this.bindingCoordinatesToScreenRange_(range);
@@ -796,12 +797,12 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
         var range = [data.chrStart, data.chrEnd];
         opt_range = this.bindingCoordinatesToScreenRange_(range);
         var rectWidth = opt_range[1] - opt_range[0];
-        rectWidth = rectWidth < this.BED_MIN_WIDTH ? this.BED_MIN_WIDTH :
+        rectWidth = rectWidth < this.BED_MIN_WIDTH_ ? this.BED_MIN_WIDTH_ :
           rectWidth;
         return opt_range[0] + rectWidth / 2;
       }.bind(this))
       .attr('y', function(data, i, j) {
-        return j * unitHeight + this.bedRectHeight_ + this.BED_LABEL_SIZE / 2;
+        return j * unitHeight + this.bedRectHeight_ + this.BED_LABEL_SIZE_ / 2;
       }.bind(this))
       .attr('transform',
         genotet.utils.getTransform([0, this.BED_MARGINS_.TOP]));
@@ -818,9 +819,9 @@ genotet.BindingRenderer.prototype.drawBed_ = function() {
 genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
   var numTracks = this.data.tracks.length;
   var overviewHeight = this.data.options.showOverview ?
-    this.OVERVIEW_HEIGHT * numTracks : 0;
+    this.OVERVIEW_HEIGHT_ * numTracks : 0;
   var exonsHeight = this.data.options.showExons ?
-    this.EXON_HEIGHT : 0;
+    this.EXON_HEIGHT_ : 0;
   if (this.data.bed.aggregated) {
     if (this.data.bed.aggregatedChanged) {
       this.canvasHeight -= this.bedHeight_;
@@ -828,13 +829,13 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
       this.container.height(containerHeight);
       this.canvas.attr('height', this.canvasHeight);
     }
-    this.bedHeight_ = this.BED_HEIGHT;
+    this.bedHeight_ = this.BED_HEIGHT_;
   } else {
     if (this.data.bed.aggregatedChanged) {
       this.bedHeight_ = this.data.options.showBed ?
-      this.bedHeight_ + this.BED_HEIGHT_EXTENSION : 0;
-      this.canvasHeight += this.BED_HEIGHT_EXTENSION;
-      var containerHeight = this.container.height() + this.BED_HEIGHT_EXTENSION;
+      this.bedHeight_ + this.BED_HEIGHT_EXTENSION_ : 0;
+      this.canvasHeight += this.BED_HEIGHT_EXTENSION_;
+      var containerHeight = this.container.height() + this.BED_HEIGHT_EXTENSION_;
       this.container.height(containerHeight);
       this.canvas.attr('height', this.canvasHeight);
     } else {
@@ -850,7 +851,7 @@ genotet.BindingRenderer.prototype.updateDetailHeight_ = function() {
   if (this.data.options.showBed) {
     totalDetailHeight -= this.bedHeight_;
     if (this.data.options.showExons) {
-      totalDetailHeight -= this.BED_SHALLOW_WIDTH;
+      totalDetailHeight -= this.BED_SHALLOW_WIDTH_;
     }
   }
   this.detailHeight_ = totalDetailHeight / (numTracks ? numTracks : 1);
@@ -884,10 +885,10 @@ genotet.BindingRenderer.prototype.resize = function() {
 genotet.BindingRenderer.prototype.updateZoomHandles_ = function() {
   var numTracks = this.data.tracks.length;
   var heights = [
-    this.OVERVIEW_HEIGHT * numTracks,
+    this.OVERVIEW_HEIGHT_ * numTracks,
     this.detailHeight_ * numTracks,
     this.bedHeight_,
-    this.EXON_HEIGHT
+    this.EXON_HEIGHT_
   ];
   this.canvas.selectAll('.zoom-handle').data(heights)
     .attr('height', _.identity);
@@ -939,7 +940,7 @@ genotet.BindingRenderer.prototype.zoomHandler_ = function() {
 genotet.BindingRenderer.prototype.zoomEndHandler_ = function() {
   clearTimeout(this.zoomTimer_);
   this.zoomTimer_ = setTimeout(this.zoomDetail_.bind(this),
-    genotet.BindingRenderer.ZOOM_INTERVAL);
+    genotet.BindingRenderer.ZOOM_INTERVAL_);
 };
 
 /**
