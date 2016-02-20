@@ -145,8 +145,13 @@ genotet.BindingRenderer.prototype.BED_MIN_HEIGHT_ = 3;
 /** @private @const {number} */
 genotet.BindingRenderer.prototype.BED_HEIGHT_EXTENSION_ = 200;
 
-/** @private @const {!Array<number>} */
-genotet.BindingRenderer.prototype.ZOOM_EXTENT_ = [1, 20000000];
+/**
+ * @return {!Array<number>}
+ * @private
+ * */
+genotet.BindingRenderer.prototype.ZOOM_EXTENT_ = function() {
+  return [1, 20000000];
+};
 /** @private @const {number} */
 genotet.BindingRenderer.prototype.ZOOM_INTERVAL_ = 500;
 
@@ -158,7 +163,7 @@ genotet.BindingRenderer.prototype.init = function() {
 
   // Set up the detailed histogram zoom.
   this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(genotet.BindingRenderer.ZOOM_EXTENT_)
+    .scaleExtent(this.ZOOM_EXTENT_)
     .on('zoom', this.zoomHandler_.bind(this))
     .on('zoomend', this.zoomEndHandler_.bind(this));
   this.detailHandle_.call(this.zoom_);
@@ -963,7 +968,7 @@ genotet.BindingRenderer.prototype.zoomHandler_ = function() {
 genotet.BindingRenderer.prototype.zoomEndHandler_ = function() {
   clearTimeout(this.zoomTimer_);
   this.zoomTimer_ = setTimeout(this.zoomDetail_.bind(this),
-    genotet.BindingRenderer.ZOOM_INTERVAL_);
+    this.ZOOM_INTERVAL_);
 };
 
 /**
