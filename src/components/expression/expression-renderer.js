@@ -225,16 +225,21 @@ genotet.ExpressionRenderer.prototype.DEFAULT_TFA_PROFILE_HEIGHT_PERCENTAGE =
   0.35;
 
 /** @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_HEIGHT = 20;
+genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_HEIGHT = 20;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN = 5;
 
 /** @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_CORNERS = 7;
+genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_CORNER_RADIUS = 7;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_MARGIN = 40;
+
+/** @const {number} */
+genotet.ExpressionRenderer.prototype.LEGEND_HEIGHT =
+  genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_HEIGHT -
+  genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_CIRCLE_SIZE = 1;
@@ -993,9 +998,9 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles = function() {
     this.canvasWidth - this.profileMargins_.right
   ]).domain([0, profileData.conditionNames.length]);
   var yScaleTop = this.profileMargins_.top +
-    this.DEFAULT_PROFILE_LEGEND_HEIGHT;
+    this.PROFILE_LEGEND_HEIGHT;
   if (this.data.profiles.length == 0) {
-    yScaleTop -= this.DEFAULT_PROFILE_LEGEND_HEIGHT;
+    yScaleTop -= this.PROFILE_LEGEND_HEIGHT;
   }
   var yScale = d3.scale.linear().range([
     this.profileHeight_ - this.profileMargins_.bottom,
@@ -1076,8 +1081,8 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles = function() {
     .attr('cy', function(value) {
       return yScale(value);
     })
-    .attr('rx', this.DEFAULT_PROFILE_LEGEND_CORNERS)
-    .attr('ry', this.DEFAULT_PROFILE_LEGEND_CORNERS)
+    .attr('rx', this.PROFILE_LEGEND_CORNER_RADIUS)
+    .attr('ry', this.PROFILE_LEGEND_CORNER_RADIUS)
     .on('mouseover', function(value, i) {
       var pathContainer = d3.event.target;
       var geneName = d3.select(pathContainer.parentNode).datum().geneName;
@@ -1137,10 +1142,10 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles = function() {
     this.canvasWidth - this.profileMargins_.right
   ]).domain([0, tfaData.conditionNames.length]);
   var yScaleTop = this.profileMargins_.top +
-    this.DEFAULT_PROFILE_LEGEND_HEIGHT;
+    this.PROFILE_LEGEND_HEIGHT;
   if (!this.data.tfaProfiles.length ||
     this.data.options.showProfiles) {
-    yScaleTop -= this.DEFAULT_PROFILE_LEGEND_HEIGHT;
+    yScaleTop -= this.PROFILE_LEGEND_HEIGHT;
   }
   var yScale = d3.scale.linear().range([
     this.tfaProfileHeight_ - this.profileMargins_.bottom,
@@ -1223,8 +1228,8 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles = function() {
     .attr('cy', function(object) {
       return yScale(object.value);
     })
-    .attr('rx', this.DEFAULT_PROFILE_LEGEND_CORNERS)
-    .attr('ry', this.DEFAULT_PROFILE_LEGEND_CORNERS)
+    .attr('rx', this.PROFILE_LEGEND_CORNER_RADIUS)
+    .attr('ry', this.PROFILE_LEGEND_CORNER_RADIUS)
     .on('mouseover', function(object) {
       var pathContainer = d3.event.target;
       var geneName = d3.select(pathContainer.parentNode).datum().geneName;
@@ -1275,20 +1280,17 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
   } else {
     this.svgLegend_.selectAll('*').attr('display', 'inline');
   }
-  var legendHeight = this.DEFAULT_PROFILE_LEGEND_HEIGHT -
-    this.DEFAULT_PROFILE_LEGEND_MARGIN;
-  var legendWidth = legendHeight + this.HEATMAP_LEGEND_MARGIN;
   var legendOffset = [0];
 
   var legendRect = this.svgLegend_.selectAll('rect')
     .data(profiles);
   legendRect.enter().append('rect');
   legendRect
-    .attr('height', legendHeight)
-    .attr('width', legendHeight)
+    .attr('height', this.LEGEND_HEIGHT)
+    .attr('width', this.PROFILE_LEGEND_HEIGHT)
     .attr('x', function(profile, i) {
       var previousOffset = legendOffset[i];
-      legendOffset.push(previousOffset + legendWidth +
+      legendOffset.push(previousOffset + this.PROFILE_LEGEND_HEIGHT +
         profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
       return previousOffset;
     }.bind(this))
@@ -1306,8 +1308,8 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
       return profile.geneName;
     }.bind(this))
     .attr('transform', genotet.utils.getTransform([
-      legendWidth,
-      legendHeight / 2 + this.TEXT_HEIGHT / 2
+      this.PROFILE_LEGEND_HEIGHT,
+      this.LEGEND_HEIGHT / 2 + this.TEXT_HEIGHT / 2
     ]))
     .attr('x', function(profile, i) {
       return legendOffset[i];
@@ -1349,15 +1351,17 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile = function(geneName) {
 
   this.data.profile.geneNames.splice(index, 1);
   this.data.profile.values.splice(index, 1);
-  if (this.data.profile.values.length == 0) {
-    this.data.profile.valueMin = -Infinity;
-    this.data.profile.valueMax = Infinity;
-  } else {
-    var profileValues = this.data.profile.values.reduce(function(prev, next) {
-      return prev.concat(next);
-    });
-    this.data.profile.valueMin = Math.min.apply(null, profileValues);
-    this.data.profile.valueMax = Math.max.apply(null, profileValues);
+  this.data.profile.valueMin = Infinity;
+  this.data.profile.valueMax = -Infinity;
+  if (this.data.profile.values.length != 0) {
+    this.data.profile.values.forEach(function(values) {
+      values.forEach(function(value) {
+        this.data.profile.valueMin = Math.min(this.data.profile.valueMin,
+          value);
+        this.data.profile.valueMax = Math.min(this.data.profile.valueMax,
+          value);
+      }, this);
+    }, this);
   }
   this.drawGeneProfiles();
 };
@@ -1396,18 +1400,15 @@ genotet.ExpressionRenderer.prototype.removeTfaProfile = function(geneName) {
 
   this.data.tfa.geneNames.splice(index, 1);
   this.data.tfa.tfaValues.splice(index, 1);
-  if (this.data.tfa.tfaValues.length == 0) {
-    this.data.tfa.valueMin = -Infinity;
-    this.data.tfa.valueMax = Infinity;
-  } else {
-    var profileObjects = this.data.tfa.tfaValues.reduce(function(prev, next) {
-      return prev.concat(next);
-    });
-    var profileValues = profileObjects.map(function(object) {
-      return object.value;
-    });
-    this.data.tfa.valueMin = Math.min.apply(null, profileValues);
-    this.data.tfa.valueMax = Math.max.apply(null, profileValues);
+  this.data.tfa.valueMin = Infinity;
+  this.data.tfa.valueMax = -Infinity;
+  if (this.data.tfa.tfaValues.length != 0) {
+    this.data.tfa.tfaValues.forEach(function(tfaValues) {
+      tfaValues.forEach(function(object) {
+        this.data.tfa.valueMin = Math.min(this.data.tfa.valueMin, object.value);
+        this.data.tfa.valueMax = Math.min(this.data.tfa.valueMax, object.value);
+      }, this);
+    }, this);
   }
   this.drawTfaProfiles();
 };
@@ -1423,6 +1424,8 @@ genotet.ExpressionRenderer.prototype.removeAllProfiles = function() {
     valueMin: Infinity,
     valueMax: -Infinity
   };
+
+  // Preserve the fileName for tfa.
   _.extend(this.data.tfa, {
     tfaValues: [],
     geneNames: [],

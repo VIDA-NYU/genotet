@@ -175,28 +175,30 @@ genotet.ExpressionLoader.prototype.loadProfile =
       geneNames: geneNames,
       conditionNames: conditionNames
     };
-    this.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverURL, params, function(profileData) {
       // Store the last applied data selectors.
-      if (data.geneNames.length == 0 || data.conditionNames.length == 0) {
+      if (profileData.geneNames.length == 0 ||
+        profileData.conditionNames.length == 0) {
         return;
       }
       if (isAddProfile) {
+        // Only add the first element in geneNames when add profile.
         var geneName = geneNames[0];
         var geneIndex = this.data.profiles.length;
         this.data.profileGeneNameDict[geneName] = geneIndex;
         this.data.profile.geneNames.push(geneName);
         this.data.profile.values = this.data.profile.values.concat(
-          data.values);
+          profileData.values);
         this.data.profile.valueMin = Math.min(this.data.profile.valueMin,
-          data.valueMin);
+          profileData.valueMin);
         this.data.profile.valueMax = Math.max(this.data.profile.valueMax,
-          data.valueMax);
+          profileData.valueMax);
         this.signal('newProfileLoaded', {
           geneName: geneName,
           geneIndex: geneIndex
         });
       } else {
-        this.data.profile = data;
+        this.data.profile = profileData;
         this.signal('profileLoaded');
       }
     }.bind(this), 'cannot load expression profiles', true);
@@ -218,29 +220,30 @@ genotet.ExpressionLoader.prototype.loadTfaProfile =
       geneNames: geneNames,
       conditionNames: conditionNames
     };
-    this.get(genotet.data.serverURL, tfaParams, function(data) {
+    this.get(genotet.data.serverURL, tfaParams, function(tfaProfileData) {
       // Store the last applied data selectors.
-      if (data.tfaValues.length == 0) {
+      if (tfaProfileData.tfaValues.length == 0) {
         genotet.warning('TFA not found');
         return;
       }
       if (isAddProfile) {
+        // Only add the first element in geneNames when add profile.
         var geneName = geneNames[0];
         var geneIndex = this.data.tfaProfiles.length;
         this.data.tfaGeneNameDict[geneName] = geneIndex;
         this.data.tfa.geneNames.push(geneName);
         this.data.tfa.tfaValues = this.data.tfa.tfaValues.concat(
-          data.tfaValues);
+          tfaProfileData.tfaValues);
         this.data.tfa.valueMin = Math.min(this.data.tfa.valueMin,
-          data.valueMin);
+          tfaProfileData.valueMin);
         this.data.tfa.valueMax = Math.max(this.data.tfa.valueMax,
-          data.valueMax);
+          tfaProfileData.valueMax);
         this.signal('newTfaProfileLoaded', {
           geneName: geneName,
           geneIndex: geneIndex
         });
       } else {
-        this.data.tfa = _.extend({}, this.data.tfa, data);
+        this.data.tfa = _.extend({}, this.data.tfa, tfaProfileData);
         this.signal('tfaProfileLoaded');
       }
     }.bind(this), 'cannot load TFA profiles', true);

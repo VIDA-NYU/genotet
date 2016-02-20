@@ -107,7 +107,7 @@ expression.query.TfaProfile;
 
 // Start public APIs
 /**
- * @param {!expression.query.MatrixInfo} query
+ * @param {expression.query.MatrixInfo} query
  * @param {string} expressionPath
  * @return {expression.MatrixInfo}
  */
@@ -117,7 +117,7 @@ expression.query.matrixInfo = function(query, expressionPath) {
 };
 
 /**
- * @param {!expression.query.Matrix} query
+ * @param {expression.query.Matrix} query
  * @param {string} expressionPath
  * @return {?expression.Matrix}
  */
@@ -129,7 +129,7 @@ expression.query.matrix = function(query, expressionPath) {
 };
 
 /**
- * @param {!expression.query.Profile} query
+ * @param {expression.query.Profile} query
  * @return {?expression.Profile}
  * @param {string} expressionPath
  */
@@ -141,7 +141,7 @@ expression.query.profile = function(query, expressionPath) {
 };
 
 /**
- * @param {!expression.query.TfaProfile} query
+ * @param {expression.query.TfaProfile} query
  * @return {?expression.TfaProfile}
  * @param {string} expressionPath
  */
