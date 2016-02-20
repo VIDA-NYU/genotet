@@ -160,7 +160,8 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
 };
 
 /**
- * Loads the profile for selected genes.
+ * Loads the profile for selected genes. Only add the first element in
+ * geneNames when add profile.
  * @param {string} fileName Name of the expression matrix.
  * @param {!Array<string>} geneNames Name for gene selection.
  * @param {!Array<string>} conditionNames Names for experiment condition
