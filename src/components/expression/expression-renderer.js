@@ -218,7 +218,7 @@ genotet.ExpressionRenderer.ZoomStatus = function(params) {
 };
 
 /** @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT_PERCENTAGE = 0.35;
+genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_HEIGHT_PERCENTAGE = 0.32;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_TFA_PROFILE_HEIGHT_PERCENTAGE =
@@ -234,6 +234,9 @@ genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN = 5;
 genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_CORNER_RADIUS = 7;
 
 /** @const {number} */
+genotet.ExpressionRenderer.prototype.LEGEND_TEXT_MARGIN = 1;
+
+/** @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_MARGIN = 40;
 
 /** @const {number} */
@@ -245,7 +248,10 @@ genotet.ExpressionRenderer.prototype.LEGEND_HEIGHT =
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_CIRCLE_SIZE = 1;
 
 /** @const {number} */
-genotet.ExpressionRenderer.prototype.DEFAULT_HEATMAP_GRADIENT_HEIGHT = 20;
+genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_HEIGHT = 20;
+
+/** @const {number} */
+genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_CORNER_RADIUS = 10;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.GENE_LABEL_WIDTH_FACTOR = 8.725;
@@ -258,9 +264,6 @@ genotet.ExpressionRenderer.prototype.LABEL_MARGIN = 10;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.LABEL_DIFFERENCE = 10;
-
-/** @const {number} */
-genotet.ExpressionRenderer.prototype.HEATMAP_LEGEND_MARGIN = 1;
 
 /** @const {number} */
 genotet.ExpressionRenderer.prototype.HEATMAP_GRADIENT_MARGIN = 5;
@@ -448,7 +451,7 @@ genotet.ExpressionRenderer.prototype.heatmapLayout_ = function() {
     this.heatmapWidth_ -= this.DEFAULT_PROFILE_MARGIN;
   }
   this.heatmapHeight_ = this.canvasHeight -
-    this.DEFAULT_HEATMAP_GRADIENT_HEIGHT;
+    this.HEATMAP_GRADIENT_HEIGHT;
 
   if (this.data.options.showProfiles) {
     this.heatmapHeight_ -= this.profileHeight_;
@@ -949,7 +952,7 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
   var marginRight = scaleMax.toString().length *
     this.CONDITION_LABEL_HEIGHT_FACTOR;
 
-  var gradientHeight = this.DEFAULT_HEATMAP_GRADIENT_HEIGHT -
+  var gradientHeight = this.HEATMAP_GRADIENT_HEIGHT -
     this.HEATMAP_GRADIENT_MARGINS_.TOP -
     this.HEATMAP_GRADIENT_MARGINS_.BOTTOM;
   var gradientWidth = this.heatmapWidth_ - marginLeft - marginRight -
@@ -963,8 +966,8 @@ genotet.ExpressionRenderer.prototype.drawHeatmapGradient_ = function() {
     ]))
     .attr('width', gradientWidth)
     .attr('height', gradientHeight)
-    .attr('rx', 10)
-    .attr('ry', 10);
+    .attr('rx', this.HEATMAP_GRADIENT_CORNER_RADIUS)
+    .attr('ry', this.HEATMAP_GRADIENT_CORNER_RADIUS);
   this.svgHeatmapGradient_.select('.gradient-text-left')
     .attr('x', this.HEATMAP_GRADIENT_MARGINS_.LEFT)
     .attr('y', this.HEATMAP_GRADIENT_MARGINS_.TOP + gradientHeight / 2 +
@@ -999,7 +1002,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles = function() {
   ]).domain([0, profileData.conditionNames.length]);
   var yScaleTop = this.profileMargins_.top +
     this.PROFILE_LEGEND_HEIGHT;
-  if (this.data.profiles.length == 0) {
+  if (!this.data.profiles.length) {
     yScaleTop -= this.PROFILE_LEGEND_HEIGHT;
   }
   var yScale = d3.scale.linear().range([
@@ -1081,8 +1084,6 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles = function() {
     .attr('cy', function(value) {
       return yScale(value);
     })
-    .attr('rx', this.PROFILE_LEGEND_CORNER_RADIUS)
-    .attr('ry', this.PROFILE_LEGEND_CORNER_RADIUS)
     .on('mouseover', function(value, i) {
       var pathContainer = d3.event.target;
       var geneName = d3.select(pathContainer.parentNode).datum().geneName;
@@ -1228,8 +1229,6 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles = function() {
     .attr('cy', function(object) {
       return yScale(object.value);
     })
-    .attr('rx', this.PROFILE_LEGEND_CORNER_RADIUS)
-    .attr('ry', this.PROFILE_LEGEND_CORNER_RADIUS)
     .on('mouseover', function(object) {
       var pathContainer = d3.event.target;
       var geneName = d3.select(pathContainer.parentNode).datum().geneName;
@@ -1287,13 +1286,15 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
   legendRect.enter().append('rect');
   legendRect
     .attr('height', this.LEGEND_HEIGHT)
-    .attr('width', this.PROFILE_LEGEND_HEIGHT)
+    .attr('width', this.LEGEND_HEIGHT)
     .attr('x', function(profile, i) {
       var previousOffset = legendOffset[i];
       legendOffset.push(previousOffset + this.PROFILE_LEGEND_HEIGHT +
         profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
       return previousOffset;
     }.bind(this))
+    .attr('rx', this.PROFILE_LEGEND_CORNER_RADIUS)
+    .attr('ry', this.PROFILE_LEGEND_CORNER_RADIUS)
     .style('fill', function(profile) {
       return this.COLOR_CATEGORY[genotet.utils.hashString(profile.geneName) %
       this.COLOR_CATEGORY_SIZE];
@@ -1308,7 +1309,7 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
       return profile.geneName;
     }.bind(this))
     .attr('transform', genotet.utils.getTransform([
-      this.PROFILE_LEGEND_HEIGHT,
+      this.LEGEND_HEIGHT + this.LEGEND_TEXT_MARGIN,
       this.LEGEND_HEIGHT / 2 + this.TEXT_HEIGHT / 2
     ]))
     .attr('x', function(profile, i) {
@@ -1353,12 +1354,12 @@ genotet.ExpressionRenderer.prototype.removeGeneProfile = function(geneName) {
   this.data.profile.values.splice(index, 1);
   this.data.profile.valueMin = Infinity;
   this.data.profile.valueMax = -Infinity;
-  if (this.data.profile.values.length != 0) {
+  if (this.data.profile.values.length) {
     this.data.profile.values.forEach(function(values) {
       values.forEach(function(value) {
         this.data.profile.valueMin = Math.min(this.data.profile.valueMin,
           value);
-        this.data.profile.valueMax = Math.min(this.data.profile.valueMax,
+        this.data.profile.valueMax = Math.max(this.data.profile.valueMax,
           value);
       }, this);
     }, this);
@@ -1402,11 +1403,11 @@ genotet.ExpressionRenderer.prototype.removeTfaProfile = function(geneName) {
   this.data.tfa.tfaValues.splice(index, 1);
   this.data.tfa.valueMin = Infinity;
   this.data.tfa.valueMax = -Infinity;
-  if (this.data.tfa.tfaValues.length != 0) {
+  if (this.data.tfa.tfaValues.length) {
     this.data.tfa.tfaValues.forEach(function(tfaValues) {
       tfaValues.forEach(function(object) {
         this.data.tfa.valueMin = Math.min(this.data.tfa.valueMin, object.value);
-        this.data.tfa.valueMax = Math.min(this.data.tfa.valueMax, object.value);
+        this.data.tfa.valueMax = Math.max(this.data.tfa.valueMax, object.value);
       }, this);
     }, this);
   }

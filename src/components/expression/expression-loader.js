@@ -148,11 +148,11 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
       });
     this.data.lowerConditionNames = lowerConditionNames;
 
-    if (this.data.profile.geneNames.length != 0) {
+    if (this.data.profile.geneNames.length) {
       this.loadProfile(fileName, this.data.profile.geneNames,
         data.conditionNames, false);
     }
-    if (this.data.tfa.geneNames.length != 0) {
+    if (this.data.tfa.geneNames.length) {
       this.loadTfaProfile(fileName, this.data.tfa.geneNames,
         data.conditionNames, false);
     }
@@ -177,8 +177,8 @@ genotet.ExpressionLoader.prototype.loadProfile =
     };
     this.get(genotet.data.serverURL, params, function(profileData) {
       // Store the last applied data selectors.
-      if (profileData.geneNames.length == 0 ||
-        profileData.conditionNames.length == 0) {
+      if (!profileData.geneNames.length ||
+        !profileData.conditionNames.length) {
         return;
       }
       if (isAddProfile) {
@@ -222,7 +222,7 @@ genotet.ExpressionLoader.prototype.loadTfaProfile =
     };
     this.get(genotet.data.serverURL, tfaParams, function(tfaProfileData) {
       // Store the last applied data selectors.
-      if (tfaProfileData.tfaValues.length == 0) {
+      if (!tfaProfileData.tfaValues.length) {
         genotet.warning('TFA not found');
         return;
       }
