@@ -1300,6 +1300,8 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
   }
   var legendHeight = this.DEFAULT_PROFILE_LEGEND_HEIGHT -
     this.DEFAULT_PROFILE_LEGEND_MARGIN;
+  var legendWidth = legendHeight + this.HEATMAP_LEGEND_MARGIN;
+  var legendOffset = [0];
 
   var legendRect = this.svgLegend_.selectAll('rect')
     .data(profiles);
@@ -1308,8 +1310,10 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
     .attr('height', legendHeight)
     .attr('width', legendHeight)
     .attr('x', function(profile, i) {
-      return i * (legendHeight +
+      var previousOffset = legendOffset[i];
+      legendOffset.push(previousOffset + legendWidth +
         profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
+      return previousOffset;
     }.bind(this))
     .style('fill', function(profile) {
       return this.COLOR_CATEGORY[genotet.utils.hashString(profile.geneName) %
@@ -1323,14 +1327,13 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
   legendText
     .text(function(profile) {
       return profile.geneName;
-    })
+    }.bind(this))
     .attr('transform', genotet.utils.getTransform([
-      legendHeight + this.HEATMAP_LEGEND_MARGIN,
+      legendWidth,
       legendHeight / 2 + this.TEXT_HEIGHT / 2
     ]))
     .attr('x', function(profile, i) {
-      return i * (legendHeight +
-        profile.geneName.length * this.GENE_LABEL_WIDTH_FACTOR);
+      return legendOffset[i];
     }.bind(this));
   legendText.exit().remove();
 };
