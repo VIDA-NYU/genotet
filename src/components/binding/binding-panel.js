@@ -216,6 +216,7 @@ genotet.BindingPanel.prototype.updateFileListAfterLoading = function() {
     select.val(track.fileName).trigger('change');
 
     // Set track fileName and highlight the track hovered in panel.
+    var listOpened = false;
     select
       .on('select2:select', function(event) {
         var fileName = event.params.data.id;
@@ -225,10 +226,22 @@ genotet.BindingPanel.prototype.updateFileListAfterLoading = function() {
         });
       }.bind(this))
       .on('select2:open', function(event) {
+        listOpened = true;
         this.signal('highlightTrack', index);
       }.bind(this))
       .on('select2:close', function(event) {
+        listOpened = false;
         this.signal('unhighlightTrack', index);
+      }.bind(this));
+    ui.find('.selection span')
+      .on('mouseenter', function(event) {
+        console.log('in');
+        this.signal('highlightTrack', index);
+      }.bind(this))
+      .on('mouseleave', function(event) {
+        if (!listOpened) {
+          this.signal('unhighlightTrack', index);
+        }
       }.bind(this));
   }, this);
 };

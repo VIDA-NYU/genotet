@@ -91,10 +91,12 @@ genotet.NetworkRenderer.MouseState_ = {
 
 /**
  * Scaling extent for D3 zoom.
+ * @return {!Array<number>}
  * @private
- * @const {!Array<number>}
  */
-genotet.NetworkRenderer.ZOOM_EXTENT_ = [.03125, 8];
+genotet.NetworkRenderer.prototype.ZOOM_EXTENT_ = function() {
+  return [.03125, 8];
+};
 
 /** @private @const {number} */
 genotet.NetworkRenderer.prototype.NODE_LABEL_SIZE_ = 14;
@@ -121,7 +123,7 @@ genotet.NetworkRenderer.prototype.init = function() {
 
   /** @private {d3.zoom} */
   this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(genotet.NetworkRenderer.ZOOM_EXTENT_)
+    .scaleExtent(this.ZOOM_EXTENT_)
     .on('zoom', this.zoomHandler_.bind(this));
   this.canvas.call(this.zoom_);
 };

@@ -151,7 +151,7 @@ genotet.View.prototype.id = function() {
 /**
  * Sets the header text of the view. If null, return the current header.
  * @param {?string} headerText View header text.
- * @return {?string}
+ * @return {string}
  */
 genotet.View.prototype.headerText = function(headerText) {
   if (!headerText) {
@@ -160,13 +160,14 @@ genotet.View.prototype.headerText = function(headerText) {
   this.headerText_ = headerText;
   this.container.find('.header-text')
     .text(this.headerText_);
+  return this.headerText_;
 };
 
 /**
  * Sets header extra information of the view. If null, return the current
  * header.
  * @param {?string} extraInfo Extra information in the header.
- * @return {?string}
+ * @return {string}
  */
 genotet.View.prototype.headerExtraInfo = function(extraInfo) {
   if (!extraInfo) {
@@ -175,6 +176,7 @@ genotet.View.prototype.headerExtraInfo = function(extraInfo) {
   this.headerExtraInfo_ = extraInfo;
   this.container.find('.extra-info')
     .text(this.headerExtraInfo_);
+  return this.headerExtraInfo_;
 };
 
 /**
