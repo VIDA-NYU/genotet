@@ -55,7 +55,6 @@ genotet.ExpressionPanel.prototype.template = 'dist/html/expression-panel.html';
 
 /** @inheritDoc */
 genotet.ExpressionPanel.prototype.dataLoaded = function() {
-  this.updateGenes(this.data.matrix.geneNames);
 };
 
 /** @inheritDoc */
@@ -108,14 +107,12 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   // Add and remove gene profiles
   this.selectProfiles_
     .on('select2:select', function(event) {
-      var geneIndex = event.params.data.element.index;
       var geneName = event.params.data.text;
-      this.signal('addGeneProfile', geneIndex);
+      this.signal('addGeneProfile', geneName);
     }.bind(this))
     .on('select2:unselect', function(event) {
-      var geneIndex = event.params.data.element.index;
       var geneName = event.params.data.text;
-      this.signal('removeGeneProfile', geneIndex);
+      this.signal('removeGeneProfile', geneName);
     }.bind(this));
 
   // Input type update
