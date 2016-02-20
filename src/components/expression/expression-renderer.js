@@ -1426,7 +1426,8 @@ genotet.ExpressionRenderer.prototype.removeAllProfiles = function() {
     valueMax: -Infinity
   };
 
-  // Preserve the fileName for tfa.
+  // Use _.extend because we want to preserve this.data.tfa.fileName,
+  // while resetting the other attributes under this.data.tfa.
   _.extend(this.data.tfa, {
     tfaValues: [],
     geneNames: [],
