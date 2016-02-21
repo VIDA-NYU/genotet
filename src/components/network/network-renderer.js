@@ -123,7 +123,7 @@ genotet.NetworkRenderer.prototype.init = function() {
 
   /** @private {d3.zoom} */
   this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(this.ZOOM_EXTENT_)
+    .scaleExtent(this.ZOOM_EXTENT_())
     .on('zoom', this.zoomHandler_.bind(this));
   this.canvas.call(this.zoom_);
 };

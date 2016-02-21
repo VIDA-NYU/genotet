@@ -163,7 +163,7 @@ genotet.BindingRenderer.prototype.init = function() {
 
   // Set up the detailed histogram zoom.
   this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(this.ZOOM_EXTENT_)
+    .scaleExtent(this.ZOOM_EXTENT_())
     .on('zoom', this.zoomHandler_.bind(this))
     .on('zoomend', this.zoomEndHandler_.bind(this));
   this.detailHandle_.call(this.zoom_);
