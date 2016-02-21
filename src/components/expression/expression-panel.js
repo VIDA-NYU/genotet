@@ -17,7 +17,7 @@ genotet.ExpressionPanel = function(data) {
   _.extend(this.data.options, {
     showTFA: true,
     showGeneLabels: true,
-    showConditionLabels: true,
+    showConditionLabels: false,
     showProfiles: true,
     showTfaProfiles: false,
     autoScaleGradient: true
@@ -40,6 +40,12 @@ genotet.ExpressionPanel = function(data) {
    * @private {boolean}
    */
   this.isConditionRegex_ = false;
+
+  /**
+   * Flag of matrix file select is open or not.
+   * @private {boolean}
+   */
+  this.fileSelectIsOpen_ = false;
 };
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
@@ -49,7 +55,6 @@ genotet.ExpressionPanel.prototype.template = 'dist/html/expression-panel.html';
 
 /** @inheritDoc */
 genotet.ExpressionPanel.prototype.dataLoaded = function() {
-  this.updateGenes(this.data.matrix.geneNames);
 };
 
 /** @inheritDoc */
@@ -102,14 +107,12 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   // Add and remove gene profiles
   this.selectProfiles_
     .on('select2:select', function(event) {
-      var geneIndex = event.params.data.element.index;
       var geneName = event.params.data.text;
-      this.signal('addGeneProfile', geneIndex);
+      this.signal('addGeneProfile', geneName);
     }.bind(this))
     .on('select2:unselect', function(event) {
-      var geneIndex = event.params.data.element.index;
       var geneName = event.params.data.text;
-      this.signal('removeGeneProfile', geneIndex);
+      this.signal('removeGeneProfile', geneName);
     }.bind(this));
 
   // Input type update
@@ -193,6 +196,9 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
       this.signal('expressionZoomOut', zoomStatus);
     }
   }.bind(this));
+
+  // Load expression list
+  this.signal('loadExpressionList');
 };
 
 /**
@@ -219,6 +225,41 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
   this.container.find('#profile .select2-container').css({
     width: '100%'
   });
+};
+
+/**
+ * Updates the matrix list for panel after loading expression list.
+ */
+genotet.ExpressionPanel.prototype.updateFileListAfterLoading = function() {
+  if (this.fileSelectIsOpen_) {
+    return;
+  }
+  var fileNames = genotet.data.files.expressionFiles.map(function(dataInfo) {
+    return {
+      id: dataInfo.fileName,
+      text: dataInfo.matrixName + ' (' + dataInfo.fileName + ')'
+    };
+  });
+  var select = this.container.find('#matrix select').select2({
+    data: fileNames,
+    width: '100%'
+  });
+  select.val(this.data.matrixInfo.fileName).trigger('change');
+
+  // Set matrix fileName
+  select.on('select2:select', function(event) {
+    this.fileSelectIsOpen_ = false;
+    var fileName = event.params.data.id;
+    this.data.matrixInfo.fileName = fileName;
+    this.signal('updateMatrix', {
+      fileName: fileName
+    });
+  }.bind(this));
+
+  select.on('select2:open', function() {
+    this.fileSelectIsOpen_ = true;
+    this.signal('loadExpressionList');
+  }.bind(this));
 };
 
 /**

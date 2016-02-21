@@ -15,6 +15,14 @@ module.exports = binding;
  */
 function binding() {}
 
+/** @enum {string} */
+binding.QueryType = {
+  BINDING: 'binding',
+  EXONS: 'exons',
+  LOCUS: 'locus',
+  LIST_BINDING: 'list-binding'
+};
+
 /**
  * @typedef {{
  *   numSamples: number,
@@ -117,7 +125,9 @@ binding.query.locus = function(query, exonFile) {
 /**
  * @param {string} bindingPath
  * @return {!Array<{
- *   geneName: string,
+ *   fileName: string,
+ *   gene: string,
+ *   chrs: string,
  *   description: string
  * }>}
  */

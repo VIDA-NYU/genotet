@@ -185,7 +185,7 @@ genotet.BindingPanel.prototype.updateTracks = function() {
 /**
  * Updates the track list for panel after loading binding list.
  */
-genotet.BindingPanel.prototype.updateTracksAfterLoading = function() {
+genotet.BindingPanel.prototype.updateFileListAfterLoading = function() {
   var numTracks = this.data.tracks.length;
   var uiTracks = this.container.find('#genes .track-gene');
   if (uiTracks.length > numTracks) {
@@ -195,7 +195,7 @@ genotet.BindingPanel.prototype.updateTracksAfterLoading = function() {
     }
   }
 
-  var fileNames = genotet.data.bindingFiles.map(function(dataInfo) {
+  var fileNames = genotet.data.files.bindingFiles.map(function(dataInfo) {
     return {
       id: dataInfo.fileName,
       text: dataInfo.gene + ' (' + dataInfo.fileName + ')'
@@ -215,13 +215,32 @@ genotet.BindingPanel.prototype.updateTracksAfterLoading = function() {
     this.selectGenes_[index] = select;
     select.val(track.fileName).trigger('change');
 
-    // Set track fileName
-    select.on('select2:select', function(event) {
-      var fileName = event.params.data.id;
-      this.signal('updateTrack', {
-        trackIndex: index,
-        fileName: fileName
-      });
-    }.bind(this));
+    // Set track fileName and highlight the track hovered in panel.
+    var listOpened = false;
+    select
+      .on('select2:select', function(event) {
+        var fileName = event.params.data.id;
+        this.signal('updateTrack', {
+          trackIndex: index,
+          fileName: fileName
+        });
+      }.bind(this))
+      .on('select2:open', function(event) {
+        listOpened = true;
+        this.signal('highlightTrack', index);
+      }.bind(this))
+      .on('select2:close', function(event) {
+        listOpened = false;
+        this.signal('unhighlightTrack', index);
+      }.bind(this));
+    ui.find('.selection span')
+      .on('mouseenter', function(event) {
+        this.signal('highlightTrack', index);
+      }.bind(this))
+      .on('mouseleave', function(event) {
+        if (!listOpened) {
+          this.signal('unhighlightTrack', index);
+        }
+      }.bind(this));
   }, this);
 };

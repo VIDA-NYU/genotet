@@ -7,6 +7,14 @@
 /** @const */
 genotet.preset = {};
 
+/** @enum {string} */
+genotet.preset.PresetType = {
+  DEFAULT: 'default',
+  NETWORK: 'network',
+  EXPRESSION: 'expression',
+  BINDING: 'binding'
+};
+
 /**
  * Parameters for preset network view.
  * @private @const {!genotet.NetworkViewParams}
@@ -59,7 +67,7 @@ genotet.preset.THREE_TRACK_BINDING_PARAMS_ = {
  * @const {!Object<!Object<{
  *   views: !Array<{
  *     viewName: string,
- *     viewType: string,
+ *     viewType: genotet.ViewType,
  *     params: (genotet.NetworkViewParams|genotet.ExpressionViewParams|
  *     genotet.BindingViewParams)
  *   }>,
@@ -71,17 +79,17 @@ genotet.preset.PRESETS = {
     views: [
       {
         viewName: 'My Network',
-        viewType: 'network',
+        viewType: genotet.ViewType.NETWORK,
         params: genotet.preset.NETWORK_PARAMS_
       },
       {
         viewName: 'My Expression Matrix',
-        viewType: 'expression',
+        viewType: genotet.ViewType.EXPRESSION,
         params: genotet.preset.EXPRESSION_PARAMS_
       },
       {
         viewName: 'My Genome Browser',
-        viewType: 'binding',
+        viewType: genotet.ViewType.BINDING,
         params: genotet.preset.BINDING_PARAMS_
       }
     ],
@@ -128,12 +136,12 @@ genotet.preset.PRESETS = {
     views: [
       {
         viewName: 'My Network',
-        viewType: 'network',
+        viewType: genotet.ViewType.NETWORK,
         params: genotet.preset.NETWORK_PARAMS_
       },
       {
         viewName: 'My Genome Browser',
-        viewType: 'binding',
+        viewType: genotet.ViewType.BINDING,
         params: genotet.preset.BINDING_PARAMS_
       }
     ],
@@ -168,12 +176,12 @@ genotet.preset.PRESETS = {
     views: [
       {
         viewName: 'My Network',
-        viewType: 'network',
+        viewType: genotet.ViewType.NETWORK,
         params: genotet.preset.NETWORK_PARAMS_
       },
       {
         viewName: 'My Expression Matrix',
-        viewType: 'expression',
+        viewType: genotet.ViewType.EXPRESSION,
         params: genotet.preset.EXPRESSION_PARAMS_
       }
     ],
@@ -196,17 +204,17 @@ genotet.preset.PRESETS = {
     views: [
       {
         viewName: 'My Network',
-        viewType: 'network',
+        viewType: genotet.ViewType.NETWORK,
         params: genotet.preset.NETWORK_PARAMS_
       },
       {
         viewName: 'My Expression Matrix',
-        viewType: 'expression',
+        viewType: genotet.ViewType.EXPRESSION,
         params: genotet.preset.EXPRESSION_PARAMS_
       },
       {
         viewName: 'My Genome Browser',
-        viewType: 'binding',
+        viewType: genotet.ViewType.BINDING,
         params: genotet.preset.THREE_TRACK_BINDING_PARAMS_
       }
     ],

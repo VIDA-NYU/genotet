@@ -13,6 +13,15 @@ module.exports = expression;
  */
 function expression() {}
 
+/** @enum {string} */
+expression.QueryType = {
+  EXPRESSION: 'expression',
+  EXPRESSION_INFO: 'expression-info',
+  PROFILE: 'profile',
+  TFA_PROFILE: 'tfa-profile',
+  LIST_EXPRESSION: 'list-expression'
+};
+
 /**
  * @typedef {{
  *   allGeneNames: !Object<string>,
@@ -36,12 +45,23 @@ expression.Matrix;
 
 /**
  * @typedef {{
+ *   values: !Array<!Array<number>>,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
+ *   valueMin: number,
+ *   valueMax: number
+ * }}
+ */
+expression.Profile;
+
+/**
+ * @typedef {{
  *   tfaValues: !Array<{
  *     index: number,
  *     value: number
  *   }>,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>,
  *   valueMin: number,
  *   valueMax: number
  * }}
@@ -74,11 +94,20 @@ expression.query.Matrix;
  *   conditionNames: !Array<string>
  * }}
  */
+expression.query.Profile;
+
+/**
+ * @typedef {{
+ *   fileName: string,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
+ * }}
+ */
 expression.query.TfaProfile;
 
 // Start public APIs
 /**
- * @param {!expression.query.MatrixInfo} query
+ * @param {expression.query.MatrixInfo} query
  * @param {string} expressionPath
  * @return {expression.MatrixInfo}
  */
@@ -88,7 +117,7 @@ expression.query.matrixInfo = function(query, expressionPath) {
 };
 
 /**
- * @param {!expression.query.Matrix} query
+ * @param {expression.query.Matrix} query
  * @param {string} expressionPath
  * @return {?expression.Matrix}
  */
@@ -100,7 +129,19 @@ expression.query.matrix = function(query, expressionPath) {
 };
 
 /**
- * @param {!expression.query.TfaProfile} query
+ * @param {expression.query.Profile} query
+ * @return {?expression.Profile}
+ * @param {string} expressionPath
+ */
+expression.query.profile = function(query, expressionPath) {
+  var file = expressionPath + query.fileName;
+  var geneNames = query.geneNames;
+  var conditionNames = query.conditionNames;
+  return expression.readMatrix_(file, geneNames, conditionNames);
+};
+
+/**
+ * @param {expression.query.TfaProfile} query
  * @return {?expression.TfaProfile}
  * @param {string} expressionPath
  */
@@ -127,8 +168,8 @@ expression.query.list = function(expressionPath) {
 /**
  * Gets the expression matrix profile of given genes and conditions.
  * @param {string} fileName TFA file name.
- * @param {!Array<string>} geneNames Names of the expression matrix.
- * @param {!Array<string>} conditionNames Names of the expression matrix.
+ * @param {!Array<string>} geneNames Names of the selected genes.
+ * @param {!Array<string>} conditionNames Names of the selected conditions.
  * @return {?expression.TfaProfile} Gene expression profile as a JS object.
  * @private
  */
@@ -152,14 +193,14 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
     if (geneName in allGeneNames) {
       var rowNum = allGeneNames[geneName];
       var tfaValues = [];
-      conditionNames.forEach(function(conditionName, j) {
+      conditionNames.forEach(function(conditionName, i) {
         if (conditionName in allConditionNames) {
           var colNum = allConditionNames[conditionName];
           var tfaValue = result.values[rowNum][colNum];
           if (tfaValue) {
             tfaValues.push({
               value: tfaValue,
-              index: colNum
+              index: i
             });
             valueMin = Math.min(valueMin, tfaValue);
             valueMax = Math.max(valueMax, tfaValue);
@@ -174,9 +215,9 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
   });
   console.log('returning TFA line', geneNames.join(','));
   return {
+    tfaValues: allTfaValues,
     geneNames: geneNames,
     conditionNames: conditionNames,
-    tfaValues: allTfaValues,
     valueMin: valueMin,
     valueMax: valueMax
   };

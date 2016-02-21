@@ -12,6 +12,13 @@
  */
 genotet.NetworkLoader = function(data) {
   genotet.NetworkLoader.base.constructor.call(this, data);
+
+  _.extend(this.data, {
+    network: null,
+    networkInfo: {
+      fileName: null
+    }
+  });
 };
 
 genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);
@@ -65,11 +72,11 @@ genotet.NetworkLoader.prototype.prepareGenes_ = function(inputGenes, isRegex) {
  */
 genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
   var params = {
-    type: 'network-info',
+    type: genotet.network.QueryType.NETWORK_INFO,
     fileName: fileName
   };
   this.get(genotet.data.serverURL, params, function(data) {
-    this.data.networkInfo = data;
+    this.data.networkInfo = $.extend({}, this.data.networkInfo, data);
     this.data.networkInfo.nodeLabel = {};
     this.data.networkInfo.isTF = {};
     this.data.networkInfo.nodes.forEach(function(node) {
@@ -88,7 +95,7 @@ genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
  */
 genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
   var params = {
-    type: 'network',
+    type: genotet.network.QueryType.NETWORK,
     fileName: fileName,
     genes: genes
   };
@@ -126,7 +133,7 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
 
   switch (method) {
     case 'set':
-      this.loadNetwork_(this.data.network.fileName, genes);
+      this.loadNetwork_(this.data.networkInfo.fileName, genes);
       break;
     case 'add':
       this.addGenes_(genes);
@@ -145,8 +152,8 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
  */
 genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   var params = {
-    type: 'incident-edges',
-    fileName: this.data.network.fileName,
+    type: genotet.network.QueryType.INCIDENT_EDGES,
+    fileName: this.data.networkInfo.fileName,
     gene: node.id
   };
   this.get(genotet.data.serverURL, params, function(data) {
@@ -175,8 +182,8 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
   }
 
   var params = {
-    type: 'incremental-edges',
-    fileName: this.data.network.fileName,
+    type: genotet.network.QueryType.INCREMENTAL_EDGES,
+    fileName: this.data.networkInfo.fileName,
     genes: newGenes,
     nodes: this.data.network.nodes
   };
@@ -287,8 +294,8 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
                                                            isRegex) {
   var genes = this.prepareGenes_(inputGenes, isRegex);
   var params = {
-    type: 'combined-regulation',
-    fileName: this.data.network.fileName,
+    type: genotet.network.QueryType.COMBINED_REGULATION,
+    fileName: this.data.networkInfo.fileName,
     genes: genes
   };
 

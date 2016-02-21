@@ -4,11 +4,18 @@ $bed-blue: #031c51;
 $exon-blue: #031c51;
 $overview-fill: #666;
 $details-fill: #222;
+$details-name: #0b3e6f;
+$path-highlight: #1e90ff;
+$name-highlight: #81bef7;
 
 .view.binding {
   .overviews {
     path {
       fill: $overview-fill;
+
+      &.highlighted {
+        fill: $path-highlight;
+      }
     }
 
     rect.range {
@@ -17,8 +24,26 @@ $details-fill: #222;
     }
   }
 
-  .details path {
-    fill: $details-fill;
+  .details {
+    path {
+      fill: $details-fill;
+
+      &.highlighted {
+        fill: $path-highlight;
+      }
+    }
+
+    .file-names {
+      fill: $details-name;
+      font-size: 11px;
+      opacity: .8;
+
+      text.highlighted {
+        opacity: 1;
+        stroke: $details-name;
+        stroke-width: .5px;
+      }
+    }
   }
 
   .bed {

@@ -65,6 +65,32 @@ genotet.bindingData;
  */
 genotet.BindingViewParams;
 
+/** @const */
+genotet.binding = {};
+
+/** @const */
+genotet.bed = {};
+
+/** @const */
+genotet.mapping = {};
+
+/** @enum {string} */
+genotet.binding.QueryType = {
+  BINDING: 'binding',
+  EXONS: 'exons',
+  LOCUS: 'locus'
+};
+
+/** @enum {string} */
+genotet.bed.QueryType = {
+  BED: 'bed'
+};
+
+/** @enum {string} */
+genotet.mapping.QueryType = {
+  MAPPING: 'mapping'
+};
+
 /**
  * BindingView extends the base View class, and renders the binding data
  * associated with the regulatory Binding.
@@ -110,7 +136,17 @@ genotet.BindingView = function(viewName, params) {
       this.loader.loadBed(data.bedName, data.chr, data.xl, data.xr);
     }.bind(this))
     .on('genotet.coordinates', function(event, data) {
+      var coordinateDifference = Math.floor(data.end - data.start);
+      var headerExtraInfo = '(Coordinate Difference: ' +
+        coordinateDifference + ')';
+      this.headerExtraInfo(headerExtraInfo);
       this.panel.updateCoordinates(data.start, data.end);
+    }.bind(this))
+    .on('genotet.resizeContainer', function(event, data) {
+      this.resize(data.containerWidth, data.containerHeight);
+    }.bind(this))
+    .on('genotet.resizeCanvas', function(event, data) {
+      this.renderer.resizeCanvas(data.canvasWidth, data.canvasHeight);
     }.bind(this));
 
   $(this.panel)
@@ -161,8 +197,14 @@ genotet.BindingView = function(viewName, params) {
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
         this.data.chr, false);
     }.bind(this))
+    .on('genotet.highlightTrack', function(event, trackIndex) {
+      this.renderer.highlightTrack(trackIndex);
+    }.bind(this))
+    .on('genotet.unhighlightTrack', function(event, trackIndex) {
+      this.renderer.unhighlightTrack(trackIndex);
+    }.bind(this))
     .on('genotet.loadBindingList', function() {
-      this.loader.loadBindingList();
+      genotet.data.loadList(this, genotet.FileType.BINDING);
     }.bind(this));
 
   $(this.loader)
@@ -171,9 +213,12 @@ genotet.BindingView = function(viewName, params) {
     }.bind(this))
     .on('genotet.addPanelTrack', function() {
       this.panel.updateTracks();
-    }.bind(this))
-    .on('genotet.updateTracksAfterLoading', function() {
-      this.panel.updateTracksAfterLoading();
+    }.bind(this));
+
+  // Update panel after loading file list.
+  $(this)
+    .on('genotet.updateFileListAfterLoading', function() {
+      this.panel.updateFileListAfterLoading();
     }.bind(this))
     .on('genotet.updateTrackWithMapping', function(event, fileName) {
       this.updateTrackWithMapping_(fileName);
@@ -226,7 +271,7 @@ genotet.BindingView.prototype.defaultWidth = function() {
 
 /** @override */
 genotet.BindingView.prototype.defaultHeight = function() {
-  return 200;
+  return 320;
 };
 
 /**
