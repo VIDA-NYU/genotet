@@ -1306,16 +1306,20 @@ genotet.ExpressionRenderer.prototype.drawProfileLegend_ = function(profiles) {
  * Adds the expression profiles for the selected genes as line charts.
  * @param {number} geneIndex
  * @param {string} geneName
+ * @param {boolean} isAddedInPanel Whether gene selection is added in panel.
  */
-genotet.ExpressionRenderer.prototype.addGeneProfile = function(geneIndex,
-                                                               geneName) {
-  var profile = new genotet.ExpressionRenderer.Profile({
-    geneName: geneName,
-    row: geneIndex
-  });
-  this.data.profiles.push(profile);
-  this.drawGeneProfiles();
-};
+genotet.ExpressionRenderer.prototype.addGeneProfile =
+  function(geneIndex, geneName, isAddedInPanel) {
+    var profile = new genotet.ExpressionRenderer.Profile({
+      geneName: geneName,
+      row: geneIndex
+    });
+    this.data.profiles.push(profile);
+    this.drawGeneProfiles();
+    if (!isAddedInPanel) {
+      this.signal('updateProfileInPanel');
+    }
+  };
 
 /**
  * Removes the expression profiles for the selected genes as line charts.
@@ -1524,8 +1528,8 @@ genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
   function() {
     var geneName = this.clickedObject_.geneName;
     var conditionName = this.clickedObject_.conditionName;
-    if (geneName && geneName.toLowerCase() in this.data.matrixGeneNameDict
-      && conditionName && conditionName.toLowerCase() in
+    if (geneName && geneName.toLowerCase() in this.data.matrixGeneNameDict &&
+      conditionName && conditionName.toLowerCase() in
       this.data.matrixConditionNameDict) {
       this.clickedObject_.row = this.data.matrixGeneNameDict[
         geneName.toLowerCase()].index;

@@ -142,7 +142,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
 
     if (this.data.profile.geneNames.length) {
       this.loadProfile(fileName, this.data.profile.geneNames,
-        data.conditionNames, false);
+        data.conditionNames, false, true);
     }
     if (this.data.tfa.geneNames.length) {
       this.loadTfaProfile(fileName, this.data.tfa.geneNames,
@@ -159,9 +159,10 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
  * @param {!Array<string>} conditionNames Names for experiment condition
  *      selection.
  * @param {boolean} isAddProfile Whether it is adding a new profile.
+ * @param {boolean} isAddedInPanel Whether it is added to panel.
  */
 genotet.ExpressionLoader.prototype.loadProfile =
-  function(fileName, geneNames, conditionNames, isAddProfile) {
+  function(fileName, geneNames, conditionNames, isAddProfile, isAddedInPanel) {
     var params = {
       type: genotet.expression.QueryType.PROFILE,
       fileName: fileName,
@@ -188,7 +189,8 @@ genotet.ExpressionLoader.prototype.loadProfile =
           profileData.valueMax);
         this.signal('newProfileLoaded', {
           geneName: geneName,
-          geneIndex: geneIndex
+          geneIndex: geneIndex,
+          isAddedInPanel: isAddedInPanel
         });
       } else {
         this.data.profile = profileData;

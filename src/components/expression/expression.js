@@ -111,7 +111,8 @@ genotet.ExpressionView = function(viewName, params) {
       this.renderer.removeAllProfiles();
     }.bind(this))
     .on('genotet.newProfileLoaded', function(event, data) {
-      this.renderer.addGeneProfile(data.geneIndex, data.geneName);
+      this.renderer.addGeneProfile(data.geneIndex, data.geneName,
+        data.isAddedInPanel);
     }.bind(this))
     .on('genotet.profileLoaded', function() {
       this.renderer.drawGeneProfiles();
@@ -148,7 +149,7 @@ genotet.ExpressionView = function(viewName, params) {
     }.bind(this))
     .on('genotet.addGeneProfile', function(event, geneName) {
       this.loader.loadProfile(this.data.matrixInfo.fileName, [geneName],
-        this.data.matrix.conditionNames, true);
+        this.data.matrix.conditionNames, true, true);
       this.loader.loadTfaProfile(this.data.matrixInfo.fileName, [geneName],
         this.data.matrix.conditionNames, true);
     }.bind(this))
@@ -208,10 +209,10 @@ genotet.ExpressionView = function(viewName, params) {
         zoomStatus.conditionNames);
     }.bind(this));
 
-  // Update expression panel.
-  $(this.loader)
-    .on('genotet.updatePanel', function() {
-      this.panel.dataLoaded();
+  // Update gene profile selections in expression panel.
+  $(this.renderer)
+    .on('genotet.updateProfileInPanel', function() {
+      this.panel.updateGeneSelections();
     }.bind(this));
 
   // Update panel after loading file list.
@@ -239,10 +240,9 @@ genotet.ExpressionView = function(viewName, params) {
           }).length;
         if (!isExistent) {
           this.loader.loadProfile(this.data.matrixInfo.fileName, [geneName],
-            this.data.matrix.conditionNames, true);
+            this.data.matrix.conditionNames, true, false);
           this.loader.loadTfaProfile(this.data.matrixInfo.fileName, [geneName],
             this.data.matrix.conditionNames, true);
-          this.panel.dataLoaded();
         }
       }, this);
     }.bind(this));

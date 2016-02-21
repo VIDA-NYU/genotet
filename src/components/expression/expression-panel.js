@@ -213,18 +213,26 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
       text: gene
     };
   });
-  var geneProfiles = this.data.profiles.map(function(profile) {
-    return profile.geneName;
-  });
+
   var profile = this.container.find('#profile select').empty();
   this.selectProfiles_ = profile.select2({
     data: genes,
     multiple: true
   });
-  this.selectProfiles_.select2('val', geneProfiles);
   this.container.find('#profile .select2-container').css({
     width: '100%'
   });
+  this.updateGeneSelections();
+};
+
+/**
+ * Updates the genes selections in the panel.
+ */
+genotet.ExpressionPanel.prototype.updateGeneSelections = function() {
+  var geneProfiles = this.data.profiles.map(function(profile) {
+    return profile.geneName;
+  });
+  this.selectProfiles_.val(geneProfiles).trigger('change');
 };
 
 /**
