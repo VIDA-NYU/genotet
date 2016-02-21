@@ -35,8 +35,6 @@ genotet.ExpressionLoader = function(data) {
     },
     matrixGeneNameDict: null,
     matrixConditionNameDict: null,
-    lowerGeneNames: null,
-    lowerConditionNames: null,
     profileGeneNameDict: {},
     tfaGeneNameDict: {},
     profiles: [],
@@ -127,26 +125,20 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
 
     var matrixGeneNameDict = {};
     data.geneNames.forEach(function(geneName, i) {
-      matrixGeneNameDict[geneName] = i;
+      matrixGeneNameDict[geneName.toLowerCase()] = {
+        index: i,
+        rawName: geneName
+      };
     }.bind(this));
     var matrixConditionNameDict = {};
     data.conditionNames.forEach(function(conditionName, i) {
-      matrixConditionNameDict[conditionName] = i;
+      matrixConditionNameDict[conditionName.toLowerCase()] = {
+        index: i,
+        rawName: conditionName
+      };
     }.bind(this));
     this.data.matrixGeneNameDict = matrixGeneNameDict;
     this.data.matrixConditionNameDict = matrixConditionNameDict;
-
-    var lowerGeneNames = {};
-    Object.keys(this.data.matrixInfo.allGeneNames).forEach(function(name) {
-      lowerGeneNames[name.toLowerCase()] = name;
-    });
-    this.data.lowerGeneNames = lowerGeneNames;
-    var lowerConditionNames = {};
-    Object.keys(this.data.matrixInfo.allConditionNames).forEach(
-      function(name) {
-        lowerConditionNames[name.toLowerCase()] = name;
-      });
-    this.data.lowerConditionNames = lowerConditionNames;
 
     if (this.data.profile.geneNames.length) {
       this.loadProfile(fileName, this.data.profile.geneNames,

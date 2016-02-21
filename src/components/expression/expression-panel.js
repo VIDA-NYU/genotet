@@ -354,14 +354,17 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
   if (isGeneRegex) {
     var geneRegex = RegExp(geneInput, 'i');
     geneNames = Object.keys(this.data.matrixInfo.allGeneNames)
+      .map(function(geneName) {
+        return this.data.matrixInfo.allGeneNames[geneName].rawName;
+      }, this)
       .filter(function(geneName) {
         return geneName.match(geneRegex);
       });
   } else {
     var inputWords = geneInput.toLowerCase().split(/[,\s]+/g);
     geneNames = inputWords.reduce(function(result, name) {
-      if (name !== '' && name in this.data.lowerGeneNames) {
-        result.push(this.data.lowerGeneNames[name]);
+      if (name !== '' && name in this.data.matrixGeneNameDict) {
+        result.push(this.data.matrixGeneNameDict[name].rawName);
       }
       return result;
     }.bind(this), []);
@@ -381,14 +384,17 @@ genotet.ExpressionPanel.prototype.formatConditionInput =
     if (isConditionRegex) {
       var conditionRegex = RegExp(conditionInput, 'i');
       conditionNames = Object.keys(this.data.matrixInfo.allConditionNames)
+        .map(function(conditionName) {
+          return this.data.matrixInfo.allConditionNames[conditionName].rawName;
+        }, this)
         .filter(function(conditionName) {
           return conditionName.match(conditionRegex);
         });
     } else {
       var inputWords = conditionInput.toLowerCase().split(/[,\s]+/g);
       conditionNames = inputWords.reduce(function(result, name) {
-        if (name !== '' && name in this.data.lowerConditionNames) {
-          result.push(this.data.lowerConditionNames[name]);
+        if (name !== '' && name in this.data.matrixConditionNameDict) {
+          result.push(this.data.matrixConditionNameDict[name].rawName);
         }
         return result;
       }.bind(this), []);

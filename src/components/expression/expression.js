@@ -103,7 +103,11 @@ genotet.ExpressionView = function(viewName, params) {
         params.isConditionRegex, params.conditionInput);
       this.loader.load(this.data.matrixInfo.fileName, geneNames,
         conditionNames);
-      this.panel.updateGenes(Object.keys(this.data.matrixInfo.allGeneNames));
+      var allGeneNames = Object.keys(this.data.matrixInfo.allGeneNames)
+        .map(function(geneName) {
+          return this.data.matrixInfo.allGeneNames[geneName].rawName;
+        }, this);
+      this.panel.updateGenes(allGeneNames);
       this.renderer.removeAllProfiles();
     }.bind(this))
     .on('genotet.newProfileLoaded', function(event, data) {
@@ -226,14 +230,18 @@ genotet.ExpressionView = function(viewName, params) {
        */
       var genes = /** @type {!Array<string>} */(data);
       genes.forEach(function(gene) {
-        var geneName = this.data.lowerGeneNames[gene];
-        var geneIndex = this.data.matrixGeneNameDict[geneName];
+        if (!(gene in this.data.matrixInfo.allGeneNames)) {
+          return;
+        }
+        var geneName = this.data.matrixInfo.allGeneNames[gene].rawName;
         var isExistent = this.data.profiles.filter(function(obj) {
             return obj.geneName == geneName;
           }).length;
-        if (geneIndex != null && !isExistent) {
-          this.renderer.addGeneProfile(geneIndex, geneName);
-          this.renderer.addTfaProfile(geneIndex, geneName);
+        if (!isExistent) {
+          this.loader.loadProfile(this.data.matrixInfo.fileName, [geneName],
+            this.data.matrix.conditionNames, true);
+          this.loader.loadTfaProfile(this.data.matrixInfo.fileName, [geneName],
+            this.data.matrix.conditionNames, true);
           this.panel.dataLoaded();
         }
       }, this);

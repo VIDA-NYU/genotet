@@ -1074,7 +1074,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles = function() {
       d3.select(pathContainer).classed('circle-highlighted', true);
       var profile = new genotet.ExpressionRenderer.Profile({
         geneName: geneName,
-        row: this.data.matrixGeneNameDict[geneName],
+        row: this.data.matrixInfo.allGeneNames[geneName.toLowerCase()].index,
         hoverColumn: i,
         hoverConditionName: profileData.conditionNames[i],
         hoverValue: value
@@ -1096,7 +1096,7 @@ genotet.ExpressionRenderer.prototype.drawGeneProfiles = function() {
         container: pathContainer,
         geneName: geneName,
         conditionName: profileData.conditionNames[i],
-        row: this.data.matrixGeneNameDict[geneName],
+        row: this.data.matrixInfo.allGeneNames[geneName.toLowerCase()].index,
         column: i,
         value: value
       });
@@ -1219,7 +1219,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles = function() {
       d3.select(pathContainer).classed('circle-highlighted', true);
       var tfaProfile = new genotet.ExpressionRenderer.Profile({
         geneName: geneName,
-        row: this.data.matrixGeneNameDict[geneName],
+        row: this.data.matrixInfo.allGeneNames[geneName.toLowerCase()].index,
         hoverColumn: object.index,
         hoverConditionName: tfaData.conditionNames[object.index],
         hoverValue: object.value
@@ -1241,7 +1241,7 @@ genotet.ExpressionRenderer.prototype.drawTfaProfiles = function() {
         container: pathContainer,
         geneName: geneName,
         conditionName: tfaData.conditionNames[object.index],
-        row: this.data.matrixGeneNameDict[geneName],
+        row: this.data.matrixInfo.allGeneNames[geneName.toLowerCase()].index,
         column: object.index,
         value: object.value
       });
@@ -1522,16 +1522,15 @@ genotet.ExpressionRenderer.prototype.unhighlightLabelsForClickedObject =
  */
 genotet.ExpressionRenderer.prototype.highlightLabelsAfterUpdateData_ =
   function() {
-    var heatmapData = this.data.matrix;
-    if (this.clickedObject_.geneName in this.data.matrixGeneNameDict &&
-      this.clickedObject_.conditionName in this.data.matrixConditionNameDict) {
+    var geneName = this.clickedObject_.geneName;
+    var conditionName = this.clickedObject_.conditionName;
+    if (geneName && geneName.toLowerCase() in this.data.matrixGeneNameDict
+      && conditionName && conditionName.toLowerCase() in
+      this.data.matrixConditionNameDict) {
       this.clickedObject_.row = this.data.matrixGeneNameDict[
-        this.clickedObject_.geneName];
+        geneName.toLowerCase()].index;
       this.clickedObject_.column = this.data.matrixConditionNameDict[
-        this.clickedObject_.conditionName];
-    }
-    if (this.clickedObject_.geneName in this.data.matrixGeneNameDict &&
-      this.clickedObject_.conditionName in this.data.matrixConditionNameDict) {
+        conditionName.toLowerCase()].index;
       this.signal('expressionClick', this.clickedObject_);
     } else {
       this.signal('expressionUnclick');

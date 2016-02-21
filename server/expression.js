@@ -24,8 +24,14 @@ expression.QueryType = {
 
 /**
  * @typedef {{
- *   allGeneNames: !Object<string>,
- *   allConditionNames: !Object<string>,
+ *   allGeneNames: !Object<{
+ *     index: number,
+ *     rawName: string
+ *   }>,
+ *   allConditionNames: !Object<{
+ *     index: number,
+ *     rawName: string
+ *   }>,
  *   allValueMin: number,
  *   allValueMax: number
  * }}
@@ -360,11 +366,17 @@ expression.getMatrixInfo_ = function(expressionFile) {
       // first row contains the conditions
       isFirstRow = false;
       for (var i = 1; i < parts.length; i++) {
-        allConditionNames[parts[i]] = i - 1;
+        allConditionNames[parts[i].toLowerCase()] = {
+          index: i - 1,
+          rawName: parts[i]
+        };
       }
     } else {
       // other rows contain a gene, and values
-      allGeneNames[parts[0]] = lineIndex - 1;
+      allGeneNames[parts[0].toLowerCase()] = {
+        index: lineIndex - 1,
+        rawName: parts[0]
+      };
       for (var i = 1; i < parts.length; i++) {
         var value = parseFloat(parts[i]);
         allValueMin = Math.min(allValueMin, value);
