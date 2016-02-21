@@ -224,7 +224,7 @@ genotet.ExpressionLoader.prototype.loadTfaProfile =
     this.get(genotet.data.serverURL, tfaParams, function(tfaProfileData) {
       // Store the last applied data selectors.
       if (!tfaProfileData.tfaValues.length) {
-        genotet.warning('TFA not found');
+        genotet.warning('TFA not found for ' + geneNames);
         return;
       }
       if (isAddProfile) {

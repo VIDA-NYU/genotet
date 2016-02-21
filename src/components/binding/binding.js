@@ -136,7 +136,17 @@ genotet.BindingView = function(viewName, params) {
       this.loader.loadBed(data.bedName, data.chr, data.xl, data.xr);
     }.bind(this))
     .on('genotet.coordinates', function(event, data) {
+      var coordinateDifference = Math.floor(data.end - data.start);
+      var headerExtraInfo = '(Coordinate Difference: ' +
+        coordinateDifference + ')';
+      this.headerExtraInfo(headerExtraInfo);
       this.panel.updateCoordinates(data.start, data.end);
+    }.bind(this))
+    .on('genotet.resizeContainer', function(event, data) {
+      this.resize(data.containerWidth, data.containerHeight);
+    }.bind(this))
+    .on('genotet.resizeCanvas', function(event, data) {
+      this.renderer.resizeCanvas(data.canvasWidth, data.canvasHeight);
     }.bind(this));
 
   $(this.panel)
@@ -186,6 +196,12 @@ genotet.BindingView = function(viewName, params) {
       this.data.tracks[data.trackIndex].fileName = data.fileName;
       this.loader.loadFullTrack(data.trackIndex, data.fileName,
         this.data.chr, false);
+    }.bind(this))
+    .on('genotet.highlightTrack', function(event, trackIndex) {
+      this.renderer.highlightTrack(trackIndex);
+    }.bind(this))
+    .on('genotet.unhighlightTrack', function(event, trackIndex) {
+      this.renderer.unhighlightTrack(trackIndex);
     }.bind(this))
     .on('genotet.loadBindingList', function() {
       genotet.data.loadList(this, genotet.FileType.BINDING);
@@ -255,7 +271,7 @@ genotet.BindingView.prototype.defaultWidth = function() {
 
 /** @override */
 genotet.BindingView.prototype.defaultHeight = function() {
-  return 200;
+  return 320;
 };
 
 /**

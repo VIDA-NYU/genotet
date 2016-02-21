@@ -1,6 +1,12 @@
 #alert {
+  margin: 29px 0 0;
   position: relative;
   z-index: 100;
+
+  .alert {
+    margin: 0;
+    padding: 5px 15px;
+  }
 }
 
 body {
@@ -11,11 +17,6 @@ body {
   padding: 0;
   position: absolute;
   top: 30px;
-}
-
-.alert {
-  margin: 29px 0 0;
-  padding: 5px 15px;
 }
 
 .sys-error,

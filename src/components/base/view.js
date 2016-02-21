@@ -26,6 +26,9 @@ genotet.View = function(viewName) {
   /** @private {string} */
   this.headerText_ = '';
 
+  /** @private {string} */
+  this.headerExtraInfo_ = '';
+
   /** @private {boolean} */
   this.sendSignal_ = true;
 
@@ -148,7 +151,7 @@ genotet.View.prototype.id = function() {
 /**
  * Sets the header text of the view. If null, return the current header.
  * @param {?string} headerText View header text.
- * @return {?string}
+ * @return {string}
  */
 genotet.View.prototype.headerText = function(headerText) {
   if (!headerText) {
@@ -157,6 +160,23 @@ genotet.View.prototype.headerText = function(headerText) {
   this.headerText_ = headerText;
   this.container.find('.header-text')
     .text(this.headerText_);
+  return this.headerText_;
+};
+
+/**
+ * Sets header extra information of the view. If null, return the current
+ * header.
+ * @param {?string} extraInfo Extra information in the header.
+ * @return {string}
+ */
+genotet.View.prototype.headerExtraInfo = function(extraInfo) {
+  if (!extraInfo) {
+    return this.headerExtraInfo_;
+  }
+  this.headerExtraInfo_ = extraInfo;
+  this.container.find('.extra-info')
+    .text(this.headerExtraInfo_);
+  return this.headerExtraInfo_;
 };
 
 /**
@@ -230,4 +250,14 @@ genotet.View.prototype.createPanel = function(container) {
  */
 genotet.View.prototype.signal = function(eventType, opt_data) {
   $(this).trigger('genotet.' + eventType, [opt_data]);
+};
+
+/**
+ * Sets the size of container.
+ * @param {number} containerWidth Width of container.
+ * @param {number} containerHeight Height of container.
+ */
+genotet.View.prototype.resize = function(containerWidth, containerHeight) {
+  this.container.width(containerWidth);
+  this.container.height(containerHeight);
 };
