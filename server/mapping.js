@@ -37,8 +37,10 @@ mapping.query.list = function(mappingPath) {
   var files = fs.readdirSync(mappingPath);
   var mappingFiles = [];
   files.forEach(function(file) {
-    if (file.indexOf('.data') != 0) {
-      mappingFiles.push(file.substr(0, file.length - 5));
+    if (file.lastIndexOf('.data') > 0 &&
+      file.lastIndexOf('.data') == file.length - 5) {
+      var fileName = file.replace(/\.data$/, '');
+      mappingFiles.push(fileName);
     }
   });
   return mappingFiles;

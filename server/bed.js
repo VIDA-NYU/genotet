@@ -189,8 +189,9 @@ bed.listBed_ = function(bedPath) {
   var ret = [];
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
-    if (file.indexOf('.data') != -1) {
-      var fileName = file.substr(0, file.length - 5);
+    if (file.lastIndexOf('.data') > 0 &&
+      file.lastIndexOf('.data') == file.length - 5) {
+      var fileName = file.replace(/\.data$/, '');
       var bedName = '';
       var description = '';
       var descriptionFile = folder + fileName + '.desc';

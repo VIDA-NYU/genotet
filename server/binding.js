@@ -540,8 +540,10 @@ binding.listBindingGenes_ = function(bindingPath) {
   var ret = [];
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
-    if (file.indexOf('.data') != -1) {
-      var fileName = file.substr(0, file.length - 5);
+    // find the files ending with .data
+    if (file.lastIndexOf('.data') > 0 &&
+      file.lastIndexOf('.data') == file.length - 5) {
+      var fileName = file.replace(/\.data$/, '');
       var gene = '';
       var description = '';
       var descriptionFile = folder + fileName + '.desc';
@@ -581,9 +583,12 @@ binding.listBindingGenes_ = function(bindingPath) {
  * @private
  */
 binding.getGene_ = function(bindingPath, fileName) {
-  var filePath = bindingPath + fileName + '.txt';
-  var content = fs.readFileSync(filePath, 'utf-8').toString().split('\n');
-  var gene = content[0];
+  var filePath = bindingPath + fileName + '.desc';
+  var gene = '';
+  if (fs.existsSync(filePath)) {
+    var content = fs.readFileSync(filePath, 'utf-8').toString().split('\n');
+    gene = content[0];
+  }
   return gene;
 };
 
