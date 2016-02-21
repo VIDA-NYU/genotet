@@ -104,7 +104,7 @@ network.query.AllNodes;
  */
 network.query.network = function(query, networkPath) {
   var fileName = query.fileName;
-  var file = networkPath + fileName;
+  var file = networkPath + fileName + '.data';
   return network.getNet_(file, query.genes);
 };
 
@@ -116,7 +116,7 @@ network.query.network = function(query, networkPath) {
 network.query.incidentEdges = function(query, networkPath) {
   var fileName = query.fileName;
   var gene = query.gene;
-  var file = networkPath + fileName;
+  var file = networkPath + fileName + '.data';
   return network.getIncidentEdges_(file, gene);
 };
 
@@ -127,7 +127,7 @@ network.query.incidentEdges = function(query, networkPath) {
  */
 network.query.combinedRegulation = function(query, networkPath) {
   var fileName = query.fileName;
-  var file = networkPath + fileName;
+  var file = networkPath + fileName + '.data';
   return network.getCombinedRegulation_(file, query.genes);
 };
 
@@ -141,7 +141,7 @@ network.query.combinedRegulation = function(query, networkPath) {
 network.query.incrementalEdges = function(query, networkPath) {
   var fileName = query.fileName;
   var genes = query.genes;
-  var file = networkPath + fileName;
+  var file = networkPath + fileName + '.data';
   var nodes = query.nodes;
   return network.incrementalEdges_(file, genes, nodes);
 };
@@ -165,7 +165,7 @@ network.query.list = function(networkPath) {
  * }}
  */
 network.query.allNodes = function(query, networkPath) {
-  var file = networkPath + query.fileName;
+  var file = networkPath + query.fileName + '.data';
   return network.allNodes_(file);
 };
 // End public APIs
@@ -384,14 +384,19 @@ network.listNetwork_ = function(networkPath) {
   var ret = [];
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
-    if (file.indexOf('.txt') != -1) {
-      var fname = file.substr(0, file.length - 4);
-      var content = fs.readFileSync(folder + file, 'utf8')
-        .toString().split('\n');
-      var networkName = content[0];
-      var description = content.slice(1).join('');
+    if (file.indexOf('.data') != -1) {
+      var fileName = file.substr(0, file.length - 5);
+      var networkName = '';
+      var description = '';
+      var descriptionFile = folder + fileName + '.desc';
+      if (fs.existsSync(descriptionFile)) {
+        var content = fs.readFileSync(descriptionFile, 'utf8')
+          .toString().split('\n');
+        networkName = content[0];
+        description = content.slice(1).join('');
+      }
       ret.push({
-        fileName: fname,
+        fileName: fileName,
         networkName: networkName,
         description: description
       });

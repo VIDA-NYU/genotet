@@ -83,7 +83,7 @@ expression.query.TfaProfile;
  * @return {expression.MatrixInfo}
  */
 expression.query.matrixInfo = function(query, expressionPath) {
-  var file = expressionPath + query.fileName;
+  var file = expressionPath + query.fileName + '.data';
   return expression.getMatrixInfo_(file);
 };
 
@@ -93,7 +93,7 @@ expression.query.matrixInfo = function(query, expressionPath) {
  * @return {?expression.Matrix}
  */
 expression.query.matrix = function(query, expressionPath) {
-  var file = expressionPath + query.fileName;
+  var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   return expression.readMatrix_(file, geneNames, conditionNames);
@@ -105,7 +105,7 @@ expression.query.matrix = function(query, expressionPath) {
  * @param {string} expressionPath
  */
 expression.query.tfaProfile = function(query, expressionPath) {
-  var file = expressionPath + query.fileName;
+  var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   return expression.getTfaProfile_(file, geneNames, conditionNames);
@@ -198,15 +198,20 @@ expression.listMatrix_ = function(expressionPath) {
   var ret = [];
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
-    if (file.indexOf('.txt') != -1) {
-      var fname = file.substr(0, file.length - 4);
-      var content = fs.readFileSync(folder + file, 'utf8')
-        .toString().split('\n');
-      var matrixName = content[0];
-      var description = content.slice(1).join('');
+    if (file.indexOf('.data') != -1) {
+      var fileName = file.substr(0, file.length - 5);
+      var matrixName = '';
+      var description = '';
+      var descriptionFile = folder + fileName + '.desc';
+      if (fs.existsSync(descriptionFile)) {
+        var content = fs.readFileSync(descriptionFile, 'utf8')
+          .toString().split('\n');
+        matrixName = content[0];
+        description = content.slice(1).join('');
+      }
       ret.push({
         matrixName: matrixName,
-        fileName: fname,
+        fileName: fileName,
         description: description
       });
     }
