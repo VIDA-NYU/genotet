@@ -265,5 +265,12 @@ app.get('/genotet', function(req, res) {
   res.jsonp(data);
 });
 
+// Handle 500
+app.use(function(error, req, res, next) {
+  console.error(error.stack);
+  res.status(500);
+  res.send({failed: true, status: 500, message: 'Internal Server Error'});
+});
+
 // Start the application.
 app.listen(3000);
