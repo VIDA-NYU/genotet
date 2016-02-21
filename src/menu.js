@@ -40,6 +40,9 @@ genotet.menu.init = function() {
   });
 
   // Help document.
+  $('#about').click(function() {
+    genotet.dialog.create('about');
+  });
   $('#doc').click(function() {
     window.open('doc.html');
   });

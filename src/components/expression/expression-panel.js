@@ -213,18 +213,26 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
       text: gene
     };
   });
-  var geneProfiles = this.data.profiles.map(function(profile) {
-    return profile.geneName;
-  });
+
   var profile = this.container.find('#profile select').empty();
   this.selectProfiles_ = profile.select2({
     data: genes,
     multiple: true
   });
-  this.selectProfiles_.select2('val', geneProfiles);
   this.container.find('#profile .select2-container').css({
     width: '100%'
   });
+  this.updateGeneSelections();
+};
+
+/**
+ * Updates the genes selections in the panel.
+ */
+genotet.ExpressionPanel.prototype.updateGeneSelections = function() {
+  var geneProfiles = this.data.profiles.map(function(profile) {
+    return profile.geneName;
+  });
+  this.selectProfiles_.val(geneProfiles).trigger('change');
 };
 
 /**
@@ -354,14 +362,17 @@ genotet.ExpressionPanel.prototype.formatGeneInput = function(isGeneRegex,
   if (isGeneRegex) {
     var geneRegex = RegExp(geneInput, 'i');
     geneNames = Object.keys(this.data.matrixInfo.allGeneNames)
+      .map(function(geneName) {
+        return this.data.matrixInfo.allGeneNames[geneName].rawName;
+      }, this)
       .filter(function(geneName) {
         return geneName.match(geneRegex);
       });
   } else {
     var inputWords = geneInput.toLowerCase().split(/[,\s]+/g);
     geneNames = inputWords.reduce(function(result, name) {
-      if (name !== '' && name in this.data.lowerGeneNames) {
-        result.push(this.data.lowerGeneNames[name]);
+      if (name !== '' && name in this.data.matrixGeneNameDict) {
+        result.push(this.data.matrixGeneNameDict[name].rawName);
       }
       return result;
     }.bind(this), []);
@@ -381,14 +392,17 @@ genotet.ExpressionPanel.prototype.formatConditionInput =
     if (isConditionRegex) {
       var conditionRegex = RegExp(conditionInput, 'i');
       conditionNames = Object.keys(this.data.matrixInfo.allConditionNames)
+        .map(function(conditionName) {
+          return this.data.matrixInfo.allConditionNames[conditionName].rawName;
+        }, this)
         .filter(function(conditionName) {
           return conditionName.match(conditionRegex);
         });
     } else {
       var inputWords = conditionInput.toLowerCase().split(/[,\s]+/g);
       conditionNames = inputWords.reduce(function(result, name) {
-        if (name !== '' && name in this.data.lowerConditionNames) {
-          result.push(this.data.lowerConditionNames[name]);
+        if (name !== '' && name in this.data.matrixConditionNameDict) {
+          result.push(this.data.matrixConditionNameDict[name].rawName);
         }
         return result;
       }.bind(this), []);
