@@ -99,8 +99,6 @@ genotet.ViewLoader.prototype.get = function(url, params, callback,
  * @param {Object} params Query parameter object.
  */
 genotet.ViewLoader.prototype.fail = function(msg, params) {
-  params.msg = msg;
-  params.failed = true;
-  genotet.error(params == null ? '' : JSON.stringify(params));
+  genotet.error(msg, params == null ? '' : JSON.stringify(params));
   this.signal('loadFail');
 };
