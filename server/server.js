@@ -266,7 +266,7 @@ app.get('/genotet', function(req, res) {
 
   res.header('Access-Control-Allow-Origin', 'http://localhost');
   if (data.error) {
-    console.log('something wrong');
+    console.log(data.error);
     res.status(500).json(data.error);
   } else {
     res.json(data);

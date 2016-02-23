@@ -76,7 +76,9 @@ binding.query = {};
 binding.query.Histogram;
 
 /**
- * @typedef {Object}
+ * @typedef {{
+ *   chr: string
+ * }}
  */
 binding.query.Exons;
 
@@ -91,7 +93,7 @@ binding.query.Locus;
 /**
  * @param {!binding.query.Histogram} query
  * @param {string} bindingPath
- * @return {?binding.Histogram|binding.Error}
+ * @return {binding.Histogram|binding.Error}
  */
 binding.query.histogram = function(query, bindingPath) {
   var fileName = query.fileName;
@@ -113,7 +115,7 @@ binding.query.histogram = function(query, bindingPath) {
 /**
  * @param {!binding.query.Exons} query
  * @param {string} exonFile
- * @return {!Array<!binding.Exon>|binding.Error}
+ * @return {Array<!binding.Exon>|binding.Error}
  */
 binding.query.exons = function(query, exonFile) {
   var chr = query.chr;
@@ -128,21 +130,22 @@ binding.query.exons = function(query, exonFile) {
 /**
  * @param {!binding.query.Locus} query
  * @param {string} exonFile
- * @return {?{
+ * @return {{
  *   chr: (string|undefined),
  *   txStart: (number|undefined),
  *   txEnd: (number|undefined),
- *   error: (!genotet.Error|string|undefined)
- * }}
+ *   error: (!genotet.Error|undefined)
+ * }|binding.Error}
  */
 binding.query.locus = function(query, exonFile) {
   var gene = query.gene.toLowerCase();
   if (!fs.existsSync(exonFile)) {
-    return {
+    return /** @type {binding.Error} */ ({
       error: 'exonFile not found.'
-    };
+    });
+  } else {
+    return binding.searchExon_(exonFile, gene);
   }
-  return binding.searchExon_(exonFile, gene);
 };
 
 /**
@@ -433,7 +436,7 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
  * Searches for an exon and returns its coordinates.
  * @param {string} file File name of binding data to be searched within.
  * @param {string} name Name of the exon.
- * @return {?{
+ * @return {{
  *   chr: (string|undefined),
  *   txStart: (number|undefined),
  *   txEnd: (number|undefined),
@@ -443,10 +446,6 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
  */
 binding.searchExon_ = function(file, name) {
   var buf = utils.readFileToBuf(file);
-  if (buf == null) {
-    console.error('cannot read file', file);
-    return null;
-  }
 
   var result = binding.readExons_(buf);
 

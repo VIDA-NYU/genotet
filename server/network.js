@@ -133,7 +133,7 @@ network.query.network = function(query, networkPath) {
 /**
  * @param {!network.query.IncidentEdges} query
  * @param {string} networkPath
- * @return {!Array<!network.Edge>|network.Error}
+ * @return {Array<!network.Edge>|network.Error}
  */
 network.query.incidentEdges = function(query, networkPath) {
   var fileName = query.fileName;
@@ -167,7 +167,7 @@ network.query.combinedRegulation = function(query, networkPath) {
  * @param {!network.query.IncrementalEdges} query
  * @param {string} networkPath
  * @return {{
- *   edges: !Array<!network.Edge>
+ *   edges: !Array<network.Edge>
  * }|network.Error}
  */
 network.query.incrementalEdges = function(query, networkPath) {
@@ -217,7 +217,7 @@ network.query.allNodes = function(query, networkPath) {
  * Gets the network data according to the gene selection.
  * @param {string} file Network file name.
  * @param {!Array<string>} genes Genes for gene selection.
- * @return {!network.Network} The network data object.
+ * @return {network.Network} The network data object.
  * @private
  */
 network.getNet_ = function(file, genes) {

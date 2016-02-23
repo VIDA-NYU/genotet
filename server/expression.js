@@ -137,7 +137,7 @@ expression.query.matrixInfo = function(query, expressionPath) {
 /**
  * @param {expression.query.Matrix} query
  * @param {string} expressionPath
- * @return {?expression.Matrix|expression.Error}
+ * @return {expression.Matrix|expression.Error}
  */
 expression.query.matrix = function(query, expressionPath) {
   var file = expressionPath + query.fileName + '.data';
@@ -154,7 +154,7 @@ expression.query.matrix = function(query, expressionPath) {
 /**
  * @param {expression.query.Profile} query
  * @param {string} expressionPath
- * @return {?expression.Profile|expression.Error}
+ * @return {expression.Profile|expression.Error}
  */
 expression.query.profile = function(query, expressionPath) {
   var file = expressionPath + query.fileName;
@@ -171,7 +171,7 @@ expression.query.profile = function(query, expressionPath) {
 /**
  * @param {expression.query.TfaProfile} query
  * @param {string} expressionPath
- * @return {?expression.TfaProfile|expression.Error}
+ * @return {expression.TfaProfile|expression.Error}
  */
 expression.query.tfaProfile = function(query, expressionPath) {
   var file = expressionPath + query.fileName + '.data';
@@ -203,7 +203,7 @@ expression.query.list = function(expressionPath) {
  * @param {string} fileName TFA file name.
  * @param {!Array<string>} geneNames Names of the selected genes.
  * @param {!Array<string>} conditionNames Names of the selected conditions.
- * @return {?expression.TfaProfile} Gene expression profile as a JS object.
+ * @return {expression.TfaProfile} Gene expression profile as a JS object.
  * @private
  */
 expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {

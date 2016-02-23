@@ -59,7 +59,7 @@ bed.query.Motifs;
 /**
  * @param {!bed.query.Motifs} query
  * @param {string} bedPath
- * @return {!bed.MotifsResult|bed.Error}
+ * @return {bed.MotifsResult|bed.Error}
  */
 bed.query.motifs = function(query, bedPath) {
   var fileName = query.fileName;
