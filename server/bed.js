@@ -29,6 +29,13 @@ bed.Motif;
 
 /**
  * @typedef {{
+ *   error: string
+ * }}
+ */
+bed.Error;
+
+/**
+ * @typedef {{
  *   aggregated: boolean,
  *   motifs: !Array<!bed.Motif>
  * }}
@@ -52,12 +59,17 @@ bed.query.Motifs;
 /**
  * @param {!bed.query.Motifs} query
  * @param {string} bedPath
- * @return {!bed.MotifsResult}
+ * @return {bed.MotifsResult|bed.Error}
  */
 bed.query.motifs = function(query, bedPath) {
   var fileName = query.fileName;
   var chr = query.chr;
   var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
+  if (!fs.existsSync(dir)) {
+    return {
+      error: 'bed file not found.'
+    };
+  }
   return bed.readBed_(dir, query.xl, query.xr);
 };
 
@@ -189,15 +201,21 @@ bed.listBed_ = function(bedPath) {
   var ret = [];
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
-    if (file.indexOf('.txt') != -1) {
-      var fname = file.substr(0, file.length - 4);
-      var content = fs.readFileSync(folder + file, 'utf8')
-        .toString().split('\n');
-      var bedName = content[0];
-      var description = content.slice(1).join('');
+    if (file.lastIndexOf('.data') > 0 &&
+      file.lastIndexOf('.data') == file.length - 5) {
+      var fileName = file.replace(/\.data$/, '');
+      var bedName = '';
+      var description = '';
+      var descriptionFile = folder + fileName + '.desc';
+      if (fs.existsSync(descriptionFile)) {
+        var content = fs.readFileSync(descriptionFile, 'utf8')
+          .toString().split('\n');
+        bedName = content[0];
+        description = content.slice(1).join('');
+      }
       ret.push({
         bedName: bedName,
-        fileName: fname,
+        fileName: fileName,
         description: description
       });
     }

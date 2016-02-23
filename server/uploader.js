@@ -54,6 +54,7 @@ uploader.DOUBLE_SIZE_ = 8;
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
                                uploadPath) {
   var fileName = file.originalname;
+  var storedName = fileName + '.data';
   if (fs.existsSync(prefix + fileName)) {
     fs.unlinkSync(prefix + fileName);
   }
@@ -62,7 +63,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
   fs.writeSync(fd, 'pending');
   fs.closeSync(fd);
   var source = fs.createReadStream(file.path);
-  var dest = fs.createWriteStream(prefix + fileName);
+  var dest = fs.createWriteStream(prefix + storedName);
   source.pipe(dest);
   source
     .on('end', function() {
@@ -77,7 +78,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
       }
       if (desc.type != uploader.FileType.MAPPING) {
         // write down the data name and description
-        var fd = fs.openSync(prefix + fileName + '.txt', 'w');
+        var fd = fs.openSync(prefix + fileName + '.desc', 'w');
         fs.writeSync(fd, desc.name + '\n');
         fs.writeSync(fd, desc.description);
         fs.closeSync(fd);
@@ -103,11 +104,12 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
  */
 uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
   // convert *.bw into *.wig
+  var storedName = bwFile + '.data';
   var wigFileName = bwFile + '.wig';
   console.log('start transfer');
   var cmd = [
     bigWigToWigAddr,
-    prefix + bwFile,
+    prefix + storedName,
     prefix + wigFileName
   ].join(' ');
   childProcess.execSync(cmd);
@@ -209,8 +211,9 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
  * @param {string} uploadPath Directory of temporary files.
  */
 uploader.bedSort = function(prefix, bedFile, uploadPath) {
+  var storedName = bedFile + '.data';
   var lines = readline.createInterface({
-    input: fs.createReadStream(prefix + bedFile),
+    input: fs.createReadStream(prefix + storedName),
     terminal: false
   });
   console.log('separating bed data...');

@@ -167,7 +167,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   };
   uploader.uploadFile(body, req.file, prefix, bigWigToWigPath, uploadPath);
   res.header('Access-Control-Allow-Origin', '*');
-  res.jsonp({
+  res.json({
     success: true
   });
 });
@@ -207,6 +207,7 @@ app.get('/genotet', function(req, res) {
       data = binding.query.locus(query, exonFile);
       break;
 
+    // Expression data queries
     case expression.QueryType.EXPRESSION:
       data = expression.query.matrix(query, expressionPath);
       break;
@@ -262,7 +263,14 @@ app.get('/genotet', function(req, res) {
         }
       };
   }
-  res.jsonp(data);
+
+  res.header('Access-Control-Allow-Origin', 'http://localhost');
+  if (data.error) {
+    console.log(data.error);
+    res.status(500).json(data.error);
+  } else {
+    res.json(data);
+  }
 });
 
 // Start the application.

@@ -39,6 +39,13 @@ binding.Histogram;
 
 /**
  * @typedef {{
+ *   error: string
+ * }}
+ */
+binding.Error;
+
+/**
+ * @typedef {{
  *   name: string,
  *   name2: string,
  *   chr: string,
@@ -69,7 +76,9 @@ binding.query = {};
 binding.query.Histogram;
 
 /**
- * @typedef {Object}
+ * @typedef {{
+ *   chr: string
+ * }}
  */
 binding.query.Exons;
 
@@ -84,15 +93,21 @@ binding.query.Locus;
 /**
  * @param {!binding.query.Histogram} query
  * @param {string} bindingPath
- * @return {?binding.Histogram}
+ * @return {binding.Histogram|binding.Error}
  */
 binding.query.histogram = function(query, bindingPath) {
   var fileName = query.fileName;
   var chr = query.chr;
   var file = bindingPath + fileName + '_chr/' + fileName + '_chr' + chr +
     '.bcwig';
+  var descriptionPath = bindingPath + fileName + '.desc';
+  if (!fs.existsSync(file) || !fs.existsSync(descriptionPath)) {
+    return {
+      error: 'binding file not found.'
+    };
+  }
   var data = binding.getBinding_(file, query.xl, query.xr, query.numSamples);
-  data.gene = binding.getGene_(bindingPath, fileName);
+  data.gene = binding.getGene_(descriptionPath);
   data.chr = chr;
   return data;
 };
@@ -100,26 +115,37 @@ binding.query.histogram = function(query, bindingPath) {
 /**
  * @param {!binding.query.Exons} query
  * @param {string} exonFile
- * @return {!Array<!binding.Exon>}
+ * @return {Array<!binding.Exon>|binding.Error}
  */
 binding.query.exons = function(query, exonFile) {
   var chr = query.chr;
+  if (!fs.existsSync(exonFile)) {
+    return {
+      error: 'exonFile not found.'
+    };
+  }
   return binding.getExons_(exonFile, chr);
 };
 
 /**
  * @param {!binding.query.Locus} query
  * @param {string} exonFile
- * @return {?{
+ * @return {{
  *   chr: (string|undefined),
  *   txStart: (number|undefined),
  *   txEnd: (number|undefined),
  *   error: (!genotet.Error|undefined)
- * }}
+ * }|binding.Error}
  */
 binding.query.locus = function(query, exonFile) {
   var gene = query.gene.toLowerCase();
-  return binding.searchExon_(exonFile, gene);
+  if (!fs.existsSync(exonFile)) {
+    return /** @type {binding.Error} */ ({
+      error: 'exonFile not found.'
+    });
+  } else {
+    return binding.searchExon_(exonFile, gene);
+  }
 };
 
 /**
@@ -410,7 +436,7 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
  * Searches for an exon and returns its coordinates.
  * @param {string} file File name of binding data to be searched within.
  * @param {string} name Name of the exon.
- * @return {?{
+ * @return {{
  *   chr: (string|undefined),
  *   txStart: (number|undefined),
  *   txEnd: (number|undefined),
@@ -420,10 +446,6 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
  */
 binding.searchExon_ = function(file, name) {
   var buf = utils.readFileToBuf(file);
-  if (buf == null) {
-    console.error('cannot read file', file);
-    return null;
-  }
 
   var result = binding.readExons_(buf);
 
@@ -540,12 +562,19 @@ binding.listBindingGenes_ = function(bindingPath) {
   var ret = [];
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
-    if (file.indexOf('.txt') != -1) {
-      var fileName = file.substr(0, file.length - 4);
-      var content = fs.readFileSync(folder + file, 'utf8')
-        .toString().split('\n');
-      var gene = content[0];
-      var description = content.slice(1).join('');
+    // find the files ending with .data
+    if (file.lastIndexOf('.data') > 0 &&
+      file.lastIndexOf('.data') == file.length - 5) {
+      var fileName = file.replace(/\.data$/, '');
+      var gene = '';
+      var description = '';
+      var descriptionFile = folder + fileName + '.desc';
+      if (fs.existsSync(descriptionFile)) {
+        var content = fs.readFileSync(descriptionFile, 'utf8')
+          .toString().split('\n');
+        gene = content[0];
+        description = content.slice(1).join('');
+      }
       var chrFolder = bindingPath + fileName + '_chr/';
       var chrFiles = fs.readdirSync(chrFolder);
       var chrs = [];
@@ -570,15 +599,17 @@ binding.listBindingGenes_ = function(bindingPath) {
 
 /**
  * Gets gene name for a specific binding file.
- * @param {string} bindingPath Path to the wiggle folder.
- * @param {string} fileName File name of the wiggle file.
+ * @param {string} descriptionPath Path to the wiggle folder.
  * @return {string} the gene name.
  * @private
  */
-binding.getGene_ = function(bindingPath, fileName) {
-  var filePath = bindingPath + fileName + '.txt';
-  var content = fs.readFileSync(filePath, 'utf-8').toString().split('\n');
-  var gene = content[0];
+binding.getGene_ = function(descriptionPath) {
+  var gene = '';
+  if (fs.existsSync(descriptionPath)) {
+    var content = fs.readFileSync(descriptionPath, 'utf-8').toString()
+      .split('\n');
+    gene = content[0];
+  }
   return gene;
 };
 
