@@ -264,7 +264,7 @@ app.get('/genotet', function(req, res) {
       };
   }
 
-  res.header('Access-Control-Allow-Origin', 'http://localhost');
+  res.header('Access-Control-Allow-Origin', '*');
   if (data.error) {
     console.log(data.error);
     res.status(500).json(data.error);

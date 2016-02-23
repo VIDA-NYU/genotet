@@ -453,7 +453,10 @@ genotet.dialog.uploadProgress_ = function(fileName) {
   var modal = $('#dialog');
   modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.progress,
     function() {
-      modal.modal();
+      modal.modal({
+        backdrop: 'static',
+        keyboard: false
+      });
       var number = 0;
       modal.find('#btn-ok').prop('disabled', true);
       var interval = setInterval(function() {
