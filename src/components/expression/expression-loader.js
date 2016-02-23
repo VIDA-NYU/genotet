@@ -35,8 +35,6 @@ genotet.ExpressionLoader = function(data) {
     },
     matrixGeneNameDict: null,
     matrixConditionNameDict: null,
-    lowerGeneNames: null,
-    lowerConditionNames: null,
     profileGeneNameDict: {},
     tfaGeneNameDict: {},
     profiles: [],
@@ -127,30 +125,24 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
 
     var matrixGeneNameDict = {};
     data.geneNames.forEach(function(geneName, i) {
-      matrixGeneNameDict[geneName] = i;
+      matrixGeneNameDict[geneName.toLowerCase()] = {
+        index: i,
+        rawName: geneName
+      };
     }.bind(this));
     var matrixConditionNameDict = {};
     data.conditionNames.forEach(function(conditionName, i) {
-      matrixConditionNameDict[conditionName] = i;
+      matrixConditionNameDict[conditionName.toLowerCase()] = {
+        index: i,
+        rawName: conditionName
+      };
     }.bind(this));
     this.data.matrixGeneNameDict = matrixGeneNameDict;
     this.data.matrixConditionNameDict = matrixConditionNameDict;
 
-    var lowerGeneNames = {};
-    Object.keys(this.data.matrixInfo.allGeneNames).forEach(function(name) {
-      lowerGeneNames[name.toLowerCase()] = name;
-    });
-    this.data.lowerGeneNames = lowerGeneNames;
-    var lowerConditionNames = {};
-    Object.keys(this.data.matrixInfo.allConditionNames).forEach(
-      function(name) {
-        lowerConditionNames[name.toLowerCase()] = name;
-      });
-    this.data.lowerConditionNames = lowerConditionNames;
-
     if (this.data.profile.geneNames.length) {
       this.loadProfile(fileName, this.data.profile.geneNames,
-        data.conditionNames, false);
+        data.conditionNames, false, true);
     }
     if (this.data.tfa.geneNames.length) {
       this.loadTfaProfile(fileName, this.data.tfa.geneNames,
@@ -167,9 +159,10 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
  * @param {!Array<string>} conditionNames Names for experiment condition
  *      selection.
  * @param {boolean} isAddProfile Whether it is adding a new profile.
+ * @param {boolean} isAddedInPanel Whether it is added to panel.
  */
 genotet.ExpressionLoader.prototype.loadProfile =
-  function(fileName, geneNames, conditionNames, isAddProfile) {
+  function(fileName, geneNames, conditionNames, isAddProfile, isAddedInPanel) {
     var params = {
       type: genotet.expression.QueryType.PROFILE,
       fileName: fileName,
@@ -196,7 +189,8 @@ genotet.ExpressionLoader.prototype.loadProfile =
           profileData.valueMax);
         this.signal('newProfileLoaded', {
           geneName: geneName,
-          geneIndex: geneIndex
+          geneIndex: geneIndex,
+          isAddedInPanel: isAddedInPanel
         });
       } else {
         this.data.profile = profileData;

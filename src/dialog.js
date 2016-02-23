@@ -36,6 +36,7 @@ genotet.dialog.TEMPLATES_ = {
   binding: 'templates/create-binding.html',
   expression: 'templates/create-expression.html',
   mapping: 'templates/mapping.html',
+  about: 'templates/about.html',
   upload: 'templates/upload.html',
   progress: 'templates/upload-progress.html'
 };
@@ -67,6 +68,9 @@ genotet.dialog.create = function(type) {
       break;
     case 'mapping':
       genotet.dialog.mapping_();
+      break;
+    case 'about':
+      genotet.dialog.about_();
       break;
     case 'upload':
       genotet.dialog.upload_();
@@ -337,6 +341,18 @@ genotet.dialog.mapping_ = function() {
         genotet.data.mappingFiles['gene-binding'] =
         /** @type {string} */(fileName);
       });
+    });
+};
+
+/**
+ * Shows a dialog for the version information.
+ * @private
+ */
+genotet.dialog.about_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.about,
+    function() {
+      modal.modal();
     });
 };
 
