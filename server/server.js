@@ -167,7 +167,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   };
   uploader.uploadFile(body, req.file, prefix, bigWigToWigPath, uploadPath);
   res.header('Access-Control-Allow-Origin', '*');
-  res.jsonp({
+  res.json({
     success: true
   });
 });
@@ -262,14 +262,14 @@ app.get('/genotet', function(req, res) {
         }
       };
   }
-  res.jsonp(data);
-});
 
-// Handle 500
-app.use(function(error, req, res, next) {
-  //console.error(error.stack);
-  res.status(500);
-  res.send({failed: true, status: 500, message: 'Internal Server Error'});
+  res.header('Access-Control-Allow-Origin', 'http://localhost');
+  if (data.error) {
+    console.log('something wrong');
+    res.status(500).json(data.error);
+  } else {
+    res.json(data);
+  }
 });
 
 // Start the application.

@@ -63,6 +63,13 @@ network.RawNetwork;
  */
 network.Network;
 
+/**
+ * @typedef {{
+ *   error: string
+ * }}
+ */
+network.Error;
+
 /** @const */
 network.query = {};
 
@@ -110,34 +117,49 @@ network.query.AllNodes;
 /**
  * @param {!network.query.Network} query
  * @param {string} networkPath
- * @return {?network.Network}
+ * @return {network.Network|network.Error}
  */
 network.query.network = function(query, networkPath) {
   var fileName = query.fileName;
   var file = networkPath + fileName + '.data';
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'file not found'
+    };
+  }
   return network.getNet_(file, query.genes);
 };
 
 /**
  * @param {!network.query.IncidentEdges} query
  * @param {string} networkPath
- * @return {!Array<!network.Edge>}
+ * @return {!Array<!network.Edge>|network.Error}
  */
 network.query.incidentEdges = function(query, networkPath) {
   var fileName = query.fileName;
   var gene = query.gene;
   var file = networkPath + fileName + '.data';
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'file not found'
+    };
+  }
   return network.getIncidentEdges_(file, gene);
 };
 
 /**
  * @param {!network.query.CombinedRegulation} query
  * @param {string} networkPath
- * @return {!Array<string>}
+ * @return {!Array<string>|network.Error}
  */
 network.query.combinedRegulation = function(query, networkPath) {
   var fileName = query.fileName;
   var file = networkPath + fileName + '.data';
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'file not found'
+    };
+  }
   return network.getCombinedRegulation_(file, query.genes);
 };
 
@@ -146,13 +168,18 @@ network.query.combinedRegulation = function(query, networkPath) {
  * @param {string} networkPath
  * @return {{
  *   edges: !Array<!network.Edge>
- * }}
+ * }|network.Error}
  */
 network.query.incrementalEdges = function(query, networkPath) {
   var fileName = query.fileName;
   var genes = query.genes;
   var file = networkPath + fileName + '.data';
   var nodes = query.nodes;
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'file not found'
+    };
+  }
   return network.incrementalEdges_(file, genes, nodes);
 };
 
@@ -173,10 +200,15 @@ network.query.list = function(networkPath) {
  * @param {string} networkPath
  * @return {{
  *   nodes: !Array<!network.Node>
- * }}
+ * }|network.Error}
  */
 network.query.allNodes = function(query, networkPath) {
   var file = networkPath + query.fileName + '.data';
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'file not found'
+    };
+  }
   return network.allNodes_(file);
 };
 // End public APIs
@@ -185,7 +217,7 @@ network.query.allNodes = function(query, networkPath) {
  * Gets the network data according to the gene selection.
  * @param {string} file Network file name.
  * @param {!Array<string>} genes Genes for gene selection.
- * @return {?network.Network} The network data object.
+ * @return {!network.Network} The network data object.
  * @private
  */
 network.getNet_ = function(file, genes) {

@@ -154,7 +154,7 @@ genotet.dialog.createNetwork_ = function() {
           modal.find('#network').select2({
             data: fileNames
           });
-        }.bind(this), 'jsonp')
+        }.bind(this))
         .fail(function() {
           genotet.error('failed to get network list');
         });
@@ -211,7 +211,7 @@ genotet.dialog.createBinding_ = function() {
           modal.find('#gene').select2({
             data: fileNames
           });
-        }.bind(this), 'jsonp')
+        }.bind(this))
         .fail(function() {
           genotet.error('failed to get binding list');
         });
@@ -276,7 +276,7 @@ genotet.dialog.createExpression_ = function() {
           modal.find('#matrix').select2({
             data: fileNames
           });
-        }.bind(this), 'jsonp')
+        }.bind(this))
         .fail(function() {
           genotet.error('failed to get expression list');
         });
@@ -326,7 +326,7 @@ genotet.dialog.mapping_ = function() {
           })
             .val(genotet.data.mappingFiles['gene-binding'])
             .trigger('change');
-        }.bind(this), 'jsonp')
+        }.bind(this))
         .fail(function() {
           genotet.error('failed to get mapping list');
         });
@@ -458,7 +458,7 @@ genotet.dialog.uploadProgress_ = function(fileName) {
             modal.find('.progress').children('.progress-bar')
               .css('width', widthPercent);
           }
-        }, 'jsonp');
+        });
         modal.find('.progress').children('.progress-bar')
           .css('width', widthPercent);
       }, genotet.dialog.queryInterval_);

@@ -39,7 +39,7 @@ express.Response.prototype.header = function(prop, val) {};
 /**
  * @param {*} data
  */
-express.Response.prototype.jsonp = function(data) {};
+express.Response.prototype.json = function(data) {};
 
 /**
  * @param {number} data

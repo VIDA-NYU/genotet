@@ -154,7 +154,7 @@ genotet.data.loadList = function(view, fileType) {
   $.get(genotet.data.serverURL, params, function(data) {
       genotet.data.files[fileType + 'Files'] = data;
       view.signal('updateFileListAfterLoading');
-    }.bind(this), 'jsonp')
+    }.bind(this))
     .fail(function() {
       genotet.error('failed to get file list', fileType);
     });
