@@ -58,10 +58,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
   if (fs.existsSync(prefix + fileName)) {
     fs.unlinkSync(prefix + fileName);
   }
-  // create a pending file.
-  var fd = fs.openSync(uploadPath + fileName + '.pending', 'w');
-  fs.writeSync(fd, 'pending');
-  fs.closeSync(fd);
+
   var source = fs.createReadStream(file.path);
   var dest = fs.createWriteStream(prefix + storedName);
   source.pipe(dest);
@@ -73,8 +70,9 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
       } else if (desc.type == uploader.FileType.BED) {
         uploader.bedSort(prefix, fileName, uploadPath);
       } else {
-        // remove it when finished.
-        fs.unlinkSync(uploadPath + fileName + '.pending');
+        var fd = fs.openSync(uploadPath + fileName + '.finish', 'w');
+        fs.writeSync(fd, 'finish');
+        fs.closeSync(fd);
       }
       if (desc.type != uploader.FileType.MAPPING) {
         // write down the data name and description
@@ -199,7 +197,9 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
       fs.closeSync(fd);
     }
 
-    fs.unlinkSync(uploadPath + bwFile + '.pending');
+    var fd = fs.openSync(uploadPath + bwFile + '.finish', 'w');
+    fs.writeSync(fd, 'finish');
+    fs.closeSync(fd);
     console.log('binding data separate done.');
   });
 };
@@ -264,7 +264,9 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
       fs.closeSync(fd);
     }
 
-    fs.unlinkSync(uploadPath + bedFile + '.pending');
+    var fd = fs.openSync(uploadPath + bedFile + '.finish', 'w');
+    fs.writeSync(fd, 'finish');
+    fs.closeSync(fd);
     console.log('bed chromosome data finish.');
   });
 };
@@ -278,6 +280,9 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
  * @return {boolean} File exists or not
  */
 uploader.checkFinish = function(query, prefix) {
-  var isFinish = !fs.existsSync(prefix + query.fileName + '.pending');
+  var isFinish = fs.existsSync(prefix + query.fileName + '.finish');
+  if (isFinish) {
+    fs.unlink(prefix + query.fileName + '.finish');
+  }
   return isFinish;
 };
