@@ -29,6 +29,13 @@ bed.Motif;
 
 /**
  * @typedef {{
+ *   error: string
+ * }}
+ */
+bed.Error;
+
+/**
+ * @typedef {{
  *   aggregated: boolean,
  *   motifs: !Array<!bed.Motif>
  * }}
@@ -52,12 +59,17 @@ bed.query.Motifs;
 /**
  * @param {!bed.query.Motifs} query
  * @param {string} bedPath
- * @return {!bed.MotifsResult}
+ * @return {!bed.MotifsResult|bed.Error}
  */
 bed.query.motifs = function(query, bedPath) {
   var fileName = query.fileName;
   var chr = query.chr;
   var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
+  if (!fs.existsSync(dir)) {
+    return {
+      error: 'bed file not found.'
+    };
+  }
   return bed.readBed_(dir, query.xl, query.xr);
 };
 

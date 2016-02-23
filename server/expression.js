@@ -51,6 +51,13 @@ expression.Matrix;
 
 /**
  * @typedef {{
+ *   error: string
+ * }}
+ */
+expression.Error;
+
+/**
+ * @typedef {{
  *   values: !Array<!Array<number>>,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
@@ -115,46 +122,66 @@ expression.query.TfaProfile;
 /**
  * @param {expression.query.MatrixInfo} query
  * @param {string} expressionPath
- * @return {expression.MatrixInfo}
+ * @return {expression.MatrixInfo|expression.Error}
  */
 expression.query.matrixInfo = function(query, expressionPath) {
   var file = expressionPath + query.fileName + '.data';
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'expression file not found.'
+    };
+  }
   return expression.getMatrixInfo_(file);
 };
 
 /**
  * @param {expression.query.Matrix} query
  * @param {string} expressionPath
- * @return {?expression.Matrix}
+ * @return {?expression.Matrix|expression.Error}
  */
 expression.query.matrix = function(query, expressionPath) {
   var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'expression file not found.'
+    };
+  }
   return expression.readMatrix_(file, geneNames, conditionNames);
 };
 
 /**
  * @param {expression.query.Profile} query
- * @return {?expression.Profile}
  * @param {string} expressionPath
+ * @return {?expression.Profile|expression.Error}
  */
 expression.query.profile = function(query, expressionPath) {
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'expression file not found.'
+    };
+  }
   return expression.readMatrix_(file, geneNames, conditionNames);
 };
 
 /**
  * @param {expression.query.TfaProfile} query
- * @return {?expression.TfaProfile}
  * @param {string} expressionPath
+ * @return {?expression.TfaProfile|expression.Error}
  */
 expression.query.tfaProfile = function(query, expressionPath) {
   var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'TFA matrix file not found.'
+    };
+  }
   return expression.getTfaProfile_(file, geneNames, conditionNames);
 };
 

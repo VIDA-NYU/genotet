@@ -207,6 +207,7 @@ app.get('/genotet', function(req, res) {
       data = binding.query.locus(query, exonFile);
       break;
 
+    // Expression data queries
     case expression.QueryType.EXPRESSION:
       data = expression.query.matrix(query, expressionPath);
       break;
