@@ -101,7 +101,7 @@ binding.query.histogram = function(query, bindingPath) {
   var file = bindingPath + fileName + '_chr/' + fileName + '_chr' + chr +
     '.bcwig';
   var descriptionPath = bindingPath + fileName + '.desc';
-  if (!fs.existsSync(file) || !fs.existsSync(descriptionPath)) {
+  if (!fs.existsSync(file)) {
     return {
       error: 'binding file not found.'
     };
