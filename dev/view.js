@@ -20,7 +20,7 @@ genotet.test = function() {
     conditionInput: 'si.*'
   });
   genotet.viewManager.createView(genotet.ViewType.BINDING, 'My Genome Browser', {
-    fileNames: 'SL971_SL970',
+    fileNames: 'SL10572_SL10566',
     bedName: 'bed_data.bed',
     chr: '1',
     multipleTracks: false
