@@ -274,4 +274,5 @@ app.get('/genotet', function(req, res) {
 });
 
 // Start the application.
-app.listen(3000);
+var server = app.listen(3000);
+server.setTimeout(1200000);
