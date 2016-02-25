@@ -412,6 +412,10 @@ genotet.dialog.upload_ = function() {
         btnUpload.prop('disabled', !uploadReady());
       });
 
+      dataName.on('input', function() {
+        btnUpload.prop('disabled', !uploadReady());
+      });
+
       btnUpload.click(function() {
         var formData = new FormData();
         var fileType = /** @type {string} */(modal.find('#type').val());
