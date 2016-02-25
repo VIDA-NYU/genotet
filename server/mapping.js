@@ -34,10 +34,16 @@ mapping.query.GetMapping;
  * @return {?Array<string>}
  */
 mapping.query.list = function(mappingPath) {
-  return fs.readdirSync(mappingPath).filter(function(fileName) {
-    // filter the files starting with '.' which are hidden files
-    return fileName[0] != '.';
+  var files = fs.readdirSync(mappingPath);
+  var mappingFiles = [];
+  files.forEach(function(file) {
+    if (file.lastIndexOf('.data') > 0 &&
+      file.lastIndexOf('.data') == file.length - 5) {
+      var fileName = file.replace(/\.data$/, '');
+      mappingFiles.push(fileName);
+    }
   });
+  return mappingFiles;
 };
 
 /**
@@ -46,7 +52,7 @@ mapping.query.list = function(mappingPath) {
  * @return {!Object<string>}
  */
 mapping.query.getMapping = function(query, mappingPath) {
-  return mapping.getMapping_(mappingPath + query.fileName);
+  return mapping.getMapping_(mappingPath + query.fileName + '.data');
 };
 
 /**

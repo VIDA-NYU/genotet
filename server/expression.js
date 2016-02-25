@@ -51,6 +51,13 @@ expression.Matrix;
 
 /**
  * @typedef {{
+ *   error: string
+ * }}
+ */
+expression.Error;
+
+/**
+ * @typedef {{
  *   values: !Array<!Array<number>>,
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>,
@@ -115,46 +122,66 @@ expression.query.TfaProfile;
 /**
  * @param {expression.query.MatrixInfo} query
  * @param {string} expressionPath
- * @return {expression.MatrixInfo}
+ * @return {expression.MatrixInfo|expression.Error}
  */
 expression.query.matrixInfo = function(query, expressionPath) {
-  var file = expressionPath + query.fileName;
+  var file = expressionPath + query.fileName + '.data';
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'expression file not found.'
+    };
+  }
   return expression.getMatrixInfo_(file);
 };
 
 /**
  * @param {expression.query.Matrix} query
  * @param {string} expressionPath
- * @return {?expression.Matrix}
+ * @return {expression.Matrix|expression.Error}
  */
 expression.query.matrix = function(query, expressionPath) {
-  var file = expressionPath + query.fileName;
+  var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'expression file not found.'
+    };
+  }
   return expression.readMatrix_(file, geneNames, conditionNames);
 };
 
 /**
  * @param {expression.query.Profile} query
- * @return {?expression.Profile}
  * @param {string} expressionPath
+ * @return {expression.Profile|expression.Error}
  */
 expression.query.profile = function(query, expressionPath) {
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'expression file not found.'
+    };
+  }
   return expression.readMatrix_(file, geneNames, conditionNames);
 };
 
 /**
  * @param {expression.query.TfaProfile} query
- * @return {?expression.TfaProfile}
  * @param {string} expressionPath
+ * @return {expression.TfaProfile|expression.Error}
  */
 expression.query.tfaProfile = function(query, expressionPath) {
-  var file = expressionPath + query.fileName;
+  var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
+  if (!fs.existsSync(file)) {
+    return {
+      error: 'TFA matrix file not found.'
+    };
+  }
   return expression.getTfaProfile_(file, geneNames, conditionNames);
 };
 
@@ -176,7 +203,7 @@ expression.query.list = function(expressionPath) {
  * @param {string} fileName TFA file name.
  * @param {!Array<string>} geneNames Names of the selected genes.
  * @param {!Array<string>} conditionNames Names of the selected conditions.
- * @return {?expression.TfaProfile} Gene expression profile as a JS object.
+ * @return {expression.TfaProfile} Gene expression profile as a JS object.
  * @private
  */
 expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
@@ -245,15 +272,21 @@ expression.listMatrix_ = function(expressionPath) {
   var ret = [];
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
-    if (file.indexOf('.txt') != -1) {
-      var fname = file.substr(0, file.length - 4);
-      var content = fs.readFileSync(folder + file, 'utf8')
-        .toString().split('\n');
-      var matrixName = content[0];
-      var description = content.slice(1).join('');
+    if (file.lastIndexOf('.data') > 0 &&
+      file.lastIndexOf('.data') == file.length - 5) {
+      var fileName = file.replace(/\.data$/, '');
+      var matrixName = '';
+      var description = '';
+      var descriptionFile = folder + fileName + '.desc';
+      if (fs.existsSync(descriptionFile)) {
+        var content = fs.readFileSync(descriptionFile, 'utf8')
+          .toString().split('\n');
+        matrixName = content[0];
+        description = content.slice(1).join('');
+      }
       ret.push({
         matrixName: matrixName,
-        fileName: fname,
+        fileName: fileName,
         description: description
       });
     }

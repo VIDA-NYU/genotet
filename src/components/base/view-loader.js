@@ -83,12 +83,12 @@ genotet.ViewLoader.prototype.get = function(url, params, callback,
     $.get(url, params, function(data) {
         callback(data);
         this.signal('loadComplete');
-      }.bind(this), 'jsonp')
+      }.bind(this))
       .fail(this.fail.bind(this, errorMessage, params));
   } else {
     $.get(url, params, function(data) {
         callback(data);
-      }.bind(this), 'jsonp')
+      }.bind(this))
       .fail(this.fail.bind(this, errorMessage, params));
   }
 };
@@ -97,8 +97,13 @@ genotet.ViewLoader.prototype.get = function(url, params, callback,
  * Triggers a fail event and pushes the error.
  * @param {string} msg Error message.
  * @param {Object} params Query parameter object.
+ * @param {{
+ *   responseJSON: string
+ * }} res Server response object.
  */
-genotet.ViewLoader.prototype.fail = function(msg, params) {
-  genotet.error(msg, params == null ? '' : JSON.stringify(params));
+genotet.ViewLoader.prototype.fail = function(msg, params, res) {
+  var paramsStr = params == null ? '' : JSON.stringify(params)
+    .replace(/[{}]/g, '');
+  genotet.error(msg, res.responseJSON, paramsStr);
   this.signal('loadFail');
 };
