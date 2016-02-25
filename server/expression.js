@@ -157,7 +157,7 @@ expression.query.matrix = function(query, expressionPath) {
  * @return {expression.Profile|expression.Error}
  */
 expression.query.profile = function(query, expressionPath) {
-  var file = expressionPath + query.fileName;
+  var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
