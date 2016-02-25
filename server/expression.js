@@ -157,7 +157,7 @@ expression.query.matrix = function(query, expressionPath) {
  * @return {expression.Profile|expression.Error}
  */
 expression.query.profile = function(query, expressionPath) {
-  var file = expressionPath + query.fileName;
+  var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
@@ -174,7 +174,7 @@ expression.query.profile = function(query, expressionPath) {
  * @return {expression.TfaProfile|expression.Error}
  */
 expression.query.tfaProfile = function(query, expressionPath) {
-  var file = expressionPath + query.fileName + '.data';
+  var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
