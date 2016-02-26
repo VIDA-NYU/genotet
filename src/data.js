@@ -15,6 +15,15 @@
  */
 genotet.Files;
 
+/**
+ * @typedef {{
+ *   email: string,
+ *   username: string,
+ *   password: string
+ * }}
+ */
+genotet.UserInfo;
+
 /** @const */
 genotet.data = {};
 

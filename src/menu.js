@@ -56,4 +56,12 @@ genotet.menu.init = function() {
   $('#upload').click(function() {
     genotet.dialog.create('upload');
   });
+
+  // Sign up and sign in.
+  $('#sign-up').click(function() {
+    genotet.dialog.create('sign-up');
+  });
+  $('#sign-in').click(function() {
+    genotet.dialog.create('sign-in');
+  });
 };

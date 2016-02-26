@@ -38,6 +38,8 @@ genotet.dialog.TEMPLATES_ = {
   mapping: 'templates/mapping.html',
   about: 'templates/about.html',
   upload: 'templates/upload.html',
+  signUp: 'templates/sign-up.html',
+  signIn: 'templates/sign-in.html',
   progress: 'templates/upload-progress.html'
 };
 
@@ -74,6 +76,12 @@ genotet.dialog.create = function(type) {
       break;
     case 'upload':
       genotet.dialog.upload_();
+      break;
+    case 'sign-up':
+      genotet.dialog.signUp_();
+      break;
+    case 'sign-in':
+      genotet.dialog.signIn_();
       break;
     default:
       genotet.error('unknown view type in Dialog.create:', type);
@@ -447,6 +455,53 @@ genotet.dialog.upload_ = function() {
       });
     });
 };
+
+/**
+ * Creates a dialog for signing up.
+ * @private
+ */
+genotet.dialog.signUp_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.signUp,
+    function() {
+      modal.modal();
+      var email = modal.find('#email');
+      var username = modal.find('#username');
+      var password = modal.find('#password');
+      var confirmPassword = modal.find('#confirm-password');
+      var btnSignUp = modal.find('#btn-sign-up').prop('disabled', true);
+
+      // Checks if all required fields are filled.
+      var uploadReady = function() {
+        return email.val() && username.val() && password.val() &&
+          (password.val() == confirmPassword.val());
+      };
+      confirmPassword.on('input', function() {
+        btnSignUp.prop('disabled', !uploadReady());
+      });
+      btnSignUp.click(function() {
+        var userInfo = {
+          email: email.val(),
+          username: username.val(),
+          password: password.val()
+        };
+        // TODO(Liana): Write post handler to send user information.
+      });
+    });
+};
+
+/**
+ * Creates a dialog for signing in.
+ * @private
+ */
+genotet.dialog.signIn_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.signIn,
+    function () {
+      modal.modal();
+    });
+};
+
 
 /**
  * Creates a dialog for uploading progress.
