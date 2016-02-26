@@ -128,7 +128,7 @@ expression.query.matrixInfo = function(query, expressionPath) {
   var file = expressionPath + query.fileName + '.data';
   if (!fs.existsSync(file)) {
     return {
-      error: 'expression file not found.'
+      error: 'expression file ' + query.fileName + ' not found.'
     };
   }
   return expression.getMatrixInfo_(file);
@@ -145,7 +145,7 @@ expression.query.matrix = function(query, expressionPath) {
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     return {
-      error: 'expression file not found.'
+      error: 'expression file ' + query.fileName + ' not found.'
     };
   }
   return expression.readMatrix_(file, geneNames, conditionNames);
@@ -162,7 +162,7 @@ expression.query.profile = function(query, expressionPath) {
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     return {
-      error: 'expression file not found.'
+      error: 'expression file ' + query.fileName + ' not found.'
     };
   }
   return expression.readMatrix_(file, geneNames, conditionNames);
@@ -179,7 +179,7 @@ expression.query.tfaProfile = function(query, expressionPath) {
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     return {
-      error: 'TFA matrix file not found.'
+      error: 'TFA matrix file ' + query.fileName + ' not found.'
     };
   }
   return expression.getTfaProfile_(file, geneNames, conditionNames);

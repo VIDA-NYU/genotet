@@ -124,7 +124,7 @@ network.query.network = function(query, networkPath) {
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     return {
-      error: 'network file not found.'
+      error: 'network file ' + fileName + ' not found.'
     };
   }
   return network.getNet_(file, query.genes);
@@ -141,7 +141,7 @@ network.query.incidentEdges = function(query, networkPath) {
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     return {
-      error: 'network file not found.'
+      error: 'network file ' + fileName + ' not found.'
     };
   }
   return network.getIncidentEdges_(file, gene);
@@ -157,7 +157,7 @@ network.query.combinedRegulation = function(query, networkPath) {
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     return {
-      error: 'network file not found.'
+      error: 'network file ' + fileName + ' not found.'
     };
   }
   return network.getCombinedRegulation_(file, query.genes);
@@ -177,7 +177,7 @@ network.query.incrementalEdges = function(query, networkPath) {
   var nodes = query.nodes;
   if (!fs.existsSync(file)) {
     return {
-      error: 'network file not found.'
+      error: 'network file ' + fileName + ' not found.'
     };
   }
   return network.incrementalEdges_(file, genes, nodes);
@@ -206,7 +206,7 @@ network.query.allNodes = function(query, networkPath) {
   var file = networkPath + query.fileName + '.data';
   if (!fs.existsSync(file)) {
     return {
-      error: 'network file not found.'
+      error: 'network file ' + query.fileName + ' not found.'
     };
   }
   return network.allNodes_(file);
