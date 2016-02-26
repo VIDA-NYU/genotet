@@ -217,20 +217,29 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
   var allConditionNames = {};
 
   result.geneNames.forEach(function(gene, index) {
-    allGeneNames[gene] = index;
+    allGeneNames[gene.toLowerCase()] = {
+      index: index,
+      rawName: gene
+    };
   });
   result.conditionNames.forEach(function(condition, index) {
-    allConditionNames[condition] = index;
+    allConditionNames[condition.toLowerCase()] = {
+      index: index,
+      rawName: condition
+    };
   });
   geneNames.forEach(function(geneName) {
-    if (geneName in allGeneNames) {
-      var rowNum = allGeneNames[geneName];
+    if (geneName.toLowerCase() in allGeneNames) {
+      var rowNum = allGeneNames[geneName.toLowerCase()].index;
       var tfaValues = [];
       conditionNames.forEach(function(conditionName, i) {
-        if (conditionName in allConditionNames) {
-          var colNum = allConditionNames[conditionName];
+        if (conditionName.toLowerCase() in allConditionNames) {
+          var colNum = allConditionNames[conditionName.toLowerCase()].index;
           var tfaValue = result.values[rowNum][colNum];
           if (tfaValue) {
+            if (!tfaValue) {
+              return;
+            }
             tfaValues.push({
               value: tfaValue,
               index: i
@@ -325,7 +334,10 @@ expression.readMatrix_ = function(fileName, inputGenes,
       // first row contains the conditions
       isFirstRow = false;
       for (var i = 1; i < parts.length; i++) {
-        allConditionNames[parts[i]] = i;
+        allConditionNames[parts[i].toLowerCase()] = {
+          index: i,
+          rawName: parts[i]
+        };
       }
       if (!inputConditions) {
         for (var i = 1; i < parts.length; i++) {
@@ -337,19 +349,23 @@ expression.readMatrix_ = function(fileName, inputGenes,
         });
       }
       conditionNames.forEach(function(conditionName) {
-        var conditionIndex = allConditionNames[conditionName];
-        if (conditionName in allConditionNames) {
+        var conditionIndex = allConditionNames[conditionName.toLowerCase()]
+          .index;
+        if (conditionName.toLowerCase() in allConditionNames) {
           conditions.push(conditionIndex);
         }
       });
     } else {
       // other rows contain a gene, and values
-      allGeneNames[parts[0]] = lineIndex;
+      allGeneNames[parts[0].toLowerCase()] = {
+        index: lineIndex,
+        rawName: parts[0]
+      };
     }
   });
   if (!inputGenes) {
     for (var gene in allGeneNames) {
-      geneNames.push(gene);
+      geneNames.push(allGeneNames[gene].rawName);
     }
   } else {
     inputGenes.forEach(function(gene) {
@@ -357,12 +373,15 @@ expression.readMatrix_ = function(fileName, inputGenes,
     });
   }
   geneNames.forEach(function(geneName) {
-    var geneIndex = allGeneNames[geneName];
-    if (geneName in allGeneNames) {
+    var geneIndex = allGeneNames[geneName.toLowerCase()].index;
+    if (geneName.toLowerCase() in allGeneNames) {
       var parts = lines[geneIndex].split(/[\t\s]+/);
       var tmpLine = [];
       conditions.forEach(function(conditionIndex) {
         var value = parseFloat(parts[conditionIndex]);
+        if (!value) {
+          return;
+        }
         valueMin = Math.min(valueMin, value);
         valueMax = Math.max(valueMax, value);
         tmpLine.push(value);
@@ -412,6 +431,9 @@ expression.getMatrixInfo_ = function(expressionFile) {
       };
       for (var i = 1; i < parts.length; i++) {
         var value = parseFloat(parts[i]);
+        if (!value) {
+          continue;
+        }
         allValueMin = Math.min(allValueMin, value);
         allValueMax = Math.max(allValueMax, value);
       }
