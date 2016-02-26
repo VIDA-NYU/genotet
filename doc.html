@@ -8,225 +8,75 @@
   <link type="text/css" rel="stylesheet" href="dist/doc.css" />
 </head>
 <body>
-<p>Under construction</p>
+  <div>
 
-<div>
-
-<h2> Genotet - Help Document </h2>
-<p> For help, contact <a href="mailto:bowen.yu@nyu.edu">bowen.yu@nyu.edu</a>. </p>
-
-
-
-<h3> Manage the Views </h3>
-<ul>
-<li>Type commands in the console to create and modify views. Or, you can use the shortcuts in the menu.
-</li>
-<li>Views are treated as objects. The method
-    <pre>createView(string viewname, string viewtype)</pre>
-    returns a view object that can be manipulated. For example,
-    <pre>createView("myNetwork", "graph").loadData("th17", "^BATF3$")</pre>
-    creates a view named "myNetwork" of type "graph", and load the genes that matched the regular expression "^BATF3$".
-  Menu equivalent: Menu -> Panel -> Create View
-</li>
-<li>To access a view object after creation, use
-    <pre>getView(string viewname)</pre>
-    This also returns a view object, and you may concatenate it with loadData.
-</li>
-<li>To close a view, use
-    <pre>closeView(string viewname)</pre>
-  You can also click the close button at the top-right of each view.
-</li>
-<li>Certain types of views can be linked to another. 
-For example, a "histogram" view may listen to a "graph" view so as to load the histogram of selected node in graph.
-To link two views, use
-    <pre>linkView(sourceViewname, targetViewname)</pre>
-  Menu equivalent: Menu -> Panel -> Link Views
-  You can also left-click the SendMessage button at the top-left of each view (wifi icon).
-</li>
-<li>To unlink two linked views, use
-    <pre>unlinkView(sourceViewname, targetViewname)</pre>
-  Menu equivalent: Menu -> Panel -> Unlink Views
-  You can also left-click the GetMessage button at the top-left of each view (signal strength icon).
-  Right-clicking the SendMessage button unlinks the view and all of its listeners.
-  Right-clicking the GetMessage button unlinks the view and its listening view.
-</li>
-<li>Views can be grouped together. The grouped views will move and resize together.
-For certain type of views such as histograms, grouping can also synchronize their ranges.
-To group two views, use
-    <pre>groupView(sourceViewname, targetViewname)</pre>
-  Menu equivalent: Menu -> Panel -> Group Views
-  You can also left-click the Group button at the top-left of each view (double window icon).
-  Right-clicking the Group button let the view quit from its current group.
-</li>
-<li>
-  When you hover on the SendMessage button, the listeners of the current view will be highlighted.
-  When you hover on the GetMessage button, the view that is being listened by the current view will be highlighted.
-  When you hover on the Group button, the views that are in the same group as the current view will be highlighted.
-</li>
-<li>Drag the header to move a view. Drag the bottom-right corner to resize a view. Click the buttons on the header to close/minimize views.
-When a view is minizied, the UI bar will be hidden.
-</li>
-<li>Click anywhere in a view to move it to the front. Double-click the view to hide/show its header.
-</li>
-<li>Some views may create affiliated table views automatically.
-</li>
-</ul>
-
-<h3 id='graph'> Graph View </h3>
-<ul>
-<li>The graph view is for showing the biochemical network. 
-First, focus at some genes using regular expressions. 
-The genes that are neighbors of the focused genes will be shown in the network.
-</li>
-<li>The loadData function takes two parameters
-    <pre>loadData(string net, string exp)</pre>
-    where "net" is the network name, and "exp" is a regular expression. All the genes with a name that matches the expression will be focused, 
-    and their neighbors will be shown in the graph. * Currently only "th17" is supported as "net".
-</li>
-<li>Hover the edges and nodes of the graph to view detailed information. Click on nodes to view its incident edges. See table view for more details.
-</li>
-<li>Drag nodes to modify the graph layout.
-</li>
-<li>Use mouse wheel on background to zoom. Drag the background to translate.
-</li>
-<li>You can select either an edge or a node in the graph, which will be highlighted in orange. 
-Selected element will be reflected in the graph's listener histograms, if there exists any.
-</li>
-</ul>
-
-<h3 id='histogram'>Histogram View</h3>
-<ul>
-<li>The histogram view is for showing the binding data.
-Name a gene and its chromosome number to load its binding data.
-You may also load data via interacting with the histogram's listening graph.
-</li>
-<li>The loadData function takes two parameters
-    <pre>loadData(string genename, string chr)</pre>
-    where "genename" is the name of the gene, "chr" is the number of the chromosome. "chr" is optional, and is by default "1".
-</li>
-<li>Select desired chromosome number to switch chromosome.
-</li>
-<li>At the middle there is an overview of the histogram. You may frame select a focused region (shown in light blue).
-</li>
-<li>Below the main histogram there is a zoom bar. Drag a region to focus.
-</li>
-<li>Drag the main histogram to translate it. Use mouse wheel to zoom in/out.
-</li>
-<li>When the histogram is listening to a graph, it will automatically load the binding data of the selected gene in the graph. 
-If the selected element of the graph is an edge (a,b), it will load the binding data of "a" and locate gene "b" within the binding data.
-</li> 
-</ul>
-
-<h3 id='heatmap'>Heatmap View</h3>
-<ul>
-<li>The heatmap view is used for showing the heatmap of an expression matrix and plot expression data for some genes as polylines.
-</li>
-<li>To add a gene to the polyline plot, use regexp in the "Plot" input box. To remove a polyline, right click the legend color box. The plot now supports a maximum of 8 polylines.
-</li>
-<li>To add/select/remove gene rows, use add/sel/rm regexp in the "Gene" input box. You can also type a regexp only, and it would be equivalent as sel regexp.
-</li>
-<li>To add/select/remove condidtion colomns, use add/sel/rm regexp in the "Cond" input box. You can also type a regexp only, and it would be equivalent as sel regexp.
-<li>If AutoScale is on, the gradient will automatically match the min/max values for the selected region of the heatmap</li>
-<li>Adjust the resolution to obtain finer details of the heatmap (finder resolution increase processing and network burden)</li>
-</li>
-<li>You can drag a box in the heatmap and zoom in.
-</li>
-<li>If a heatmap view is listening to a graph view, each time a node is clicked in the graph, the heatmap will load the genes that are targets of the clicked node 
-into the heatmap. It will also add the clicked gene to the polyline plot.
-</li>
-</ul>
-
-<h3 id='table'>Table View</h3>
-<ul>
-<li>The table view is used for showing list of multi-dimensional variables.
-Currently it is mainly for showing the incident edges of a node in the network.
-</li>
-<li>Click on the header of each column to sort the items by that attribute.
-</li>
-<li>The table view has a selection list. You can toggle the selected elements, by directly clicking them.
-Alternatively, you can use the filter. The filter supports simple query syntax:
-<pre>attribute operator value</pre>
-Three terms must be separated by spaces.
-"attribute" is one of the attribute name as shown in a column header. 
-"operator" is one of {<, <=, >, >=, =}.
-"value" is number or string where applied.
-After typing in the filter command, click either "sel" or "desel" to select or deselect items.
-"sel" adds the matched items to the selection list, 
-while "desel" removes the matched items from the selection list.
-If the filter is empty, "sel" and "desel" by default selects/deselects all items.
-</li>
-<li>
-For example, to show all the items with weight between [1.5, 1.9], 
-first use command "weight >= 1.5" and "sel", and then use command "weight > 1.9" and "desel".
-</li>
-</ul>
-
-<h3 id='menu'>Menu View</h3>
-<ul>
-<li>The menu view provides global information and interface to shortcut operations. To create a menu, use 
-<pre>createMenu()</pre>
-You can create at most one menu.
-</li>
-<li>The "View Panel" provides shortcuts to command line operations, including create, link/unlink, group views, close all views.
-</li>
-<li>The "Preset Layout" provides some preset layouts for known tasks, so as to get a quick startup.
-</li>
-<li>The "System Option" contains checkboxes to turn on/off auxiliary features. Silent: do not pop up alerts. Hint: hover on input area or button to
-view its usage.
-</li>
-</ul>
-
-<h3> Supported Data </h3>
-<ul>
-<li> Networks
-<table>
-  <tr><th>Network</th><th>Provider</th><th>#Nodes</th><th>#Edges</th><th>Description</th></tr>
-  <tr><td>th17</td><td>Aviv</td><td>2218</td><td>4237</td><td>network.eda</td></tr>
-  <tr><td>confidence</td><td>Xi</td><td>15912</td><td>29394</td><td>confidence.tsv</td></tr>
-  <tr><td>prediction</td><td>Mario</td><td>3119</td><td>4425</td><td>finalPrediction..xls</td></tr>
-  <tr><td>strength</td><td>Mario</td><td>4891</td><td>61535</td><td>strength.matrix</td></tr>
-</table>
-</li>
-<li> Binding Data
-<table>
-  <tr><th>Name</th><th>Library Code</th></tr>
-  <tr><td>BATF</td><td>SL3037_SL3036</td>
-  <tr><td>IRF4</td><td>SL2872_SL2876</td></tr>
-  <tr><td>MAF</td><td>SL3032_SL2871</td></tr>
-  <tr><td>RORC</td><td>SL2870_SL2871</td></tr>
-  <tr><td>STAT3</td><td>SL3315_SL3319</td></tr>
-  <tr><td>Hif1a</td><td>SL10572_SL10566</td></tr>
-  <tr><td>Etv6</td><td>SL13368_SL13364</td></tr>
-  <tr><td>Jmjd3</td><td>SL12384_SL12382</td></tr>
-  <tr><td>BATF-Th0</td><td>SL3039_SL3038</td></tr>
-  <tr><td>BATF-Th17</td><td>SL3033_SL3036</td></tr>
-  <tr><td>cMaf-Th0</td><td>SL4424_SL4425</td></tr>
-  <tr><td>cMaf-Th17</td><td>SL3031_SL2871</td></tr>
-  <tr><td>Fosl2-Th0</td><td>SL6500_SL6499</td></tr>
-  <tr><td>Fosl2-Th17</td><td>SL6498_SL6497</td></tr>
-  <tr><td>IRF4-Th0</td><td>SL1044_SL1043</td></tr>
-  <tr><td>IRF4-Th17</td><td>SL971_SL970</td></tr>
-  <tr><td>p300-Th0</td><td>SL1948_SL1947</td></tr>
-  <tr><td>p300-Th17</td><td>SL1041_SL972</td></tr>
-  <tr><td>RORg-Th0</td><td>SL3779_SL3778</td></tr>
-  <tr><td>RORg-Th17</td><td>SL1944_SL1943</td></tr>
-  <tr><td>STAT3-Th0</td><td>SL3780_SL3778</td></tr>
-  <tr><td>STAT3-Th17</td><td>SL973_SL972</td></tr>
-  <tr><td>RNA-Seq-1h</td><td>SL1851</td></tr>
-  <tr><td>RNA-Seq-3h</td><td>SL1852</td></tr>
-  <tr><td>RNA-Seq-6h</td><td>SL1853</td></tr>
-  <tr><td>RNA-Seq-9h</td><td>SL1854</td></tr>
-  <tr><td>RNA-Seq-16h</td><td>SL8355</td></tr>
-  <tr><td>RNA-Seq-24h</td><td>SL1857</td></tr>
-  <tr><td>RNA-Seq-48h</td><td>SL1858</td></tr>
-  <tr><td>FAIRE-Seq-IRF4+</td><td>SL14406</td></tr>
-  <tr><td>FAIRE-Seq-IRF4-</td><td>SL14408</td></tr>
-  <tr><td>FAIRE-Seq-Batf+</td><td>SL14523</td></tr>
-  <tr><td>FAIRE-Seq-Batf-</td><td>SL14526</td></tr>
-</table>
-</li>
-</ul>
-
+    <h2> Genotet - Help Document </h2>
+    <p>For more information, contact <a href="mailto:bowen.yu@nyu.edu">Bowen</a>, <a href="mailto:jiamingdong@nyu.edu">Jiaming</a> or <a href="mailto:ling.yang@nyu.edu">Liana</a>. </p>
+    <p>Note: This document is currently only for data format of data uploading.</p>
+    <h3>Network</h3>
+    <ul>
+      <li>Currently, we accept *.tsv file for network uploading.</li>
+      <li>The first line contains N + 2 space seperated strings, containing 2 table head of "regulator", "target" and N names of values.</li>
+      <li>Following M lines, containing M edges from regulators to targets, each line contains N + 2 elements. They are 1 regulator, 1 target and N float values.</li>
+      <li>It is like
+      <pre>regulator target value_name1 ... value_nameN</pre>
+      <pre>regulator_name[1] target_name[1] value[1][1] ... value[1][N]</pre>
+      <pre>...</pre>
+      <pre>regulator_name[M] target_name[M] value[M][1] ... value[M][N]</pre>
+      </li>
+      <li>Sample Data:
+      <pre>regular target alpha beta</pre>
+      <pre>Batf Maf 0.1 3.2</pre>
+      <pre>IRF4 Batf3 1.9 5.3</pre>
+      </li>
+    </ul>
+    <h3>Binding</h3>
+    <ul>
+      <li>Currently, we only accept *.bw files to be uploaded.</li>
+      <li>You can get more information <a href="http://genome.ucsc.edu/goldenpath/help/bigWig.html" target="_blank">here</a>.</li>
+    </ul>
+    <h3>Expression Matrix</h3>
+    <ul>
+      <li>Expression Matices are simple matrices.</li>
+      <li>The first line contains N + 1 space seperated strings, including one table head of "GENE", and N condition names.</li>
+      <li>For the next M lines, each line contains N + 1 space seperated elements, including 1 gene name and N float values.</li>
+      <li>It is like:
+      <pre>GENE condition[1] ... condition[N]</pre>
+      <pre>gene[1] value[1][1] ... value[1][N]</pre>
+      <pre>...</pre>
+      <pre>gene[M] value[M][1] ... value[M][N]</pre>
+      </li>
+      <li>Sample Data:
+      <pre>GENE SigH1_1_FG SigH1_2_FG</pre>
+      <pre>SigA -0.8 1.5</pre>
+      <pre>SigB -0.9 3.9</pre>
+      </li>
+    </ul>
+    <h3>Bed</h3>
+    <ul>
+      <li>We accept *.bed data. It contains several lines, and we only use the first 4 columns for now.</li>
+      <li>The first 4 elements of each line are the chromosome, start position, end position and name.</li>
+      <li>It is like
+      <pre>chromosome[1] start[1] end[1] name[1]</pre>
+      <pre>...</pre>
+      <pre>chromosome[N] start[N] end[N] name[N]</pre>
+      </li>
+      <li>Sample Data:
+      <pre>chr13	49344650	49344667	unknown_BatfIrf4Th17f_1_mm9</pre>
+      <pre>chr5	101662494	101662511	unknown_BatfIrf4Th17f_1_mm9</pre>
+      <pre>chr8	26382888	26382905	unknown_BatfIrf4Th17f_1_mm9</pre>
+      </li>
+    </ul>
+    <h3>Mapping</h3>
+    <ul>
+      <li>The mapping data maps genes to binding files.</li>
+      <li>It contains several lines, each line contains a gene and a binding file name.</li>
+      <li>Sample Data:
+      <pre>BATF	SL3037_SL3036</pre>
+      <pre>IRF4	SL2872_SL2876</pre>
+      <pre>RORC	SL2870_SL2871</pre>
+      </li>
+    </ul>
 </div>
 
 </body>
