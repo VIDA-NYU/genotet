@@ -4,6 +4,7 @@
 
 var fs = require('fs');
 var buffer = require('buffer');
+var dateFormat = require('dateFormat');
 
 /** @type {utils} */
 module.exports = utils;
@@ -67,7 +68,7 @@ utils.readFileToBuf = function(file) {
 };
 
 /**
- * Replace special character values in URL by their original characters,
+ * Replaces special character values in URL by their original characters,
  * '+' and '?'.
  * @param {string} url The URL string to be decoded.
  * @return {string} The new URL with all special values replaced by the
@@ -77,4 +78,18 @@ utils.decodeSpecialChar = function(url) {
   url = url.replace(/%2B/g, '+');
   url = url.replace(/%3F/g, '?');
   return url;
+};
+
+/**
+ * Prints logs with timestamps.
+ * @param {!Array<string>} args Content to be logged.
+ */
+utils.serverLog = function(args) {
+  if (!args.length) {
+    return;
+  }
+  var date = new Date();
+  var timestamp = '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + ']';
+  var content = timestamp + ' ' + args.join(' ');
+  console.log(content);
 };

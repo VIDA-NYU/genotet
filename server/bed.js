@@ -3,6 +3,7 @@
  */
 
 var fs = require('fs');
+var utils = require('./utils');
 
 /** @type {bed} */
 module.exports = bed;
@@ -66,8 +67,10 @@ bed.query.motifs = function(query, bedPath) {
   var chr = query.chr;
   var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
   if (!fs.existsSync(dir)) {
+    var error = 'bed file ' + fileName + ' not found.';
+    utils.serverLog([error]);
     return {
-      error: 'bed file ' + fileName + ' not found.'
+      error: error
     };
   }
   return bed.readBed_(dir, query.xl, query.xr);
@@ -181,7 +184,7 @@ bed.readBed_ = function(bedFile, xl, xr) {
       motifs: aggregatedData
     };
   }
-  console.log(data.length, 'motifs');
+  utils.serverLog([data.length, 'motifs']);
   return {
     aggregated: false,
     motifs: data

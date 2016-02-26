@@ -1,0 +1,64 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">&times;</button>
+  <h4 class="modal-title">Documentation</h4>
+</div>
+<div class="modal-body">
+<h4>Data Format</h4>
+  <p>This page introduces data format that can be uploaded.</p>
+  <dl>
+    <dt>Network</dt>
+    <dd>Currently, we accept *.tsv file for network uploading.</dd>
+    <dd>The first line contains N + 2 space seperated strings, containing 2 table head of "regulator", "target" and N names of values.</dd>
+    <dd>Then there are M lines, containing M edges from a regulator to a target, each line contains N + 2 elements.</dd>
+    <dd>It is like</dd>
+    <dd>regulator target value_name1 ... value_nameN</dd>
+    <dd>regulator_name[1] target_name[1] value[1][1] ... value[1][N]</dd>
+    <dd>...</dd>
+    <dd>regulator_name[M] target_name[M] value[M][1] ... value[M][N]</dd>
+    <dd>Sample Data:</dd>
+    <dd>regular target alpha beta</dd>
+    <dd>Batf Maf 0.1 3.2</dd>
+    <dd>IRF4 Batf3 1.9 5.3</dd>
+  </dl>
+  <dl>
+    <dt>Binding</dt>
+    <dd>Currently, we only accept *.bw files to be uploaded.</dd>
+    <dd>You can get more information <a href="http://genome.ucsc.edu/goldenpath/help/bigWig.html" target="_blank">here</a>.</dd>
+  </dl>
+  <dl>
+    <dt>Expression Matrix</dt>
+    <dd>Expression Matices are simple Matrices.</dd>
+    <dd>The first line contains N + 1 space seperated strings, including one table head of "GENE", and N condition names.</dd>
+    <dd>For the next M lines, each line contains N + 1 space seperated elements, including 1 gene name and N float values.</dd>
+    <dd>It is like:</dd>
+    <dd>GENE condition[1] ... condition[N]</dd>
+    <dd>gene[1] value[1][1] ... value[1][N]</dd>
+    <dd>...</dd>
+    <dd>gene[M] value[M][1] ... value[M][N]</dd>
+    <dd>Sample Data:</dd>
+    <dd>GENE SigH1_1_FG SigH1_2_FG</dd>
+    <dd>SigA -0.8 1.5</dd>
+    <dd>SigB -0.9 3.9</dd>
+  </dl>
+  <dl>
+    <dt>Bed</dt>
+    <dd>We accept *.bed data. It contains several lines, and we only use the first 4 columns for now.</dd>
+    <dd>The first 4 elements of each line is chromosome, start position, end position and name.</dd>
+    <dd>Sample Data:</dd>
+    <dd>chr13	49344650	49344667	unknown_BatfIrf4Th17f_1_mm9</dd>
+    <dd>chr5	101662494	101662511	unknown_BatfIrf4Th17f_1_mm9</dd>
+    <dd>chr8	26382888	26382905	unknown_BatfIrf4Th17f_1_mm9</dd>
+  </dl>
+  <dl>
+    <dt>Mapping</dt>
+    <dd>The mapping data maps genes to binding files.</dd>
+    <dd>It contains several lines, each line contains a gene and a binding file name.</dd>
+    <dd>Sample Data:</dd>
+    <dd>BATF	SL3037_SL3036</dd>
+    <dd>IRF4	SL2872_SL2876</dd>
+    <dd>RORC	SL2870_SL2871</dd>
+  </dl>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default" data-dismiss="modal">Close</button>
+</div>

@@ -53,6 +53,15 @@ express.Response.prototype.status = function(data) {};
 express.Response.prototype.send = function(msg, code) {};
 
 /**
+ * @constructor
+ * @return {!express.Error}
+ */
+express.Error = function() {};
+
+/** @type{?} */
+express.Error.prototype.stack;
+
+/**
  * @param {number} port
  */
 express.prototype.listen = function(port) {};
@@ -69,3 +78,12 @@ express.prototype.get = function(url, callback) {};
  * @param {function(!express.Request, !express.Response)} callback
  */
 express.prototype.post = function(url, data, callback) {};
+
+/**
+ * @param {function(
+ *   !express.Error,
+ *   !express.Request,
+ *   !express.Response,
+ *   function())} callback
+ */
+express.prototype.use = function(callback) {};

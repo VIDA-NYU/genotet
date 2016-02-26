@@ -31,7 +31,7 @@ genotet.preset.NETWORK_PARAMS_ = {
  */
 genotet.preset.EXPRESSION_PARAMS_ = {
   fileName: 'rnaseq',
-  tfaFileName: 'tfa.mat.tsv',
+  tfaFileName: 'tfa_rnaseq.mat.tsv',
   isGeneRegex: true,
   isConditionRegex: true,
   geneInput: 'BATF|RORC|STAT3|IRF4|MAF',
@@ -43,7 +43,7 @@ genotet.preset.EXPRESSION_PARAMS_ = {
  * @private @const {!genotet.BindingViewParams}
  */
 genotet.preset.BINDING_PARAMS_ = {
-  fileNames: 'SL10572_SL10566',
+  fileNames: 'SL2870_SL2871.bw',
   bedName: 'bed_data.bed',
   chr: '1',
   multipleTracks: false
@@ -54,7 +54,7 @@ genotet.preset.BINDING_PARAMS_ = {
  * @private @const {!genotet.BindingViewParams}
  */
 genotet.preset.THREE_TRACK_BINDING_PARAMS_ = {
-  fileNames: ['SL10572_SL10566', 'SL2870_SL2871', 'SL3033_SL3036'],
+  fileNames: ['SL2870_SL2871.bw', 'SL2872_SL2876.bw', 'SL3032_SL2871.bw'],
   bedName: 'bed_data.bed',
   chr: '1',
   multipleTracks: true
