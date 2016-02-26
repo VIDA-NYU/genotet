@@ -47,12 +47,6 @@ express.Response.prototype.json = function(data) {};
 express.Response.prototype.status = function(data) {};
 
 /**
- * @param {Object|string} msg
- * @param {number=} code
- */
-express.Response.prototype.send = function(msg, code) {};
-
-/**
  * @constructor
  * @return {!express.Error}
  */

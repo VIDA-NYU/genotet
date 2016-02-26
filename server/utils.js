@@ -89,7 +89,8 @@ utils.serverLog = function(args) {
     return;
   }
   var date = new Date();
-  var timestamp = '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + ']';
+  var timestamp = '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + '_' +
+    date.getTime() + ']';
   var content = timestamp + ' ' + args.join(' ');
   console.log(content);
 };
