@@ -67,7 +67,7 @@ bed.query.motifs = function(query, bedPath) {
   var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
   if (!fs.existsSync(dir)) {
     return {
-      error: 'bed file not found.'
+      error: 'bed file ' + fileName + ' not found.'
     };
   }
   return bed.readBed_(dir, query.xl, query.xr);
