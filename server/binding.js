@@ -6,7 +6,7 @@ var fs = require('fs');
 
 var utils = require('./utils');
 var segtree = require('./segtree');
-var log = require('./log');
+var log = require('./log.js');
 
 /** @type {binding} */
 module.exports = binding;

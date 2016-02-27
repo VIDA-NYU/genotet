@@ -3,7 +3,7 @@
  */
 
 var fs = require('fs');
-var log = require('./log');
+var log = require('./log.js');
 
 /** @type {expression} */
 module.exports = expression;
