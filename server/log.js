@@ -21,8 +21,10 @@ log.serverLog = function(var_args) {
     return;
   }
   var date = new Date();
-  var timestamp = '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + '_' +
-    date.getTime() + ']';
-  var content = timestamp + ' ' + var_args.join(' ');
+  var content = '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + '_' +
+    date.getTime() + '] ';
+  for (var i = 0; i < arguments.length; i++) {
+    content += arguments[i];
+  }
   console.log(content);
 };
