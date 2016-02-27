@@ -12,6 +12,7 @@ var network = require('./network.js');
 var binding = require('./binding.js');
 var expression = require('./expression.js');
 var uploader = require('./uploader.js');
+var user = require('./user.js');
 var bed = require('./bed.js');
 var mapping = require('./mapping.js');
 
@@ -57,6 +58,11 @@ var bigWigToWigPath;
  * @type {string}
  */
 var uploadPath;
+/**
+ * Path of user information files.
+ * @type {string}
+ */
+var userPath;
 /**
  * Path of bed data files.
  * @type {string}
@@ -113,6 +119,9 @@ function config() {
       case 'uploadPath':
         uploadPath = value;
         break;
+      case 'userPath':
+        userPath = value;
+        break;
       case 'bedPath':
         bedPath = value;
         break;
@@ -166,6 +175,24 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     description: req.body.description
   };
   uploader.uploadFile(body, req.file, prefix, bigWigToWigPath, uploadPath);
+  res.header('Access-Control-Allow-Origin', '*');
+  res.json({
+    success: true
+  });
+});
+
+/**
+ * POST request is not used as it conflicts with jsonp.
+ */
+app.post('/genotet/user', function(req, res) {
+  console.log('POST user');
+
+  var prefix = '';
+  var body = {
+    email: req.body.email,
+    username: req.body.username,
+    password: req.body.password
+  };
   res.header('Access-Control-Allow-Origin', '*');
   res.json({
     success: true

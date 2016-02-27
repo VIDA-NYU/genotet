@@ -40,6 +40,12 @@ genotet.data.serverURL;
 genotet.data.uploadURL;
 
 /**
+ * User information are saved to this URL via http and received via jsonp.
+ * @type {string}
+ */
+genotet.data.userURL;
+
+/**
  * @typedef {!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -143,6 +149,7 @@ genotet.data.init = function() {
       window.location.hostname + ':3000/genotet';
   }
   genotet.data.uploadURL = genotet.data.serverURL + '/upload';
+  genotet.data.userURL = genotet.data.serverURL + '/user';
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());

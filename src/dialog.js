@@ -485,7 +485,21 @@ genotet.dialog.signUp_ = function() {
           username: username.val(),
           password: password.val()
         };
-        // TODO(Liana): Write post handler to send user information.
+
+        $.ajax({
+          url: genotet.data.userURL,
+          type: 'POST',
+          data: userInfo
+        }).done(function(data) {
+            if (!data.success) {
+              genotet.error('failed to signed up', data.message);
+            } else {
+              genotet.success('signed up');
+            }
+          })
+          .fail(function(res) {
+            genotet.error('failed to signed up');
+          });
       });
     });
 };
