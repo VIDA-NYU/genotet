@@ -2,7 +2,6 @@
  * @fileoverview Server handler for expression matrix.
  */
 
-var utils = require('./utils');
 var fs = require('fs');
 var log = require('./log.js');
 

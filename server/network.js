@@ -3,8 +3,7 @@
  */
 
 var fs = require('fs');
-var utils = require('./utils.js');
-var log = require('./log.js');
+var log = require('./log');
 
 /** @type {network} */
 module.exports = network;
