@@ -4,7 +4,7 @@
 
 var fs = require('fs');
 var buffer = require('buffer');
-var dateFormat = require('dateFormat');
+var dateFormat = require('dateformat');
 
 /** @type {utils} */
 module.exports = utils;
