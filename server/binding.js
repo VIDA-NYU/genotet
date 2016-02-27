@@ -6,6 +6,7 @@ var fs = require('fs');
 
 var utils = require('./utils');
 var segtree = require('./segtree');
+var log = require('./log.js');
 
 /** @type {binding} */
 module.exports = binding;
@@ -103,7 +104,7 @@ binding.query.histogram = function(query, bindingPath) {
   var descriptionPath = bindingPath + fileName + '.desc';
   if (!fs.existsSync(file)) {
     var error = 'binding file ' + fileName + ' not found.';
-    utils.serverLog([error]);
+    log.serverLog([error]);
     return {
       error: error
     };
@@ -123,7 +124,7 @@ binding.query.exons = function(query, exonFile) {
   var chr = query.chr;
   if (!fs.existsSync(exonFile)) {
     var error = 'exonFile not found.';
-    utils.serverLog([error]);
+    log.serverLog([error]);
     return {
       error: error
     };
@@ -145,7 +146,7 @@ binding.query.locus = function(query, exonFile) {
   var gene = query.gene.toLowerCase();
   if (!fs.existsSync(exonFile)) {
     var error = 'exonFile not found.';
-    utils.serverLog([error]);
+    log.serverLog([error]);
     return /** @type {binding.Error} */ ({
       error: error
     });
@@ -272,7 +273,7 @@ binding.readExons_ = function(buf) {
 binding.getExons_ = function(file, chr) {
   var buf = utils.readFileToBuf(file);
   if (buf == null) {
-    utils.serverLog(['cannot read file', file]);
+    log.serverLog(['cannot read file', file]);
     return [];
   }
   var result = binding.readExons_(buf);
@@ -371,10 +372,10 @@ binding.formatExons_ = function(exons) {
  * @private
  */
 binding.getBinding_ = function(file, x1, x2, numSamples) {
-  utils.serverLog([file, x1, x2]);
+  log.serverLog([file, x1, x2]);
   var cache = binding.loadHistogram_(file);
   if (cache == null) {
-    utils.serverLog(['cache load error']);
+    log.serverLog(['cache load error']);
     return null;
   }
 
@@ -434,7 +435,7 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
     });
     hist.valueMax = Math.max(hist.valueMax, val);
   }
-  utils.serverLog(['returning', n, 'samples of', xl, xr]);
+  log.serverLog(['returning', n, 'samples of', xl, xr]);
   return hist;
 };
 
@@ -464,7 +465,7 @@ binding.searchExon_ = function(file, name) {
       };
     }
   }
-  utils.serverLog(['gene not found in exon list']);
+  log.serverLog(['gene not found in exon list']);
   return {
     error: {
       type: 'notFound',
@@ -481,18 +482,18 @@ binding.searchExon_ = function(file, name) {
  */
 binding.loadHistogram_ = function(file) {
   // Return the cached intervals & RMQ result.
-  utils.serverLog(['check cache', file]);
+  log.serverLog(['check cache', file]);
 
   if (binding.dataCache.cache[file] != null) {
     return binding.dataCache.cache[file];
   }
-  utils.serverLog(['cache miss']);
+  log.serverLog(['cache miss']);
 
   // read bcwig file
   var buf = utils.readFileToBuf(file);
 
   if (buf == null) {
-    utils.serverLog(['cannot read file', file]);
+    log.serverLog(['cannot read file', file]);
     return null;
   }
 
@@ -511,10 +512,10 @@ binding.loadHistogram_ = function(file) {
     // 1 int, 1 double
   }
 
-  utils.serverLog(['read complete, cache size', binding.dataCache.list.length]);
+  log.serverLog(['read complete, cache size', binding.dataCache.list.length]);
 
   if (binding.dataCache.list.length == binding.CACHE_SIZE) {
-    utils.serverLog(['cache full, discarded head element']);
+    log.serverLog(['cache full, discarded head element']);
     delete binding.dataCache.cache[binding.dataCache.list[0]];
     binding.dataCache.list[0] = null;
     binding.dataCache.list = binding.dataCache.list.slice(1);
@@ -535,7 +536,7 @@ binding.loadHistogram_ = function(file) {
     var nodes = [];
     segtree.buildSegmentTree(nodes, segs);
     cache.nodes = nodes;
-    utils.serverLog(['SegmentTree constructed']);
+    log.serverLog(['SegmentTree constructed']);
     buf = new Buffer(4 + nodes.length * binding.DOUBLE_SIZE_);
     buf.writeInt32LE(nodes.length, 0);
     offset = 4;
@@ -544,7 +545,7 @@ binding.loadHistogram_ = function(file) {
     }
     var fd = fs.openSync(segfile, 'w');
     fs.writeSync(fd, buf, 0, offset, 0);
-    utils.serverLog(['SegmentTree written']);
+    log.serverLog(['SegmentTree written']);
   } else {
     var num = buf.readInt32LE(0);
     var nodes = [];
@@ -553,7 +554,7 @@ binding.loadHistogram_ = function(file) {
       nodes.push(buf.readDoubleLE(offset));
     }
     cache.nodes = nodes;
-    utils.serverLog(['SegmentTree read']);
+    log.serverLog(['SegmentTree read']);
   }
   return cache;
 };

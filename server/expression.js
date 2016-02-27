@@ -4,6 +4,7 @@
 
 var utils = require('./utils');
 var fs = require('fs');
+var log = require('./log.js');
 
 /** @type {expression} */
 module.exports = expression;
@@ -128,7 +129,7 @@ expression.query.matrixInfo = function(query, expressionPath) {
   var file = expressionPath + query.fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
-    utils.serverLog([error]);
+    log.serverLog([error]);
     return {
       error: error
     };
@@ -147,7 +148,7 @@ expression.query.matrix = function(query, expressionPath) {
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
-    utils.serverLog([error]);
+    log.serverLog([error]);
     return {
       error: error
     };
@@ -166,7 +167,7 @@ expression.query.profile = function(query, expressionPath) {
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
-    utils.serverLog([error]);
+    log.serverLog([error]);
     return {
       error: error
     };
@@ -185,7 +186,7 @@ expression.query.tfaProfile = function(query, expressionPath) {
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     var error = 'TFA matrix file ' + query.fileName + ' not found.';
-    utils.serverLog([error]);
+    log.serverLog([error]);
     return {
       error: error
     };
@@ -254,7 +255,7 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
       allTfaValues.push(tfaValues);
     }
   });
-  utils.serverLog(['returning TFA line', geneNames.join(',')]);
+  log.serverLog(['returning TFA line', geneNames.join(',')]);
   return {
     tfaValues: allTfaValues,
     geneNames: geneNames,
@@ -299,7 +300,7 @@ expression.listMatrix_ = function(expressionPath) {
       });
     }
   });
-  utils.serverLog(['list ', ret.length, ' matrices.']);
+  log.serverLog(['list ', ret.length, ' matrices.']);
   return ret;
 };
 

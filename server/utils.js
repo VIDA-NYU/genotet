@@ -4,7 +4,6 @@
 
 var fs = require('fs');
 var buffer = require('buffer');
-var dateFormat = require('dateformat');
 
 /** @type {utils} */
 module.exports = utils;
@@ -78,19 +77,4 @@ utils.decodeSpecialChar = function(url) {
   url = url.replace(/%2B/g, '+');
   url = url.replace(/%3F/g, '?');
   return url;
-};
-
-/**
- * Prints logs with timestamps.
- * @param {!Array<string>} args Content to be logged.
- */
-utils.serverLog = function(args) {
-  if (!args.length) {
-    return;
-  }
-  var date = new Date();
-  var timestamp = '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + '_' +
-    date.getTime() + ']';
-  var content = timestamp + ' ' + args.join(' ');
-  console.log(content);
 };

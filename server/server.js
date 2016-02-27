@@ -7,13 +7,13 @@ var fs = require('fs');
 var multer = require('multer');
 
 var segtree = require('./segtree.js');
-var utils = require('./utils.js');
 var network = require('./network.js');
 var binding = require('./binding.js');
 var expression = require('./expression.js');
 var uploader = require('./uploader.js');
 var bed = require('./bed.js');
 var mapping = require('./mapping.js');
+var log = require('./log.js');
 
 // Application
 var app = express();
@@ -140,7 +140,7 @@ var exonFile = bindingPath + 'exons.bin';
  * POST request is not used as it conflicts with jsonp.
  */
 app.post('/genotet/upload', upload.single('file'), function(req, res) {
-  utils.serverLog(['POST upload']);
+  log.serverLog(['POST upload']);
 
   var prefix = '';
   switch (req.body.type) {
@@ -177,7 +177,7 @@ app.get('/genotet', function(req, res) {
   var query = req.query;
   var type = query.type;
   var data;
-  utils.serverLog(['GET', type]);
+  log.serverLog(['GET', type]);
   switch (type) {
     // Network data queries
     case network.QueryType.NETWORK:
@@ -255,7 +255,7 @@ app.get('/genotet', function(req, res) {
 
     // Undefined type, error
     default:
-      utils.serverLog(['invalid query type']);
+      log.serverLog(['invalid query type']);
       data = {
         error: {
           type: 'query',
@@ -275,7 +275,7 @@ app.get('/genotet', function(req, res) {
 
 // Error Handler
 app.use(function(err, req, res, next) {
-  utils.serverLog([err.stack]);
+  log.serverLog([err.stack]);
   res.status(500);
   res.json('Internal Server Error');
 });
