@@ -4,6 +4,8 @@
 
 var fs = require('fs');
 
+var log = require('./log');
+
 /** @type {mapping} */
 module.exports = mapping;
 
@@ -62,6 +64,7 @@ mapping.query.getMapping = function(query, mappingPath) {
  * @private
  */
 mapping.getMapping_ = function(filePath) {
+  log.serverLog('get mapping', filePath);
   var mappingRules = {};
   var content = fs.readFileSync(filePath, 'utf-8').toString()
     .split('\n');

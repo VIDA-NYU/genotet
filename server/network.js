@@ -125,7 +125,7 @@ network.query.network = function(query, networkPath) {
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
-    log.serverLog([error]);
+    log.serverLog(error);
     return {
       error: error
     };
@@ -144,7 +144,7 @@ network.query.incidentEdges = function(query, networkPath) {
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
-    log.serverLog([error]);
+    log.serverLog(error);
     return {
       error: error
     };
@@ -184,7 +184,7 @@ network.query.incrementalEdges = function(query, networkPath) {
   var nodes = query.nodes;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
-    log.serverLog([error]);
+    log.serverLog(error);
     return {
       error: error
     };
@@ -230,7 +230,7 @@ network.query.allNodes = function(query, networkPath) {
  * @private
  */
 network.getNet_ = function(file, genes) {
-  log.serverLog(['get network', file]);
+  log.serverLog('get network', file);
   var result = network.readNetwork_(file);
 
   var nodes = [], nodeKeys = {};
@@ -266,11 +266,11 @@ network.getNet_ = function(file, genes) {
       });
     }
   }
-  log.serverLog(['return',
+  log.serverLog('return',
     nodes.length + '/' + result.numNodes,
     'nodes and',
     edges.length + '/' + result.numEdges,
-    'edges']
+    'edges'
   );
 
   return {
@@ -309,7 +309,7 @@ network.getIncidentEdges_ = function(file, gene) {
  * @private
  */
 network.getCombinedRegulation_ = function(file, genes) {
-  log.serverLog(['get combination', file]);
+  log.serverLog('get combination', file);
   var result = network.readNetwork_(file);
   var geneMap = {};
   genes.forEach(function(gene) {
@@ -337,7 +337,7 @@ network.getCombinedRegulation_ = function(file, genes) {
       nodes.push(name);
     }
   }
-  log.serverLog(['comb request returns', nodes.length]);
+  log.serverLog('comb request returns', nodes.length);
   return nodes;
 };
 
