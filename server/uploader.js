@@ -6,9 +6,8 @@ var childProcess = require('child_process');
 var readline = require('readline');
 var mkdirp = require('mkdirp');
 
-var utils = require('./utils.js');
 var segtree = require('./segtree.js');
-var log = require('./log.js');
+var log = require('./log');
 
 /** @type {uploader} */
 module.exports = uploader;
