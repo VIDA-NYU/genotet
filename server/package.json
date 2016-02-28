@@ -4,6 +4,7 @@
   "description": "Genotet back-end server",
   "main": "server.js",
   "dependencies": {
+    "body-parser": "^1.15.0",
     "express": "^4.9.5",
     "mkdirp": "^0.5.1",
     "multer": "^1.1.0"

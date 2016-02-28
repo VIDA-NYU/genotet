@@ -2,6 +2,7 @@
  * @fileoverview Server code main entry.
  */
 
+var bodyParser = require('body-parser');
 var express = require('express');
 var fs = require('fs');
 var multer = require('multer');
@@ -78,6 +79,11 @@ var mappingPath;
  * @type {string}
  */
 var configPath = 'server/config';
+/**
+ * Name of user information file.
+ * @type {string}
+ */
+var userInfoFile = 'userInfo.txt';
 
 // Parse command arguments.
 process.argv.forEach(function(token) {
@@ -138,6 +144,8 @@ var upload = multer({
   dest: uploadPath
 });
 
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 /**
  * Path of the exon info file.
@@ -191,8 +199,16 @@ app.post('/genotet/user', function(req, res) {
   var body = {
     email: req.body.email,
     username: req.body.username,
-    password: req.body.password
+    password: req.body.password,
+    confirmed: req.body.confirmed
   };
+  var userInfo = body.email + ' ' + body.username + ' ' +
+    body.password + ' ' + body.confirmed + '\n';
+  fs.appendFile(userPath + userInfoFile, userInfo, function (err) {
+    if (err)
+      return console.log(err);
+    console.log('user information saved');
+  });
   res.header('Access-Control-Allow-Origin', '*');
   res.json({
     success: true

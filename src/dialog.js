@@ -483,13 +483,15 @@ genotet.dialog.signUp_ = function() {
         var userInfo = {
           email: email.val(),
           username: username.val(),
-          password: password.val()
+          password: CryptoJS.SHA256(password.val()).toString(),
+          confirmed: false
         };
 
         $.ajax({
           url: genotet.data.userURL,
           type: 'POST',
-          data: userInfo
+          data: userInfo,
+          dataType: 'json'
         }).done(function(data) {
             if (!data.success) {
               genotet.error('failed to signed up', data.message);
