@@ -79,11 +79,6 @@ var mappingPath;
  * @type {string}
  */
 var configPath = 'server/config';
-/**
- * Name of user information file.
- * @type {string}
- */
-var userInfoFile = 'userInfo.txt';
 
 // Parse command arguments.
 process.argv.forEach(function(token) {
@@ -195,23 +190,31 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
 app.post('/genotet/user', function(req, res) {
   console.log('POST user');
 
-  var prefix = '';
-  var body = {
-    email: req.body.email,
-    username: req.body.username,
-    password: req.body.password,
-    confirmed: req.body.confirmed
-  };
-  var userInfo = body.email + ' ' + body.username + ' ' +
-    body.password + ' ' + body.confirmed + '\n';
-  fs.appendFile(userPath + userInfoFile, userInfo, function (err) {
-    if (err)
-      return console.log(err);
-    console.log('user information saved');
-  });
+  var type = req.body.type;
+  var userInfo = {};
+  var response;
+  switch (type) {
+    case user.QueryType.SIGHUP:
+      userInfo = {
+        email: req.body.email,
+        username: req.body.username,
+        password: req.body.password,
+        confirmed: req.body.confirmed
+      };
+      response = user.signUp(userPath, userInfo);
+      break;
+    case user.QueryType.SIGNIN:
+      userInfo = {
+        username: req.body.username,
+        password: req.body.password
+      };
+      response = user.signIn(userPath, userInfo);
+      break;
+  }
   res.header('Access-Control-Allow-Origin', '*');
   res.json({
-    success: true
+    success: true,
+    response: response
   });
 });
 

@@ -65,3 +65,11 @@ genotet.menu.init = function() {
     genotet.dialog.create('sign-in');
   });
 };
+
+/**
+ * Display the username for signed user in the system menu.
+ * @param {string} username Username for signed user.
+ */
+genotet.menu.displaySignedUser = function(username) {
+  $('#username').text(username);
+};

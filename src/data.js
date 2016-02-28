@@ -46,6 +46,15 @@ genotet.data.uploadURL;
 genotet.data.userURL;
 
 /**
+ * User information are saved to this URL via http and received via jsonp.
+ * @type {!Object<{
+ *   username: string,
+ *   session: number
+ * }>}
+ */
+genotet.data.userInfo;
+
+/**
  * @typedef {!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -150,6 +159,12 @@ genotet.data.init = function() {
   }
   genotet.data.uploadURL = genotet.data.serverURL + '/upload';
   genotet.data.userURL = genotet.data.serverURL + '/user';
+
+  // TODO(Liana): Generate session number.
+  genotet.data.userInfo = {
+    username: '',
+    sessionNum: 0
+  };
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());
