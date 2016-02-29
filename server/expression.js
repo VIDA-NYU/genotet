@@ -2,8 +2,9 @@
  * @fileoverview Server handler for expression matrix.
  */
 
-var utils = require('./utils');
 var fs = require('fs');
+
+var log = require('./log');
 
 /** @type {expression} */
 module.exports = expression;
@@ -127,8 +128,10 @@ expression.query.TfaProfile;
 expression.query.matrixInfo = function(query, expressionPath) {
   var file = expressionPath + query.fileName + '.data';
   if (!fs.existsSync(file)) {
+    var error = 'expression file ' + query.fileName + ' not found.';
+    log.serverLog(error);
     return {
-      error: 'expression file ' + query.fileName + ' not found.'
+      error: error
     };
   }
   return expression.getMatrixInfo_(file);
@@ -144,8 +147,10 @@ expression.query.matrix = function(query, expressionPath) {
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
+    var error = 'expression file ' + query.fileName + ' not found.';
+    log.serverLog(error);
     return {
-      error: 'expression file ' + query.fileName + ' not found.'
+      error: error
     };
   }
   return expression.readMatrix_(file, geneNames, conditionNames);
@@ -161,8 +166,10 @@ expression.query.profile = function(query, expressionPath) {
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
+    var error = 'expression file ' + query.fileName + ' not found.';
+    log.serverLog(error);
     return {
-      error: 'expression file ' + query.fileName + ' not found.'
+      error: error
     };
   }
   return expression.readMatrix_(file, geneNames, conditionNames);
@@ -178,8 +185,10 @@ expression.query.tfaProfile = function(query, expressionPath) {
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
+    var error = 'TFA matrix file ' + query.fileName + ' not found.';
+    log.serverLog(error);
     return {
-      error: 'TFA matrix file ' + query.fileName + ' not found.'
+      error: error
     };
   }
   return expression.getTfaProfile_(file, geneNames, conditionNames);
@@ -246,7 +255,7 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
       allTfaValues.push(tfaValues);
     }
   });
-  console.log('returning TFA line', geneNames.join(','));
+  log.serverLog('returning TFA line', geneNames.join(','));
   return {
     tfaValues: allTfaValues,
     geneNames: geneNames,
@@ -291,6 +300,7 @@ expression.listMatrix_ = function(expressionPath) {
       });
     }
   });
+  log.serverLog('list ', ret.length, ' matrices.');
   return ret;
 };
 

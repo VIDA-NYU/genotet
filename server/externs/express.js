@@ -47,10 +47,13 @@ express.Response.prototype.json = function(data) {};
 express.Response.prototype.status = function(data) {};
 
 /**
- * @param {Object|string} msg
- * @param {number=} code
+ * @constructor
+ * @return {!express.Error}
  */
-express.Response.prototype.send = function(msg, code) {};
+express.Error = function() {};
+
+/** @type{?} */
+express.Error.prototype.stack;
 
 /**
  * @param {number} port
@@ -69,3 +72,12 @@ express.prototype.get = function(url, callback) {};
  * @param {function(!express.Request, !express.Response)} callback
  */
 express.prototype.post = function(url, data, callback) {};
+
+/**
+ * @param {function(
+ *   !express.Error,
+ *   !express.Request,
+ *   !express.Response,
+ *   function())} callback
+ */
+express.prototype.use = function(callback) {};

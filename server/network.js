@@ -3,7 +3,8 @@
  */
 
 var fs = require('fs');
-var utils = require('./utils.js');
+
+var log = require('./log');
 
 /** @type {network} */
 module.exports = network;
@@ -123,8 +124,10 @@ network.query.network = function(query, networkPath) {
   var fileName = query.fileName;
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
+    var error = 'network file ' + fileName + ' not found.';
+    log.serverLog(error);
     return {
-      error: 'network file ' + fileName + ' not found.'
+      error: error
     };
   }
   return network.getNet_(file, query.genes);
@@ -140,8 +143,10 @@ network.query.incidentEdges = function(query, networkPath) {
   var gene = query.gene;
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
+    var error = 'network file ' + fileName + ' not found.';
+    log.serverLog(error);
     return {
-      error: 'network file ' + fileName + ' not found.'
+      error: error
     };
   }
   return network.getIncidentEdges_(file, gene);
@@ -156,8 +161,10 @@ network.query.combinedRegulation = function(query, networkPath) {
   var fileName = query.fileName;
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
+    var error = 'network file ' + fileName + ' not found.';
+    log.serverLog([error]);
     return {
-      error: 'network file ' + fileName + ' not found.'
+      error: error
     };
   }
   return network.getCombinedRegulation_(file, query.genes);
@@ -176,8 +183,10 @@ network.query.incrementalEdges = function(query, networkPath) {
   var file = networkPath + fileName + '.data';
   var nodes = query.nodes;
   if (!fs.existsSync(file)) {
+    var error = 'network file ' + fileName + ' not found.';
+    log.serverLog(error);
     return {
-      error: 'network file ' + fileName + ' not found.'
+      error: error
     };
   }
   return network.incrementalEdges_(file, genes, nodes);
@@ -221,7 +230,7 @@ network.query.allNodes = function(query, networkPath) {
  * @private
  */
 network.getNet_ = function(file, genes) {
-  console.log('get network', file);
+  log.serverLog('get network', file);
   var result = network.readNetwork_(file);
 
   var nodes = [], nodeKeys = {};
@@ -257,7 +266,7 @@ network.getNet_ = function(file, genes) {
       });
     }
   }
-  console.log('return',
+  log.serverLog('return',
     nodes.length + '/' + result.numNodes,
     'nodes and',
     edges.length + '/' + result.numEdges,
@@ -300,7 +309,7 @@ network.getIncidentEdges_ = function(file, gene) {
  * @private
  */
 network.getCombinedRegulation_ = function(file, genes) {
-  console.log('get combination', file);
+  log.serverLog('get combination', file);
   var result = network.readNetwork_(file);
   var geneMap = {};
   genes.forEach(function(gene) {
@@ -319,7 +328,6 @@ network.getCombinedRegulation_ = function(file, genes) {
     var source = edge.source;
     var target = edge.target;
     if (source in tfs) {
-      console.log(source + ' ' + target);
       regcnt[target]++;
     }
   });
@@ -329,7 +337,7 @@ network.getCombinedRegulation_ = function(file, genes) {
       nodes.push(name);
     }
   }
-  console.log('comb request returns', nodes.length);
+  log.serverLog('comb request returns', nodes.length);
   return nodes;
 };
 

@@ -7,4 +7,4 @@ bower_components*
 test/bigWigToWig
 test/wigToBigWig
 dist*
-log*
+log/*
