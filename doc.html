@@ -25,14 +25,14 @@
       <li>The first line contains N + 2 space seperated strings, containing 2 table head of "regulator", "target" and N names of values.</li>
       <li>Following M lines, containing M edges from regulators to targets, each line contains N + 2 elements. They are 1 regulator, 1 target and N float values.</li>
       <li>It is like
-      <pre>
+        <pre>
 regulator		target		value_name1	...	value_nameN
 regulator_name[1]	target_name[1]	value[1][1]	...	value[1][N]
 ...
 regulator_name[M]	target_name[M]	value[M][1]	...	value[M][N]</pre>
       </li>
       <li>Sample Data:
-      <pre>
+        <pre>
 regular	target	alpha	beta
 Batf	Maf	0.1	3.2
 IRF4	Batf3	1.9	5.3</pre>
@@ -49,7 +49,7 @@ IRF4	Batf3	1.9	5.3</pre>
       <li>The first line contains N + 1 space seperated strings, including one table head of "GENE", and N condition names.</li>
       <li>For the next M lines, each line contains N + 1 space seperated elements, including 1 gene name and N float values.</li>
       <li>It is like:
-      <pre>
+        <pre>
 GENE	condition[1]	...	condition[N]
 gene[1]	value[1][1]	...	value[1][N]
 ...
@@ -71,7 +71,7 @@ gene[M]	value[M][1]	...	value[M][N]</pre>
       chromosome[N]	start[N]	end[N]	name[N]</pre>
       </li>
       <li>Sample Data:
-      <pre>
+        <pre>
 chr13	49344650	49344667	unknown_BatfIrf4Th17f_1_mm9
 chr5	101662494	101662511	unknown_BatfIrf4Th17f_1_mm9
 chr8	26382888	26382905	unknown_BatfIrf4Th17f_1_mm9</pre>
@@ -82,7 +82,7 @@ chr8	26382888	26382905	unknown_BatfIrf4Th17f_1_mm9</pre>
       <li>The mapping data maps genes to binding files.</li>
       <li>It contains several lines, each line contains a gene and a binding file name.</li>
       <li>Sample Data:
-      <pre>
+        <pre>
 BATF	SL3037_SL3036
 IRF4	SL2872_SL2876
 RORC	SL2870_SL2871</pre>
