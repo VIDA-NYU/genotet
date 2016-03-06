@@ -24,23 +24,43 @@ user.QueryType = {
 
 /**
  * Name of user information file.
- * @type {string}
+ * @type {{
+ *   email: =string,
+ *   username: string,
+ *   password: string,
+ *   confirmed: =string
+ * }}
  */
 user.userInfoFile = 'userInfo.txt';
 
 /**
- * Checks the user information for signing in.
- * @param {string} userPath Directory of user indormation file.
- * @param {!Object} userInfo User Information
- * @return {!Object{
+ * @typedef {{
+ *   email: =string,
+ *   username: string,
+ *   password: string,
+ *   confirmed: =boolean
+ * }}
+ */
+user.userInfo;
+
+/**
+ * @typedef {{
  *   success: boolean,
  *   errorMessage: {=string}
  * }}
  */
+user.SignupResponse;
+
+/**
+ * Checks the user information for signing in.
+ * @param {string} userPath Directory of user indormation file.
+ * @param {user.userInfo} userInfo User Information
+ * @return {user.SignupResponse}
+ */
 user.signUp = function(userPath, userInfo) {
   var checkDuplicate = {
     duplicated: false,
-    element: []
+    elements: []
   };
   var lines = fs.readFileSync(userPath + user.userInfoFile).toString()
     .split('\n');
@@ -52,18 +72,17 @@ user.signUp = function(userPath, userInfo) {
     if (parts[0] == userInfo.email || parts[1] == userInfo.username) {
       checkDuplicate.duplicated = true;
       if (parts[0] == userInfo.email) {
-        checkDuplicate.element.push('email: ' + userInfo.email);
+        checkDuplicate.elements.push('email: ' + userInfo.email);
       }
       if (parts[0] == userInfo.username) {
-        checkDuplicate.element.push('username: ' + userInfo.username);
+        checkDuplicate.elements.push('username: ' + userInfo.username);
       }
       break;
     }
   }
-  console.log(checkDuplicate);
   if (checkDuplicate.duplicated) {
-    var errorMessage = checkDuplicate.element.join(' and ') + ' exist';
-    errorMessage += checkDuplicate.element.length == 1 ? 's' : '';
+    var errorMessage = checkDuplicate.elements.join(' and ') + ' exist';
+    errorMessage += checkDuplicate.elements.length == 1 ? 's' : '';
     return {
       success: false,
       errorMessage: errorMessage
@@ -72,8 +91,10 @@ user.signUp = function(userPath, userInfo) {
     var infoLine = userInfo.email + ' ' + userInfo.username + ' ' +
       userInfo.password + ' ' + userInfo.confirmed + '\n';
     fs.appendFile(userPath + user.userInfoFile, infoLine, function(err) {
-      if (err)
-        return console.log(err);
+      if (err) {
+        console.log(err);
+        return;
+      }
       console.log('user information saved');
     });
     return {
@@ -85,7 +106,7 @@ user.signUp = function(userPath, userInfo) {
 /**
  * Checks the user information for signing in.
  * @param {string} userPath Directory of user indormation file.
- * @param {!Object} userInfo User Information
+ * @param {user.userInfo} userInfo User Information
  * @return {boolean} correct Whether the user information is correct.
  */
 user.signIn = function(userPath, userInfo) {

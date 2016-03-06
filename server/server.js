@@ -19,6 +19,7 @@ var mapping = require('./mapping.js');
 
 // Application
 var app = express();
+var MongoStore = requre('connect-mongo')(express);
 
 /**
  * Genotet namespace.
@@ -184,9 +185,30 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   });
 });
 
-/**
- * POST request is not used as it conflicts with jsonp.
- */
+app.use(express.cookieParser());
+app.use(express.session({
+  secret: 'YOUR_SESSION_SECRET',
+  cookie: {
+    maxAge: 60000
+  },
+  store: new MongoStore({
+    db: 'sessionstore'
+  })
+}));
+app.use(function(req, res, next) {
+    var session = req.session;
+    if (session.views) {
+      res.setHeader('Content-Type', 'text/html');
+      res.write('<p>views: ' + session.views + '</p>');
+      res.write('<p>expires in: ' + (session.cookie.maxAge / 1000) + 's</p>');
+      res.end();
+      session.views++;
+    } else {
+      session.views = 1;
+      res.end('session refreshed');
+    }
+  });
+
 app.post('/genotet/user', function(req, res) {
   console.log('POST user');
 
@@ -195,27 +217,42 @@ app.post('/genotet/user', function(req, res) {
   var response;
   switch (type) {
     case user.QueryType.SIGHUP:
-      userInfo = {
+      data = {
         email: req.body.email,
         username: req.body.username,
         password: req.body.password,
         confirmed: req.body.confirmed
       };
-      response = user.signUp(userPath, userInfo);
+      response = user.signUp(userPath, data);
       break;
     case user.QueryType.SIGNIN:
-      userInfo = {
+      data = {
         username: req.body.username,
         password: req.body.password
       };
-      response = user.signIn(userPath, userInfo);
+      response = user.signIn(userPath, data);
       break;
+
+    // Undefined type, error
+    default:
+      console.error('invalid query type');
+      data = {
+        error: {
+          type: 'query',
+          message: 'invalid query type'
+        }
+      };
   }
   res.header('Access-Control-Allow-Origin', '*');
-  res.json({
-    success: true,
-    response: response
-  });
+  if (data.error) {
+    console.log(data.error);
+    res.status(500).json(data.error);
+  } else {
+    res.json({
+      success: true,
+      response: response
+    });
+  }
 });
 
 // GET request handlers.

@@ -470,11 +470,14 @@ genotet.dialog.signUp_ = function() {
       var password = modal.find('#password');
       var confirmPassword = modal.find('#confirm-password');
       var btnSignUp = modal.find('#btn-sign-up').prop('disabled', true);
+      var inputValid = false;
+
+      // Validate the input information.
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
         return email.val() && username.val() && password.val() &&
-          (password.val() == confirmPassword.val());
+          (password.val() == confirmPassword.val() && inputValid);
       };
       confirmPassword.on('input', function() {
         btnSignUp.prop('disabled', !uploadReady());

@@ -19,7 +19,7 @@
     "bootstrap-select": "~1.7.4",
     "bootstrap-switch": "~3.3.2",
     "bootstrap-vertical-tabs": "~1.2.1",
-    "crypto-js": "http://crypto-js.googlecode.com/files/CryptoJS%20v3.1.2.zip",
+    "crypto-js": "~3.1.5",
     "d3": "~3.5.6",
     "jquery": "~2.1.4",
     "jquery-ui": "~1.11.4",
