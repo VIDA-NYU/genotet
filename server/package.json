@@ -5,8 +5,12 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.15.0",
+    "connect-mongo": "^1.1.0",
+    "cookie-parser":  "^1.4.1",
     "express": "^4.9.5",
+    "express-session": "^1.13.0",
     "mkdirp": "^0.5.1",
+    "mongodb": "^2.1.7",
     "multer": "^1.1.0"
   },
   "devDependencies": {},

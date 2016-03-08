@@ -6,6 +6,12 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var fs = require('fs');
 var multer = require('multer');
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+var url = 'mongodb://localhost:27017/test';
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+var cookieParser = require('cookie-parser');
 
 var segtree = require('./segtree.js');
 var utils = require('./utils.js');
@@ -19,7 +25,6 @@ var mapping = require('./mapping.js');
 
 // Application
 var app = express();
-var MongoStore = requre('connect-mongo')(express);
 
 /**
  * Genotet namespace.
@@ -185,29 +190,27 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   });
 });
 
-app.use(express.cookieParser());
-app.use(express.session({
-  secret: 'YOUR_SESSION_SECRET',
+MongoClient.connect(url, function(err, db) {
+  assert.equal(null, err);
+  console.log('Mongodb is connected correctly to server.');
+  db.close();
+});
+app.use(cookieParser());
+app.use(session({
   cookie: {
-    maxAge: 60000
+    maxAge: 1000 * 60 * 2,
+    httpOnly: false
   },
+  secret: 'session secret',
   store: new MongoStore({
-    db: 'sessionstore'
+    db: 'express',
+    host: 'localhost',
+    port: 27017,
+    collection: 'session',
+    auto_reconnect: true,
+    url: 'mongodb://localhost:27017/express'
   })
 }));
-app.use(function(req, res, next) {
-    var session = req.session;
-    if (session.views) {
-      res.setHeader('Content-Type', 'text/html');
-      res.write('<p>views: ' + session.views + '</p>');
-      res.write('<p>expires in: ' + (session.cookie.maxAge / 1000) + 's</p>');
-      res.end();
-      session.views++;
-    } else {
-      session.views = 1;
-      res.end('session refreshed');
-    }
-  });
 
 app.post('/genotet/user', function(req, res) {
   console.log('POST user');
