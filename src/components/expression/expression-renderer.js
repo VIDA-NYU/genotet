@@ -1472,8 +1472,8 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverCell = function(cell) {
  */
 genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
   this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
-    return profile.row == i;
-  });
+    return profile.geneName == this.data.matrix.geneNames[i];
+  }.bind(this));
   this.svgConditionLabels_.selectAll('text').classed('highlighted',
     function(d, i) {
       return profile.hoverColumn == i;
