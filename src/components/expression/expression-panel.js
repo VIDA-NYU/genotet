@@ -50,6 +50,9 @@ genotet.ExpressionPanel = function(data) {
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
 
+/** @private @const {number} */
+genotet.ExpressionPanel.prototype.PROFILE_PAGE_SIZE_ = 20;
+
 /** @inheritDoc */
 genotet.ExpressionPanel.prototype.template = 'dist/html/expression-panel.html';
 
@@ -103,17 +106,6 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
         });
       }.bind(this));
   }, this);
-
-  // Add and remove gene profiles
-  this.selectProfiles_
-    .on('select2:select', function(event) {
-      var geneName = event.params.data.text;
-      this.signal('addGeneProfile', geneName);
-    }.bind(this))
-    .on('select2:unselect', function(event) {
-      var geneName = event.params.data.text;
-      this.signal('removeGeneProfile', geneName);
-    }.bind(this));
 
   // Input type update
   // TODO(Liana): Get view name by view object directly.
@@ -213,16 +205,54 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
       text: gene
     };
   });
-
   var profile = this.container.find('#profile select').empty();
-  this.selectProfiles_ = profile.select2({
-    data: genes,
-    multiple: true
-  });
-  this.container.find('#profile .select2-container').css({
-    width: '100%'
-  });
-  this.updateGeneSelections();
+
+  if (genes.length == 0) {
+    return;
+  }
+
+  $.fn.select2.amd.require(['select2/data/array', 'select2/utils'],
+    function(ArrayData, Utils) {
+      var CustomData = function($element, options) {
+        CustomData.__super__.constructor.call(this, $element, options);
+      };
+      Utils.Extend(CustomData, ArrayData);
+
+      var pageSize = genotet.ExpressionPanel.prototype.PROFILE_PAGE_SIZE_;
+      CustomData.prototype.query = function(params, callback) {
+        if (!('page' in params)) {
+          params.page = 1;
+        }
+        var data = {};
+        data.results = genes.slice((params.page - 1) * pageSize,
+          params.page * pageSize);
+        data.pagination = {};
+        data.pagination.more = params.page * pageSize < genes.length;
+        callback(data);
+      };
+
+      this.selectProfiles_ = profile.select2({
+        ajax: {},
+        dataAdapter: CustomData,
+        multiple: true
+      });
+
+      // Add and remove gene profiles
+      this.selectProfiles_
+        .on('select2:select', function(event) {
+          var geneName = event.params.data.text;
+          this.signal('addGeneProfile', geneName);
+        }.bind(this))
+        .on('select2:unselect', function(event) {
+          var geneName = event.params.data.text;
+          this.signal('removeGeneProfile', geneName);
+        }.bind(this));
+
+      this.container.find('#profile .select2-container').css({
+        width: '100%'
+      });
+      this.updateGeneSelections();
+    }.bind(this));
 };
 
 /**
