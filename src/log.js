@@ -20,7 +20,7 @@ genotet.logger = {};
  * The max size of the log list, return when reaching it.
  * @private @const {number}
  */
-genotet.logger.MAX_SIZE_ = 32;
+genotet.logger.MAX_SIZE_ = 6;
 
 /**
  * Maintains a list of logs, returns as a bunch.
@@ -37,24 +37,31 @@ genotet.logger.log = function(var_args) {
     return;
   }
   var type = arguments[0];
-  var action = arguments.slice(1).join('_');
+  var action = arguments[1];
+  for (var i = 2; i < arguments.length; i++) {
+    action += ' ' + arguments[i];
+  }
   var date = new Date();
   genotet.logger.logList.push({
     timestamp: date.getTime(),
     type: type,
     action: action
   });
+  console.log(genotet.logger.logList.length);
   if (genotet.logger.logList.length == genotet.logger.MAX_SIZE_) {
+    var params = {
+      logs: genotet.logger.logList,
+      userName: 'anonymous', // will call api of user system
+      type: 'user-log'
+    };
     $.ajax({
-      url: genotet.data.uploadURL,
+      url: genotet.data.userURL,
       type: 'POST',
-      data: genotet.logger.logList,
+      data: params,
       dataType: 'json'
     }).done(function(data) {
-
       })
       .fail(function(res) {
-
       });
     genotet.logger.logList = [];
   }

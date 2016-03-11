@@ -3,6 +3,7 @@
  */
 
 var dateFormat = require('dateformat');
+var fs = require('fs');
 
 /** @type {log} */
 module.exports = log;
@@ -43,7 +44,9 @@ log.serverLog = function(var_args) {
   var date = new Date();
   var content = '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + '_' +
     date.getTime() + '] ';
-  content += arguments.slice(1).join('_');
+  for (var i = 0; i < arguments.length; i++) {
+    content += ' ' + arguments[i];
+  }
   console.log(content);
 };
 
@@ -58,13 +61,16 @@ log.userLog = function(userPath, query) {
   if (!logs.length) {
     return;
   }
-  var folder = userPath + userName + '/';
+  var folder = userPath + userName + '/log/';
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder);
+  }
   var date = new Date();
   var logFile = folder + 'log_' + dateFormat(date, 'yyyy-mm-dd_HH') + '.log';
   var fd = fs.openSync(logFile, 'w+');
   logs.forEach(function(log) {
     var logString = '';
-    var date = new Date(log.timestamp);
+    date.setMilliseconds(log.timestamp);
     logString += '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + ']\t';
     logString += log.type + ' ' + log.action;
     fs.writeSync(fd, logString + '\n');

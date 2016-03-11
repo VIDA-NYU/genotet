@@ -178,7 +178,7 @@ bed.readBed_ = function(bedFile, xl, xr) {
     }
     var aggregatedData = /** @type {!Array<!bed.Motif>} */
       (aggregatedMotifs(minExtend, true));
-    console.log(aggregatedData.length, 'aggregated motifs with extend',
+    log.serverLog(aggregatedData.length, 'aggregated motifs with extend',
       maxExtend);
     return {
       aggregated: true,

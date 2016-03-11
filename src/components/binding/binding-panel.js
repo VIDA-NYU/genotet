@@ -114,6 +114,7 @@ genotet.BindingPanel.prototype.initPanel = function() {
 
   // Add track
   this.container.find('#genes #add').click(function() {
+    genotet.logger.log('binding', 'addTrack');
     this.signal('addTrack');
   }.bind(this));
 };

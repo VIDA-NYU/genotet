@@ -31,6 +31,7 @@ genotet.utils.inherit(genotet.NetworkLoader, genotet.ViewLoader);
  * @override
  */
 genotet.NetworkLoader.prototype.load = function(fileName, inputGenes, isRegex) {
+  genotet.logger.log('network', fileName, inputGenes, isRegex);
   var genes = this.prepareGenes_(inputGenes, isRegex);
   this.data.genes = genes;
   this.loadNetwork_(fileName, genes);
@@ -125,6 +126,7 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
  */
 genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
                                                        isRegex) {
+  genotet.logger.log('network', 'updateGenes', method, inputGenes, isRegex);
   var genes = this.prepareGenes_(inputGenes, isRegex);
   if (!genes.length) {
     genotet.warning('no valid genes found');
@@ -151,6 +153,7 @@ genotet.NetworkLoader.prototype.updateGenes = function(method, inputGenes,
  * edges are queried.
  */
 genotet.NetworkLoader.prototype.incidentEdges = function(node) {
+  genotet.logger.log('network', 'incidentEdges', node);
   var params = {
     type: genotet.network.QueryType.INCIDENT_EDGES,
     fileName: this.data.networkInfo.fileName,
@@ -223,6 +226,9 @@ genotet.NetworkLoader.prototype.deleteGenes_ = function(genes) {
  * @param {!Array<!genotet.NetworkEdge>} edges Edges to be add into network.
  */
 genotet.NetworkLoader.prototype.addEdges = function(edges) {
+  genotet.logger.log('network', 'addEdges', edges.map(function(edge) {
+    return edge.id;
+  }).concat('_'));
   edges.forEach(function(edge) {
     var source = edge.source;
     var target = edge.target;
@@ -265,6 +271,9 @@ genotet.NetworkLoader.prototype.addEdges = function(edges) {
  * @param {!Array<!genotet.NetworkEdge>} edges Edges to be deleted.
  */
 genotet.NetworkLoader.prototype.deleteEdges = function(edges) {
+  genotet.logger.log('network', 'deketeEdges', edges.map(function(edge) {
+    return edge.id;
+  }).concat('_'));
   var edgeMap = genotet.utils.keySet(edges.map(function(edge) {
     return edge.id;
   }));
@@ -292,6 +301,7 @@ genotet.NetworkLoader.prototype.buildEdgeMap_ = function() {
  */
 genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
                                                            isRegex) {
+  genotet.logger.log('network', 'combinedRegulation', inputGenes, isRegex);
   var genes = this.prepareGenes_(inputGenes, isRegex);
   var params = {
     type: genotet.network.QueryType.COMBINED_REGULATION,
