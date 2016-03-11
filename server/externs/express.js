@@ -68,8 +68,8 @@ express.prototype.get = function(url, callback) {};
 
 /**
  * @param {string} url
- * @param {*} data
- * @param {function(!express.Request, !express.Response)} callback
+ * @param {*=} data
+ * @param {function(!express.Request, !express.Response)=} callback
  */
 express.prototype.post = function(url, data, callback) {};
 

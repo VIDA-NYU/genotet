@@ -12,6 +12,26 @@ module.exports = log;
  */
 function log() {}
 
+/** @const */
+log.query = {};
+
+/**
+ * @typedef {{
+ *   timestamp: number,
+ *   type: string,
+ *   action: string
+ * }}
+ */
+log.UserLog;
+
+/**
+ * @typedef {{
+ *   userName: string,
+ *   logs: !Array<!log.UserLog>
+ * }}
+ */
+log.query.UserLogList;
+
 /**
  * Prints logs with timestamps.
  * @param {...*} var_args Content to be logged.
@@ -23,23 +43,18 @@ log.serverLog = function(var_args) {
   var date = new Date();
   var content = '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + '_' +
     date.getTime() + '] ';
-  for (var i = 0; i < arguments.length; i++) {
-    content += arguments[i];
-  }
+  content += arguments.slice(1).join('_');
   console.log(content);
 };
 
 /**
  * Prints user activity logs.
  * @param {string} userPath Path to the user folder.
- * @param {string} userName User name to be logged.
- * @param {!Array<{
- *   timestamp: number,
- *   type: string,
- *   action: string
- * }>} logs Log information.
+ * @param {!log.query.UserLogList} query Query parameters.
  */
-log.userLog = function(userPath, userName, logs) {
+log.userLog = function(userPath, query) {
+  var logs = query.logs;
+  var userName = query.userName;
   if (!logs.length) {
     return;
   }
