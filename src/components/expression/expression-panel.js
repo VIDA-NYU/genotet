@@ -213,10 +213,13 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
 
   $.fn.select2.amd.require(['select2/data/array', 'select2/utils'],
     function(ArrayData, Utils) {
+      /**
+       * @suppress {missingProperties}
+       */
       var CustomData = function($element, options) {
         CustomData.__super__.constructor.call(this, $element, options);
       };
-      Utils.Extend(CustomData, ArrayData);
+      /** @type {{Extend:function()}} */(Utils.Extend(CustomData, ArrayData));
 
       var pageSize = genotet.ExpressionPanel.prototype.PROFILE_PAGE_SIZE_;
       CustomData.prototype.query = function(params, callback) {
