@@ -15,11 +15,37 @@ genotet.user.init = function() {
     new Date().getTime() >= genotet.user.getCookie('expireDate')) {
     return;
   }
-  genotet.user.updateCookieToBrowser({
+
+  var userInfo = {
+    type: 'sign-in',
     username: genotet.user.getCookie('username'),
-    sessionID: genotet.user.getCookie('sessionID'),
-    expireDate: new Date().getTime() + 24 * 60 * 1000
-  });
+    password: genotet.user.getCookie('password')
+  };
+
+  $.ajax({
+    url: genotet.data.userURL,
+    type: 'POST',
+    data: userInfo,
+    dataType: 'json'
+  }).done(function(data) {
+      if (!data.success) {
+        genotet.error('failed to signed in', data.message);
+      } else if (data.response.success) {
+        genotet.menu.displaySignedUser(userInfo.username);
+        genotet.data.userInfo = {
+          username: data.cookie.username,
+          sessionID: data.cookie.sessionID,
+          expireDate: data.cookie.expireDate
+        };
+        genotet.user.updateCookieToBrowser(data.cookie);
+        genotet.success('signed in');
+      } else {
+        genotet.error('wrong username or password');
+      }
+    })
+    .fail(function(res) {
+      genotet.error('failed to signed in');
+    });
 };
 
 /**
@@ -27,11 +53,9 @@ genotet.user.init = function() {
  * @param {Object} cookie New cookie.
  */
 genotet.user.updateCookieToBrowser = function(cookie) {
-  var newCookie = '';
   Object.keys(cookie).forEach(function(item) {
-    newCookie += item + '=' + cookie[item] + ';';
+    document.cookie = item + '=' + cookie[item];
   });
-  document.cookie = newCookie.slice(0, -1);
 };
 
 /**
