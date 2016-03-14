@@ -287,6 +287,39 @@ genotet.utils.keySet = function(collection) {
 };
 
 /**
+ * Validates email address.
+ * @param {string} email
+ * @return {boolean}
+ */
+genotet.utils.validateEmail = function(email) {
+  var re = RegExp(
+    /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/);
+  return re.test(email);
+};
+
+/**
+ * Validates username, allows letters, numbers, and underscores, and no less
+ * than 6 characters.
+ * @param {string} username
+ * @return {boolean}
+ */
+genotet.utils.validateUsername = function(username) {
+  var re = RegExp(/^\w+$/);
+  return re.test(username) && username.length >= 6;
+};
+
+/**
+ * Validates password, allows letters, numbers, and underscores, and no less
+ * than 8 characters.
+ * @param {string} password
+ * @return {boolean}
+ */
+genotet.utils.validatePassword = function(password) {
+  var re = RegExp(/^\w+$/);
+  return re.test(password) && password.length >= 8;
+};
+
+/**
  * Makes 'child' class inherit 'base' class.
  * @param {Function} child
  * @param {Function} base

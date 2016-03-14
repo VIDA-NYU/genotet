@@ -268,9 +268,10 @@ app.post('/genotet/user', function(req, res) {
           // Have session and update expire date
           var cookie = result[sessionIndex];
           var newExpireDate = new Date().getTime() + 24 * 60 * 1000;
-          db.collection('session').update(cookie, {expireDate: newExpireDate},
-            {upsert: true});
-          cookie.expireDate = newExpireDate
+          console.log(cookie);
+          db.collection('session').update(cookie,
+            {$set: {expireDate: newExpireDate}}, {upsert: false});
+          cookie.expireDate = newExpireDate;
         }
         res.json({
           success: true,

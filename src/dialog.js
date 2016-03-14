@@ -470,12 +470,15 @@ genotet.dialog.signUp_ = function() {
       var password = modal.find('#password');
       var confirmPassword = modal.find('#confirm-password');
       var btnSignUp = modal.find('#btn-sign-up').prop('disabled', true);
-      var inputValid = true;
+      var inputValid = false;
 
-      // TODO(Liana): Validate the input information.
-
-      // Checks if all required fields are filled.
       var uploadReady = function() {
+        // Validate the input information.
+        inputValid = genotet.utils.validateEmail(email.val()) &&
+          genotet.utils.validateUsername(username.val()) &&
+          genotet.utils.validatePassword(password.val());
+
+        // Checks if all required fields are filled.
         return email.val() && username.val() && password.val() &&
           (password.val() == confirmPassword.val() && inputValid);
       };
