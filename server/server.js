@@ -149,9 +149,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 /**
- * User info POST handler.
+ * User log POST handler.
  */
-app.post('/genotet/user', function(req, res) {
+app.post('/genotet/log', function(req, res) {
   log.serverLog('POST', req.body.type);
 
   var prefix = userPath;

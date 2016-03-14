@@ -31,10 +31,10 @@ genotet.data.serverURL;
 genotet.data.uploadURL;
 
 /**
- * User queries for user info and log.
+ * Log queries are sent to this address.
  * @type {string}
  */
-genotet.data.userURL;
+genotet.data.logURL;
 
 /**
  * @typedef {!Array<{
@@ -140,7 +140,7 @@ genotet.data.init = function() {
       window.location.hostname + ':3000/genotet';
   }
   genotet.data.uploadURL = genotet.data.serverURL + '/upload';
-  genotet.data.userURL = genotet.data.serverURL + '/user';
+  genotet.data.logURL = genotet.data.serverURL + '/log';
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());
