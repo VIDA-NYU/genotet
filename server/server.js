@@ -249,24 +249,23 @@ app.post('/genotet/user', function(req, res) {
         var sessionIndex = -1;
         if (result.length != 0) {
           for (var i = 0; i < result.length; i++) {
-            if (new Date().getTime() > result[i].expireDate) {
+            if (new Date().getTime() < result[i].expireDate) {
               sessionIndex = i;
               hasValidSession = true;
               break;
             }
           }
         }
-        if (result.length == 0 || !hasValidSession ||
-          new Date().getTime() >= result[sessionIndex].expireDate) {
-          // don't have username or have username but don't have valid session
+        if (result.length == 0 || !hasValidSession) {
+          // Don't have username or have username but don't have valid session
           var cookie = {
-            'username': username,
-            'sessionID': utils.guid(),
-            'expireDate': new Date().getTime() + 24 * 60 * 1000
+            username: username,
+            sessionID: utils.guid(),
+            expireDate: new Date().getTime() + 24 * 60 * 1000
           };
           db.collection('session').insertOne(cookie);
         } else {
-          // have session and update expire date
+          // Have session and update expire date
           var cookie = result[sessionIndex];
           var newExpireDate = new Date().getTime() + 24 * 60 * 1000;
           db.collection('session').update(cookie, {expireDate: newExpireDate},
