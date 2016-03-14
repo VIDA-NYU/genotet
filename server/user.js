@@ -118,8 +118,12 @@ user.signIn = function(userPath, userInfo) {
       continue;
     }
     if (parts[1] == userInfo.username && parts[2] == userInfo.password) {
-      return true;
+      return {
+        success: true
+      };
     }
   }
-  return false;
+  return {
+    success: false
+  };
 };

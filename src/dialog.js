@@ -470,9 +470,9 @@ genotet.dialog.signUp_ = function() {
       var password = modal.find('#password');
       var confirmPassword = modal.find('#confirm-password');
       var btnSignUp = modal.find('#btn-sign-up').prop('disabled', true);
-      var inputValid = false;
+      var inputValid = true;
 
-      // Validate the input information.
+      // TODO(Liana): Validate the input information.
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
@@ -549,9 +549,13 @@ genotet.dialog.signIn_ = function() {
         }).done(function(data) {
             if (!data.success) {
               genotet.error('failed to signed in', data.message);
-            } else if (data.response) {
+            } else if (data.response.success) {
               genotet.menu.displaySignedUser(userInfo.username);
-              genotet.data.userInfo.username = userInfo.username;
+              genotet.data.userInfo = {
+                username: data.cookie.username,
+                sessionID: data.cookie.sessionID,
+                expireDate: data.cookie.expireDate
+              };
               genotet.success('signed in');
             } else {
               genotet.error('wrong username or password');

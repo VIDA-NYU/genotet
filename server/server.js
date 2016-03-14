@@ -8,7 +8,7 @@ var fs = require('fs');
 var multer = require('multer');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
-var url = 'mongodb://localhost:27017/test';
+var url = 'mongodb://localhost:27017/express';
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var cookieParser = require('cookie-parser');
@@ -190,27 +190,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   });
 });
 
-MongoClient.connect(url, function(err, db) {
-  assert.equal(null, err);
-  console.log('Mongodb is connected correctly to server.');
-  db.close();
-});
 app.use(cookieParser());
-app.use(session({
-  cookie: {
-    maxAge: 1000 * 60 * 2,
-    httpOnly: false
-  },
-  secret: 'session secret',
-  store: new MongoStore({
-    db: 'express',
-    host: 'localhost',
-    port: 27017,
-    collection: 'session',
-    auto_reconnect: true,
-    url: 'mongodb://localhost:27017/express'
-  })
-}));
 
 app.post('/genotet/user', function(req, res) {
   console.log('POST user');
@@ -250,10 +230,63 @@ app.post('/genotet/user', function(req, res) {
   if (data.error) {
     console.log(data.error);
     res.status(500).json(data.error);
-  } else {
+  } else if (response.success) {
+    // Get session ID from database. Regenerate if it is expired.
+    var username = req.body.username;
+    var findUserInfo = function(db, callback) {
+      var cursor = db.collection('session').find({'username': username});
+      var result = [];
+      cursor.each(function(err, doc) {
+        assert.equal(err, null);
+        if (doc != null) {
+          result.push(doc);
+        } else {
+          callback();
+        }
+      });
+      callback = function() {
+        var hasValidSession = false;
+        var sessionIndex = -1;
+        if (result.length != 0) {
+          for (var i = 0; i < result.length; i++) {
+            if (new Date().getTime() > result[i].expireDate) {
+              sessionIndex = i;
+              hasValidSession = true;
+              break;
+            }
+          }
+        }
+        if (result.length == 0 || !hasValidSession) {
+          // don't have username or have username but don't have valid session
+          var cookie = {
+            'username': username,
+            'sessionID': utils.guid(),
+            'expireDate': new Date().getTime() + 24 * 60 * 1000
+          };
+          db.collection('session').insertOne(cookie);
+        } else if (new Date().getTime() < result[sessionIndex].expireDate) {
+          // have session and update expire date
+          var cookie = result[sessionIndex];
+          var newExpireDate = new Date().getTime() + 24 * 60 * 1000;
+          db.collection('session').update(cookie, {expireDate: newExpireDate},
+            {upsert: true});
+          cookie.expireDate = newExpireDate
+        }
+        return cookie;
+      };
+    };
+    var coockie;
+    MongoClient.connect(url, function(err, db) {
+      assert.equal(null, err);
+      console.log('Mongodb is connected correctly to server.');
+      coockie = findUserInfo(db, function() {
+        db.close();
+      });
+    });
     res.json({
       success: true,
-      response: response
+      response: response,
+      cookie: coockie
     });
   }
 });
