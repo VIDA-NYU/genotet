@@ -501,7 +501,12 @@ genotet.dialog.signUp_ = function() {
               genotet.error('failed to signed up', data.message);
             } else if (data.response.success) {
               genotet.menu.displaySignedUser(userInfo.username);
-              genotet.data.userInfo.username = userInfo.username;
+              genotet.data.userInfo = {
+                username: data.cookie.username,
+                sessionID: data.cookie.sessionID,
+                expireDate: data.cookie.expireDate
+              };
+              genotet.user.updateCookieToBrowser(data.cookie);
               genotet.success('signed up');
             } else {
               genotet.error(data.response.errorMessage);
@@ -556,6 +561,7 @@ genotet.dialog.signIn_ = function() {
                 sessionID: data.cookie.sessionID,
                 expireDate: data.cookie.expireDate
               };
+              genotet.user.updateCookieToBrowser(data.cookie);
               genotet.success('signed in');
             } else {
               genotet.error('wrong username or password');

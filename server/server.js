@@ -256,7 +256,8 @@ app.post('/genotet/user', function(req, res) {
             }
           }
         }
-        if (result.length == 0 || !hasValidSession) {
+        if (result.length == 0 || !hasValidSession ||
+          new Date().getTime() >= result[sessionIndex].expireDate) {
           // don't have username or have username but don't have valid session
           var cookie = {
             'username': username,
@@ -264,7 +265,7 @@ app.post('/genotet/user', function(req, res) {
             'expireDate': new Date().getTime() + 24 * 60 * 1000
           };
           db.collection('session').insertOne(cookie);
-        } else if (new Date().getTime() < result[sessionIndex].expireDate) {
+        } else {
           // have session and update expire date
           var cookie = result[sessionIndex];
           var newExpireDate = new Date().getTime() + 24 * 60 * 1000;
@@ -272,21 +273,19 @@ app.post('/genotet/user', function(req, res) {
             {upsert: true});
           cookie.expireDate = newExpireDate
         }
-        return cookie;
+        res.json({
+          success: true,
+          response: response,
+          cookie: cookie
+        });
       };
     };
-    var coockie;
     MongoClient.connect(url, function(err, db) {
       assert.equal(null, err);
       console.log('Mongodb is connected correctly to server.');
-      coockie = findUserInfo(db, function() {
+      findUserInfo(db, function() {
         db.close();
       });
-    });
-    res.json({
-      success: true,
-      response: response,
-      cookie: coockie
     });
   }
 });
