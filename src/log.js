@@ -7,11 +7,10 @@
 /**
  * @typedef {{
  *   timestamp: number,
- *   type: string,
- *   action: string
+ *   content: string
  * }}
  */
-genotet.genotetLog;
+genotet.GenotetLog;
 
 /** @const */
 genotet.logger = {};
@@ -24,7 +23,7 @@ genotet.logger.MAX_SIZE_ = 20;
 
 /**
  * Maintains a list of logs, returns as a bunch.
- * @type {Array<!genotet.genotetLog>}
+ * @type {Array<!genotet.GenotetLog>}
  */
 genotet.logger.logList = [];
 
@@ -36,16 +35,14 @@ genotet.logger.log = function(var_args) {
   if (!arguments.length || arguments.length < 2) {
     return;
   }
-  var type = arguments[0];
-  var action = arguments[1];
-  for (var i = 2; i < arguments.length; i++) {
-    action += ' ' + arguments[i];
+  var logContent = arguments[0];
+  for (var i = 1; i < arguments.length; i++) {
+    logContent += ' ' + arguments[i];
   }
   var date = new Date();
   genotet.logger.logList.push({
     timestamp: date.getTime(),
-    type: type,
-    action: action
+    content: logContent
   });
   if (genotet.logger.logList.length &&
     genotet.logger.logList.length % genotet.logger.MAX_SIZE_ == 0) {
@@ -57,6 +54,7 @@ genotet.logger.log = function(var_args) {
  * Sends the logs back to the server.
  */
 genotet.logger.sendBack = function() {
+  if (genotet.logger.logList.length) {
     var params = {
       logs: genotet.logger.logList,
       username: 'anonymous', // will call api of user system
@@ -64,4 +62,5 @@ genotet.logger.sendBack = function() {
     };
     $.post(genotet.data.logURL, params, 'json');
     genotet.logger.logList = [];
+  }
 };

@@ -19,8 +19,7 @@ log.query = {};
 /**
  * @typedef {{
  *   timestamp: number,
- *   type: string,
- *   action: string
+ *   content: string
  * }}
  */
 log.UserLog;
@@ -69,8 +68,8 @@ log.userLog = function(userPath, query) {
     var logString = '';
     date.setMilliseconds(log.timestamp);
     logString += '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + '_' +
-      log.timestamp + ']\t';
-    logString += log.type + ' ' + log.action;
+      log.timestamp + '] ';
+    logString += log.content;
     fs.writeSync(fd, logString + '\n');
   });
   fs.closeSync(fd);
