@@ -36,7 +36,7 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
  */
 genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
                                                 opt_track) {
-  genotet.logger.log('binding', 'load', fileName, bedName, chr, opt_track);
+  genotet.logger.log('binding', 'load', fileName, bedName, chr);
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   var isAddTrack = !opt_track;
   this.data.chr = chr;

@@ -27,7 +27,7 @@ log.UserLog;
 
 /**
  * @typedef {{
- *   userName: string,
+ *   username: string,
  *   logs: !Array<!log.UserLog>
  * }}
  */
@@ -57,11 +57,8 @@ log.serverLog = function(var_args) {
  */
 log.userLog = function(userPath, query) {
   var logs = query.logs;
-  var userName = query.userName;
-  if (!logs.length) {
-    return;
-  }
-  var folder = userPath + userName + '/log/';
+  var username = query.username;
+  var folder = userPath + username + '/log/';
   if (!fs.existsSync(folder)) {
     fs.mkdirSync(folder);
   }
@@ -71,7 +68,8 @@ log.userLog = function(userPath, query) {
   logs.forEach(function(log) {
     var logString = '';
     date.setMilliseconds(log.timestamp);
-    logString += '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + ']\t';
+    logString += '[' + dateFormat(date, 'yyyy-mm-dd_HH:MM:ss') + '_' +
+      log.timestamp + ']\t';
     logString += log.type + ' ' + log.action;
     fs.writeSync(fd, logString + '\n');
   });

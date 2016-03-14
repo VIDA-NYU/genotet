@@ -9,6 +9,10 @@ $(document).ready(function() {
   genotet.init();
 });
 
+$(window).on('beforeunload', function() {
+  genotet.logger.sendBack();
+});
+
 /** @const */
 var genotet = {};
 

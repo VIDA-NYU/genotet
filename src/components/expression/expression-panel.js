@@ -200,7 +200,6 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   this.container.find('#out').click(function() {
     if (this.data.zoomStack.length > 0) {
       var zoomStatus = this.data.zoomStack.pop();
-      genotet.logger.log('expression', 'expressionZoomOut', zoomStatus);
       this.signal('expressionZoomOut', zoomStatus);
     }
   }.bind(this));
