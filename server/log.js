@@ -63,7 +63,7 @@ log.userLog = function(userPath, query) {
   }
   var date = new Date();
   var logFile = folder + 'log_' + dateFormat(date, 'yyyy-mm-dd_HH') + '.log';
-  var fd = fs.openSync(logFile, 'w+');
+  var fd = fs.openSync(logFile, 'a');
   logs.forEach(function(log) {
     var logString = '';
     date.setMilliseconds(log.timestamp);

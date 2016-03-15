@@ -9,10 +9,6 @@ $(document).ready(function() {
   genotet.init();
 });
 
-$(window).on('beforeunload', function() {
-  genotet.logger.sendBack();
-});
-
 /** @const */
 var genotet = {};
 
@@ -50,6 +46,7 @@ genotet.init = function() {
   genotet.menu.init();
   genotet.options.init();
   genotet.tooltip.init();
+  genotet.logger.init();
 
   if (genotet.test) {
     genotet.test();
@@ -63,7 +60,7 @@ genotet.init = function() {
 genotet.warning = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.warn(msg);
-  genotet.logger.log('warning', 'msg');
+  genotet.logger.log('warning', msg);
   if (genotet.options.allowMessage) {
     $('.sys-warning').text(msg).parent().slideDown();
   }
@@ -76,7 +73,7 @@ genotet.warning = function(var_msgs) {
 genotet.error = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.error(msg);
-  genotet.logger.log('error', 'msg');
+  genotet.logger.log('error', msg);
   if (genotet.options.allowMessage) {
     $('.sys-error').text(msg).parent().slideDown();
   }
@@ -89,7 +86,7 @@ genotet.error = function(var_msgs) {
 genotet.success = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.info(msg);
-  genotet.logger.log('success', 'msg');
+  genotet.logger.log('success', msg);
   if (genotet.options.allowMessage) {
     $('.sys-success').text(msg).parent().slideDown();
   }

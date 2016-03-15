@@ -59,7 +59,7 @@ genotet.viewManager.createView = function(type, viewName, params) {
     params = {};
   }
 
-  genotet.logger.log('view', 'create', viewName, params.toString());
+  genotet.logger.log('view', 'create', viewName, JSON.stringify(params));
   var newView;
   switch (type) {
     case genotet.ViewType.NETWORK:

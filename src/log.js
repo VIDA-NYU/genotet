@@ -28,6 +28,15 @@ genotet.logger.MAX_SIZE_ = 20;
 genotet.logger.logList = [];
 
 /**
+ * Initializes logger properties.
+ */
+genotet.logger.init = function() {
+  $(window).on('beforeunload', function() {
+    genotet.logger.sendBack();
+  });
+};
+
+/**
  * Adds log to the log list, returns if collecting enough messages.
  * @param {...*} var_args
  */
@@ -57,8 +66,7 @@ genotet.logger.sendBack = function() {
   if (genotet.logger.logList.length) {
     var params = {
       logs: genotet.logger.logList,
-      username: 'anonymous', // will call api of user system
-      type: 'user-log'
+      username: 'anonymous' // will call api of user system
     };
     $.post(genotet.data.logURL, params, 'json');
     genotet.logger.logList = [];

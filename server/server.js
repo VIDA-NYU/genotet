@@ -152,14 +152,9 @@ app.use(bodyParser.json());
  * User log POST handler.
  */
 app.post('/genotet/log', function(req, res) {
-  log.serverLog('POST', req.body.type);
+  log.serverLog('POST', 'user-log');
 
-  var prefix = userPath;
-  switch (req.body.type) {
-    case 'user-log':
-      log.userLog(userPath, req.body);
-      break;
-  }
+  log.userLog(userPath, req.body);
 });
 
 /**

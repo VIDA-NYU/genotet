@@ -273,7 +273,7 @@ genotet.NetworkLoader.prototype.addEdges = function(edges) {
 genotet.NetworkLoader.prototype.deleteEdges = function(edges) {
   genotet.logger.log('network', 'deketeEdges', edges.map(function(edge) {
     return edge.id;
-  }).concat('_'));
+  }).join('_'));
   var edgeMap = genotet.utils.keySet(edges.map(function(edge) {
     return edge.id;
   }));
