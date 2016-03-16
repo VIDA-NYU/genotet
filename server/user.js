@@ -24,38 +24,40 @@ user.QueryType = {
 
 /**
  * Name of user information file.
- * @type {{
- *   email: =string,
- *   username: string,
- *   password: string,
- *   confirmed: =string
- * }}
+ * @type {string}
  */
 user.userInfoFile = 'userInfo.txt';
 
 /**
  * @typedef {{
- *   email: =string,
+ *   email: (string|undefined),
  *   username: string,
  *   password: string,
- *   confirmed: =boolean
+ *   confirmed: (boolean|undefined)
  * }}
  */
 user.userInfo;
 
 /**
  * @typedef {{
- *   success: boolean,
- *   errorMessage: {=string}
+ *   success: boolean
  * }}
  */
 user.SignupResponse;
 
 /**
+ * @typedef {{
+ *   success: boolean,
+ *   errorMessage: string
+ * }}
+ */
+user.ErrorResponse;
+
+/**
  * Checks the user information for signing in.
  * @param {string} userPath Directory of user indormation file.
- * @param {user.userInfo} userInfo User Information
- * @return {user.SignupResponse}
+ * @param {!user.userInfo} userInfo User Information
+ * @return {!user.SignupResponse|!user.ErrorResponse}
  */
 user.signUp = function(userPath, userInfo) {
   var checkDuplicate = {
@@ -105,9 +107,9 @@ user.signUp = function(userPath, userInfo) {
 
 /**
  * Checks the user information for signing in.
- * @param {string} userPath Directory of user indormation file.
- * @param {user.userInfo} userInfo User Information
- * @return {boolean} correct Whether the user information is correct.
+ * @param {string} userPath Directory of user information file.
+ * @param {!user.userInfo} userInfo User Information
+ * @return {!user.SignupResponse}
  */
 user.signIn = function(userPath, userInfo) {
   var lines = fs.readFileSync(userPath + user.userInfoFile).toString()

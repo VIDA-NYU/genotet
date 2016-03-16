@@ -200,7 +200,7 @@ app.post('/genotet/user', function(req, res) {
   var response;
   switch (type) {
     case user.QueryType.SIGHUP:
-      data = {
+      var data = {
         email: req.body.email,
         username: req.body.username,
         password: req.body.password,
@@ -209,7 +209,7 @@ app.post('/genotet/user', function(req, res) {
       response = user.signUp(userPath, data);
       break;
     case user.QueryType.SIGNIN:
-      data = {
+      var data = {
         username: req.body.username,
         password: req.body.password
       };
@@ -219,7 +219,7 @@ app.post('/genotet/user', function(req, res) {
     // Undefined type, error
     default:
       console.error('invalid query type');
-      data = {
+      var data = {
         error: {
           type: 'query',
           message: 'invalid query type'

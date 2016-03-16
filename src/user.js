@@ -45,7 +45,7 @@ genotet.user.init = function() {
 
 /**
  * Update the cookie to browser.
- * @param {Object} cookie New cookie.
+ * @param {!Object} cookie New cookie.
  */
 genotet.user.updateCookieToBrowser = function(cookie) {
   Object.keys(cookie).forEach(function(item) {

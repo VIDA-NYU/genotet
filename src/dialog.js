@@ -474,9 +474,12 @@ genotet.dialog.signUp_ = function() {
 
       var uploadReady = function() {
         // Validate the input information.
-        inputValid = genotet.utils.validateEmail(email.val()) &&
-          genotet.utils.validateUsername(username.val()) &&
-          genotet.utils.validatePassword(password.val());
+        inputValid = genotet.utils.validateEmail(
+            /** @type {string} */(email.val())) &&
+          genotet.utils.validateUsername(
+            /** @type {string} */(username.val())) &&
+          genotet.utils.validatePassword(
+            /** @type {string} */(password.val()));
 
         // Checks if all required fields are filled.
         return email.val() && username.val() && password.val() &&
@@ -490,7 +493,8 @@ genotet.dialog.signUp_ = function() {
           type: 'sign-up',
           email: email.val(),
           username: username.val(),
-          password: CryptoJS.SHA256(password.val()).toString(),
+          password: CryptoJS.SHA256(/** @type {string} */(password.val()))
+            .toString(),
           confirmed: false
         };
 
@@ -503,7 +507,8 @@ genotet.dialog.signUp_ = function() {
             if (!data.success) {
               genotet.error('failed to signed up', data.message);
             } else if (data.response.success) {
-              genotet.menu.displaySignedUser(userInfo.username);
+              genotet.menu.displaySignedUser(
+                /** @type {string} */(userInfo.username));
               genotet.data.userInfo = {
                 username: data.cookie.username,
                 sessionID: data.cookie.sessionID,
@@ -514,7 +519,7 @@ genotet.dialog.signUp_ = function() {
                 password: userInfo.password
               });
               genotet.success('signed up');
-            } else {
+            } else if (data.response.errorMessage) {
               genotet.error(data.response.errorMessage);
             }
           })
@@ -549,7 +554,8 @@ genotet.dialog.signIn_ = function() {
         var userInfo = {
           type: 'sign-in',
           username: username.val(),
-          password: CryptoJS.SHA256(password.val()).toString()
+          password: CryptoJS.SHA256(/** @type {string} */(password.val()))
+            .toString()
         };
 
         $.ajax({
@@ -561,7 +567,8 @@ genotet.dialog.signIn_ = function() {
             if (!data.success) {
               genotet.error('failed to signed in', data.message);
             } else if (data.response.success) {
-              genotet.menu.displaySignedUser(userInfo.username);
+              genotet.menu.displaySignedUser(
+                /** @type {string} */(userInfo.username));
               genotet.data.userInfo = {
                 username: data.cookie.username,
                 sessionID: data.cookie.sessionID,
