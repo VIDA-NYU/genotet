@@ -89,7 +89,7 @@ genotet.ExpressionView = function(viewName, params) {
 
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
-    genotet.logger.log('expression', 'load', params.fileName,
+    genotet.logger.log(genotet.logger.Type.EXPRESSION, 'load', params.fileName,
       params.tfaFileName, params.geneInput, params.isGeneRegex,
       params.conditionInput, params.isConditionRegex);
     this.data.tfa.fileName = params.tfaFileName;
@@ -178,8 +178,8 @@ genotet.ExpressionView = function(viewName, params) {
       genotet.tooltip.hideAll();
     }.bind(this))
     .on('genotet.expressionClick', function(event, object) {
-      genotet.logger.log('expression', 'click', object.geneName,
-        object.conditionName);
+      genotet.logger.log(genotet.logger.Type.EXPRESSION, 'click',
+        object.geneName, object.conditionName);
       this.renderer.highlightLabelsForClickedObject(object);
       this.panel.displayCellInfo(object.geneName, object.conditionName,
         object.value);

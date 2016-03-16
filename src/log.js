@@ -15,6 +15,19 @@ genotet.GenotetLog;
 /** @const */
 genotet.logger = {};
 
+/** @enum {string} */
+genotet.logger.Type = {
+  BINDING: 'binding',
+  NETWORK: 'network',
+  EXPRESSION: 'expression',
+  MAPPING: 'mapping',
+  VIEW: 'view',
+  UPLOAD: 'upload',
+  WARNING: 'warning',
+  ERROR: 'error',
+  SUCCESS: 'success'
+};
+
 /**
  * The max size of the log list, return when reaching it.
  * @private @const {number}
@@ -38,12 +51,10 @@ genotet.logger.init = function() {
 
 /**
  * Adds log to the log list, returns if collecting enough messages.
+ * @param {!genotet.logger.Type} type
  * @param {...*} var_args
  */
-genotet.logger.log = function(var_args) {
-  if (!arguments.length || arguments.length < 2) {
-    return;
-  }
+genotet.logger.log = function(type, var_args) {
   var logContent = arguments[0];
   for (var i = 1; i < arguments.length; i++) {
     logContent += ' ' + arguments[i];
@@ -51,6 +62,7 @@ genotet.logger.log = function(var_args) {
   var date = new Date();
   genotet.logger.logList.push({
     timestamp: date.getTime(),
+    type: type,
     content: logContent
   });
   if (genotet.logger.logList.length &&
