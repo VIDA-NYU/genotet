@@ -5,6 +5,7 @@
 var express = require('express');
 var fs = require('fs');
 var multer = require('multer');
+var bodyParser = require('body-parser');
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -68,6 +69,11 @@ var bedPath;
  */
 var mappingPath;
 /**
+ * Path of user information.
+ * @type {string}
+ */
+var userPath;
+/**
  * Path of config file.
  * @type {string}
  */
@@ -119,6 +125,9 @@ function config() {
       case 'mappingPath':
         mappingPath = value;
         break;
+      case 'userPath':
+        userPath = value;
+        break;
     }
   }
 }
@@ -136,11 +145,23 @@ var upload = multer({
  */
 var exonFile = bindingPath + 'exons.bin';
 
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
 /**
- * POST request is not used as it conflicts with jsonp.
+ * User log POST handler.
+ */
+app.post('/genotet/log', function(req, res) {
+  log.serverLog('POST', 'user-log');
+
+  log.userLog(userPath, req.body);
+});
+
+/**
+ * Upload POST handler.
  */
 app.post('/genotet/upload', upload.single('file'), function(req, res) {
-  log.serverLog(['POST upload']);
+  log.serverLog('POST upload');
 
   var prefix = '';
   switch (req.body.type) {
@@ -172,12 +193,14 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   });
 });
 
-// GET request handlers.
+/**
+ * GET request handler.
+ */
 app.get('/genotet', function(req, res) {
   var query = req.query;
   var type = query.type;
   var data;
-  log.serverLog(['GET', type]);
+  log.serverLog('GET', type);
   switch (type) {
     // Network data queries
     case network.QueryType.NETWORK:
@@ -255,7 +278,7 @@ app.get('/genotet', function(req, res) {
 
     // Undefined type, error
     default:
-      log.serverLog(['invalid query type']);
+      log.serverLog('invalid query type');
       data = {
         error: {
           type: 'query',
@@ -266,7 +289,6 @@ app.get('/genotet', function(req, res) {
 
   res.header('Access-Control-Allow-Origin', '*');
   if (data.error) {
-    console.log(data.error);
     res.status(500).json(data.error);
   } else {
     res.json(data);
