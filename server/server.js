@@ -6,11 +6,13 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var fs = require('fs');
 var multer = require('multer');
-var MongoClient = require('mongodb').MongoClient;
+var mongodb = require('mongodb');
+var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var url = 'mongodb://localhost:27017/express';
 var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
+var connetMongo = require('connect-mongo');
+var MongoStore = connetMongo(session);
 var cookieParser = require('cookie-parser');
 
 var segtree = require('./segtree.js');
