@@ -98,6 +98,8 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
     this.container.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
       function(event, state) {
         this.data.options[bSwitch.attribute] = state;
+        genotet.logger.log(genotet.logger.Type.EXPRESSION, 'update',
+          bSwitch.type);
         this.signal('update', {
           type: bSwitch.type
         });
@@ -108,10 +110,14 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   this.selectProfiles_
     .on('select2:select', function(event) {
       var geneName = event.params.data.text;
+      genotet.logger.log(genotet.logger.Type.EXPRESSION, 'addGeneProfile',
+        geneName);
       this.signal('addGeneProfile', geneName);
     }.bind(this))
     .on('select2:unselect', function(event) {
       var geneName = event.params.data.text;
+      genotet.logger.log(genotet.logger.Type.EXPRESSION, 'removeGeneProfile',
+        geneName);
       this.signal('removeGeneProfile', geneName);
     }.bind(this));
 
@@ -156,6 +162,8 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
         genotet.warning('no genes found');
         return;
       }
+      genotet.logger.log(genotet.logger.Type.EXPRESSION, 'updateGene',
+        geneInput, this.isGeneRegex_);
       this.signal('update', {
         type: 'gene',
         names: geneNames,
@@ -181,6 +189,9 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
         genotet.warning('no conditions found');
         return;
       }
+      genotet.logger.log(genotet.logger.Type.EXPRESSION, 'updateCondition',
+        conditionInput,
+        this.isConditionRegex_);
       this.signal('update', {
         type: 'condition',
         names: conditionNames,

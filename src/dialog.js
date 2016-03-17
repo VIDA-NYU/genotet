@@ -346,6 +346,7 @@ genotet.dialog.mapping_ = function() {
       // Create
       modal.find('#btn-choose').click(function() {
         var fileName = modal.find('#mapping-file').val();
+        genotet.logger.log(genotet.logger.Type.MAPPING, 'select', fileName);
         genotet.data.mappingFiles['gene-binding'] =
         /** @type {string} */(fileName);
       });
@@ -434,6 +435,8 @@ genotet.dialog.upload_ = function() {
           /** @type {string} */(modal.find('#description').val()));
         formData.append('file', file[0].files[0]);
 
+        genotet.logger.log(genotet.logger.Type.UPLOAD, fileType, dataName.val(),
+          fileName);
         $.ajax({
           url: genotet.data.uploadURL,
           type: 'POST',

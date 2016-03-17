@@ -43,7 +43,7 @@ genotet.preset.EXPRESSION_PARAMS_ = {
  * @private @const {!genotet.BindingViewParams}
  */
 genotet.preset.BINDING_PARAMS_ = {
-  fileNames: 'SL2870_SL2871.bw',
+  fileNames: 'SL2870_SL2871',
   bedName: 'bed_data.bed',
   chr: '1',
   multipleTracks: false
@@ -54,7 +54,7 @@ genotet.preset.BINDING_PARAMS_ = {
  * @private @const {!genotet.BindingViewParams}
  */
 genotet.preset.THREE_TRACK_BINDING_PARAMS_ = {
-  fileNames: ['SL2870_SL2871.bw', 'SL2872_SL2876.bw', 'SL3032_SL2871.bw'],
+  fileNames: ['SL2870_SL2871', 'SL2872_SL2876', 'SL3032_SL2871'],
   bedName: 'bed_data.bed',
   chr: '1',
   multipleTracks: true

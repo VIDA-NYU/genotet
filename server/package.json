@@ -7,6 +7,7 @@
     "body-parser": "^1.15.0",
     "connect-mongo": "^1.1.0",
     "cookie-parser":  "^1.4.1",
+    "dateformat": "^1.0.12",
     "express": "^4.9.5",
     "express-session": "^1.13.0",
     "mkdirp": "^0.5.1",

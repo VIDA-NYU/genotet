@@ -6,8 +6,8 @@ var childProcess = require('child_process');
 var readline = require('readline');
 var mkdirp = require('mkdirp');
 
-var utils = require('./utils.js');
-var segtree = require('./segtree.js');
+var segtree = require('./segtree');
+var log = require('./log');
 
 /** @type {uploader} */
 module.exports = uploader;
@@ -104,14 +104,14 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
   // convert *.bw into *.wig
   var storedName = bwFile + '.data';
   var wigFileName = bwFile + '.wig';
-  console.log('start transfer');
+  log.serverLog(['start transfer']);
   var cmd = [
     bigWigToWigAddr,
     prefix + storedName,
     prefix + wigFileName
   ].join(' ');
   childProcess.execSync(cmd);
-  console.log(cmd);
+  log.serverLog([cmd]);
 
   // convert *.wig into *.bcwig
   var seg = {};  // for segment tree
@@ -129,7 +129,6 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
       var xl = parseInt(linePart[1], 10);
       var xr = parseInt(linePart[2], 10);
       var val = parseFloat(linePart[3]);
-      //console.log(seg);
       if (!(linePart[0] in seg)) {
         seg[linePart[0]] = [];
       }
@@ -156,7 +155,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
       });
     }
     // write to *.bcwig file
-    // console.log('start log it');
+    // log.serverLog('start log it');
     // if the folder already exists, then delete it
     var folder = prefix + bwFile + '_chr';
     if (fs.existsSync(folder)) {
@@ -200,7 +199,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
     var fd = fs.openSync(uploadPath + bwFile + '.finish', 'w');
     fs.writeSync(fd, 'finish');
     fs.closeSync(fd);
-    console.log('binding data separate done.');
+    log.serverLog(['binding data separate done.']);
   });
 };
 
@@ -216,7 +215,7 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
     input: fs.createReadStream(prefix + storedName),
     terminal: false
   });
-  console.log('separating bed data...');
+  log.serverLog(['separating bed data...']);
   var data = {};
   lines.on('line', function(line) {
     var parts = line.split('\t');
@@ -234,7 +233,7 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
   });
 
   lines.on('close', function() {
-    console.log('writing bed data...');
+    log.serverLog(['writing bed data...']);
     var folder = prefix + bedFile + '_chr';
     if (fs.existsSync(folder)) {
       var cmd = [
@@ -267,7 +266,7 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
     var fd = fs.openSync(uploadPath + bedFile + '.finish', 'w');
     fs.writeSync(fd, 'finish');
     fs.closeSync(fd);
-    console.log('bed chromosome data finish.');
+    log.serverLog(['bed chromosome data finish.']);
   });
 };
 

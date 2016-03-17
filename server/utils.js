@@ -67,7 +67,7 @@ utils.readFileToBuf = function(file) {
 };
 
 /**
- * Replace special character values in URL by their original characters,
+ * Replaces special character values in URL by their original characters,
  * '+' and '?'.
  * @param {string} url The URL string to be decoded.
  * @return {string} The new URL with all special values replaced by the

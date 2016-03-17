@@ -40,6 +40,7 @@ genotet.data.serverURL;
 genotet.data.uploadURL;
 
 /**
+<<<<<<< HEAD
  * User information are saved to this URL via http and received via jsonp.
  * @type {string}
  */
@@ -53,6 +54,12 @@ genotet.data.userURL;
  * }>}
  */
 genotet.data.userInfo;
+=======
+ * Log queries are sent to this address.
+ * @type {string}
+ */
+genotet.data.logURL;
+>>>>>>> refactor
 
 /**
  * @typedef {!Array<{
@@ -159,12 +166,12 @@ genotet.data.init = function() {
   }
   genotet.data.uploadURL = genotet.data.serverURL + '/upload';
   genotet.data.userURL = genotet.data.serverURL + '/user';
-
   genotet.data.userInfo = {
     username: '',
     sessionID: '',
     expireDate: ''
   };
+  genotet.data.logURL = genotet.data.serverURL + '/log';
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());

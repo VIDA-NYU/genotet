@@ -147,6 +147,7 @@ genotet.NetworkPanel.prototype.updateFileListAfterLoading = function() {
     this.fileSelectIsOpen_ = false;
     var fileName = event.params.data.id;
     this.data.networkInfo.fileName = fileName;
+    genotet.logger.log(genotet.logger.Type.NETWORK, 'changeNetwork', fileName);
     this.signal('updateNetwork', {
       fileName: fileName
     });
@@ -242,6 +243,7 @@ genotet.NetworkPanel.prototype.setEdgeInfo_ = function(edge, container) {
  * @param {!genotet.NetworkNode} node Node of which the info is to be displayed.
  */
 genotet.NetworkPanel.prototype.displayNodeInfo = function(node) {
+  genotet.logger.log(genotet.logger.Type.NETWORK, 'displayNodeInfo', node.id);
   var info = this.container.find('#node-info').slideDown();
   this.setNodeInfo_(node, info);
   info.find('.close').click(function() {
@@ -254,6 +256,7 @@ genotet.NetworkPanel.prototype.displayNodeInfo = function(node) {
  * @param {!genotet.NetworkEdge} edge Edge to be displayed.
  */
 genotet.NetworkPanel.prototype.displayEdgeInfo = function(edge) {
+  genotet.logger.log(genotet.logger.Type.NETWORK, 'displayEdgeInfo', edge.id);
   var info = this.container.find('#edge-info').slideDown();
   this.setEdgeInfo_(edge, info);
   info.find('.close').click(function() {
@@ -265,6 +268,7 @@ genotet.NetworkPanel.prototype.displayEdgeInfo = function(edge) {
  * Displays multiple edges selected info.
  */
 genotet.NetworkPanel.prototype.displayMultiEdgeInfo = function() {
+  genotet.logger.log(genotet.logger.Type.NETWORK, 'displayMultiEdgeInfo');
   var info = this.container.find('#edge-info').slideDown();
   info.html(/** @type {string} */
     (this.container.find('#edge-info-multi-template').html()));

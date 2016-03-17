@@ -43,9 +43,6 @@ genotet.menu.init = function() {
   $('#about').click(function() {
     genotet.dialog.create('about');
   });
-  $('#doc').click(function() {
-    window.open('doc.html');
-  });
 
   // Organism selection.
   $('#organism').click(function() {
