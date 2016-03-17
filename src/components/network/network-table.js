@@ -177,6 +177,10 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
   table.on('click', function() {
     var data = /** @type {!Array<genotet.EdgeForTable>} */
       (this.dataTable_.rows({selected: true}).data());
+    genotet.logger.log(genotet.logger.Type.NETWORK, 'clickTable',
+      data.map(function(edge) {
+      return edge.id;
+    }).join('_'));
     if (data.length > 0) {
       var allSame = true;
       if (data.length > 1) {

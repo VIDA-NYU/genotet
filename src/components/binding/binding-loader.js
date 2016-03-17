@@ -36,6 +36,8 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
  */
 genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
                                                 opt_track) {
+  genotet.logger.log(genotet.logger.Type.BINDING, 'load', fileName, bedName,
+    chr);
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   var isAddTrack = !opt_track;
   this.data.chr = chr;
@@ -53,6 +55,8 @@ genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
  */
 genotet.BindingLoader.prototype.loadMultipleTracks = function(fileNames,
                                                               bedName, chr) {
+  genotet.logger.log(genotet.logger.Type.BINDING, 'loadMultiple',
+    fileNames.join('_'), bedName, chr);
   var trackIndex = this.data.tracks.length;
   this.data.chr = chr;
   this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
@@ -206,6 +210,7 @@ genotet.BindingLoader.prototype.loadExons_ = function(chr) {
  * @param {string} gene Gene name to be searched for.
  */
 genotet.BindingLoader.prototype.findLocus = function(gene) {
+  genotet.logger.log(genotet.logger.Type.BINDING, 'findLocus', gene);
   var params = {
     type: genotet.binding.QueryType.LOCUS,
     gene: gene
@@ -235,6 +240,7 @@ genotet.BindingLoader.prototype.findLocus = function(gene) {
  * @param {string} chr Chromosome.
  */
 genotet.BindingLoader.prototype.switchChr = function(chr) {
+  genotet.logger.log(genotet.logger.Type.BINDING, 'switchChr', chr);
   this.data.chr = chr;
   this.loadExons_(chr);
   this.loadFullTracks();
@@ -278,6 +284,8 @@ genotet.BindingLoader.prototype.updateRanges_ = function() {
  * @param {string} gene Gene name of mapping gene.
  */
 genotet.BindingLoader.prototype.loadMapping = function(mappingFileName, gene) {
+  genotet.logger.log(genotet.logger.Type.BINDING, 'loadMapping',
+    mappingFileName, gene);
   var params = {
     type: genotet.mapping.QueryType.MAPPING,
     fileName: mappingFileName

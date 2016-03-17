@@ -31,6 +31,12 @@ genotet.data.serverURL;
 genotet.data.uploadURL;
 
 /**
+ * Log queries are sent to this address.
+ * @type {string}
+ */
+genotet.data.logURL;
+
+/**
  * @typedef {!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -134,6 +140,7 @@ genotet.data.init = function() {
       window.location.hostname + ':3000/genotet';
   }
   genotet.data.uploadURL = genotet.data.serverURL + '/upload';
+  genotet.data.logURL = genotet.data.serverURL + '/log';
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());

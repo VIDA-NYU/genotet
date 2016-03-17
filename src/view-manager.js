@@ -59,6 +59,8 @@ genotet.viewManager.createView = function(type, viewName, params) {
     params = {};
   }
 
+  genotet.logger.log(genotet.logger.Type.VIEW, 'create', viewName,
+    JSON.stringify(params));
   var newView;
   switch (type) {
     case genotet.ViewType.NETWORK:
@@ -92,6 +94,7 @@ genotet.viewManager.closeView = function(view) {
     return;
   }
   // Remove the view reference.
+  genotet.logger.log(genotet.logger.Type.VIEW, 'close', view.name());
   delete genotet.viewManager.views[view.name()];
   genotet.panelManager.removePanel(view.name());
   genotet.linkManager.removeLinks(view.name());
@@ -110,6 +113,7 @@ genotet.viewManager.blurAllViews = function() {
  * Closes all views.
  */
 genotet.viewManager.closeAllViews = function() {
+  genotet.logger.log(genotet.logger.Type.VIEW, 'closeAll');
   $.each(genotet.viewManager.views, function(name, view) {
     view.close();
   });

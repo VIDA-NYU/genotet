@@ -162,7 +162,7 @@ network.query.combinedRegulation = function(query, networkPath) {
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
-    log.serverLog([error]);
+    log.serverLog(error);
     return {
       error: error
     };
