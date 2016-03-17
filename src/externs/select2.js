@@ -27,7 +27,7 @@ select2.Event.prototype.params;
  */
 jQuery.prototype.select2 = function(opt_params) {};
 
-/** @type {?} */
+/** @type {Object} */
 jQuery.prototype.select2.amd = function() {};
 
 /**

@@ -46,6 +46,12 @@ genotet.ExpressionPanel = function(data) {
    * @private {boolean}
    */
   this.fileSelectIsOpen_ = false;
+
+  /**
+   * Flag of gene profile select is listened or not.
+   * @private {boolean}
+   */
+  this.profileSelectionIsListened_ = false;
 };
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
@@ -207,19 +213,25 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
   });
   var profile = this.container.find('#profile select').empty();
 
-  if (genes.length == 0) {
+  if (!genes.length) {
     return;
   }
 
   $.fn.select2.amd.require(['select2/data/array', 'select2/utils'],
     function(ArrayData, Utils) {
-      /**
-       * @suppress {missingProperties}
-       */
       var CustomData = function($element, options) {
-        CustomData.__super__.constructor.call(this, $element, options);
+        /**
+         * @type {{
+         *   __super__: function(?, ?)
+         * }}
+         */(CustomData).__super__.constructor.call(
+          this, $element, options);
       };
-      /** @type {{Extend:function()}} */(Utils.Extend(CustomData, ArrayData));
+      /**
+       * @type {{
+       *   Extend:function()
+       * }}
+       */(Utils.Extend(CustomData, ArrayData));
 
       var pageSize = genotet.ExpressionPanel.prototype.PROFILE_PAGE_SIZE_;
       CustomData.prototype.query = function(params, callback) {
@@ -240,16 +252,19 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
         multiple: true
       });
 
-      // Add and remove gene profiles
-      this.selectProfiles_
-        .on('select2:select', function(event) {
-          var geneName = event.params.data.text;
-          this.signal('addGeneProfile', geneName);
-        }.bind(this))
-        .on('select2:unselect', function(event) {
-          var geneName = event.params.data.text;
-          this.signal('removeGeneProfile', geneName);
-        }.bind(this));
+      if (!this.profileSelectionIsListened_) {
+        // Add and remove gene profiles
+        this.selectProfiles_
+          .on('select2:select', function(event) {
+            var geneName = event.params.data.text;
+            this.signal('addGeneProfile', geneName);
+          }.bind(this))
+          .on('select2:unselect', function(event) {
+            var geneName = event.params.data.text;
+            this.signal('removeGeneProfile', geneName);
+          }.bind(this));
+        this.profileSelectionIsListened_ = true;
+      }
 
       this.container.find('#profile .select2-container').css({
         width: '100%'
