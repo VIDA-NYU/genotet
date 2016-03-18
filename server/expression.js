@@ -245,17 +245,15 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
         if (conditionName.toLowerCase() in allConditionNames) {
           var colNum = allConditionNames[conditionName.toLowerCase()].index;
           var tfaValue = result.values[rowNum][colNum];
-          if (tfaValue) {
-            if (!tfaValue) {
-              return;
-            }
-            tfaValues.push({
-              value: tfaValue,
-              index: i
-            });
-            valueMin = Math.min(valueMin, tfaValue);
-            valueMax = Math.max(valueMax, tfaValue);
+          if (!tfaValue) {
+            return;
           }
+          tfaValues.push({
+            value: tfaValue,
+            index: i
+          });
+          valueMin = Math.min(valueMin, tfaValue);
+          valueMax = Math.max(valueMax, tfaValue);
         }
       });
       tfaValues.sort(function(a, b) {

@@ -24,6 +24,7 @@ var user = require('./user.js');
 var bed = require('./bed.js');
 var mapping = require('./mapping.js');
 var log = require('./log.js');
+var utils = require('./utils.js');
 
 // Application
 var app = express();
@@ -82,11 +83,6 @@ var bedPath;
  * @type {string}
  */
 var mappingPath;
-/**
- * Path of user information.
- * @type {string}
- */
-var userPath;
 /**
  * Path of config file.
  * @type {string}
@@ -163,9 +159,6 @@ app.use(bodyParser.json());
  * @type {string}
  */
 var exonFile = bindingPath + 'exons.bin';
-
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
 
 /**
  * User log POST handler.
@@ -256,10 +249,20 @@ app.post('/genotet/user', function(req, res) {
     // Get session ID from database. Regenerate if it is expired.
     var username = req.body.username;
     var findUserInfo = function(db, callback) {
-      var cursor = db.collection('session').find({'username': username});
+      var cursor =
+      /**
+       * @type {{
+       *   collection: function(),
+       *   find: function(),
+       *   insertOne: function()
+       * }}
+       */(db.collection('session').find({'username': username}));
       var result = [];
-      cursor.each(function(err, doc) {
-        assert.equal(err, null);
+      /** @type {{
+       *    each: function(?)
+       * }}
+       */(cursor).each(function(err, doc) {
+        assert.equal(err, null, '');
         if (doc != null) {
           result.push(doc);
         } else {
@@ -303,7 +306,7 @@ app.post('/genotet/user', function(req, res) {
       };
     };
     MongoClient.connect(url, function(err, db) {
-      assert.equal(null, err);
+      assert.equal(null, err, '');
       console.log('Mongodb is connected correctly to server.');
       findUserInfo(db, function() {
         db.close();

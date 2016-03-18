@@ -3,7 +3,6 @@
  */
 
 /**
- * @constructor
- * @return {!cookieParser}
+ * @const
  */
-function cookieParser() {}
+var cookieParser = function() {};

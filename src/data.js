@@ -40,7 +40,6 @@ genotet.data.serverURL;
 genotet.data.uploadURL;
 
 /**
-<<<<<<< HEAD
  * User information are saved to this URL via http and received via jsonp.
  * @type {string}
  */
@@ -54,12 +53,12 @@ genotet.data.userURL;
  * }>}
  */
 genotet.data.userInfo;
-=======
+
+/**
  * Log queries are sent to this address.
  * @type {string}
  */
 genotet.data.logURL;
->>>>>>> refactor
 
 /**
  * @typedef {!Array<{
