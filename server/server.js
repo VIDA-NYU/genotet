@@ -208,27 +208,25 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
 app.use(cookieParser());
 
 app.post('/genotet/user', function(req, res) {
-  console.log('POST user');
+  log.serverLog('POST user');
 
   var type = req.body.type;
-  var userInfo = {};
-  var response;
   switch (type) {
     case user.QueryType.SIGHUP:
-      var data = {
+      var userInfo = {
         email: req.body.email,
         username: req.body.username,
         password: req.body.password,
         confirmed: req.body.confirmed
       };
-      response = user.signUp(userPath, data);
+      var data = user.signUp(userPath, userInfo);
       break;
     case user.QueryType.SIGNIN:
-      var data = {
+      var userInfo = {
         username: req.body.username,
         password: req.body.password
       };
-      response = user.signIn(userPath, data);
+      var data = user.signIn(userPath, userInfo);
       break;
 
     // Undefined type, error
@@ -243,9 +241,9 @@ app.post('/genotet/user', function(req, res) {
   }
   res.header('Access-Control-Allow-Origin', '*');
   if (data.error) {
-    console.log(data.error);
+    log.serverLog(data.error.type, data.error.message);
     res.status(500).json(data.error);
-  } else if (response.success) {
+  } else {
     // Get session ID from database. Regenerate if it is expired.
     var username = req.body.username;
     var findUserInfo = function(db, callback) {
@@ -300,7 +298,7 @@ app.post('/genotet/user', function(req, res) {
         }
         res.json({
           success: true,
-          response: response,
+          response: data,
           cookie: cookie
         });
       };

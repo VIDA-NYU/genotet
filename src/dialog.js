@@ -410,7 +410,7 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return file.val() && (dataName.val() ||
+        return file.val() !== '' && (dataName.val() !== '' ||
           typeSelection.val() == genotet.FileType.MAPPING);
       };
 
@@ -485,8 +485,8 @@ genotet.dialog.signUp_ = function() {
             /** @type {string} */(password.val()));
 
         // Checks if all required fields are filled.
-        return email.val() && username.val() && password.val() &&
-          (password.val() == confirmPassword.val() && inputValid);
+        return email.val() !== '' && username.val() !== '' && password.val() !== '' &&
+          (confirmPassword.val() == password.val() && inputValid);
       };
       confirmPassword.on('input', function() {
         btnSignUp.prop('disabled', !uploadReady());
@@ -522,12 +522,12 @@ genotet.dialog.signUp_ = function() {
                 password: userInfo.password
               });
               genotet.success('signed up');
-            } else if (data.response.errorMessage) {
-              genotet.error(data.response.errorMessage);
+            } else if (data.response.error.message) {
+              genotet.error(data.response.error.message);
             }
           })
           .fail(function(res) {
-            genotet.error('failed to signed up');
+            genotet.error(res.responseText);
           });
       });
     });
@@ -548,7 +548,7 @@ genotet.dialog.signIn_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return username.val() && password.val();
+        return username.val() !== '' && password.val() !== '';
       };
       password.on('input', function() {
         btnSignIn.prop('disabled', !uploadReady());
@@ -587,7 +587,7 @@ genotet.dialog.signIn_ = function() {
             }
           })
           .fail(function(res) {
-            genotet.error('failed to signed in');
+            genotet.error(res.responseText);
           });
       });
     });

@@ -48,7 +48,10 @@ user.SignupResponse;
 /**
  * @typedef {{
  *   success: boolean,
- *   errorMessage: string
+ *   error: (Object<{
+ *     type: string,
+ *     message: string
+ *   }>|undefined)
  * }}
  */
 user.ErrorResponse;
@@ -76,7 +79,7 @@ user.signUp = function(userPath, userInfo) {
       if (parts[0] == userInfo.email) {
         checkDuplicate.elements.push('email: ' + userInfo.email);
       }
-      if (parts[0] == userInfo.username) {
+      if (parts[1] == userInfo.username) {
         checkDuplicate.elements.push('username: ' + userInfo.username);
       }
       break;
@@ -87,7 +90,10 @@ user.signUp = function(userPath, userInfo) {
     errorMessage += checkDuplicate.elements.length == 1 ? 's' : '';
     return {
       success: false,
-      errorMessage: errorMessage
+      error: {
+        type: 'sign-up',
+        message: errorMessage
+      }
     };
   } else {
     var infoLine = userInfo.email + ' ' + userInfo.username + ' ' +
@@ -126,6 +132,10 @@ user.signIn = function(userPath, userInfo) {
     }
   }
   return {
-    success: false
+    success: false,
+    error: {
+      type: 'sign-in',
+      message: 'invalid username or password'
+    }
   };
 };

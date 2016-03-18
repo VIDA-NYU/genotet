@@ -83,12 +83,16 @@ utils.decodeSpecialChar = function(url) {
  * Generate session ID.
  * @return {string} Session ID.
  */
-utils.guid = function() {
-  var s4 = function() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  };
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
+utils.hashString = function() {
+  if (typeof s != 'string') {
+    genotet.error('x is not a string to hash');
+    return -1;
+  }
+  var a = 3, p = 1000000007;
+  var result = 0;
+  for (var i = 0; i < s.length; i++) {
+    var x = s.charCodeAt(i);
+    result = (result * a + x) % p;
+  }
+  return result;
 };
