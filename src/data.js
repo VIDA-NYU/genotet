@@ -167,8 +167,8 @@ genotet.data.init = function() {
   genotet.data.userURL = genotet.data.serverURL + '/user';
   genotet.data.userInfo = {
     username: '',
-    sessionID: '',
-    expireDate: ''
+    sessionId: '',
+    expiration: ''
   };
   genotet.data.logURL = genotet.data.serverURL + '/log';
 

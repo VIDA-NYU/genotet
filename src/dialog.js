@@ -485,8 +485,9 @@ genotet.dialog.signUp_ = function() {
             /** @type {string} */(password.val()));
 
         // Checks if all required fields are filled.
-        return email.val() !== '' && username.val() !== '' && password.val() !== '' &&
-          (confirmPassword.val() == password.val() && inputValid);
+        return email.val() !== '' && username.val() !== '' &&
+          password.val() !== '' && (confirmPassword.val() == password.val() &&
+          inputValid);
       };
       confirmPassword.on('input', function() {
         btnSignUp.prop('disabled', !uploadReady());
@@ -509,21 +510,19 @@ genotet.dialog.signUp_ = function() {
         }).done(function(data) {
             if (!data.success) {
               genotet.error('failed to signed up', data.message);
-            } else if (data.response.success) {
+            } else {
               genotet.menu.displaySignedUser(
                 /** @type {string} */(userInfo.username));
               genotet.data.userInfo = {
                 username: data.cookie.username,
-                sessionID: data.cookie.sessionID,
-                expireDate: data.cookie.expireDate
+                sessionId: data.cookie.sessionId,
+                expiration: data.cookie.expiration
               };
               genotet.user.updateCookieToBrowser(data.cookie);
               genotet.user.updateCookieToBrowser({
                 password: userInfo.password
               });
               genotet.success('signed up');
-            } else if (data.response.error.message) {
-              genotet.error(data.response.error.message);
             }
           })
           .fail(function(res) {
@@ -569,21 +568,19 @@ genotet.dialog.signIn_ = function() {
         }).done(function(data) {
             if (!data.success) {
               genotet.error('failed to signed in', data.message);
-            } else if (data.response.success) {
+            } else {
               genotet.menu.displaySignedUser(
                 /** @type {string} */(userInfo.username));
               genotet.data.userInfo = {
                 username: data.cookie.username,
-                sessionID: data.cookie.sessionID,
-                expireDate: data.cookie.expireDate
+                sessionId: data.cookie.sessionId,
+                expiration: data.cookie.expiration
               };
               genotet.user.updateCookieToBrowser(data.cookie);
               genotet.user.updateCookieToBrowser({
                 password: userInfo.password
               });
               genotet.success('signed in');
-            } else {
-              genotet.error('wrong username or password');
             }
           })
           .fail(function(res) {
@@ -592,7 +589,6 @@ genotet.dialog.signIn_ = function() {
       });
     });
 };
-
 
 /**
  * Creates a dialog for uploading progress.

@@ -18,6 +18,22 @@ genotet.utils.PIXEL_TOLERANCE = .1;
 /** @const {number} */
 genotet.utils.RANGE_TOLERANCE = .001;
 
+/** @const {RegExp} */
+genotet.utils.VALIDATE_EMAIL_REGEX =
+  /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+/** @const {RegExp} */
+genotet.utils.VALIDATE_USERNAME_REGEX = /^\w+$/;
+
+/** @const {RegExp} */
+genotet.utils.VALIDATE_PASSWORD_REGEX = /^\w+$/;
+
+/** @const {number} */
+genotet.utils.VALIDATE_USERNAME_LENGTH = 6;
+
+/** @const {number} */
+genotet.utils.VALIDATE_PASSWORD_LENGTH = 8;
+
 /**
  * Vector type of arbitrary length.
  * @typedef {Array<number>} Vector
@@ -292,8 +308,7 @@ genotet.utils.keySet = function(collection) {
  * @return {boolean}
  */
 genotet.utils.validateEmail = function(email) {
-  var re = RegExp(
-    /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/);
+  var re = RegExp(genotet.utils.VALIDATE_EMAIL_REGEX);
   return re.test(email);
 };
 
@@ -304,8 +319,9 @@ genotet.utils.validateEmail = function(email) {
  * @return {boolean}
  */
 genotet.utils.validateUsername = function(username) {
-  var re = RegExp(/^\w+$/);
-  return re.test(username) && username.length >= 6;
+  var re = RegExp(genotet.utils.VALIDATE_USERNAME_REGEX);
+  return re.test(username) && username.length >=
+    genotet.utils.VALIDATE_USERNAME_LENGTH;
 };
 
 /**
@@ -315,8 +331,9 @@ genotet.utils.validateUsername = function(username) {
  * @return {boolean}
  */
 genotet.utils.validatePassword = function(password) {
-  var re = RegExp(/^\w+$/);
-  return re.test(password) && password.length >= 8;
+  var re = RegExp(genotet.utils.VALIDATE_PASSWORD_REGEX);
+  return re.test(password) && password.length >=
+    genotet.utils.VALIDATE_PASSWORD_LENGTH;
 };
 
 /**

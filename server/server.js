@@ -212,7 +212,7 @@ app.post('/genotet/user', function(req, res) {
 
   var type = req.body.type;
   switch (type) {
-    case user.QueryType.SIGHUP:
+    case user.QueryType.SIGNUP:
       var userInfo = {
         email: req.body.email,
         username: req.body.username,
@@ -231,7 +231,7 @@ app.post('/genotet/user', function(req, res) {
 
     // Undefined type, error
     default:
-      console.error('invalid query type');
+      log.serverLog('invalid query type');
       var data = {
         error: {
           type: 'query',
@@ -244,69 +244,12 @@ app.post('/genotet/user', function(req, res) {
     log.serverLog(data.error.type, data.error.message);
     res.status(500).json(data.error);
   } else {
-    // Get session ID from database. Regenerate if it is expired.
     var username = req.body.username;
-    var findUserInfo = function(db, callback) {
-      var cursor =
-      /**
-       * @type {{
-       *   collection: function(),
-       *   find: function(),
-       *   insertOne: function()
-       * }}
-       */(db.collection('session').find({'username': username}));
-      var result = [];
-      /** @type {{
-       *    each: function(?)
-       * }}
-       */(cursor).each(function(err, doc) {
-        assert.equal(err, null, '');
-        if (doc != null) {
-          result.push(doc);
-        } else {
-          callback();
-        }
-      });
-      callback = function() {
-        var hasValidSession = false;
-        var sessionIndex = -1;
-        if (result.length != 0) {
-          for (var i = 0; i < result.length; i++) {
-            if (new Date().getTime() < result[i].expireDate) {
-              sessionIndex = i;
-              hasValidSession = true;
-              break;
-            }
-          }
-        }
-        if (result.length == 0 || !hasValidSession) {
-          // Don't have username or have username but don't have valid session
-          var cookie = {
-            username: username,
-            sessionID: utils.guid(),
-            expireDate: new Date().getTime() + 24 * 60 * 1000
-          };
-          db.collection('session').insertOne(cookie);
-        } else {
-          // Have session and update expire date
-          var cookie = result[sessionIndex];
-          var newExpireDate = new Date().getTime() + 24 * 60 * 1000;
-          console.log(cookie);
-          db.collection('session').update(cookie,
-            {$set: {expireDate: newExpireDate}}, {upsert: false});
-          cookie.expireDate = newExpireDate;
-        }
-        res.json({
-          success: true,
-          response: data,
-          cookie: cookie
-        });
-      };
-    };
     MongoClient.connect(url, function(err, db) {
+      console.log(err);
       assert.equal(null, err, '');
-      console.log('Mongodb is connected correctly to server.');
-      findUserInfo(db, function() {
+      log.serverLog('connected to MongoDB');
+      user.findUserInfo(db, username, res, function() {
         db.close();
       });
     });

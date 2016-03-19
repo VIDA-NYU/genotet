@@ -8,18 +8,28 @@
 genotet.user = {};
 
 /**
+ * @typedef {{
+ *   username: (string|undefined),
+ *   password: string,
+ *   sessionId: (string|undefined),
+ *   expiration: (string|undefined)
+ * }}
+ */
+genotet.Cookie;
+
+/**
  * Initializes the user auth.
  */
 genotet.user.init = function() {
   if (!document.cookie ||
-    new Date().getTime() >= genotet.user.getCookie('expireDate')) {
+    new Date().getTime() >= Cookies.get('expiration')) {
     return;
   }
 
   var userInfo = {
     type: 'sign-in',
-    username: genotet.user.getCookie('username'),
-    password: genotet.user.getCookie('password')
+    username: Cookies.get('username'),
+    password: Cookies.get('password')
   };
 
   $.ajax({
@@ -30,12 +40,12 @@ genotet.user.init = function() {
   }).done(function(data) {
       if (!data.success) {
         genotet.error('failed to signed in', data.message);
-      } else if (data.response.success) {
+      } else {
         genotet.menu.displaySignedUser(userInfo.username);
         genotet.data.userInfo = {
           username: data.cookie.username,
-          sessionID: data.cookie.sessionID,
-          expireDate: data.cookie.expireDate
+          sessionId: data.cookie.sessionId,
+          expiration: data.cookie.expiration
         };
         genotet.user.updateCookieToBrowser(data.cookie);
         genotet.success('signed in');
@@ -44,27 +54,11 @@ genotet.user.init = function() {
 };
 
 /**
- * Update the cookie to browser.
- * @param {!Object} cookie New cookie.
+ * Updates the cookie to browser.
+ * @param {!genotet.Cookie} cookie New cookie.
  */
 genotet.user.updateCookieToBrowser = function(cookie) {
   Object.keys(cookie).forEach(function(item) {
-    document.cookie = item + '=' + cookie[item];
+    Cookies.set(item, cookie[item], {path: '/genotet'});
   });
-};
-
-/**
- * Get cookie value by item.
- * @param {string} cname Item of cookie.
- * @return {string}
- */
-genotet.user.getCookie = function(cname) {
-  var name = cname + '=';
-  var ca = document.cookie.split(';');
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') c = c.substring(1);
-    if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
-  }
-  return '';
 };

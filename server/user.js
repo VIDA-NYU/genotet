@@ -2,9 +2,7 @@
  * @fileoverview user function handler
  */
 var fs = require('fs');
-var childProcess = require('child_process');
-var readline = require('readline');
-var mkdirp = require('mkdirp');
+var assert = require('assert');
 
 var utils = require('./utils.js');
 
@@ -18,7 +16,7 @@ function user() {}
 
 /** @enum {string} */
 user.QueryType = {
-  SIGHUP: 'sign-up',
+  SIGNUP: 'sign-up',
   SIGNIN: 'sign-in'
 };
 
@@ -27,6 +25,12 @@ user.QueryType = {
  * @type {string}
  */
 user.userInfoFile = 'userInfo.txt';
+
+/**
+ * Expire time of cookie.
+ * @const {number}
+ */
+user.cookieExpireTime = 24 * 60 * 60 * 1000;
 
 /**
  * @typedef {{
@@ -137,5 +141,61 @@ user.signIn = function(userPath, userInfo) {
       type: 'sign-in',
       message: 'invalid username or password'
     }
+  };
+};
+
+/**
+ * Gets session ID from database. Regenerate if it is expired.
+ * @param {!mongodb.Db} db Session database.
+ * @param {string} username Username of the POST query.
+ * @param {!Object} res HTTP response.
+ * @param {function()} callback Callback function.
+ */
+user.findUserInfo = function(db, username, res, callback) {
+  var cursor = db.collection('session').find({'username': username});
+  var result = [];
+  /** @type {{
+   *    each: function(?)
+   * }}
+   */(cursor).each(function(err, doc) {
+    assert.equal(err, null, '');
+    if (doc != null) {
+      result.push(doc);
+    } else {
+      callback();
+    }
+  });
+  callback = function() {
+    var hasValidSession = false;
+    var sessionIndex = -1;
+    if (result.length) {
+      for (var i = 0; i < result.length; i++) {
+        if (new Date().getTime() < result[i].expiration) {
+          sessionIndex = i;
+          hasValidSession = true;
+          break;
+        }
+      }
+    }
+    if (!result.length || !hasValidSession) {
+      // Don't have username or have username but don't have valid session
+      var cookie = {
+        username: username,
+        sessionId: utils.randomString(),
+        expiration: new Date().getTime() + user.cookieExpireTime
+      };
+      db.collection('session').insertOne(cookie);
+    } else {
+      // Have session and update expire date
+      var cookie = result[sessionIndex];
+      var newExpiration = new Date().getTime() + user.cookieExpireTime;
+      db.collection('session').update(cookie,
+        {$set: {expiration: newExpiration}}, {upsert: false});
+      cookie.expiration = newExpiration;
+    }
+    res.json({
+      success: true,
+      cookie: cookie
+    });
   };
 };

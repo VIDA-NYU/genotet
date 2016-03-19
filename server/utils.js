@@ -16,6 +16,15 @@ function utils() {}
 /** @const {number} */
 utils.RANGE_TOLERANCE = .001;
 
+/** @const {number} */
+utils.RANDOM_STRING_RADIX = 36;
+
+/** @const {number} */
+utils.RANDOM_STRING_START_BIT = 2;
+
+/** @const {number} */
+utils.RANDOM_STRING_LENGTH = 16;
+
 /**
  * Checks whether two ranges intersect.
  * @param {!Array<number>} range1 The first range.
@@ -83,16 +92,7 @@ utils.decodeSpecialChar = function(url) {
  * Generate session ID.
  * @return {string} Session ID.
  */
-utils.hashString = function() {
-  if (typeof s != 'string') {
-    genotet.error('x is not a string to hash');
-    return -1;
-  }
-  var a = 3, p = 1000000007;
-  var result = 0;
-  for (var i = 0; i < s.length; i++) {
-    var x = s.charCodeAt(i);
-    result = (result * a + x) % p;
-  }
-  return result;
+utils.randomString = function() {
+  return Math.random().toString(utils.RANDOM_STRING_RADIX)
+    .substr(utils.RANDOM_STRING_START_BIT, utils.RANDOM_STRING_LENGTH);
 };
