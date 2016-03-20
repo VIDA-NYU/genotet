@@ -46,12 +46,6 @@ genotet.ExpressionPanel = function(data) {
    * @private {boolean}
    */
   this.fileSelectIsOpen_ = false;
-
-  /**
-   * Flag of gene profile select is listened or not.
-   * @private {boolean}
-   */
-  this.profileSelectionIsListened_ = false;
 };
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
@@ -114,6 +108,18 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
         });
       }.bind(this));
   }, this);
+
+  // Add and remove gene profiles
+  this.selectProfiles_ = this.container.find('#profile select').select2();
+  this.selectProfiles_
+    .on('select2:select', function(event) {
+      var geneName = event.params.data.text;
+      this.signal('addGeneProfile', geneName);
+    }.bind(this))
+    .on('select2:unselect', function(event) {
+      var geneName = event.params.data.text;
+      this.signal('removeGeneProfile', geneName);
+    }.bind(this));
 
   // Input type update
   // TODO(Liana): Get view name by view object directly.
@@ -226,6 +232,7 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
 
   $.fn.select2.amd.require(['select2/data/array', 'select2/utils'],
     function(ArrayData, Utils) {
+      console.log(ArrayData);
       var CustomData = function($element, options) {
         /**
          * @type {{
@@ -236,21 +243,29 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
       };
       /**
        * @type {{
-       *   Extend:function()
+       *   Extend: function()
        * }}
        */(Utils.Extend(CustomData, ArrayData));
 
-      var pageSize = genotet.ExpressionPanel.prototype.PROFILE_PAGE_SIZE_;
+      var pageSize = this.PROFILE_PAGE_SIZE_;
+      /**
+       * The query of CustomData.
+       * @param {!Object<{
+       *   page: number
+       * }>} params Parameters for the query of CustomData.
+       * @param {function(?)} callback Callback function.
+       */
       CustomData.prototype.query = function(params, callback) {
         if (!('page' in params)) {
           params.page = 1;
         }
-        var data = {};
-        data.results = genes.slice((params.page - 1) * pageSize,
-          params.page * pageSize);
-        data.pagination = {};
-        data.pagination.more = params.page * pageSize < genes.length;
-        callback(data);
+        callback({
+          results: genes.slice((params.page - 1) * pageSize,
+            params.page * pageSize),
+          pagination: {
+            more: params.page * pageSize < genes.length
+          }
+        });
       };
 
       this.selectProfiles_ = profile.select2({
@@ -258,20 +273,6 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
         dataAdapter: CustomData,
         multiple: true
       });
-
-      if (!this.profileSelectionIsListened_) {
-        // Add and remove gene profiles
-        this.selectProfiles_
-          .on('select2:select', function(event) {
-            var geneName = event.params.data.text;
-            this.signal('addGeneProfile', geneName);
-          }.bind(this))
-          .on('select2:unselect', function(event) {
-            var geneName = event.params.data.text;
-            this.signal('removeGeneProfile', geneName);
-          }.bind(this));
-        this.profileSelectionIsListened_ = true;
-      }
 
       this.container.find('#profile .select2-container').css({
         width: '100%'
