@@ -22,12 +22,6 @@ user.QueryType = {
 };
 
 /**
- * Name of user information file.
- * @type {string}
- */
-user.userInfoFile = 'userInfo.txt';
-
-/**
  * Expire time of cookie.
  * @const {number}
  */
