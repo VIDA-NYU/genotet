@@ -470,9 +470,11 @@ network.listNetwork_ = function(networkPath) {
  */
 network.incrementalEdges_ = function(file, genes, nodes) {
   var oldNodes = {};
-  nodes.forEach(function(node) {
-    oldNodes[node.id] = true;
-  });
+  if (nodes.length) {
+    nodes.forEach(function(node) {
+      oldNodes[node.id] = true;
+    });
+  }
   var newNodes = {};
   genes.forEach(function(gene) {
     if (!(gene in oldNodes)) {
