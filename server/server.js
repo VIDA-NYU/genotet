@@ -11,9 +11,6 @@ var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var mongoUrl = 'mongodb://localhost:27017/express';
-var session = require('express-session');
-var connetMongo = require('connect-mongo');
-var MongoStore = connetMongo(session);
 var cookieParser = require('cookie-parser');
 
 var segtree = require('./segtree.js');
@@ -244,9 +241,9 @@ app.post('/genotet/user', function(req, res) {
   } else {
     var username = req.body.username;
     MongoClient.connect(mongoUrl, function(err, db) {
-      assert.equal(null, err, '');
+      assert.equal(null, err, 'error occurs');
       log.serverLog('connected to MongoDB');
-      user.findUserInfo(db, username, res, function() {
+      user.authenticate(db, username, res, function() {
         db.close();
       });
     });

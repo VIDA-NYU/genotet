@@ -89,7 +89,7 @@ utils.decodeSpecialChar = function(url) {
 };
 
 /**
- * Generate session ID.
+ * Generates session ID.
  * @return {string} Session ID.
  */
 utils.randomString = function() {

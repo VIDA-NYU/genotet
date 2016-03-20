@@ -2,17 +2,14 @@
  * @fileoverview Node.js mongodb externs.
  */
 
-/**
- * @constructor
- * @return {!mongodb}
- */
-function mongodb() {}
+/** @const */
+var mongodb = {};
 
 /**
  * @constructor
- * @return {!cursor}
+ * @return {!mongodb.Cursor}
  */
-function cursor() {}
+mongodb.Cursor = function() {};
 
 /** @const */
 mongodb.MongoClient;
@@ -37,19 +34,19 @@ mongodb.Db.prototype.collection = function(dbName) {};
 /**
  * @param {Object=} query
  * @param {Object=} projection
- * @return {!cursor}
+ * @return {!mongodb.Cursor}
  */
 mongodb.Db.prototype.collection.find = function(query, projection) {};
 
 /**
- * @param {Object} document
+ * @param {!Object} document
  * @param {Object=} writeConcern
  */
 mongodb.Db.prototype.collection.insertOne = function(document, writeConcern) {};
 
 /**
- * @param {Object} query
- * @param {Object} update
+ * @param {!Object} query
+ * @param {!Object} update
  * @param {boolean=} upsert
  * @param {boolean=} multi
  * @param {Object=} writeConcern
@@ -59,4 +56,4 @@ mongodb.Db.prototype.collection.update = function(query, update, upsert, multi, 
 /**
  * @param {function()} callback
  */
-cursor.prototype.each = function(callback) {};
+mongodb.Cursor.prototype.each = function(callback) {};

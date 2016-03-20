@@ -78,9 +78,9 @@ genotet.logger.sendBack = function() {
   if (genotet.logger.logList.length) {
     var params = {
       logs: genotet.logger.logList,
-      username: genotet.data.userInfo.username
+      username: genotet.user.info.username
     };
-    $.post(genotet.data.logURL, params, 'json');
+    $.post(genotet.data.logUrl, params, 'json');
     genotet.logger.logList = [];
   }
 };

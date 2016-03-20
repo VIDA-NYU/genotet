@@ -8,6 +8,16 @@
 genotet.user = {};
 
 /**
+ * User information are saved to this URL via http and received via jsonp.
+ * @type {!Object<{
+ *   username: string,
+ *   sessionId: string,
+ *   expiration: number
+ * }>}
+ */
+genotet.user.info;
+
+/**
  * @typedef {{
  *   username: (string|undefined),
  *   password: string,
@@ -21,6 +31,12 @@ genotet.Cookie;
  * Initializes the user auth.
  */
 genotet.user.init = function() {
+  genotet.user.info = {
+    username: 'anonymous',
+    sessionId: '',
+    expiration: ''
+  };
+
   if (!Cookies.get('expiration') ||
     new Date().getTime() >= Cookies.get('expiration')) {
     genotet.menu.displaySignInterface();
@@ -33,21 +49,17 @@ genotet.user.init = function() {
     password: Cookies.get('password')
   };
 
-  $.ajax({
-    url: genotet.data.userURL,
-    type: 'POST',
-    data: userInfo,
-    dataType: 'json'
-  }).done(function(data) {
-    genotet.menu.displaySignedUser(userInfo.username);
-    genotet.data.userInfo = {
-      username: data.cookie.username,
-      sessionId: data.cookie.sessionId,
-      expiration: data.cookie.expiration
-    };
-    genotet.user.updateCookieToBrowser(data.cookie);
-    genotet.success('signed in');
-  });
+  $.post(genotet.data.userUrl, userInfo, 'json')
+    .done(function(data) {
+      genotet.menu.displaySignedUser(userInfo.username);
+      genotet.user.info = {
+        username: data.cookie.username,
+        sessionId: data.cookie.sessionId,
+        expiration: data.cookie.expiration
+      };
+      genotet.user.updateCookieToBrowser(data.cookie);
+      genotet.success('signed in');
+    });
 };
 
 /**
@@ -65,7 +77,7 @@ genotet.user.updateCookieToBrowser = function(cookie) {
  * Log out for signed user.
  */
 genotet.user.logOut = function() {
-  genotet.data.userInfo = {
+  genotet.user.info = {
     username: 'anonymous',
     sessionId: '',
     expiration: ''

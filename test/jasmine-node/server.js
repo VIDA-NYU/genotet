@@ -16,7 +16,7 @@ function server() {}
 server.url = 'http://localhost:3000/genotet';
 
 /** @const {string} */
-server.uploadURL = 'http://localhost:3000/genotet/upload';
+server.uploadUrl = 'http://localhost:3000/genotet/upload';
 
 /**
  * @typedef {{
@@ -41,7 +41,7 @@ server.queryURL = function(params) {
  * @return {!frisby}
  */
 server.postForm = function(frisby, form) {
-  frisby.post(server.uploadURL, form, {
+  frisby.post(server.uploadUrl, form, {
     headers: {
       'content-type': 'multipart/form-data; boundary=' +
       form.getBoundary(),

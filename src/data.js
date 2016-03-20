@@ -31,34 +31,25 @@ genotet.data = {};
  * Data queries are sent to this address via http and received via jsonp.
  * @type {string}
  */
-genotet.data.serverURL;
+genotet.data.serverUrl;
 
 /**
  * Data are uploaded to this URL by posting multipart form data.
  * @type {string}
  */
-genotet.data.uploadURL;
+genotet.data.uploadUrl;
 
 /**
  * User information are saved to this URL via http and received via jsonp.
  * @type {string}
  */
-genotet.data.userURL;
-
-/**
- * User information are saved to this URL via http and received via jsonp.
- * @type {!Object<{
- *   username: string,
- *   session: number
- * }>}
- */
-genotet.data.userInfo;
+genotet.data.userUrl;
 
 /**
  * Log queries are sent to this address.
  * @type {string}
  */
-genotet.data.logURL;
+genotet.data.logUrl;
 
 /**
  * @typedef {!Array<{
@@ -158,19 +149,14 @@ genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 genotet.data.init = function() {
   if (window.location.protocol == 'file:') {
     // Testing environment
-    genotet.data.serverURL = 'http://localhost:3000/genotet';
+    genotet.data.serverUrl = 'http://localhost:3000/genotet';
   } else {
-    genotet.data.serverURL = window.location.protocol + '//' +
+    genotet.data.serverUrl = window.location.protocol + '//' +
       window.location.hostname + ':3000/genotet';
   }
-  genotet.data.uploadURL = genotet.data.serverURL + '/upload';
-  genotet.data.userURL = genotet.data.serverURL + '/user';
-  genotet.data.userInfo = {
-    username: 'anonymous',
-    sessionId: '',
-    expiration: ''
-  };
-  genotet.data.logURL = genotet.data.serverURL + '/log';
+  genotet.data.uploadUrl = genotet.data.serverUrl + '/upload';
+  genotet.data.userUrl = genotet.data.serverUrl + '/user';
+  genotet.data.logUrl = genotet.data.serverUrl + '/log';
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());
@@ -188,7 +174,7 @@ genotet.data.loadList = function(view, fileType) {
   var params = {
     type: 'list-' + fileType
   };
-  $.get(genotet.data.serverURL, params, function(data) {
+  $.get(genotet.data.serverUrl, params, function(data) {
       genotet.data.files[fileType + 'Files'] = data;
       view.signal('updateFileListAfterLoading');
     }.bind(this))

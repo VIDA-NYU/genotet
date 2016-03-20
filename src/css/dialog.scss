@@ -16,16 +16,7 @@
 }
 
 #dialog {
-  #type,
-  #gene,
-  #chr,
-  #matrix,
-  #network,
-  #mapping-file,
-  #email,
-  #username,
-  #password,
-  #confirm-password {
+  .dialog-input {
     width: 220px;
   }
 

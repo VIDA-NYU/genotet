@@ -41,14 +41,11 @@ user.cookieExpireTime = 24 * 60 * 60 * 1000;
  *   confirmed: (boolean|undefined)
  * }}
  */
-user.userInfo;
+user.Info;
 
 /**
  * @typedef {{
- *   error: (Object<{
- *     type: string,
- *     message: string
- *   }>)
+ *   error: string
  * }}
  */
 user.Error;
@@ -56,7 +53,7 @@ user.Error;
 /**
  * Checks the user information for signing in.
  * @param {string} userPath Directory of user indormation file.
- * @param {!user.userInfo} userInfo User Information
+ * @param {!user.Info} userInfo User Information
  * @return {user.Error|boolean}
  */
 user.signUp = function(userPath, userInfo) {
@@ -86,10 +83,7 @@ user.signUp = function(userPath, userInfo) {
     var errorMessage = checkDuplicate.elements.join(' and ') + ' exist';
     errorMessage += checkDuplicate.elements.length == 1 ? 's' : '';
     return {
-      error: {
-        type: 'sign-up',
-        message: errorMessage
-      }
+      error: errorMessage
     };
   } else {
     var infoLine = userInfo.email + ' ' + userInfo.username + ' ' +
@@ -112,7 +106,7 @@ user.signUp = function(userPath, userInfo) {
 /**
  * Checks the user information for signing in.
  * @param {string} userPath Directory of user information file.
- * @param {!user.userInfo} userInfo User Information
+ * @param {!user.Info} userInfo User Information
  * @return {user.Error|boolean}
  */
 user.signIn = function(userPath, userInfo) {
@@ -128,10 +122,7 @@ user.signIn = function(userPath, userInfo) {
     }
   }
   return {
-    error: {
-      type: 'sign-in',
-      message: 'invalid username or password'
-    }
+    error: 'invalid username or password'
   };
 };
 
@@ -142,18 +133,19 @@ user.signIn = function(userPath, userInfo) {
  * @param {!Object} res HTTP response.
  * @param {function()} callback Callback function.
  */
-user.findUserInfo = function(db, username, res, callback) {
+user.authenticate = function(db, username, res, callback) {
   var cursor = db.collection('session').find({username: username});
   var result = [];
   cursor.each(function(err, doc) {
-    assert.equal(err, null, '');
+    assert.equal(err, null, 'error occurs');
     if (doc != null) {
       result.push(doc);
     } else {
       callback();
+      authenticateCallback();
     }
   });
-  callback = function() {
+  var authenticateCallback = function() {
     var hasValidSession = false;
     var sessionIndex = -1;
     if (result.length) {
