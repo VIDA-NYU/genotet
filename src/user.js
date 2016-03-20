@@ -58,3 +58,16 @@ genotet.user.updateCookieToBrowser = function(cookie) {
     Cookies.set(item, cookie[item], {path: '/genotet'});
   });
 };
+
+/**
+ * Log out for signed user.
+ */
+genotet.user.logOut = function() {
+  genotet.data.userInfo = {
+    username: 'anonymous',
+    sessionId: '',
+    expiration: ''
+  };
+  genotet.menu.displaySignInterface();
+  genotet.success('logged out');
+};

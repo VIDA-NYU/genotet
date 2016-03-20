@@ -40,6 +40,7 @@ genotet.dialog.TEMPLATES_ = {
   upload: 'templates/upload.html',
   signUp: 'templates/sign-up.html',
   signIn: 'templates/sign-in.html',
+  logOut: 'templates/log-out.html',
   progress: 'templates/upload-progress.html'
 };
 
@@ -82,6 +83,9 @@ genotet.dialog.create = function(type) {
       break;
     case 'sign-in':
       genotet.dialog.signIn_();
+      break;
+    case 'log-out':
+      genotet.dialog.logOut_();
       break;
     default:
       genotet.error('unknown view type in Dialog.create:', type);
@@ -578,6 +582,23 @@ genotet.dialog.signIn_ = function() {
           .fail(function(res) {
             genotet.error(res.responseText);
           });
+      });
+    });
+};
+
+/**
+ * Creates a dialog for logging out.
+ * @private
+ */
+genotet.dialog.logOut_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.logOut,
+    function() {
+      modal.modal();
+      var btnLogOut = modal.find('#btn-log-out');
+      $('#log-out-username').text(genotet.data.userInfo.username);
+      btnLogOut.click(function() {
+        genotet.user.logOut();
       });
     });
 };
