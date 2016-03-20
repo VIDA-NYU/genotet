@@ -52,77 +52,86 @@ user.Error;
 
 /**
  * Checks the user information for signing in.
- * @param {string} userPath Directory of user indormation file.
+ * @param {!mongodb.Db} db Session database.
+ * @param {string} userPath Directory of user information file.
  * @param {!user.Info} userInfo User Information
- * @return {user.Error|boolean}
+ * @param {function(!Object)} callback Callback function.
  */
-user.signUp = function(userPath, userInfo) {
+user.signUp = function(db, userPath, userInfo, callback) {
   var checkDuplicate = {
     duplicated: false,
     elements: []
   };
-  var lines = fs.readFileSync(userPath + user.userInfoFile).toString()
-    .split('\n');
-  for (var i = 0; i < lines.length; i++) {
-    var parts = lines[i].split(/[\t\s]+/);
-    if (parts.length == 0) {
-      continue;
+  var cursor = db.collection('userInfo').find({
+    $or: [{username: userInfo.username}, {email: userInfo.email}]});
+  var data = [];
+  cursor.each(function(err, doc) {
+    assert.equal(err, null, 'error occurs');
+    if (doc != null) {
+      data.push(doc);
+    } else {
+      var result = authenticateCallback();
+      callback(result);
     }
-    if (parts[0] == userInfo.email || parts[1] == userInfo.username) {
+  });
+  var authenticateCallback = function() {
+    if (data.length) {
       checkDuplicate.duplicated = true;
-      if (parts[0] == userInfo.email) {
-        checkDuplicate.elements.push('email: ' + userInfo.email);
-      }
-      if (parts[1] == userInfo.username) {
-        checkDuplicate.elements.push('username: ' + userInfo.username);
-      }
-      break;
+      console.log(data);
+      data.forEach(function(item) {
+        console.log(item);
+        if (item.email == userInfo.email) {
+          checkDuplicate.elements.push('email: ' + userInfo.email);
+        }
+        if (item.username == userInfo.username) {
+          checkDuplicate.elements.push('username: ' + userInfo.username);
+        }
+      });
     }
-  }
-  if (checkDuplicate.duplicated) {
-    var errorMessage = checkDuplicate.elements.join(' and ') + ' exist';
-    errorMessage += checkDuplicate.elements.length == 1 ? 's' : '';
-    return {
-      error: errorMessage
-    };
-  } else {
-    var infoLine = userInfo.email + ' ' + userInfo.username + ' ' +
-      userInfo.password + ' ' + userInfo.confirmed + '\n';
-    fs.appendFile(userPath + user.userInfoFile, infoLine, function(err) {
-      if (err) {
-        log.serverLog(err);
-        return;
-      }
+    if (checkDuplicate.duplicated) {
+      var errorMessage = checkDuplicate.elements.join(' and ') + ' exist';
+      errorMessage += checkDuplicate.elements.length == 1 ? 's' : '';
+      return {
+        error: errorMessage
+      };
+    } else {
+      db.collection('userInfo').insertOne(userInfo);
       log.serverLog('user information saved');
-    });
-    var folder = userPath + userInfo.username + '/';
-    if (!fs.existsSync(folder)) {
-      fs.mkdirSync(folder);
+      var folder = userPath + userInfo.username + '/';
+      if (!fs.existsSync(folder)) {
+        fs.mkdirSync(folder);
+      }
+      return true;
     }
-    return true;
-  }
+  };
 };
 
 /**
  * Checks the user information for signing in.
- * @param {string} userPath Directory of user information file.
+ * @param {!mongodb.Db} db Session database.
  * @param {!user.Info} userInfo User Information
- * @return {user.Error|boolean}
+ * @param {function(!Object)} callback Callback function.
  */
-user.signIn = function(userPath, userInfo) {
-  var lines = fs.readFileSync(userPath + user.userInfoFile).toString()
-    .split('\n');
-  for (var i = 0; i < lines.length; i++) {
-    var parts = lines[i].split(/[\t\s]+/);
-    if (parts.length == 0) {
-      continue;
+user.signIn = function(db, userInfo, callback) {
+  var cursor = db.collection('userInfo').find({username: userInfo.username});
+  var data;
+  cursor.each(function(err, doc) {
+    assert.equal(err, null, 'error occurs');
+    if (doc != null) {
+      data = doc;
+    } else {
+      var result = authenticateCallback();
+      callback(result);
     }
-    if (parts[1] == userInfo.username && parts[2] == userInfo.password) {
+  });
+  var authenticateCallback = function() {
+    if (data && data.password == userInfo.password) {
       return true;
+    } else {
+      return {
+        error: 'invalid username or password'
+      };
     }
-  }
-  return {
-    error: 'invalid username or password'
   };
 };
 
@@ -130,10 +139,9 @@ user.signIn = function(userPath, userInfo) {
  * Gets session ID from database. Regenerate if it is expired.
  * @param {!mongodb.Db} db Session database.
  * @param {string} username Username of the POST query.
- * @param {!Object} res HTTP response.
- * @param {function()} callback Callback function.
+ * @param {function(!Object)} callback Callback function.
  */
-user.authenticate = function(db, username, res, callback) {
+user.authenticate = function(db, username, callback) {
   var cursor = db.collection('session').find({username: username});
   var result = [];
   cursor.each(function(err, doc) {
@@ -141,8 +149,8 @@ user.authenticate = function(db, username, res, callback) {
     if (doc != null) {
       result.push(doc);
     } else {
-      callback();
-      authenticateCallback();
+      var data = authenticateCallback();
+      callback(data);
     }
   });
   var authenticateCallback = function() {
@@ -173,8 +181,8 @@ user.authenticate = function(db, username, res, callback) {
         {$set: {expiration: newExpiration}}, {upsert: false});
       cookie.expiration = newExpiration;
     }
-    res.json({
+    return {
       cookie: cookie
-    });
+    };
   };
 };

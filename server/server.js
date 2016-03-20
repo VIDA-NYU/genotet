@@ -206,48 +206,60 @@ app.post('/genotet/user', function(req, res) {
   log.serverLog('POST user');
 
   var type = req.body.type;
-  switch (type) {
-    case user.QueryType.SIGNUP:
-      var userInfo = {
-        email: req.body.email,
-        username: req.body.username,
-        password: req.body.password,
-        confirmed: req.body.confirmed
-      };
-      var data = user.signUp(userPath, userInfo);
-      break;
-    case user.QueryType.SIGNIN:
-      var userInfo = {
-        username: req.body.username,
-        password: req.body.password
-      };
-      var data = user.signIn(userPath, userInfo);
-      break;
+  MongoClient.connect(mongoUrl, function(err, db) {
+    assert.equal(null, err, 'error occurs');
+    log.serverLog('connected to MongoDB');
 
-    // Undefined type, error
-    default:
-      log.serverLog('invalid query type');
-      var data = {
-        error: {
-          type: 'query',
-          message: 'invalid query type'
-        }
-      };
-  }
-  res.header('Access-Control-Allow-Origin', '*');
-  if (data.error) {
-    log.serverLog(data.error.type, data.error.message);
-    res.status(500).json(data.error);
-  } else {
-    var username = req.body.username;
-    MongoClient.connect(mongoUrl, function(err, db) {
-      assert.equal(null, err, 'error occurs');
-      log.serverLog('connected to MongoDB');
-      user.authenticate(db, username, res, function() {
-        db.close();
-      });
-    });
-  }
+    var userInfo, data;
+    var authenticate = function() {
+      res.header('Access-Control-Allow-Origin', '*');
+      if (data.error) {
+        log.serverLog(data.error.type, data.error.message);
+        res.status(500).json(data.error);
+      } else {
+        var username = req.body.username;
+        user.authenticate(db, username, function(data) {
+          res.json(data);
+          db.close();
+        });
+      }
+    };
+    switch (type) {
+      case user.QueryType.SIGNUP:
+        userInfo = {
+          email: req.body.email,
+          username: req.body.username,
+          password: req.body.password,
+          confirmed: req.body.confirmed
+        };
+        user.signUp(db, userPath, userInfo, function(result) {
+          data = result;
+          authenticate();
+        });
+        break;
+      case user.QueryType.SIGNIN:
+        userInfo = {
+          username: req.body.username,
+          password: req.body.password
+        };
+        user.signIn(db, userInfo, function(result) {
+          data = result;
+          authenticate();
+        });
+        break;
+
+      // Undefined type, error
+      default:
+        log.serverLog('invalid query type');
+        data = {
+          error: {
+            type: 'query',
+            message: 'invalid query type'
+          }
+        };
+        authenticate();
+    }
+  });
 });
 
 // GET request handlers.
