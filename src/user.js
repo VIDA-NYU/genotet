@@ -38,19 +38,15 @@ genotet.user.init = function() {
     data: userInfo,
     dataType: 'json'
   }).done(function(data) {
-      if (!data.success) {
-        genotet.error('failed to signed in', data.message);
-      } else {
-        genotet.menu.displaySignedUser(userInfo.username);
-        genotet.data.userInfo = {
-          username: data.cookie.username,
-          sessionId: data.cookie.sessionId,
-          expiration: data.cookie.expiration
-        };
-        genotet.user.updateCookieToBrowser(data.cookie);
-        genotet.success('signed in');
-      }
-    });
+    genotet.menu.displaySignedUser(userInfo.username);
+    genotet.data.userInfo = {
+      username: data.cookie.username,
+      sessionId: data.cookie.sessionId,
+      expiration: data.cookie.expiration
+    };
+    genotet.user.updateCookieToBrowser(data.cookie);
+    genotet.success('signed in');
+  });
 };
 
 /**

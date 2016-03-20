@@ -5,6 +5,7 @@
 var bodyParser = require('body-parser');
 var express = require('express');
 var fs = require('fs');
+var https = require('https');
 var multer = require('multer');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
@@ -246,7 +247,6 @@ app.post('/genotet/user', function(req, res) {
   } else {
     var username = req.body.username;
     MongoClient.connect(url, function(err, db) {
-      console.log(err);
       assert.equal(null, err, '');
       log.serverLog('connected to MongoDB');
       user.findUserInfo(db, username, res, function() {
@@ -364,5 +364,12 @@ app.use(function(err, req, res, next) {
 });
 
 // Start the application.
-var server = app.listen(3000);
-server.setTimeout(1200000);
+var httpServer = app.listen(3000);
+httpServer.setTimeout(1200000);
+//var privateKey = fs.readFileSync('privateKey.pem');
+//var certificate = fs.readFileSync('certificate.pem');
+//var httpsServer = https.createServer({
+//  key: privateKey,
+//  cert: certificate
+//}, app).listen(443);
+//httpsServer.setTimeout(1200000);

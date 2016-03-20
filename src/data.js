@@ -166,7 +166,7 @@ genotet.data.init = function() {
   genotet.data.uploadURL = genotet.data.serverURL + '/upload';
   genotet.data.userURL = genotet.data.serverURL + '/user';
   genotet.data.userInfo = {
-    username: '',
+    username: 'anonymous',
     sessionId: '',
     expiration: ''
   };

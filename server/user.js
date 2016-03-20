@@ -4,6 +4,7 @@
 var fs = require('fs');
 var assert = require('assert');
 
+var log = require('./log.js');
 var utils = require('./utils.js');
 
 /** @type {user} */
@@ -44,14 +45,6 @@ user.userInfo;
 
 /**
  * @typedef {{
- *   success: boolean
- * }}
- */
-user.SignupResponse;
-
-/**
- * @typedef {{
- *   success: boolean,
  *   error: (Object<{
  *     type: string,
  *     message: string
@@ -64,7 +57,7 @@ user.ErrorResponse;
  * Checks the user information for signing in.
  * @param {string} userPath Directory of user indormation file.
  * @param {!user.userInfo} userInfo User Information
- * @return {!user.SignupResponse|!user.ErrorResponse}
+ * @return {user.ErrorResponse|boolean}
  */
 user.signUp = function(userPath, userInfo) {
   var checkDuplicate = {
@@ -93,7 +86,6 @@ user.signUp = function(userPath, userInfo) {
     var errorMessage = checkDuplicate.elements.join(' and ') + ' exist';
     errorMessage += checkDuplicate.elements.length == 1 ? 's' : '';
     return {
-      success: false,
       error: {
         type: 'sign-up',
         message: errorMessage
@@ -104,14 +96,16 @@ user.signUp = function(userPath, userInfo) {
       userInfo.password + ' ' + userInfo.confirmed + '\n';
     fs.appendFile(userPath + user.userInfoFile, infoLine, function(err) {
       if (err) {
-        console.log(err);
+        log.serverLog(err);
         return;
       }
-      console.log('user information saved');
+      log.serverLog('user information saved');
     });
-    return {
-      success: true
-    };
+    var folder = userPath + userInfo.username + '/';
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder);
+    }
+    return true;
   }
 };
 
@@ -119,7 +113,7 @@ user.signUp = function(userPath, userInfo) {
  * Checks the user information for signing in.
  * @param {string} userPath Directory of user information file.
  * @param {!user.userInfo} userInfo User Information
- * @return {!user.SignupResponse}
+ * @return {user.ErrorResponse|boolean}
  */
 user.signIn = function(userPath, userInfo) {
   var lines = fs.readFileSync(userPath + user.userInfoFile).toString()
@@ -130,13 +124,10 @@ user.signIn = function(userPath, userInfo) {
       continue;
     }
     if (parts[1] == userInfo.username && parts[2] == userInfo.password) {
-      return {
-        success: true
-      };
+      return true;
     }
   }
   return {
-    success: false,
     error: {
       type: 'sign-in',
       message: 'invalid username or password'
@@ -194,7 +185,6 @@ user.findUserInfo = function(db, username, res, callback) {
       cookie.expiration = newExpiration;
     }
     res.json({
-      success: true,
       cookie: cookie
     });
   };
