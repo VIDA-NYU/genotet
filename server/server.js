@@ -10,7 +10,7 @@ var multer = require('multer');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
-var url = 'mongodb://localhost:27017/express';
+var mongoUrl = 'mongodb://localhost:27017/express';
 var session = require('express-session');
 var connetMongo = require('connect-mongo');
 var MongoStore = connetMongo(session);
@@ -139,9 +139,6 @@ function config() {
       case 'mappingPath':
         mappingPath = value;
         break;
-      case 'userPath':
-        userPath = value;
-        break;
     }
   }
 }
@@ -246,7 +243,7 @@ app.post('/genotet/user', function(req, res) {
     res.status(500).json(data.error);
   } else {
     var username = req.body.username;
-    MongoClient.connect(url, function(err, db) {
+    MongoClient.connect(mongoUrl, function(err, db) {
       assert.equal(null, err, '');
       log.serverLog('connected to MongoDB');
       user.findUserInfo(db, username, res, function() {
@@ -366,10 +363,3 @@ app.use(function(err, req, res, next) {
 // Start the application.
 var httpServer = app.listen(3000);
 httpServer.setTimeout(1200000);
-//var privateKey = fs.readFileSync('privateKey.pem');
-//var certificate = fs.readFileSync('certificate.pem');
-//var httpsServer = https.createServer({
-//  key: privateKey,
-//  cert: certificate
-//}, app).listen(443);
-//httpsServer.setTimeout(1200000);

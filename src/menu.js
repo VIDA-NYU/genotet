@@ -72,9 +72,8 @@ genotet.menu.init = function() {
  */
 genotet.menu.displaySignedUser = function(username) {
   $('#username').text(username);
-  $('#log-out').css('display', 'inline-block');
-  $('#sign-in').css('display', 'none');
-  $('#sign-up').css('display', 'none');
+  $('#log-out').show();
+  $('#sign-in, #sign-up').hide();
 };
 
 /**
@@ -83,7 +82,6 @@ genotet.menu.displaySignedUser = function(username) {
  */
 genotet.menu.displaySignInterface = function() {
   $('#username').text('');
-  $('#log-out').css('display', 'none');
-  $('#sign-in').css('display', 'inline-block');
-  $('#sign-up').css('display', 'inline-block');
+  $('#log-out').hide();
+  $('#sign-in, #sign-up').show();
 };

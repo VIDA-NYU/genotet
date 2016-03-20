@@ -500,7 +500,7 @@ genotet.dialog.signUp_ = function() {
         var userInfo = {
           type: 'sign-up',
           email: email.val(),
-          username: username.val(),
+          username: /** @type {string} */(username.val()),
           password: CryptoJS.SHA256(/** @type {string} */(password.val()))
             .toString(),
           confirmed: false
@@ -512,8 +512,7 @@ genotet.dialog.signUp_ = function() {
           data: userInfo,
           dataType: 'json'
         }).done(function(data) {
-            genotet.menu.displaySignedUser(
-              /** @type {string} */(userInfo.username));
+            genotet.menu.displaySignedUser(userInfo.username);
             genotet.data.userInfo = {
               username: data.cookie.username,
               sessionId: data.cookie.sessionId,
@@ -555,7 +554,7 @@ genotet.dialog.signIn_ = function() {
       btnSignIn.click(function() {
         var userInfo = {
           type: 'sign-in',
-          username: username.val(),
+          username: /** @type {string} */(username.val()),
           password: CryptoJS.SHA256(/** @type {string} */(password.val()))
             .toString()
         };
@@ -566,8 +565,7 @@ genotet.dialog.signIn_ = function() {
           data: userInfo,
           dataType: 'json'
         }).done(function(data) {
-            genotet.menu.displaySignedUser(
-              /** @type {string} */(userInfo.username));
+            genotet.menu.displaySignedUser(userInfo.username);
             genotet.data.userInfo = {
               username: data.cookie.username,
               sessionId: data.cookie.sessionId,

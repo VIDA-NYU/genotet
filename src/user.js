@@ -21,8 +21,9 @@ genotet.Cookie;
  * Initializes the user auth.
  */
 genotet.user.init = function() {
-  if (!document.cookie ||
+  if (!Cookies.get('expiration') ||
     new Date().getTime() >= Cookies.get('expiration')) {
+    genotet.menu.displaySignInterface();
     return;
   }
 
@@ -54,9 +55,10 @@ genotet.user.init = function() {
  * @param {!genotet.Cookie} cookie New cookie.
  */
 genotet.user.updateCookieToBrowser = function(cookie) {
-  Object.keys(cookie).forEach(function(item) {
-    Cookies.set(item, cookie[item], {path: '/genotet'});
-  });
+  for (var key in cookie) {
+    var value = cookie[key];
+    Cookies.set(key, value, {path: '/genotet'});
+  }
 };
 
 /**

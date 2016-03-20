@@ -8,7 +8,13 @@
  */
 function mongodb() {}
 
-/** @type {!Object} */
+/**
+ * @constructor
+ * @return {!cursor}
+ */
+function cursor() {}
+
+/** @const */
 mongodb.MongoClient;
 
 /**
@@ -31,6 +37,7 @@ mongodb.Db.prototype.collection = function(dbName) {};
 /**
  * @param {Object=} query
  * @param {Object=} projection
+ * @return {!cursor}
  */
 mongodb.Db.prototype.collection.find = function(query, projection) {};
 
@@ -48,3 +55,8 @@ mongodb.Db.prototype.collection.insertOne = function(document, writeConcern) {};
  * @param {Object=} writeConcern
  */
 mongodb.Db.prototype.collection.update = function(query, update, upsert, multi, writeConcern) {};
+
+/**
+ * @param {function()} callback
+ */
+cursor.prototype.each = function(callback) {};

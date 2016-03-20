@@ -48,16 +48,16 @@ user.userInfo;
  *   error: (Object<{
  *     type: string,
  *     message: string
- *   }>|undefined)
+ *   }>)
  * }}
  */
-user.ErrorResponse;
+user.Error;
 
 /**
  * Checks the user information for signing in.
  * @param {string} userPath Directory of user indormation file.
  * @param {!user.userInfo} userInfo User Information
- * @return {user.ErrorResponse|boolean}
+ * @return {user.Error|boolean}
  */
 user.signUp = function(userPath, userInfo) {
   var checkDuplicate = {
@@ -113,7 +113,7 @@ user.signUp = function(userPath, userInfo) {
  * Checks the user information for signing in.
  * @param {string} userPath Directory of user information file.
  * @param {!user.userInfo} userInfo User Information
- * @return {user.ErrorResponse|boolean}
+ * @return {user.Error|boolean}
  */
 user.signIn = function(userPath, userInfo) {
   var lines = fs.readFileSync(userPath + user.userInfoFile).toString()
@@ -143,12 +143,9 @@ user.signIn = function(userPath, userInfo) {
  * @param {function()} callback Callback function.
  */
 user.findUserInfo = function(db, username, res, callback) {
-  var cursor = db.collection('session').find({'username': username});
+  var cursor = db.collection('session').find({username: username});
   var result = [];
-  /** @type {{
-   *    each: function(?)
-   * }}
-   */(cursor).each(function(err, doc) {
+  cursor.each(function(err, doc) {
     assert.equal(err, null, '');
     if (doc != null) {
       result.push(doc);

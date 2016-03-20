@@ -2,11 +2,8 @@
  * @fileoverview crypto-js library extern.
  */
 
-/**
- * @constructor
- * @return {!CryptoJS}
- */
-function CryptoJS() {}
+/** @const */
+var CryptoJS = {};
 
 /**
  * @param {string} message

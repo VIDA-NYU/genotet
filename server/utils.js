@@ -20,7 +20,7 @@ utils.RANGE_TOLERANCE = .001;
 utils.RANDOM_STRING_RADIX = 36;
 
 /** @const {number} */
-utils.RANDOM_STRING_START_BIT = 2;
+utils.RANDOM_STRING_START_INDEX = 2;
 
 /** @const {number} */
 utils.RANDOM_STRING_LENGTH = 16;
@@ -94,5 +94,5 @@ utils.decodeSpecialChar = function(url) {
  */
 utils.randomString = function() {
   return Math.random().toString(utils.RANDOM_STRING_RADIX)
-    .substr(utils.RANDOM_STRING_START_BIT, utils.RANDOM_STRING_LENGTH);
+    .substr(utils.RANDOM_STRING_START_INDEX, utils.RANDOM_STRING_LENGTH);
 };
