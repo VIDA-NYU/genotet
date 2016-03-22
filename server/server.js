@@ -144,7 +144,7 @@ app.use(bodyParser.json());
 app.post('/genotet/log', function(req, res) {
   log.serverLog('POST', 'user-log');
 
-  log.userLog(logPath, req.body);
+  log.query.userLog(logPath, req.body);
 });
 
 /**
@@ -187,7 +187,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
  * GET request handler.
  */
 app.get('/genotet', function(req, res) {
-  var query = req.query;
+  var query = JSON.parse(req.query.data);
   var type = query.type;
   var data;
   log.serverLog('GET', type);

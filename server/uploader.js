@@ -39,6 +39,16 @@ uploader.ENTRY_SIZE_ = 12;
 uploader.DOUBLE_SIZE_ = 8;
 
 /**
+ * @typedef {{
+ *   error: string
+ * }}
+ */
+uploader.Error;
+
+/** @const */
+uploader.query = {};
+
+/**
  * Uploads a file or a directory to server.
  * @param {{
  *   type: uploader.FileType,
@@ -272,13 +282,18 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
 
 /**
  * Checks whether the file has been uploaded and processed.
- * @param {{
+ * @param {*|{
  *  fileName: string
  * }} query Parameters for file checking.
  * @param {string} prefix Path to the folder.
- * @return {boolean} File exists or not
+ * @return {boolean|uploader.Error} File exists or not
  */
 uploader.checkFinish = function(query, prefix) {
+  if (query.fileName == undefined) {
+    return {
+      error: 'fileName is undefined'
+    };
+  }
   //TODO: convert processing progress into db.
   var isFinish = fs.existsSync(prefix + query.fileName + '.finish');
   if (isFinish) {

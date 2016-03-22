@@ -47,23 +47,28 @@ bed.MotifsResult;
 /** @const */
 bed.query = {};
 
+// Start public APIs
 /**
- * @typedef {{
+ * @param {*|{
  *   fileName: string,
  *   chr: string,
  *   xl: (number|undefined),
  *   xr: (number|undefined)
- * }}
- */
-bed.query.Motifs;
-
-// Start public APIs
-/**
- * @param {!bed.query.Motifs} query
+ * }} query
  * @param {string} bedPath
  * @return {bed.MotifsResult|bed.Error}
  */
 bed.query.motifs = function(query, bedPath) {
+  if (query.fileName == undefined) {
+    return {
+      error: 'fileName is undefined'
+    };
+  }
+  if (query.chr == undefined) {
+    return {
+      error: 'chr is undefined'
+    };
+  }
   var fileName = query.fileName;
   var chr = query.chr;
   var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;

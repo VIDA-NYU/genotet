@@ -85,47 +85,20 @@ expression.TfaProfile;
 /** @const */
 expression.query = {};
 
-/**
- * @typedef {{
- *   fileName: string
- * }}
- */
-expression.query.MatrixInfo;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
- * }}
- */
-expression.query.Matrix;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
- * }}
- */
-expression.query.Profile;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
- * }}
- */
-expression.query.TfaProfile;
-
 // Start public APIs
 /**
- * @param {expression.query.MatrixInfo} query
+ * @param {*|{
+ *   fileName: string
+ * }} query
  * @param {string} expressionPath
  * @return {expression.MatrixInfo|expression.Error}
  */
 expression.query.matrixInfo = function(query, expressionPath) {
+  if (query.fileName == undefined) {
+    return {
+      error: 'fileName is undefined'
+    };
+  }
   var file = expressionPath + query.fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
@@ -138,11 +111,30 @@ expression.query.matrixInfo = function(query, expressionPath) {
 };
 
 /**
- * @param {expression.query.Matrix} query
+ * @param {*|{
+ *   fileName: string,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
+ * }} query
  * @param {string} expressionPath
  * @return {expression.Matrix|expression.Error}
  */
 expression.query.matrix = function(query, expressionPath) {
+  if (query.fileName == undefined) {
+    return {
+      error: 'fileName is undefined'
+    };
+  }
+  if (query.geneNames == undefined) {
+    return {
+      error: 'geneNames is undefined'
+    };
+  }
+  if (query.conditionNames == undefined) {
+    return {
+      error: 'conditionNames is undefined'
+    };
+  }
   var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
@@ -157,11 +149,30 @@ expression.query.matrix = function(query, expressionPath) {
 };
 
 /**
- * @param {expression.query.Profile} query
+ * @param {*|{
+ *   fileName: string,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
+ * }} query
  * @param {string} expressionPath
  * @return {expression.Profile|expression.Error}
  */
 expression.query.profile = function(query, expressionPath) {
+  if (query.fileName == undefined) {
+    return {
+      error: 'fileName is undefined'
+    };
+  }
+  if (query.geneNames == undefined) {
+    return {
+      error: 'geneNames is undefined'
+    };
+  }
+  if (query.conditionNames == undefined) {
+    return {
+      error: 'conditionNames is undefined'
+    };
+  }
   var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
@@ -176,11 +187,30 @@ expression.query.profile = function(query, expressionPath) {
 };
 
 /**
- * @param {expression.query.TfaProfile} query
+ * @param {*|{
+ *   fileName: string,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
+ * }} query
  * @param {string} expressionPath
  * @return {expression.TfaProfile|expression.Error}
  */
 expression.query.tfaProfile = function(query, expressionPath) {
+  if (query.fileName == undefined) {
+    return {
+      error: 'fileName is undefined'
+    };
+  }
+  if (query.geneNames == undefined) {
+    return {
+      error: 'geneNames is undefined'
+    };
+  }
+  if (query.conditionNames == undefined) {
+    return {
+      error: 'conditionNames is undefined'
+    };
+  }
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;

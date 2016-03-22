@@ -147,6 +147,7 @@ genotet.dialog.createNetwork_ = function() {
       var params = {
         type: genotet.data.ListQueryType.NETWORK
       };
+      params = {data: JSON.stringify(params)};
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(networkFile) {
               fileNames.push({
@@ -205,6 +206,7 @@ genotet.dialog.createBinding_ = function() {
       var params = {
         type: genotet.data.ListQueryType.BINDING
       };
+      params = {data: JSON.stringify(params)};
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(bindingFile) {
             fileNames.push({
@@ -269,6 +271,7 @@ genotet.dialog.createExpression_ = function() {
       var params = {
         type: genotet.data.ListQueryType.EXPRESSION
       };
+      params = {data: JSON.stringify(params)};
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(expressionFile) {
               fileNames.push({
@@ -317,6 +320,7 @@ genotet.dialog.mapping_ = function() {
       var params = {
         type: genotet.data.ListQueryType.MAPPING
       };
+      params = {data: JSON.stringify(params)};
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(fileName) {
             fileNames.push({
@@ -509,6 +513,7 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
       type: 'check-finish',
       fileName: fileName
     };
+    params = {data: JSON.stringify(params)};
     $.get(genotet.data.serverURL, params, function(isFinished) {
       if (isFinished) {
         clearInterval(interval);
