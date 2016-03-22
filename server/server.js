@@ -100,15 +100,26 @@ function config() {
   var tokens = fs.readFileSync(configPath)
     .toString()
     .split(RegExp(/\s+/));
-  var dataPath = tokens[2];
-  bindingPath = dataPath + 'binding/';
+  var dataPath;
+  for (var i = 0; i < tokens.length; i += 3) {
+    var variable = tokens[i];
+    var value = tokens[i + 2];
+    switch (variable) {
+      case 'dataPath':
+        dataPath = value;
+        break;
+      case 'bigWigToWigPath':
+        bigWigToWigPath = value;
+        break;
+    }
+  }
+  bindingPath = dataPath + 'wiggle/';
   networkPath = dataPath + 'network/';
   expressionPath = dataPath + 'expression/';
   uploadPath = dataPath + 'upload/';
   bedPath = dataPath + 'bed/';
   mappingPath = dataPath + 'mapping/';
   userPath = dataPath + 'user/';
-  bigWigToWigPath = dataPath + 'bigWigToWig';
 }
 // Configures the server paths.
 config();
