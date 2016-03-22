@@ -59,15 +59,11 @@ bed.query = {};
  * @return {bed.MotifsResult|bed.Error}
  */
 bed.query.motifs = function(query, bedPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is undefined'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
   }
-  if (query.chr == undefined) {
-    return {
-      error: 'chr is undefined'
-    };
+  if (query.chr === undefined) {
+    return {error: 'chr is undefined'};
   }
   var fileName = query.fileName;
   var chr = query.chr;
@@ -75,9 +71,7 @@ bed.query.motifs = function(query, bedPath) {
   if (!fs.existsSync(dir)) {
     var error = 'bed file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return bed.readBed_(dir, query.xl, query.xr);
 };

@@ -94,18 +94,14 @@ expression.query = {};
  * @return {expression.MatrixInfo|expression.Error}
  */
 expression.query.matrixInfo = function(query, expressionPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is undefined'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
   }
   var file = expressionPath + query.fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return expression.getMatrixInfo_(file);
 };
@@ -120,20 +116,14 @@ expression.query.matrixInfo = function(query, expressionPath) {
  * @return {expression.Matrix|expression.Error}
  */
 expression.query.matrix = function(query, expressionPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is undefined'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
   }
-  if (query.geneNames == undefined) {
-    return {
-      error: 'geneNames is undefined'
-    };
+  if (query.geneNames === undefined) {
+    return {error: 'geneNames is undefined'};
   }
-  if (query.conditionNames == undefined) {
-    return {
-      error: 'conditionNames is undefined'
-    };
+  if (query.conditionNames === undefined) {
+    return {error: 'conditionNames is undefined'};
   }
   var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
@@ -141,9 +131,7 @@ expression.query.matrix = function(query, expressionPath) {
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return expression.readMatrix_(file, geneNames, conditionNames);
 };
@@ -158,20 +146,14 @@ expression.query.matrix = function(query, expressionPath) {
  * @return {expression.Profile|expression.Error}
  */
 expression.query.profile = function(query, expressionPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is undefined'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
   }
-  if (query.geneNames == undefined) {
-    return {
-      error: 'geneNames is undefined'
-    };
+  if (query.geneNames === undefined) {
+    return {error: 'geneNames is undefined'};
   }
-  if (query.conditionNames == undefined) {
-    return {
-      error: 'conditionNames is undefined'
-    };
+  if (query.conditionNames === undefined) {
+    return {error: 'conditionNames is undefined'};
   }
   var file = expressionPath + query.fileName + '.data';
   var geneNames = query.geneNames;
@@ -179,9 +161,7 @@ expression.query.profile = function(query, expressionPath) {
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return expression.readMatrix_(file, geneNames, conditionNames);
 };
@@ -196,20 +176,14 @@ expression.query.profile = function(query, expressionPath) {
  * @return {expression.TfaProfile|expression.Error}
  */
 expression.query.tfaProfile = function(query, expressionPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is undefined'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
   }
-  if (query.geneNames == undefined) {
-    return {
-      error: 'geneNames is undefined'
-    };
+  if (query.geneNames === undefined) {
+    return {error: 'geneNames is undefined'};
   }
-  if (query.conditionNames == undefined) {
-    return {
-      error: 'conditionNames is undefined'
-    };
+  if (query.conditionNames === undefined) {
+    return {error: 'conditionNames is undefined'};
   }
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
@@ -217,9 +191,7 @@ expression.query.tfaProfile = function(query, expressionPath) {
   if (!fs.existsSync(file)) {
     var error = 'TFA matrix file ' + query.fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return expression.getTfaProfile_(file, geneNames, conditionNames);
 };

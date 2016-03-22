@@ -84,24 +84,18 @@ network.query = {};
  * @return {network.Network|network.Error}
  */
 network.query.network = function(query, networkPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is empty'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is empty'};
   }
   if (query.genes == undefined) {
-    return {
-      error: 'genes is undefined'
-    };
+    return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return network.getNet_(file, query.genes);
 };
@@ -115,15 +109,11 @@ network.query.network = function(query, networkPath) {
  * @return {Array<!network.Edge>|network.Error}
  */
 network.query.incidentEdges = function(query, networkPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is empty'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is empty'};
   }
-  if (query.genes == undefined) {
-    return {
-      error: 'genes is undefined'
-    };
+  if (query.genes === undefined) {
+    return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
   var gene = query.gene;
@@ -131,9 +121,7 @@ network.query.incidentEdges = function(query, networkPath) {
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return network.getIncidentEdges_(file, gene);
 };
@@ -147,24 +135,18 @@ network.query.incidentEdges = function(query, networkPath) {
  * @return {!Array<string>|network.Error}
  */
 network.query.combinedRegulation = function(query, networkPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is empty'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is empty'};
   }
-  if (query.genes == undefined) {
-    return {
-      error: 'genes is undefined'
-    };
+  if (query.genes === undefined) {
+    return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return network.getCombinedRegulation_(file, query.genes);
 };
@@ -181,20 +163,14 @@ network.query.combinedRegulation = function(query, networkPath) {
  * }|network.Error}
  */
 network.query.incrementalEdges = function(query, networkPath) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is empty'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is empty'};
   }
-  if (query.genes == undefined) {
-    return {
-      error: 'genes is undefined'
-    };
+  if (query.genes === undefined) {
+    return {error: 'genes is undefined'};
   }
-  if (query.nodes == undefined) {
-    return {
-      error: 'nodes is undefined'
-    };
+  if (query.nodes === undefined) {
+    return {error: 'nodes is undefined'};
   }
   var fileName = query.fileName;
   var genes = query.genes;
@@ -203,9 +179,7 @@ network.query.incrementalEdges = function(query, networkPath) {
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return network.incrementalEdges_(file, genes, nodes);
 };

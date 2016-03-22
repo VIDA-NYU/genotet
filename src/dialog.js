@@ -147,6 +147,7 @@ genotet.dialog.createNetwork_ = function() {
       var params = {
         type: genotet.data.ListQueryType.NETWORK
       };
+      //TODO(jiaming): generate it as a function.
       params = {data: JSON.stringify(params)};
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(networkFile) {

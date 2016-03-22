@@ -289,12 +289,10 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
  * @return {boolean|uploader.Error} File exists or not
  */
 uploader.checkFinish = function(query, prefix) {
-  if (query.fileName == undefined) {
-    return {
-      error: 'fileName is undefined'
-    };
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
   }
-  //TODO: convert processing progress into db.
+  //TODO(jiaming): convert processing progress into db.
   var isFinish = fs.existsSync(prefix + query.fileName + '.finish');
   if (isFinish) {
     fs.unlinkSync(prefix + query.fileName + '.finish');
