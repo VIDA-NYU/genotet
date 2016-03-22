@@ -57,7 +57,7 @@ log.serverLog = function(var_args) {
 log.userLog = function(userPath, query) {
   var logs = query.logs;
   var username = query.username;
-  var folder = userPath + username + '/log/';
+  var folder = userPath + username + '/logFiles/';
   if (!fs.existsSync(folder)) {
     fs.mkdirSync(folder);
   }

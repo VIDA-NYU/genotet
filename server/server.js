@@ -69,10 +69,10 @@ var bedPath;
  */
 var mappingPath;
 /**
- * Path of user information.
+ * Path of user logs.
  * @type {string}
  */
-var userPath;
+var logPath;
 /**
  * Path of config file.
  * @type {string}
@@ -119,7 +119,7 @@ function config() {
   uploadPath = dataPath + 'upload/';
   bedPath = dataPath + 'bed/';
   mappingPath = dataPath + 'mapping/';
-  userPath = dataPath + 'user/';
+  logPath = dataPath + 'log/';
 }
 // Configures the server paths.
 config();
@@ -144,7 +144,7 @@ app.use(bodyParser.json());
 app.post('/genotet/log', function(req, res) {
   log.serverLog('POST', 'user-log');
 
-  log.userLog(userPath, req.body);
+  log.userLog(logPath, req.body);
 });
 
 /**

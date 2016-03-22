@@ -21,9 +21,9 @@ genotet.dialog.isConditionRegex_ = false;
 
 /**
  * Length of time interval for queries of uploading result, in milliseconds.
- * @private {number}
+ * @private @const {number}
  */
-genotet.dialog.queryInterval_ = 3 * 1000;
+genotet.dialog.QUERY_INTERVAL_ = 3 * 1000;
 
 /**
  * Template paths.
@@ -427,7 +427,8 @@ genotet.dialog.upload_ = function() {
           /** @type {string} */(modal.find('#description').val()));
         formData.append('file', file[0].files[0]);
         var uploadPercent = 100;
-        if (fileType == 'bed' || fileType == 'binding') {
+        if (fileType == genotet.FileType.BED ||
+          fileType == genotet.FileType.BINDING) {
           uploadPercent = 70;
         }
 
@@ -481,7 +482,8 @@ genotet.dialog.upload_ = function() {
             modal.modal('hide');
             genotet.error('failed to upload data');
           });
-        if (fileType == 'bed' || fileType == 'binding') {
+        if (fileType == genotet.FileType.BED ||
+          fileType == genotet.FileType.BINDING) {
           genotet.dialog.processProgress_(fileName, uploadPercent);
         }
       });
@@ -502,18 +504,18 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
     // This is a fake progress bar.
     // Increase 1% for the progress bar every 3 seconds.
     // When reaching 99, do not increase it any more.
-    var widthPercent = Math.min(number, 99) + '%';
+    var widthPercent = Math.min(number * 2, 99) + '%';
     var params = {
       type: 'check-finish',
       fileName: fileName
     };
-    $.get(genotet.data.serverURL, params, function(data) {
-      if (data) {
+    $.get(genotet.data.serverURL, params, function(isFinished) {
+      if (isFinished) {
         clearInterval(interval);
         modal.modal('hide');
       }
     });
     modal.find('.progress').children('.progress-bar')
       .css('width', widthPercent);
-  }, genotet.dialog.queryInterval_);
+  }, genotet.dialog.QUERY_INTERVAL_);
 };

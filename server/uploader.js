@@ -199,7 +199,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
     var fd = fs.openSync(uploadPath + bwFile + '.finish', 'w');
     fs.writeSync(fd, 'finish');
     fs.closeSync(fd);
-    log.serverLog('binding data separate done.');
+    log.serverLog('binding data separated.');
   });
 };
 
@@ -279,6 +279,7 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
  * @return {boolean} File exists or not
  */
 uploader.checkFinish = function(query, prefix) {
+  //TODO: convert processing progress into db.
   var isFinish = fs.existsSync(prefix + query.fileName + '.finish');
   if (isFinish) {
     fs.unlinkSync(prefix + query.fileName + '.finish');
