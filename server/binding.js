@@ -65,38 +65,25 @@ binding.Exon;
 /** @const */
 binding.query = {};
 
+// Start public APIs
 /**
- * @typedef {{
+ * @param {*|{
  *   fileName: string,
  *   chr: string,
  *   xl: (number|undefined),
  *   xr: (number|undefined),
  *   numSamples: (number|undefined)
- * }}
- */
-binding.query.Histogram;
-
-/**
- * @typedef {{
- *   chr: string
- * }}
- */
-binding.query.Exons;
-
-/**
- * @typedef {{
- *   gene: string
- * }}
- */
-binding.query.Locus;
-
-// Start public APIs
-/**
- * @param {!binding.query.Histogram} query
+ * }} query
  * @param {string} bindingPath
  * @return {binding.Histogram|binding.Error}
  */
 binding.query.histogram = function(query, bindingPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
+  }
+  if (query.chr === undefined) {
+    return {error: 'chr is undefined'};
+  }
   var fileName = query.fileName;
   var chr = query.chr;
   var file = bindingPath + fileName + '_chr/' + fileName + '_chr' + chr +
@@ -105,9 +92,7 @@ binding.query.histogram = function(query, bindingPath) {
   if (!fs.existsSync(file)) {
     var error = 'binding file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   var data = binding.getBinding_(file, query.xl, query.xr, query.numSamples);
   data.gene = binding.getGene_(descriptionPath);
@@ -116,40 +101,45 @@ binding.query.histogram = function(query, bindingPath) {
 };
 
 /**
- * @param {!binding.query.Exons} query
+ * @param {*|{
+ *   chr: string
+ * }} query
  * @param {string} exonFile
  * @return {Array<!binding.Exon>|binding.Error}
  */
 binding.query.exons = function(query, exonFile) {
+  if (query.chr === undefined) {
+    return {error: 'chr is undefined'};
+  }
   var chr = query.chr;
   if (!fs.existsSync(exonFile)) {
     var error = 'exonFile not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return binding.getExons_(exonFile, chr);
 };
 
 /**
- * @param {!binding.query.Locus} query
+ * @param {*|{
+ *   gene: string
+ * }} query
  * @param {string} exonFile
  * @return {{
  *   chr: (string|undefined),
  *   txStart: (number|undefined),
  *   txEnd: (number|undefined),
- *   error: (!genotet.Error|undefined)
  * }|binding.Error}
  */
 binding.query.locus = function(query, exonFile) {
+  if (query.gene === undefined) {
+    return {error: 'gene is undefined'};
+  }
   var gene = query.gene.toLowerCase();
   if (!fs.existsSync(exonFile)) {
     var error = 'exonFile not found.';
     log.serverLog(error);
-    return /** @type {binding.Error} */ ({
-      error: error
-    });
+    return {error: error};
   } else {
     return binding.searchExon_(exonFile, gene);
   }
@@ -447,8 +437,7 @@ binding.getBinding_ = function(file, x1, x2, numSamples) {
  *   chr: (string|undefined),
  *   txStart: (number|undefined),
  *   txEnd: (number|undefined),
- *   error: (!genotet.Error|undefined)
- * }}
+ * }|binding.Error}
  * @private
  */
 binding.searchExon_ = function(file, name) {
@@ -466,12 +455,7 @@ binding.searchExon_ = function(file, name) {
     }
   }
   log.serverLog('gene not found in exon list');
-  return {
-    error: {
-      type: 'notFound',
-      message: 'cannot find gene in exon list'
-    }
-  };
+  return {error: 'cannot find gene in exon list'};
 };
 
 /**

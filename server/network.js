@@ -74,110 +74,104 @@ network.Error;
 /** @const */
 network.query = {};
 
-/**
- * @typedef {{
- *   fileName: string,
- *   genes: !Array<string>
- * }}
- */
-network.query.Network;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   gene: string
- * }}
- */
-network.query.IncidentEdges;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   genes: !Array<string>
- * }}
- */
-network.query.CombinedRegulation;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   genes: !Array<string>,
- *   nodes: !Array<!network.Node>
- * }}
- */
-network.query.IncrementalEdges;
-
-/**
- * @typedef {{
- *   fileName: string
- * }}
- */
-network.query.AllNodes;
-
 // Start public APIs
 /**
- * @param {!network.query.Network} query
+ * @param {*|{
+ *   fileName: string,
+ *   genes: !Array<string>
+ * }} query
  * @param {string} networkPath
  * @return {network.Network|network.Error}
  */
 network.query.network = function(query, networkPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is empty'};
+  }
+  if (query.genes == undefined) {
+    return {error: 'genes is undefined'};
+  }
   var fileName = query.fileName;
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return network.getNet_(file, query.genes);
 };
 
 /**
- * @param {!network.query.IncidentEdges} query
+ * @param {*|{
+ *   fileName: string,
+ *   gene: string
+ * }} query
  * @param {string} networkPath
  * @return {Array<!network.Edge>|network.Error}
  */
 network.query.incidentEdges = function(query, networkPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is empty'};
+  }
+  if (query.genes === undefined) {
+    return {error: 'genes is undefined'};
+  }
   var fileName = query.fileName;
   var gene = query.gene;
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return network.getIncidentEdges_(file, gene);
 };
 
 /**
- * @param {!network.query.CombinedRegulation} query
+ * @param {*|{
+ *   fileName: string,
+ *   genes: !Array<string>
+ * }} query
  * @param {string} networkPath
  * @return {!Array<string>|network.Error}
  */
 network.query.combinedRegulation = function(query, networkPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is empty'};
+  }
+  if (query.genes === undefined) {
+    return {error: 'genes is undefined'};
+  }
   var fileName = query.fileName;
   var file = networkPath + fileName + '.data';
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return network.getCombinedRegulation_(file, query.genes);
 };
 
 /**
- * @param {!network.query.IncrementalEdges} query
+ * @param {*|{
+ *   fileName: string,
+ *   genes: !Array<string>,
+ *   nodes: !Array<!network.Node>
+ * }} query
  * @param {string} networkPath
  * @return {{
  *   edges: !Array<network.Edge>
  * }|network.Error}
  */
 network.query.incrementalEdges = function(query, networkPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is empty'};
+  }
+  if (query.genes === undefined) {
+    return {error: 'genes is undefined'};
+  }
+  if (query.nodes === undefined) {
+    return {error: 'nodes is undefined'};
+  }
   var fileName = query.fileName;
   var genes = query.genes;
   var file = networkPath + fileName + '.data';
@@ -185,9 +179,7 @@ network.query.incrementalEdges = function(query, networkPath) {
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return network.incrementalEdges_(file, genes, nodes);
 };
@@ -205,13 +197,20 @@ network.query.list = function(networkPath) {
 };
 
 /**
- * @param {!network.query.AllNodes} query
+ * @param {*|{
+ *   fileName: string
+ * }} query
  * @param {string} networkPath
  * @return {{
  *   nodes: !Array<!network.Node>
  * }|network.Error}
  */
 network.query.allNodes = function(query, networkPath) {
+  if (query.fileName == undefined) {
+    return {
+      error: 'fileName is undefined'
+    };
+  }
   var file = networkPath + query.fileName + '.data';
   if (!fs.existsSync(file)) {
     return {
@@ -309,7 +308,7 @@ network.getIncidentEdges_ = function(file, gene) {
  * @private
  */
 network.getCombinedRegulation_ = function(file, genes) {
-  log.serverLog('get combination', file);
+  log.serverLog('get combined regulation', file);
   var result = network.readNetwork_(file);
   var geneMap = {};
   genes.forEach(function(gene) {

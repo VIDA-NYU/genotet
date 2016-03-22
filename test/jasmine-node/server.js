@@ -31,7 +31,8 @@ server.UploadResponse;
  * @return {string}
  */
 server.queryURL = function(params) {
-  return server.url + '?' + querystring.stringify(params);
+  return server.url + '?' +
+    querystring.stringify({data: JSON.stringify(params)});
 };
 
 /**

@@ -96,10 +96,6 @@ genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
  * @private
  */
 genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
-  if (!genes.length) {
-    genotet.warning('input gene not found');
-    return;
-  }
   var params = {
     type: genotet.network.QueryType.NETWORK,
     fileName: fileName,

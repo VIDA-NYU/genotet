@@ -69,10 +69,10 @@ var bedPath;
  */
 var mappingPath;
 /**
- * Path of user information.
+ * Path of user logs.
  * @type {string}
  */
-var userPath;
+var logPath;
 /**
  * Path of config file.
  * @type {string}
@@ -100,36 +100,26 @@ function config() {
   var tokens = fs.readFileSync(configPath)
     .toString()
     .split(RegExp(/\s+/));
+  var dataPath;
   for (var i = 0; i < tokens.length; i += 3) {
     var variable = tokens[i];
     var value = tokens[i + 2];
     switch (variable) {
-      case 'bindingPath':
-        bindingPath = value;
-        break;
-      case 'networkPath':
-        networkPath = value;
-        break;
-      case 'expressionPath':
-        expressionPath = value;
+      case 'dataPath':
+        dataPath = value;
         break;
       case 'bigWigToWigPath':
         bigWigToWigPath = value;
         break;
-      case 'uploadPath':
-        uploadPath = value;
-        break;
-      case 'bedPath':
-        bedPath = value;
-        break;
-      case 'mappingPath':
-        mappingPath = value;
-        break;
-      case 'userPath':
-        userPath = value;
-        break;
     }
   }
+  bindingPath = dataPath + 'wiggle/';
+  networkPath = dataPath + 'network/';
+  expressionPath = dataPath + 'expression/';
+  uploadPath = dataPath + 'upload/';
+  bedPath = dataPath + 'bed/';
+  mappingPath = dataPath + 'mapping/';
+  logPath = dataPath + 'log/';
 }
 // Configures the server paths.
 config();
@@ -154,7 +144,7 @@ app.use(bodyParser.json());
 app.post('/genotet/log', function(req, res) {
   log.serverLog('POST', 'user-log');
 
-  log.userLog(userPath, req.body);
+  log.query.userLog(logPath, req.body);
 });
 
 /**
@@ -197,7 +187,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
  * GET request handler.
  */
 app.get('/genotet', function(req, res) {
-  var query = req.query;
+  var query = JSON.parse(req.query.data);
   var type = query.type;
   var data;
   log.serverLog('GET', type);
