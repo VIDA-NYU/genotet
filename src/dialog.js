@@ -500,7 +500,7 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
   var interval = setInterval(function() {
     number++;
     // This is a fake progress bar.
-    // Increase 3% for the progress bar every 3 seconds.
+    // Increase 1% for the progress bar every 3 seconds.
     // When reaching 99, do not increase it any more.
     var widthPercent = Math.min(number, 99) + '%';
     var params = {
