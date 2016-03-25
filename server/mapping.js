@@ -59,7 +59,7 @@ mapping.query.getMapping = function(query, mappingPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  return mapping.getMapping_(mappingPath + query.fileName + '.data');
+  return mapping.getMapping_(mappingPath + query.fileName);
 };
 
 /**

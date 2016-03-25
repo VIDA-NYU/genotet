@@ -91,7 +91,7 @@ network.query.network = function(query, networkPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
-  var file = networkPath + fileName + '.data';
+  var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
@@ -117,7 +117,7 @@ network.query.incidentEdges = function(query, networkPath) {
   }
   var fileName = query.fileName;
   var gene = query.gene;
-  var file = networkPath + fileName + '.data';
+  var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
@@ -142,7 +142,7 @@ network.query.combinedRegulation = function(query, networkPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
-  var file = networkPath + fileName + '.data';
+  var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
     log.serverLog(error);
@@ -174,7 +174,7 @@ network.query.incrementalEdges = function(query, networkPath) {
   }
   var fileName = query.fileName;
   var genes = query.genes;
-  var file = networkPath + fileName + '.data';
+  var file = networkPath + fileName;
   var nodes = query.nodes;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -211,7 +211,7 @@ network.query.allNodes = function(query, networkPath) {
       error: 'fileName is undefined'
     };
   }
-  var file = networkPath + query.fileName + '.data';
+  var file = networkPath + query.fileName;
   if (!fs.existsSync(file)) {
     return {
       error: 'network file ' + query.fileName + ' not found.'

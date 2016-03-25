@@ -503,25 +503,30 @@ genotet.dialog.upload_ = function() {
  */
 genotet.dialog.processProgress_ = function(fileName, startNum) {
   var modal = $('#dialog');
-  var number = startNum;
   var interval = setInterval(function() {
-    number++;
-    // This is a fake progress bar.
-    // Increase 1% for the progress bar every 3 seconds.
-    // When reaching 99, do not increase it any more.
-    var widthPercent = Math.min(number * 2, 99) + '%';
     var params = {
-      type: 'check-finish',
+      type: 'check',
       fileName: fileName
     };
-    params = {data: JSON.stringify(params)};
-    $.get(genotet.data.serverURL, params, function(isFinished) {
-      if (isFinished) {
+    $.get(genotet.data.progressURL, params, function(data) {
+      console.log(data);
+      var percentage = parseInt(data, 10);
+      percentage = 70 + percentage * 0.3;
+      modal.find('.progress').children('.progress-bar')
+        .css('width', percentage + '%');
+      if (percentage == 100) {
         clearInterval(interval);
         modal.modal('hide');
+        var finishParam = {
+          type: 'finish',
+          fileName: fileName
+        };
+        $.get(genotet.data.progressURL, finishParam);
       }
-    });
-    modal.find('.progress').children('.progress-bar')
-      .css('width', widthPercent);
+    })
+      .fail(function(res) {
+        clearInterval(interval);
+      });
+
   }, genotet.dialog.QUERY_INTERVAL_);
 };

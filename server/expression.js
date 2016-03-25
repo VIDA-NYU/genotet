@@ -97,7 +97,7 @@ expression.query.matrixInfo = function(query, expressionPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var file = expressionPath + query.fileName + '.data';
+  var file = expressionPath + query.fileName;
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
     log.serverLog(error);
@@ -125,7 +125,7 @@ expression.query.matrix = function(query, expressionPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var file = expressionPath + query.fileName + '.data';
+  var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
@@ -155,7 +155,7 @@ expression.query.profile = function(query, expressionPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var file = expressionPath + query.fileName + '.data';
+  var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {

@@ -176,7 +176,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     name: req.body.name,
     description: req.body.description
   };
-  uploader.uploadFile(body, req.file, prefix, bigWigToWigPath, uploadPath);
+  uploader.uploadFile(body, req.file, prefix, bigWigToWigPath);
   res.header('Access-Control-Allow-Origin', '*');
   res.json({
     success: true
@@ -259,11 +259,6 @@ app.get('/genotet', function(req, res) {
       break;
     case mapping.QueryType.LIST_MAPPING:
       data = mapping.query.list(mappingPath);
-      break;
-
-    // Upload file checking
-    case 'check-finish':
-      data = uploader.checkFinish(query, uploadPath);
       break;
 
     // Undefined type, error

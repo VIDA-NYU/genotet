@@ -37,6 +37,12 @@ genotet.data.uploadURL;
 genotet.data.logURL;
 
 /**
+ * URL for queries for monitoring data processing.
+ * @type {string}
+ */
+genotet.data.progressURL;
+
+/**
  * @typedef {!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -135,9 +141,12 @@ genotet.data.init = function() {
   if (window.location.protocol == 'file:') {
     // Testing environment
     genotet.data.serverURL = 'http://localhost:3000/genotet';
+    genotet.data.progressURL = 'http://localhost/genotet/progress.php';
   } else {
     genotet.data.serverURL = window.location.protocol + '//' +
       window.location.hostname + ':3000/genotet';
+    genotet.data.progressURL = window.location.protocol + '//' +
+      window.location.hostname + '/genotet/progress.php';
   }
   genotet.data.uploadURL = genotet.data.serverURL + '/upload';
   genotet.data.logURL = genotet.data.serverURL + '/log';
