@@ -1,83 +1,52 @@
 /**
- * @fileoverview database access object.
+ * @fileoverview database access object for data.
  */
 
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
-var assert = require('assert');
 var mongoUrl = 'mongodb://localhost:27017/express';
 
 var log = require('./log');
 
 /** @type {dao} */
-module.exports = dao;
+module.exports = datadb;
 
 /**
  * @constructor
  */
-function dao() {}
+function datadb() {}
 
 /**
  * @const {string}
  */
-dao.DATA_COLLECTION = 'file';
+datadb.DATA_COLLECTION = 'file';
 
 /**
  * @const {string}
  */
-dao.PROGRESS_COLLECTION = 'uploadProgress';
+datadb.PROGRESS_COLLECTION = 'uploadProgress';
 
 /**
  * @type {string}
  */
-dao.USERNAME = 'anonymous';
+datadb.USERNAME = 'anonymous';
 
 /**
  * @typedef {{
  *   error: string
  * }}
  */
-dao.Error;
+datadb.Error;
 
 /**
- * Updates the database when uploading a file.
- * @param {string} path Path to the folder for the file.
- * @param {string} fileName File name of the file.
- * @param {!Object} property Properties of the file.
+ * Creates a connection to the mongodb.
+ * @param {function(!mongodb.Db, Object=)} callback The callback function.
  */
-dao.uploadFile = function(path, fileName, property) {
+datadb.createConnection = function(callback) {
   MongoClient.connect(mongoUrl, function(err, db) {
-    assert.equal(null, err'', );
-    log.serverLog('connected to MongoDB');
-    dao.insertFile_(db, path, fileName, property, function() {
-      db.close();
-    });
+    callback(db, err);
   });
 };
-
-/**
- * Updates process progress in database when pre processing the data.
- * @param {string} fileName File name of the data.
- * @param {number} percentage Progress percentage of the process.
- */
-dao.updateProgress = function(fileName, percentage) {
-  MongoClient.connect(mongoUrl, function(err, db) {
-    assert.equal(null, err);
-    log.serverLog('connect to MongoDB');
-    log.serverLog(fileName, percentage);
-    dao.updateProgress_(db, fileName, percentage, function() {
-      db.close();
-    });
-  });
-};
-
-db.createConnection = function(callback) {
-  MongoClient.connect(url, function(err, db) {
-    callback(db);
-  });
-}
-
-// end public functions
 
 /**
  * Inserts a new file into database.
@@ -85,30 +54,35 @@ db.createConnection = function(callback) {
  * @param {string} path Path to the folder of the file.
  * @param {string} fileName File name of the file.
  * @param {!Object} property Properties of the file.
- * @param {function(string)} callback Callback function.
- * @private
+ * @param {function(Object)} callback Callback function.
  */
-dao.insertFile_ = function(db, path, fileName, property, callback) {
-  var collection = db.collection(dao.DATA_COLLECTION);
+datadb.insertFile = function(db, path, fileName, property, callback) {
+  var collection = db.collection(datadb.DATA_COLLECTION);
   collection.insertOne({
     fileName: fileName,
     path: path,
     property: property,
-    user: dao.USERNAME
+    user: datadb.USERNAME
   }, function(err, result) {
-    assert.equal(null, err);
+    if (err) {
+      log.serverLog(err);
+      callback({error: err});
+    }
     log.serverLog(result);
   });
 
-  collection = db.collection(dao.PROGRESS_COLLECTION);
+  collection = db.collection(datadb.PROGRESS_COLLECTION);
   collection.insertOne({
     fileName: fileName,
-    user: dao.USERNAME,
+    user: datadb.USERNAME,
     percentage: 0
   }, function(err, result) {
-    assert.equal(null, err);
+    if (err) {
+      log.serverLog(err);
+      callback({error: err});
+    }
     log.serverLog(result);
-    callback(result);
+    callback({});
   });
 };
 
@@ -117,16 +91,44 @@ dao.insertFile_ = function(db, path, fileName, property, callback) {
  * @param {!mongodb.Db} db The database.
  * @param {string} fileName File name of the file.
  * @param {number} percentage Processing progress percentage.
- * @param {function(string)} callback Callback function.
- * @private
+ * @param {function(Object)} callback Callback function.
  */
-dao.updateProgress_ = function(db, fileName, percentage, callback) {
-  var collection = db.collection(dao.PROGRESS_COLLECTION);
-  log.serverLog(percentage);
+datadb.updateProgress = function(db, fileName, percentage, callback) {
+  var collection = db.collection(datadb.PROGRESS_COLLECTION);
   collection.updateOne({fileName: fileName},
     {$set: {percentage: percentage}}, function(err, result) {
-      assert.equal(null, err);
+      if (err) {
+        log.serverLog(err);
+        callback({error: err});
+      }
       log.serverLog(result);
-      callback(result);
+      callback({});
     });
+};
+
+/**
+ * Gets data list from database.
+ * @param {!mongodb.Db} db The database object.
+ * @param {string} type The file type to list.
+ * @return {!Array<!Object>}
+ */
+datadb.getList = function(db, type) {
+  var collection = db.collection(datadb.DATA_COLLECTION);
+  var cursor = collection.find({
+    property: {type: type},
+    username: datadb.USERNAME
+  });
+  var ret = [];
+  cursor.toArray(function(err, docs) {
+    if (docs.length) {
+      docs.forEach(function(doc) {
+        ret.push({
+          fileName: doc.fileName,
+          dataName: doc.property.dataName,
+          description: doc.property.description
+        });
+      });
+    }
+  });
+  return ret;
 };

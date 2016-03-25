@@ -555,8 +555,7 @@ binding.listBindingGenes_ = function(bindingPath) {
   var files = fs.readdirSync(folder);
   files.forEach(function(file) {
     // find the files ending with .data
-    if (file.lastIndexOf('.data') > 0 &&
-      file.lastIndexOf('.data') == file.length - 5) {
+    if (file[0] != '.') {
       var fileName = file.replace(/\.data$/, '');
       var gene = '';
       var description = '';

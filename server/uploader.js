@@ -5,11 +5,10 @@ var fs = require('fs');
 var childProcess = require('child_process');
 var readline = require('readline');
 var mkdirp = require('mkdirp');
-var Fiber = require('fibers');
 
 var segtree = require('./segtree');
 var log = require('./log');
-var dao = require('./dao');
+var datadb = require('./datadb');
 
 /** @type {uploader} */
 module.exports = uploader;
@@ -60,9 +59,11 @@ uploader.query = {};
  * @param {!multer.File} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
- * @return {Object} Success or not as a JS Object.
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(Object)} callback The callback function.
  */
-uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
+uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, db,
+                               callback) {
   var fileName = file.originalname;
   if (fs.existsSync(prefix + fileName)) {
     fs.unlinkSync(prefix + fileName);
@@ -75,21 +76,30 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
     .on('end', function() {
       fs.unlinkSync(file.path);
       if (desc.type == uploader.FileType.BINDING) {
-        uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr);
+        uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr, db,
+          function(err) {
+            if (err) {
+              callback(err);
+            }
+          });
       } else if (desc.type == uploader.FileType.BED) {
-        uploader.bedSort(prefix, fileName);
+        uploader.bedSort(prefix, fileName, db, function(err) {
+          if (err) {
+            callback(err);
+          }
+        });
       }
-      dao.uploadFile(prefix, fileName, desc);
+      datadb.insertFile(db, prefix, fileName, desc, function(err) {
+        if (err) {
+          callback(err);
+        } else {
+          callback({});
+        }
+      });
     })
     .on('err', function(err) {
-      return {
-        error: {
-          type: 'copyFailed',
-          message: 'upload file copy failed'
-        }
-      };
+      callback({error: 'failed to copy file.'});
     });
-  return {};
 };
 
 /**
@@ -97,8 +107,11 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr) {
  * @param {string} prefix Folder that contains the bw file.
  * @param {string} bwFile Name of the bigwig file (without prefix).
  * @param {string} bigWigToWigAddr The convention script path.
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(Object)} callback The callback function.
  */
-uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
+uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
+                                  callback) {
   // convert *.bw into *.wig
   var percentage = 0;
 
@@ -112,7 +125,20 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
   childProcess.execSync(cmd);
   log.serverLog(cmd);
   percentage += 10;
-  dao.updateProgress(bwFile, percentage);
+  datadb.updateProgress(db, bwFile, percentage, function(err) {
+    if (err.error) {
+      callback(err);
+    }
+  });
+
+  cmd = [
+    'wc',
+    '-l',
+    prefix + wigFileName
+  ].join(' ');
+  var output = childProcess.execSync(cmd).toString().split(RegExp(/\s+/));
+  var totalLine = parseInt(output[1], 10);
+  var step = parseInt(totalLine / 10, 10);
 
   // convert *.wig into *.bcwig
   var seg = {};  // for segment tree
@@ -123,6 +149,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
     terminal: false
   });
   var lastChrXr = {}, lastValue = {};
+  var count = 0;
   lines.on('line', function(line) {
     if (line.indexOf('#') == -1) {
       var linePart = line.split(RegExp(/\s+/));
@@ -145,13 +172,20 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       });
       lastChrXr[chName] = xr;
       lastValue[chName] = val;
+
+      ++count;
+      if (count % step == 0) {
+        percentage += 0.1 * 80;
+        datadb.updateProgress(db, bwFile, percentage, function(err) {
+          if (err.error) {
+            callback(err);
+          }
+        });
+      }
     }
   });
 
   lines.on('close', function() {
-    percentage += 20;
-    dao.updateProgress(bwFile, percentage);
-
     var chrNum = 0;
     for (var chr in lastChrXr) {
       chrNum++;
@@ -184,33 +218,44 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
       var fd = fs.openSync(bcwigFile, 'w');
       fs.writeSync(fd, bcwigBuf, 0, uploader.ENTRY_SIZE_ * seg[chr].length, 0);
       fs.closeSync(fd);
-      percentage += 33 / chrNum;
-      dao.updateProgress(bwFile, percentage);
+      percentage += 4 / chrNum;
+      datadb.updateProgress(db, bwFile, percentage, function(err) {
+        if (err.error) {
+          log.serverLog(err);
+          callback(err);
+        }
+      });
     }
 
     // build segment tree and save
     for (var chr in seg) {
       var segFile = folder + '/' + bwFile + '_' + chr + '.seg';
       var nodes = [];
-      setTimeout(function() {
-        console.log('wait 10s');
-        segtree.buildSegmentTree(nodes, seg[chr]);
-      }, 10000);
+      segtree.buildSegmentTree(nodes, seg[chr]);
       var segBuf = new Buffer(4 + nodes.length * uploader.DOUBLE_SIZE_);
-      segBuf.writeInt32LE(nodes.length, 0);
-      for (var i = 0, offset = 4; i < nodes.length; i++,
-        offset += uploader.DOUBLE_SIZE_) {
-        segBuf.writeDoubleLE(nodes[i], offset);
-      }
-      var fd = fs.openSync(segFile, 'w');
-      fs.writeSync(fd, segBuf, 0, offset, 0);
-      fs.closeSync(fd);
-      percentage += 35 / chrNum;
-      dao.updateProgress(bwFile, percentage);
+       segBuf.writeInt32LE(nodes.length, 0);
+       for (var i = 0, offset = 4; i < nodes.length; i++,
+       offset += uploader.DOUBLE_SIZE_) {
+       segBuf.writeDoubleLE(nodes[i], offset);
+       }
+       var fd = fs.openSync(segFile, 'w');
+       fs.writeSync(fd, segBuf, 0, offset, 0);
+       fs.closeSync(fd);
+      percentage += 4 / chrNum;
+      datadb.updateProgress(db, bwFile, percentage, function(err) {
+        if (err.error) {
+          log.serverLog(err);
+          callback(err);
+        }
+      });
     }
 
     percentage = 100;
-    dao.updateProgress(bwFile, percentage);
+    datadb.updateProgress(db, bwFile, percentage, function(err) {
+      if (err.error) {
+        callback(err);
+      }
+    });
     log.serverLog('binding data separated.');
   });
 };
@@ -219,8 +264,10 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr) {
  * Sorts bed data segments and write it into separate files.
  * @param {string} prefix Folder to the bed files.
  * @param {string} bedFile File name of the bed file.
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(Object)} callback The callback function.
  */
-uploader.bedSort = function(prefix, bedFile) {
+uploader.bedSort = function(prefix, bedFile, db, callback) {
   var lines = readline.createInterface({
     input: fs.createReadStream(prefix + bedFile),
     terminal: false
@@ -229,6 +276,15 @@ uploader.bedSort = function(prefix, bedFile) {
   var data = {};
   var percentage = 0;
   var chrNum = 0;
+  var count = 0;
+  var cmd = [
+    'wc',
+    '-l',
+    prefix + bedFile
+  ].join(' ');
+  var output = childProcess.execSync(cmd).toString().split(RegExp(/\s+/));
+  var totalLine = parseInt(output[1], 10);
+  var step = parseInt(totalLine / 10, 10);
   lines.on('line', function(line) {
     var parts = line.split('\t');
     if (parts[0].indexOf('track') != -1) {
@@ -243,11 +299,18 @@ uploader.bedSort = function(prefix, bedFile) {
       chrEnd: parseInt(parts[2], 10),
       name: parts[3]
     });
+    ++count;
+    if (count % step == 0) {
+      percentage += 0.1 * 90;
+      datadb.updateProgress(db, bedFile, percentage, function(err) {
+        if (err.error) {
+          callback(err);
+        }
+      });
+    }
   });
 
   lines.on('close', function() {
-    percentage += 20;
-    dao.updateProgress(bedFile, percentage);
     log.serverLog('writing bed data...');
     var folder = prefix + bedFile + '_chr';
     if (fs.existsSync(folder)) {
@@ -276,21 +339,21 @@ uploader.bedSort = function(prefix, bedFile) {
         }
       }
       fs.closeSync(fd);
-      percentage += 78 / chrNum;
-      dao.updateProgress(bedFile, percentage);
-      setTimeout(log.serverLog('wait 1s'), 1000);
+      percentage += 8 / chrNum;
+      datadb.updateProgress(db, bedFile, percentage, function(err) {
+        if (err.error) {
+          callback(err);
+        }
+      });
     }
 
     percentage = 100;
-    dao.updateProgress(bedFile, percentage);
+    datadb.updateProgress(db, bedFile, percentage, function(err) {
+      if (err.error) {
+        callback(err);
+      }
+    });
     log.serverLog('bed chromosome data finish.');
+    callback({});
   });
 };
-
-function sleep(ms) {
-  var fiber = Fiber.current;
-  setTimeout(function() {
-    fiber.run();
-  }, ms);
-  Fiber.yield();
-}

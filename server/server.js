@@ -15,6 +15,7 @@ var uploader = require('./uploader.js');
 var bed = require('./bed.js');
 var mapping = require('./mapping.js');
 var log = require('./log.js');
+var datadb = require('./datadb.js');
 
 // Application
 var app = express();
@@ -176,11 +177,21 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     name: req.body.name,
     description: req.body.description
   };
-  uploader.uploadFile(body, req.file, prefix, bigWigToWigPath);
-  res.header('Access-Control-Allow-Origin', '*');
-  res.json({
-    success: true
+  var data = {};
+  datadb.createConnection(function(db, err) {
+    uploader.uploadFile(body, req.file, prefix, bigWigToWigPath, db,
+      function(err) {
+        data = err;
+      });
   });
+  res.header('Access-Control-Allow-Origin', '*');
+  if (data.error) {
+    res.status(500).json(data.error);
+  } else {
+    res.json({
+      success: true
+    });
+  }
 });
 
 /**

@@ -54,6 +54,13 @@ mongodb.Db.prototype.collection.insertOne = function(document, writeConcern) {};
 mongodb.Db.prototype.collection.update = function(query, update, upsert, multi, writeConcern) {};
 
 /**
+ * @param {!Object} filter
+ * @param {!Object} update
+ * @param {Object=} writeConcern
+ */
+mongodb.Db.prototype.collection.updateOne = function(filter, update, writeConcern) {};
+
+/**
  * @param {function()} callback
  */
 mongodb.Cursor.prototype.each = function(callback) {};
