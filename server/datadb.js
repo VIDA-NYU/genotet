@@ -47,7 +47,7 @@ dao.Error;
  */
 dao.uploadFile = function(path, fileName, property) {
   MongoClient.connect(mongoUrl, function(err, db) {
-    assert.equal(null, err);
+    assert.equal(null, err'', );
     log.serverLog('connected to MongoDB');
     dao.insertFile_(db, path, fileName, property, function() {
       db.close();
@@ -70,6 +70,12 @@ dao.updateProgress = function(fileName, percentage) {
     });
   });
 };
+
+db.createConnection = function(callback) {
+  MongoClient.connect(url, function(err, db) {
+    callback(db);
+  });
+}
 
 // end public functions
 
