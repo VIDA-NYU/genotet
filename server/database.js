@@ -5,6 +5,9 @@ var assert = require('assert');
 
 var log = require('./log.js');
 
+/** @type {database} */
+module.exports = database;
+
 /**
  * @constructor
  */
@@ -24,10 +27,11 @@ database.getOne = function(collection, query, data, cursorCallback) {
       log.serverLog(err);
       return;
     }
-    if (count != 1) {
+    if (count > 1) {
       log.serverLog('multiple results');
       return;
     }
+    console.log(count);
     cursor.each(function(err, doc) {
       assert.equal(err, null, err);
       if (doc != null) {

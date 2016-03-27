@@ -62,11 +62,18 @@ user.Error;
  * @param {function(!Object)} callback Callback function.
  */
 user.signUp = function(db, userInfo, callback) {
+  var cursor = db.collection('userInfo').find({
+    $or: [{username: userInfo.username}, {email: userInfo.email}]
+  });
   var data = [];
-  var query = {$or: [{username: userInfo.username}, {email: userInfo.email}]};
-  database.getOne(db.collection('userInfo'), query, data, function(data) {
-    var result = user.signupUser(db, data);
-    callback(result);
+  cursor.each(function(err, doc) {
+    assert.equal(err, null, err);
+    if (doc != null) {
+      data.push(doc);
+    } else {
+      var result = user.signupUser(db, data);
+      callback(result);
+    }
   });
 };
 

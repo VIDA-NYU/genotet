@@ -88,6 +88,17 @@ var mappingPath;
  */
 var configPath = 'server/config';
 
+/**
+ * Path of config file.
+ * @type {string}
+ */
+var privateKeyPath = '/etc/ssl/private/star_simonsfoundation_org.key';
+/**
+ * Path of config file.
+ * @type {string}
+ */
+var certificatePath = '/etc/ssl/certs/star_simonsfoundation_org.crt';
+
 // Parse command arguments.
 process.argv.forEach(function(token) {
   var tokens = token.split(['=']);
@@ -204,7 +215,7 @@ app.post('/genotet/user', function(req, res) {
     var userInfo, data;
     var authenticate = function(data) {
       res.header('Access-Control-Allow-Origin', '*');
-      if (data.error) {
+      if (data && data.error) {
         log.serverLog(data.error.type, data.error.message);
         res.status(500).json(data.error);
       } else {
@@ -240,7 +251,7 @@ app.post('/genotet/user', function(req, res) {
           password: CryptoJS.SHA256(req.body.password).toString()
         };
         if (!user.validateUsername(userInfo.username) ||
-          !user.validatePassword(userInfo.password)) {
+          !user.validatePassword(req.body.password)) {
           log.serverLog('invalid input');
           return;
         }
@@ -372,5 +383,10 @@ app.use(function(err, req, res, next) {
 });
 
 // Start the application.
-var httpServer = app.listen(3000);
-httpServer.setTimeout(1200000);
+var privateKey = fs.readFileSync(privateKeyPath);
+var certificate = fs.readFileSync(certificatePath);
+var httpsServer = https.createServer({
+  key: privateKey,
+  cert: certificate
+}, app).listen(443);
+httpsServer.setTimeout(1200000);
