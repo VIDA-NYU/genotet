@@ -6,6 +6,7 @@ var assert = require('assert');
 
 var log = require('./log.js');
 var utils = require('./utils.js');
+var database = require('./database.js');
 
 /** @type {user} */
 module.exports = user;
@@ -57,75 +58,35 @@ user.Error;
 /**
  * Checks the user information for signing in.
  * @param {!mongodb.Db} db Session database.
- * @param {string} logPath Directory of user log file.
- * @param {!user.Info} userInfo User Information
+ * @param {!user.Info} userInfo User Information.
  * @param {function(!Object)} callback Callback function.
  */
-user.signUp = function(db, logPath, userInfo, callback) {
-  var cursor = db.collection('userInfo').find({
-    $or: [{username: userInfo.username}, {email: userInfo.email}]});
+user.signUp = function(db, userInfo, callback) {
   var data = [];
-  cursor.each(function(err, doc) {
-    assert.equal(err, null, err);
-    if (doc != null) {
-      data.push(doc);
-    } else {
-      var result = authenticateCallback(data);
-      callback(result);
-    }
+  var query = {$or: [{username: userInfo.username}, {email: userInfo.email}]};
+  database.getOne(db.collection('userInfo'), query, data, function(data) {
+    var result = user.signupUser(db, data);
+    callback(result);
   });
-  var authenticateCallback = function(data) {
-    var duplicates = [];
-    data.forEach(function(item) {
-      data.forEach(function(item) {
-        if (item.email == userInfo.email) {
-          duplicates.push('email: ' + userInfo.email);
-        }
-        if (item.username == userInfo.username) {
-          duplicates.push('username: ' + userInfo.username);
-        }
-      });
-    });
-    if (duplicates.length) {
-      var errorMessage = duplicates.join(' and ') + ' exist(s)';
-      return {
-        error: errorMessage
-      };
-    } else {
-      db.collection('userInfo').insertOne(userInfo);
-      log.serverLog('user information saved');
-      var folder = logPath + userInfo.username + '/';
-      if (!fs.existsSync(folder)) {
-        fs.mkdirSync(folder);
-      }
-      return true;
-    }
-  };
 };
 
 /**
  * Checks the user information for signing in.
  * @param {!mongodb.Db} db Session database.
- * @param {!user.Info} userInfo User Information
+ * @param {!user.Info} userInfo User Information.
  * @param {function(!Object)} callback Callback function.
  */
 user.signIn = function(db, userInfo, callback) {
-  var cursor = db.collection('userInfo').find({
-    $and: [{username: userInfo.username}, {password: userInfo.password}]});
-  var data;
-  cursor.each(function(err, doc) {
-    assert.equal(err, null, err);
-    if (doc != null) {
-      data = doc;
-    } else {
-      var result = authenticateCallback(data);
-      callback(result);
-    }
+  var data = [];
+  var query = {$and: [{username: userInfo.username},
+    {password: userInfo.password}]};
+  database.getOne(db.collection('userInfo'), query, data, function(data) {
+    var result = authenticateCallback(data);
+    callback(result);
   });
+
   var authenticateCallback = function(data) {
-    if (data) {
-      return true;
-    } else {
+    if (!data) {
       return {
         error: 'incorrect username or password'
       };
@@ -212,4 +173,33 @@ user.validateUsername = function(username) {
  */
 user.validatePassword = function(password) {
   return utils.validateRegex(password, user.VALID_PASSWORD_REGEX);
+};
+
+/**
+ * Authenticates the signed up user.
+ * @param {!mongodb.Db} db Session database.
+ * @param {!Object} userInfo User Information.
+ * @return {!user.Error}
+ */
+user.signupUser = function(db, userInfo) {
+  var duplicates = [];
+  userInfo.forEach(function(item) {
+    userInfo.forEach(function(item) {
+      if (item.email == userInfo.email) {
+        duplicates.push('email: ' + userInfo.email);
+      }
+      if (item.username == userInfo.username) {
+        duplicates.push('username: ' + userInfo.username);
+      }
+    });
+  });
+  if (duplicates.length) {
+    var errorMessage = duplicates.join(' and ') + ' exist(s)';
+    return {
+      error: errorMessage
+    };
+  } else {
+    db.collection('userInfo').insertOne(userInfo);
+    log.serverLog('user information saved');
+  }
 };

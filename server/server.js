@@ -229,7 +229,7 @@ app.post('/genotet/user', function(req, res) {
           log.serverLog('invalid input');
           return;
         }
-        user.signUp(db, logPath, userInfo, function(result) {
+        user.signUp(db, userInfo, function(result) {
           data = result;
           authenticate(data);
         });

@@ -656,7 +656,7 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
       fileName: fileName
     };
     params = {data: JSON.stringify(params)};
-    $.get(genotet.data.serverURL, params, function(isFinished) {
+    $.get(genotet.data.serverUrl, params, function(isFinished) {
       if (isFinished) {
         clearInterval(interval);
         modal.modal('hide');

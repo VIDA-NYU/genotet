@@ -28,6 +28,7 @@ mongodb.Db = function() {};
 
 /**
  * @param {string} dbName Name of database.
+ * @return {!Object}
  */
 mongodb.Db.prototype.collection = function(dbName) {};
 
@@ -52,6 +53,14 @@ mongodb.Db.prototype.collection.insertOne = function(document, writeConcern) {};
  * @param {Object=} writeConcern
  */
 mongodb.Db.prototype.collection.update = function(query, update, upsert, multi, writeConcern) {};
+
+/**
+ * @param {!Object} collection
+ * @param {!Object} query
+ * @param {function()=} callback
+ * @return {!Object} userInfo
+ */
+mongodb.Db.prototype.getOne = function(collection, query, callback) {};
 
 /**
  * @param {function()} callback
