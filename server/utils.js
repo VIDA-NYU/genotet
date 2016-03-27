@@ -96,3 +96,13 @@ utils.randomString = function() {
   return Math.random().toString(utils.RANDOM_STRING_RADIX)
     .substr(utils.RANDOM_STRING_START_INDEX, utils.RANDOM_STRING_LENGTH);
 };
+
+/**
+ * Validates a string with a regex.
+ * @param {string} str
+ * @param {RegExp} regex
+ * @return {boolean}
+ */
+utils.validateRegex = function(str, regex) {
+  return RegExp(regex).test(str);
+};

@@ -12,6 +12,7 @@ var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var mongoUrl = 'mongodb://localhost:27017/express';
 var cookieParser = require('cookie-parser');
+var CryptoJS = require('crypto-js');
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -207,7 +208,7 @@ app.post('/genotet/user', function(req, res) {
 
   var type = req.body.type;
   MongoClient.connect(mongoUrl, function(err, db) {
-    assert.equal(null, err, 'error occurs');
+    assert.equal(null, err, err);
     log.serverLog('connected to MongoDB');
 
     var userInfo, data;
@@ -229,9 +230,15 @@ app.post('/genotet/user', function(req, res) {
         userInfo = {
           email: req.body.email,
           username: req.body.username,
-          password: req.body.password,
+          password: CryptoJS.SHA256(req.body.password).toString(),
           confirmed: req.body.confirmed
         };
+        if (!user.validateEmail(userInfo.email) ||
+          !user.validateUsername(userInfo.username) ||
+          !user.validatePassword(userInfo.password)) {
+          log.serverLog('invalid input');
+          return;
+        }
         user.signUp(db, logPath, userInfo, function(result) {
           data = result;
           authenticate(data);
@@ -240,8 +247,13 @@ app.post('/genotet/user', function(req, res) {
       case user.QueryType.SIGNIN:
         userInfo = {
           username: req.body.username,
-          password: req.body.password
+          password: CryptoJS.SHA256(req.body.password).toString()
         };
+        if (!user.validateUsername(userInfo.username) ||
+          !user.validatePassword(userInfo.password)) {
+          log.serverLog('invalid input');
+          return;
+        }
         user.signIn(db, userInfo, function(result) {
           data = result;
           authenticate(data);

@@ -21,6 +21,16 @@ user.QueryType = {
   SIGNIN: 'sign-in'
 };
 
+/** @const {RegExp} */
+user.VALID_EMAIL_REGEX =
+  /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+/** @const {RegExp} */
+user.VALID_USERNAME_REGEX = /^\w{6,}$/;
+
+/** @const {RegExp} */
+user.VALID_PASSWORD_REGEX = /^\w{8,}$/;
+
 /**
  * Expire time of cookie.
  * @const {number}
@@ -173,4 +183,33 @@ user.authenticate = function(db, username, callback) {
       cookie: cookie
     };
   };
+};
+
+/**
+ * Validates email address.
+ * @param {string} email
+ * @return {boolean}
+ */
+user.validateEmail = function(email) {
+  return utils.validateRegex(email, user.VALID_EMAIL_REGEX);
+};
+
+/**
+ * Validates username, allows letters, numbers, and underscores, and no less
+ * than 6 characters.
+ * @param {string} username
+ * @return {boolean}
+ */
+user.validateUsername = function(username) {
+  return utils.validateRegex(username, user.VALID_USERNAME_REGEX);
+};
+
+/**
+ * Validates password, allows letters, numbers, and underscores, and no less
+ * than 8 characters.
+ * @param {string} password
+ * @return {boolean}
+ */
+user.validatePassword = function(password) {
+  return utils.validateRegex(password, user.VALID_PASSWORD_REGEX);
 };

@@ -501,8 +501,7 @@ genotet.dialog.signUp_ = function() {
           type: 'sign-up',
           email: email.val(),
           username: /** @type {string} */(username.val()),
-          password: CryptoJS.SHA256(/** @type {string} */(password.val()))
-            .toString(),
+          password: /** @type {string} */(password.val()),
           confirmed: false
         };
 
@@ -551,7 +550,7 @@ genotet.dialog.signIn_ = function() {
         var userInfo = {
           type: 'sign-in',
           username: /** @type {string} */(username.val()),
-          password: CryptoJS.SHA256(/** @type {string} */(password.val()))
+          password: /** @type {string} */(password.val())
             .toString()
         };
 
