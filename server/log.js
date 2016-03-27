@@ -26,11 +26,10 @@ log.UserLog;
 
 /**
  * @typedef {{
- *   username: string,
- *   logs: !Array<!log.UserLog>
+ *   error: string
  * }}
  */
-log.query.UserLogList;
+log.Error;
 
 /**
  * Prints logs with timestamps.
@@ -51,13 +50,23 @@ log.serverLog = function(var_args) {
 
 /**
  * Prints user activity logs.
- * @param {string} userPath Path to the user folder.
- * @param {!log.query.UserLogList} query Query parameters.
+ * @param {string} logPath Path to the user log folder.
+ * @param {*|{
+ *   username: string,
+ *   logs: !Array<!log.UserLog>
+ * }} query Query parameters.
+ * @return {log.Error}
  */
-log.userLog = function(userPath, query) {
+log.query.userLog = function(logPath, query) {
+  if (query.username === undefined) {
+    return {error: 'username is undefined'};
+  }
+  if (query.logs == undefined) {
+    return {error: 'logs is undefined'};
+  }
   var logs = query.logs;
   var username = query.username;
-  var folder = userPath + username + '/log/';
+  var folder = logPath + username + '/';
   if (!fs.existsSync(folder)) {
     fs.mkdirSync(folder);
   }

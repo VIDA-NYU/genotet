@@ -1,7 +1,2 @@
-bindingPath = dist/data/wiggle/
-networkPath = dist/data/network/
-expressionPath = dist/data/expression/
-bedPath = dist/data/bed/
-uploadPath = dist/data/upload/
+dataPath = dist/data/
 bigWigToWigPath = test/bigWigToWig
-mappingPath = dist/data/mapping/

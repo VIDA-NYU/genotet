@@ -20,15 +20,15 @@ mapping.QueryType = {
   LIST_MAPPING: 'list-mapping'
 };
 
-/** @const */
-mapping.query = {};
-
 /**
  * @typedef {{
- *   fileName: string
+ *   error: string
  * }}
  */
-mapping.query.GetMapping;
+mapping.Error;
+
+/** @const */
+mapping.query = {};
 
 /**
  * Lists all the mapping files.
@@ -49,11 +49,16 @@ mapping.query.list = function(mappingPath) {
 };
 
 /**
- * @param {!mapping.query.GetMapping} query
+ * @param {*|{
+ *   fileName: string
+ * }} query
  * @param {string} mappingPath
- * @return {!Object<string>}
+ * @return {!Object<string>|mapping.Error}
  */
 mapping.query.getMapping = function(query, mappingPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
+  }
   return mapping.getMapping_(mappingPath + query.fileName + '.data');
 };
 

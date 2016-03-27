@@ -78,15 +78,16 @@ genotet.ViewLoader.prototype.signal = function(eventType, opt_data) {
  */
 genotet.ViewLoader.prototype.get = function(url, params, callback,
                                             errorMessage, opt_block) {
+  var paramObj = {data: JSON.stringify(params)};
   if (!opt_block) {
     this.signal('loadStart');
-    $.get(url, params, function(data) {
+    $.get(url, paramObj, function(data) {
         callback(data);
         this.signal('loadComplete');
       }.bind(this))
       .fail(this.fail.bind(this, errorMessage, params));
   } else {
-    $.get(url, params, function(data) {
+    $.get(url, paramObj, function(data) {
         callback(data);
       }.bind(this))
       .fail(this.fail.bind(this, errorMessage, params));

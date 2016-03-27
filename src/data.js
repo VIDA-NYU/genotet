@@ -174,6 +174,7 @@ genotet.data.loadList = function(view, fileType) {
   var params = {
     type: 'list-' + fileType
   };
+  params = {data: JSON.stringify(params)};
   $.get(genotet.data.serverUrl, params, function(data) {
       genotet.data.files[fileType + 'Files'] = data;
       view.signal('updateFileListAfterLoading');
