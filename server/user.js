@@ -47,51 +47,44 @@ user.Error;
 /**
  * Checks the user information for signing in.
  * @param {!mongodb.Db} db Session database.
- * @param {string} userPath Directory of user information file.
+ * @param {string} logPath Directory of user log file.
  * @param {!user.Info} userInfo User Information
  * @param {function(!Object)} callback Callback function.
  */
-user.signUp = function(db, userPath, userInfo, callback) {
-  var checkDuplicate = {
-    duplicated: false,
-    elements: []
-  };
+user.signUp = function(db, logPath, userInfo, callback) {
   var cursor = db.collection('userInfo').find({
     $or: [{username: userInfo.username}, {email: userInfo.email}]});
   var data = [];
   cursor.each(function(err, doc) {
-    assert.equal(err, null, 'error occurs');
+    assert.equal(err, null, err);
     if (doc != null) {
       data.push(doc);
     } else {
-      var result = authenticateCallback();
+      var result = authenticateCallback(data);
       callback(result);
     }
   });
-  var authenticateCallback = function() {
-    if (data.length) {
-      checkDuplicate.duplicated = true;
-      console.log(data);
+  var authenticateCallback = function(data) {
+    var duplicates = [];
+    data.forEach(function(item) {
       data.forEach(function(item) {
-        console.log(item);
         if (item.email == userInfo.email) {
-          checkDuplicate.elements.push('email: ' + userInfo.email);
+          duplicates.push('email: ' + userInfo.email);
         }
         if (item.username == userInfo.username) {
-          checkDuplicate.elements.push('username: ' + userInfo.username);
+          duplicates.push('username: ' + userInfo.username);
         }
       });
-    }
-    if (checkDuplicate.duplicated) {
-      var errorMessage = checkDuplicate.elements.join(' and ') + ' exist';
-      errorMessage += checkDuplicate.elements.length == 1 ? 's' : '';
+    });
+    if (duplicates.length) {
+      var errorMessage = duplicates.join(' and ') + ' exist(s)';
       return {
         error: errorMessage
       };
     } else {
       db.collection('userInfo').insertOne(userInfo);
       log.serverLog('user information saved');
-      var folder = userPath + userInfo.username + '/';
+      var folder = logPath + userInfo.username + '/';
       if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder);
       }
@@ -107,23 +100,24 @@ user.signUp = function(db, userPath, userInfo, callback) {
  * @param {function(!Object)} callback Callback function.
  */
 user.signIn = function(db, userInfo, callback) {
-  var cursor = db.collection('userInfo').find({username: userInfo.username});
+  var cursor = db.collection('userInfo').find({
+    $and: [{username: userInfo.username}, {password: userInfo.password}]});
   var data;
   cursor.each(function(err, doc) {
-    assert.equal(err, null, 'error occurs');
+    assert.equal(err, null, err);
     if (doc != null) {
       data = doc;
     } else {
-      var result = authenticateCallback();
+      var result = authenticateCallback(data);
       callback(result);
     }
   });
-  var authenticateCallback = function() {
-    if (data && data.password == userInfo.password) {
+  var authenticateCallback = function(data) {
+    if (data) {
       return true;
     } else {
       return {
-        error: 'invalid username or password'
+        error: 'incorrect username or password'
       };
     }
   };
@@ -139,7 +133,7 @@ user.authenticate = function(db, username, callback) {
   var cursor = db.collection('session').find({username: username});
   var result = [];
   cursor.each(function(err, doc) {
-    assert.equal(err, null, 'error occurs');
+    assert.equal(err, null, err);
     if (doc != null) {
       result.push(doc);
     } else {

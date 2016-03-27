@@ -67,10 +67,10 @@ var bigWigToWigPath;
  */
 var uploadPath;
 /**
- * Path of user information files.
+ * Path of log files for users.
  * @type {string}
  */
-var userPath;
+var logPath;
 /**
  * Path of bed data files.
  * @type {string}
@@ -127,8 +127,8 @@ function config() {
       case 'uploadPath':
         uploadPath = value;
         break;
-      case 'userPath':
-        userPath = value;
+      case 'logPath':
+        logPath = value;
         break;
       case 'bedPath':
         bedPath = value;
@@ -161,7 +161,7 @@ var exonFile = bindingPath + 'exons.bin';
 app.post('/genotet/log', function(req, res) {
   log.serverLog('POST', 'user-log');
 
-  log.userLog(userPath, req.body);
+  log.userLog(logPath, req.body);
 });
 
 /**
@@ -211,7 +211,7 @@ app.post('/genotet/user', function(req, res) {
     log.serverLog('connected to MongoDB');
 
     var userInfo, data;
-    var authenticate = function() {
+    var authenticate = function(data) {
       res.header('Access-Control-Allow-Origin', '*');
       if (data.error) {
         log.serverLog(data.error.type, data.error.message);
@@ -232,9 +232,9 @@ app.post('/genotet/user', function(req, res) {
           password: req.body.password,
           confirmed: req.body.confirmed
         };
-        user.signUp(db, userPath, userInfo, function(result) {
+        user.signUp(db, logPath, userInfo, function(result) {
           data = result;
-          authenticate();
+          authenticate(data);
         });
         break;
       case user.QueryType.SIGNIN:
@@ -244,7 +244,7 @@ app.post('/genotet/user', function(req, res) {
         };
         user.signIn(db, userInfo, function(result) {
           data = result;
-          authenticate();
+          authenticate(data);
         });
         break;
 
@@ -257,7 +257,7 @@ app.post('/genotet/user', function(req, res) {
             message: 'invalid query type'
           }
         };
-        authenticate();
+        authenticate(data);
     }
   });
 });

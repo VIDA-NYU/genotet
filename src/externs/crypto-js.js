@@ -7,6 +7,6 @@ var CryptoJS = {};
 
 /**
  * @param {string} message
- * @return {string}
+ * @return {!Object}
  */
 CryptoJS.SHA256 = function(message) {};

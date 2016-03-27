@@ -17,6 +17,16 @@ genotet.user = {};
  */
 genotet.user.info;
 
+/** @const {RegExp} */
+genotet.user.VALID_EMAIL_REGEX =
+  /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+/** @const {RegExp} */
+genotet.user.VALID_USERNAME_REGEX = /^\w{6,}$/;
+
+/** @const {RegExp} */
+genotet.user.VALID_PASSWORD_REGEX = /^\w{8,}$/;
+
 /**
  * @typedef {{
  *   username: (string|undefined),
@@ -84,4 +94,35 @@ genotet.user.logOut = function() {
   };
   genotet.menu.displaySignInterface();
   genotet.success('logged out');
+};
+
+/**
+ * Validates email address.
+ * @param {string} email
+ * @return {boolean}
+ */
+genotet.user.validateEmail = function(email) {
+  return genotet.utils.validateRegex(email, genotet.user.VALID_EMAIL_REGEX);
+};
+
+/**
+ * Validates username, allows letters, numbers, and underscores, and no less
+ * than 6 characters.
+ * @param {string} username
+ * @return {boolean}
+ */
+genotet.user.validateUsername = function(username) {
+  return genotet.utils.validateRegex(username,
+    genotet.user.VALID_USERNAME_REGEX);
+};
+
+/**
+ * Validates password, allows letters, numbers, and underscores, and no less
+ * than 8 characters.
+ * @param {string} password
+ * @return {boolean}
+ */
+genotet.user.validatePassword = function(password) {
+  return genotet.utils.validateRegex(password,
+    genotet.user.VALID_PASSWORD_REGEX);
 };

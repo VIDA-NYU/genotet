@@ -6,7 +6,7 @@
  * @constructor
  * @return {!Cookies}
  */
-function Cookies() {}
+var Cookies;
 
 /**
  * @param {string} name

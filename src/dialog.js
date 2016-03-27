@@ -481,11 +481,11 @@ genotet.dialog.signUp_ = function() {
 
       var uploadReady = function() {
         // Validate the input information.
-        inputValid = genotet.utils.validateEmail(
+        inputValid = genotet.user.validateEmail(
             /** @type {string} */(email.val())) &&
-          genotet.utils.validateUsername(
+          genotet.user.validateUsername(
             /** @type {string} */(username.val())) &&
-          genotet.utils.validatePassword(
+          genotet.user.validatePassword(
             /** @type {string} */(password.val()));
 
         // Checks if all required fields are filled.
