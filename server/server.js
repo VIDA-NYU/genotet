@@ -94,7 +94,7 @@ function config() {
     }
   }
   uploadPath = dataPath + 'upload/';
-  logPath = dataPath + 'log/'
+  logPath = dataPath + 'log/';
 }
 // Configures the server paths.
 config();
