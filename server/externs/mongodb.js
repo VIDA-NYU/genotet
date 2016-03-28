@@ -64,3 +64,8 @@ mongodb.Db.prototype.collection.updateOne = function(filter, update, writeConcer
  * @param {function()} callback
  */
 mongodb.Cursor.prototype.each = function(callback) {};
+
+/**
+ * @param {function()} callback
+ */
+mongodb.Cursor.prototype.toArray = function(callback) {};

@@ -7,6 +7,7 @@ var fs = require('fs');
 var utils = require('./utils');
 var segtree = require('./segtree');
 var log = require('./log');
+var dbData = require('./dbData');
 
 /** @type {binding} */
 module.exports = binding;
@@ -67,6 +68,7 @@ binding.query = {};
 
 // Start public APIs
 /**
+ * @param {!mongodb.Db} db
  * @param {*|{
  *   fileName: string,
  *   chr: string,
@@ -74,30 +76,35 @@ binding.query = {};
  *   xr: (number|undefined),
  *   numSamples: (number|undefined)
  * }} query
- * @param {string} bindingPath
- * @return {binding.Histogram|binding.Error}
+ * @param {string} dataPath
+ * @param {function(*)} callback
  */
-binding.query.histogram = function(query, bindingPath) {
+binding.query.histogram = function(db, query, dataPath, callback) {
   if (query.fileName === undefined) {
-    return {error: 'fileName is undefined'};
+    callback({error: 'fileName is undefined'});
   }
   if (query.chr === undefined) {
-    return {error: 'chr is undefined'};
+    callback({error: 'chr is undefined'});
   }
   var fileName = query.fileName;
   var chr = query.chr;
+  var bindingPath = dataPath + 'anonymous/' + binding.BINDING_PREFIX_;
   var file = bindingPath + fileName + '_chr/' + fileName + '_chr' + chr +
     '.bcwig';
-  var descriptionPath = bindingPath + fileName + '.desc';
   if (!fs.existsSync(file)) {
     var error = 'binding file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {error: error};
+    callback({error: error});
   }
   var data = binding.getBinding_(file, query.xl, query.xr, query.numSamples);
-  data.gene = binding.getGene_(descriptionPath);
   data.chr = chr;
-  return data;
+  binding.getGene_(db, fileName, function(gene) {
+    if (gene.error) {
+      callback(gene);
+    }
+    data.gene = /** @type {string} */(gene);
+    callback(data);
+  });
 };
 
 /**
@@ -146,16 +153,18 @@ binding.query.locus = function(query, exonFile) {
 };
 
 /**
- * @param {string} bindingPath
- * @return {!Array<{
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(!Array<{
  *   fileName: string,
  *   gene: string,
  *   chrs: string,
  *   description: string
- * }>}
+ * }>)} callback The callback function.
  */
-binding.query.list = function(bindingPath) {
-  return binding.listBindingGenes_(bindingPath);
+binding.query.list = function(db, callback) {
+  binding.listBindingGenes_(db, function(data) {
+    callback(data);
+  });
 };
 // End public APIs
 
@@ -182,6 +191,12 @@ binding.DOUBLE_SIZE_ = 8;
  * @const {number}
  */
 binding.CACHE_SIZE = 4;
+
+/**
+ * Binding path to add to data path.
+ * @private @const {string}
+ */
+binding.BINDING_PREFIX_ = 'binding/';
 
 /**
  * @typedef {{
@@ -545,62 +560,38 @@ binding.loadHistogram_ = function(file) {
 
 /**
  * Lists all the wiggle files in the server.
- * @param {string} bindingPath Folder of the wiggle file in the server.
- * @return {!Array} Array of object of each wiggle file.
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(!Array<{
+ *   fileName: string,
+ *   gene: string,
+ *   chrs: string,
+ *   description: string
+ * }>)} callback The callback function.
  * @private
  */
-binding.listBindingGenes_ = function(bindingPath) {
-  var folder = bindingPath;
-  var ret = [];
-  var files = fs.readdirSync(folder);
-  files.forEach(function(file) {
-    // find the files ending with .data
-    if (file[0] != '.') {
-      var fileName = file.replace(/\.data$/, '');
-      var gene = '';
-      var description = '';
-      var descriptionFile = folder + fileName + '.desc';
-      if (fs.existsSync(descriptionFile)) {
-        var content = fs.readFileSync(descriptionFile, 'utf8')
-          .toString().split('\n');
-        gene = content[0];
-        description = content.slice(1).join('');
-      }
-      var chrFolder = bindingPath + fileName + '_chr/';
-      var chrFiles = fs.readdirSync(chrFolder);
-      var chrs = [];
-      chrFiles.forEach(function(file) {
-        if (file.indexOf('bcwig') != -1) {
-          var nameParts = file.split('_');
-          var lastParts = nameParts[nameParts.length - 1].split('.');
-          var chr = lastParts[0];
-          chrs.push(chr);
-        }
-      });
-      ret.push({
-        fileName: fileName,
-        gene: gene,
-        chrs: chrs,
-        description: description
-      });
-    }
+binding.listBindingGenes_ = function(db, callback) {
+  dbData.getList(db, 'binding', function(data) {
+    var ret = data.map(function(bindingFile) {
+      return {
+        fileName: bindingFile.fileName,
+        gene: bindingFile.dataName,
+        chrs: bindingFile.chrs,
+        description: bindingFile.description
+      };
+    });
+    callback(ret);
   });
-  return ret;
 };
 
 /**
  * Gets gene name for a specific binding file.
- * @param {string} descriptionPath Path to the wiggle folder.
- * @return {string} the gene name.
+ * @param {!mongodb.Db} db The database object.
+ * @param {string} fileName The binding file name.
+ * @param {function(*)} callback The callback function.
  * @private
  */
-binding.getGene_ = function(descriptionPath) {
-  var gene = '';
-  if (fs.existsSync(descriptionPath)) {
-    var content = fs.readFileSync(descriptionPath, 'utf-8').toString()
-      .split('\n');
-    gene = content[0];
-  }
-  return gene;
+binding.getGene_ = function(db, fileName, callback) {
+  dbData.getBindingGene(db, fileName, function(data) {
+    callback(data);
+  });
 };
-

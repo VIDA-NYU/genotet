@@ -5,6 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
+var dbData = require('./dbData');
 
 /** @type {network} */
 module.exports = network;
@@ -80,10 +81,10 @@ network.query = {};
  *   fileName: string,
  *   genes: !Array<string>
  * }} query
- * @param {string} networkPath
+ * @param {string} dataPath
  * @return {network.Network|network.Error}
  */
-network.query.network = function(query, networkPath) {
+network.query.network = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is empty'};
   }
@@ -91,6 +92,7 @@ network.query.network = function(query, networkPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
+  var networkPath = dataPath + 'anonymous/' + network.NETWORK_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -105,10 +107,10 @@ network.query.network = function(query, networkPath) {
  *   fileName: string,
  *   gene: string
  * }} query
- * @param {string} networkPath
+ * @param {string} dataPath
  * @return {Array<!network.Edge>|network.Error}
  */
-network.query.incidentEdges = function(query, networkPath) {
+network.query.incidentEdges = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is empty'};
   }
@@ -117,6 +119,7 @@ network.query.incidentEdges = function(query, networkPath) {
   }
   var fileName = query.fileName;
   var gene = query.gene;
+  var networkPath = dataPath + 'anonymous/' + network.NETWORK_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -131,10 +134,10 @@ network.query.incidentEdges = function(query, networkPath) {
  *   fileName: string,
  *   genes: !Array<string>
  * }} query
- * @param {string} networkPath
+ * @param {string} dataPath
  * @return {!Array<string>|network.Error}
  */
-network.query.combinedRegulation = function(query, networkPath) {
+network.query.combinedRegulation = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is empty'};
   }
@@ -142,6 +145,7 @@ network.query.combinedRegulation = function(query, networkPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
+  var networkPath = dataPath + 'anonymous/' + network.NETWORK_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -157,12 +161,12 @@ network.query.combinedRegulation = function(query, networkPath) {
  *   genes: !Array<string>,
  *   nodes: !Array<!network.Node>
  * }} query
- * @param {string} networkPath
+ * @param {string} dataPath
  * @return {{
  *   edges: !Array<network.Edge>
  * }|network.Error}
  */
-network.query.incrementalEdges = function(query, networkPath) {
+network.query.incrementalEdges = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is empty'};
   }
@@ -172,6 +176,7 @@ network.query.incrementalEdges = function(query, networkPath) {
   if (query.nodes === undefined) {
     return {error: 'nodes is undefined'};
   }
+  var networkPath = dataPath + 'anonymous/' + network.NETWORK_PREFIX_;
   var fileName = query.fileName;
   var genes = query.genes;
   var file = networkPath + fileName;
@@ -185,15 +190,17 @@ network.query.incrementalEdges = function(query, networkPath) {
 };
 
 /**
- * @param {string} networkPath
- * @return {!Array<{
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(Array<{
  *   fileName: string,
  *   networkName: string,
  *   description: string
- * }>}
+ * }>)} callback The callback function.
  */
-network.query.list = function(networkPath) {
-  return network.listNetwork_(networkPath);
+network.query.list = function(db, callback) {
+  network.listNetwork_(db, function(data) {
+    callback(data);
+  });
 };
 
 /**
@@ -220,6 +227,12 @@ network.query.allNodes = function(query, networkPath) {
   return network.allNodes_(file);
 };
 // End public APIs
+
+/**
+ * Path after data path for network files.
+ * @private @const {string}
+ */
+network.NETWORK_PREFIX_ = 'network/';
 
 /**
  * Gets the network data according to the gene selection.
@@ -422,38 +435,25 @@ network.readNetwork_ = function(networkFile) {
 
 /**
  * Lists all the networks in the server.
- * @param {string} networkPath Folder of the network in the server.
- * @return {!Array<{
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(Array<{
  *   fileName: string,
  *   networkName: string,
  *   description: string
- * }>} Array of network file info.
+ * }>)} callback The callback function.
  * @private
  */
-network.listNetwork_ = function(networkPath) {
-  var folder = networkPath;
-  var ret = [];
-  var files = fs.readdirSync(folder);
-  files.forEach(function(file) {
-    if (file[0] != '.') {
-      var fileName = file.replace(/\.data$/, '');
-      var networkName = '';
-      var description = '';
-      var descriptionFile = folder + fileName + '.desc';
-      if (fs.existsSync(descriptionFile)) {
-        var content = fs.readFileSync(descriptionFile, 'utf8')
-          .toString().split('\n');
-        networkName = content[0];
-        description = content.slice(1).join('');
-      }
-      ret.push({
-        fileName: fileName,
-        networkName: networkName,
-        description: description
-      });
-    }
+network.listNetwork_ = function(db, callback) {
+  dbData.getList(db, 'network', function(data) {
+    var ret = data.map(function(networkFile) {
+      return {
+        fileName: networkFile.fileName,
+        networkName: networkFile.dataName,
+        description: networkFile.description
+      };
+    });
+    callback(ret);
   });
-  return ret;
 };
 
 /**

@@ -5,6 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
+var dbData = require('./dbData');
 
 /** @type {mapping} */
 module.exports = mapping;
@@ -32,34 +33,40 @@ mapping.query = {};
 
 /**
  * Lists all the mapping files.
- * @param {string} mappingPath Path to the mapping file folder.
- * @return {?Array<string>}
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(Array<string>)} callback The callback function.
  */
-mapping.query.list = function(mappingPath) {
-  var files = fs.readdirSync(mappingPath);
-  var mappingFiles = [];
-  files.forEach(function(file) {
-    if (file[0] != '.') {
-      var fileName = file.replace(/\.data$/, '');
-      mappingFiles.push(fileName);
-    }
+mapping.query.list = function(db, callback) {
+  dbData.getList(db, 'mapping', function(data) {
+    var ret = data.map(function(mappingFile) {
+      return mappingFile.fileName;
+    });
+    callback(ret);
   });
-  return mappingFiles;
 };
 
 /**
  * @param {*|{
  *   fileName: string
  * }} query
- * @param {string} mappingPath
+ * @param {string} dataPath
  * @return {!Object<string>|mapping.Error}
  */
-mapping.query.getMapping = function(query, mappingPath) {
+mapping.query.getMapping = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
+  var mappingPath = dataPath + 'anonymous/' + mapping.MAPPING_PREFIX_;
   return mapping.getMapping_(mappingPath + query.fileName);
 };
+
+// End Public APIs
+
+/**
+ * Path after data path
+ * @private @const {string}
+ */
+mapping.MAPPING_PREFIX_ = 'mapping/';
 
 /**
  * Gets mapping rules.

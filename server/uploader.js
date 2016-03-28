@@ -8,7 +8,7 @@ var mkdirp = require('mkdirp');
 
 var segtree = require('./segtree');
 var log = require('./log');
-var datadb = require('./datadb');
+var dbData = require('./dbData');
 
 /** @type {uploader} */
 module.exports = uploader;
@@ -53,43 +53,51 @@ uploader.query = {};
  * Uploads a file or a directory to server.
  * @param {{
  *   type: uploader.FileType,
- *   name: string,
+ *   dataName: string,
  *   description: string,
  * }} desc File description.
  * @param {!multer.File} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
  * @param {!mongodb.Db} db The database object.
- * @param {function(Object)} callback The callback function.
+ * @param {function(*)} callback The callback function.
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, db,
                                callback) {
   var fileName = file.originalname;
-  if (fs.existsSync(prefix + fileName)) {
-    fs.unlinkSync(prefix + fileName);
+  var filePath = prefix + 'anonymous/';
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(filePath);
+  }
+  filePath += desc.type + '/';
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(filePath);
+  }
+  if (fs.existsSync(filePath + fileName)) {
+    fs.unlinkSync(filePath + fileName);
   }
 
   var source = fs.createReadStream(file.path);
-  var dest = fs.createWriteStream(prefix + fileName);
+  var dest = fs.createWriteStream(filePath + fileName);
   source.pipe(dest);
   source
     .on('end', function() {
       fs.unlinkSync(file.path);
       if (desc.type == uploader.FileType.BINDING) {
-        uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr, db,
+        uploader.bigWigToBCWig(filePath, fileName, bigWigToWigAddr, db,
           function(err) {
             if (err) {
               callback(err);
             }
           });
       } else if (desc.type == uploader.FileType.BED) {
-        uploader.bedSort(prefix, fileName, db, function(err) {
+        uploader.bedSort(filePath, fileName, db, function(err) {
           if (err) {
             callback(err);
           }
         });
       }
-      datadb.insertFile(db, prefix, fileName, desc, function(err) {
+      dbData.insertFile(db, filePath, fileName, desc, function(err) {
         if (err) {
           callback(err);
         } else {
@@ -108,7 +116,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, db,
  * @param {string} bwFile Name of the bigwig file (without prefix).
  * @param {string} bigWigToWigAddr The convention script path.
  * @param {!mongodb.Db} db The database object.
- * @param {function(Object)} callback The callback function.
+ * @param {function(*)} callback The callback function.
  */
 uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
                                   callback) {
@@ -125,7 +133,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
   childProcess.execSync(cmd);
   log.serverLog(cmd);
   percentage += 10;
-  datadb.updateProgress(db, bwFile, percentage, function(err) {
+  dbData.updateProgress(db, bwFile, percentage, function(err) {
     if (err.error) {
       callback(err);
     }
@@ -138,7 +146,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
   ].join(' ');
   var output = childProcess.execSync(cmd).toString().split(RegExp(/\s+/));
   var totalLine = parseInt(output[1], 10);
-  var step = parseInt(totalLine / 10, 10);
+  var oneTenthLines = parseInt(totalLine / 10, 10);
 
   // convert *.wig into *.bcwig
   var seg = {};  // for segment tree
@@ -174,9 +182,9 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
       lastValue[chName] = val;
 
       ++count;
-      if (count % step == 0) {
-        percentage += 0.1 * 80;
-        datadb.updateProgress(db, bwFile, percentage, function(err) {
+      if (count % oneTenthLines == 0) {
+        percentage += 0.1 * 80; // increase 10% for the progress
+        dbData.updateProgress(db, bwFile, percentage, function(err) {
           if (err.error) {
             callback(err);
           }
@@ -208,7 +216,9 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
     }
     fs.mkdirSync(folder);
 
+    var chrs = [];
     for (var chr in seg) {
+      chrs.push(chr);
       var bcwigFile = folder + '/' + bwFile + '_' + chr + '.bcwig';
       var bcwigBuf = new Buffer(uploader.ENTRY_SIZE_ * seg[chr].length);
       for (var i = 0; i < seg[chr].length; i++) {
@@ -219,7 +229,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
       fs.writeSync(fd, bcwigBuf, 0, uploader.ENTRY_SIZE_ * seg[chr].length, 0);
       fs.closeSync(fd);
       percentage += 4 / chrNum;
-      datadb.updateProgress(db, bwFile, percentage, function(err) {
+      dbData.updateProgress(db, bwFile, percentage, function(err) {
         if (err.error) {
           log.serverLog(err);
           callback(err);
@@ -233,16 +243,16 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
       var nodes = [];
       segtree.buildSegmentTree(nodes, seg[chr]);
       var segBuf = new Buffer(4 + nodes.length * uploader.DOUBLE_SIZE_);
-       segBuf.writeInt32LE(nodes.length, 0);
-       for (var i = 0, offset = 4; i < nodes.length; i++,
-       offset += uploader.DOUBLE_SIZE_) {
-       segBuf.writeDoubleLE(nodes[i], offset);
-       }
-       var fd = fs.openSync(segFile, 'w');
-       fs.writeSync(fd, segBuf, 0, offset, 0);
-       fs.closeSync(fd);
+      segBuf.writeInt32LE(nodes.length, 0);
+      for (var i = 0, offset = 4; i < nodes.length; i++,
+        offset += uploader.DOUBLE_SIZE_) {
+        segBuf.writeDoubleLE(nodes[i], offset);
+      }
+      var fd = fs.openSync(segFile, 'w');
+      fs.writeSync(fd, segBuf, 0, offset, 0);
+      fs.closeSync(fd);
       percentage += 4 / chrNum;
-      datadb.updateProgress(db, bwFile, percentage, function(err) {
+      dbData.updateProgress(db, bwFile, percentage, function(err) {
         if (err.error) {
           log.serverLog(err);
           callback(err);
@@ -251,7 +261,12 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
     }
 
     percentage = 100;
-    datadb.updateProgress(db, bwFile, percentage, function(err) {
+    dbData.updateProgress(db, bwFile, percentage, function(err) {
+      if (err.error) {
+        callback(err);
+      }
+    });
+    dbData.insertBindingChrs(db, bwFile, chrs, function(err) {
       if (err.error) {
         callback(err);
       }
@@ -265,7 +280,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, db,
  * @param {string} prefix Folder to the bed files.
  * @param {string} bedFile File name of the bed file.
  * @param {!mongodb.Db} db The database object.
- * @param {function(Object)} callback The callback function.
+ * @param {function(*)} callback The callback function.
  */
 uploader.bedSort = function(prefix, bedFile, db, callback) {
   var lines = readline.createInterface({
@@ -284,7 +299,7 @@ uploader.bedSort = function(prefix, bedFile, db, callback) {
   ].join(' ');
   var output = childProcess.execSync(cmd).toString().split(RegExp(/\s+/));
   var totalLine = parseInt(output[1], 10);
-  var step = parseInt(totalLine / 10, 10);
+  var oneTenthLines = parseInt(totalLine / 10, 10);
   lines.on('line', function(line) {
     var parts = line.split('\t');
     if (parts[0].indexOf('track') != -1) {
@@ -300,9 +315,9 @@ uploader.bedSort = function(prefix, bedFile, db, callback) {
       name: parts[3]
     });
     ++count;
-    if (count % step == 0) {
+    if (count % oneTenthLines == 0) {
       percentage += 0.1 * 90;
-      datadb.updateProgress(db, bedFile, percentage, function(err) {
+      dbData.updateProgress(db, bedFile, percentage, function(err) {
         if (err.error) {
           callback(err);
         }
@@ -340,7 +355,7 @@ uploader.bedSort = function(prefix, bedFile, db, callback) {
       }
       fs.closeSync(fd);
       percentage += 8 / chrNum;
-      datadb.updateProgress(db, bedFile, percentage, function(err) {
+      dbData.updateProgress(db, bedFile, percentage, function(err) {
         if (err.error) {
           callback(err);
         }
@@ -348,7 +363,7 @@ uploader.bedSort = function(prefix, bedFile, db, callback) {
     }
 
     percentage = 100;
-    datadb.updateProgress(db, bedFile, percentage, function(err) {
+    dbData.updateProgress(db, bedFile, percentage, function(err) {
       if (err.error) {
         callback(err);
       }

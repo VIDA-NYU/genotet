@@ -112,18 +112,18 @@ genotet.dialog.createView_ = function() {
     modal.find('#btn-next').click(function() {
       var type = /** @type {string} */(modal.find('#type').val());
       switch (type) {
-      case genotet.ViewType.NETWORK:
-        genotet.dialog.create('create-network');
-        break;
-      case genotet.ViewType.BINDING:
-        genotet.dialog.create('create-binding');
-        break;
-      case genotet.ViewType.EXPRESSION:
-        genotet.dialog.create('create-expression');
-        break;
-      default:
-        genotet.error('unknown view type in Dialog.createView:', type);
-        break;
+        case genotet.ViewType.NETWORK:
+          genotet.dialog.create('create-network');
+          break;
+        case genotet.ViewType.BINDING:
+          genotet.dialog.create('create-binding');
+          break;
+        case genotet.ViewType.EXPRESSION:
+          genotet.dialog.create('create-expression');
+          break;
+        default:
+          genotet.error('unknown view type in Dialog.createView:', type);
+          break;
       }
     });
   });
@@ -151,11 +151,11 @@ genotet.dialog.createNetwork_ = function() {
       params = {data: JSON.stringify(params)};
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(networkFile) {
-              fileNames.push({
-                id: networkFile.fileName,
-                text: networkFile.networkName + ' (' +
-                networkFile.fileName + ')'
-              });
+            fileNames.push({
+              id: networkFile.fileName,
+              text: networkFile.networkName + ' (' +
+              networkFile.fileName + ')'
+            });
           });
           modal.find('#network').select2({
             data: fileNames
@@ -275,11 +275,11 @@ genotet.dialog.createExpression_ = function() {
       params = {data: JSON.stringify(params)};
       $.get(genotet.data.serverURL, params, function(data) {
           data.forEach(function(expressionFile) {
-              fileNames.push({
-                id: expressionFile.fileName,
-                text: expressionFile.matrixName + ' (' +
-                expressionFile.fileName + ')'
-              });
+            fileNames.push({
+              id: expressionFile.fileName,
+              text: expressionFile.matrixName + ' (' +
+              expressionFile.fileName + ')'
+            });
           });
           modal.find('#matrix').select2({
             data: fileNames
@@ -331,8 +331,8 @@ genotet.dialog.mapping_ = function() {
           });
           fileNames.push('Direct Mapping');
           modal.find('#mapping-file').select2({
-            data: fileNames
-          })
+              data: fileNames
+            })
             .val(genotet.data.mappingFiles['gene-binding'])
             .trigger('change');
         }.bind(this))
@@ -345,7 +345,7 @@ genotet.dialog.mapping_ = function() {
         var fileName = modal.find('#mapping-file').val();
         genotet.logger.log(genotet.logger.Type.MAPPING, 'select', fileName);
         genotet.data.mappingFiles['gene-binding'] =
-        /** @type {string} */(fileName);
+          /** @type {string} */(fileName);
       });
     });
 };
@@ -436,7 +436,6 @@ genotet.dialog.upload_ = function() {
           fileType == genotet.FileType.BINDING) {
           uploadPercent = 70;
         }
-
         genotet.logger.log(genotet.logger.Type.UPLOAD, fileType, dataName.val(),
           fileName);
         $.ajax({
@@ -506,7 +505,8 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
   var interval = setInterval(function() {
     var params = {
       type: 'check',
-      fileName: fileName
+      fileName: fileName,
+      username: 'anonymous'
     };
     $.get(genotet.data.progressURL, params, function(data) {
       console.log(data);
@@ -519,12 +519,12 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
         modal.modal('hide');
         var finishParam = {
           type: 'finish',
-          fileName: fileName
+          fileName: fileName,
+          username: 'anonymous'
         };
         $.get(genotet.data.progressURL, finishParam);
       }
-    })
-      .fail(function(res) {
+    }).fail(function(res) {
         clearInterval(interval);
       });
 
