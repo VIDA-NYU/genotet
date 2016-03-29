@@ -132,6 +132,14 @@ database.getList = function(db, type, callback) {
   });
   var ret = [];
   cursor.each(function(err, doc) {
+    if (err) {
+      log.serverLog(err.message);
+      return;
+    }
+    if (doc == null) {
+      callback(ret);
+      return;
+    }
     if (doc.property.type == type) {
       var file = {
         fileName: doc.fileName,
@@ -144,7 +152,6 @@ database.getList = function(db, type, callback) {
       ret.push(file);
     }
   });
-  callback(ret);
 };
 
 /**

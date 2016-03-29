@@ -102,7 +102,7 @@ uploader.query = {};
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, db,
                                callback) {
   var fileName = file.originalname;
-  var filePath = prefix + user.getUsername();
+  var filePath = prefix + user.getUsername() + '/';
   if (!fs.existsSync(filePath)) {
     fs.mkdirSync(filePath);
   }

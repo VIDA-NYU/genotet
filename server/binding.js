@@ -102,7 +102,7 @@ binding.query.histogram = function(db, query, dataPath, callback) {
     if (gene.error) {
       callback({error: gene.error});
     }
-    data.gene = /** @type {string} */(gene);
+    data.gene = gene;
     callback(data);
   });
 };
