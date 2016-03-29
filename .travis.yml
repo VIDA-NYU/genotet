@@ -7,7 +7,7 @@ dist: trusty
 
 before_script:
   - sleep 15
-  - sudo service mongodb start
+  - mongo mydb_test --eval 'db.addUser("travis", "test");'
   - sudo apt-get update -qq
   - sudo apt-get install -y libicu52 libjpeg8 libfontconfig libwebp5
   - mongo
@@ -29,6 +29,9 @@ script:
   - gulp all
   - gulp dist
   - jasmine-node test/jasmine-node/
+
+services:
+  - mongodb
 
 after_script:
   - cat nohup.out
