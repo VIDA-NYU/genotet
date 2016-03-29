@@ -8,6 +8,11 @@ dist: trusty
 before_script:
   - sudo apt-get update -qq
   - sudo apt-get install -y libicu52 libjpeg8 libfontconfig libwebp5
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+  - echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+  - sudo apt-get update
+  - sudo apt-get install -y mongodb-org
+  - sudo service mongodb restart
   - mongo
   - use express
   - db.createCollection('uploadProgress')
@@ -21,9 +26,6 @@ before_script:
   - rvm 2.2.3
   - gem install scss_lint
   - bash setup.sh
-
-services:
-  - mongod
 
 script:
   - nohup node server/server.js --config=test/config &
