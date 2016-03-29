@@ -101,9 +101,10 @@ binding.query.histogram = function(db, query, dataPath, callback) {
   binding.getGene_(db, fileName, function(gene) {
     if (gene.error) {
       callback({error: gene.error});
+    } else {
+      data.gene = /** @type {string} */(gene);
+      callback(data);
     }
-    data.gene = gene;
-    callback(data);
   });
 };
 
