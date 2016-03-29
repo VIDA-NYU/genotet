@@ -7,7 +7,7 @@ var fs = require('fs');
 var utils = require('./utils');
 var segtree = require('./segtree');
 var log = require('./log');
-var dbData = require('./dbData');
+var database = require('./database');
 
 /** @type {binding} */
 module.exports = binding;
@@ -41,7 +41,7 @@ binding.Histogram;
 
 /**
  * @typedef {{
- *   error: string
+ *   error: (string|undefined)
  * }}
  */
 binding.Error;
@@ -77,7 +77,7 @@ binding.query = {};
  *   numSamples: (number|undefined)
  * }} query
  * @param {string} dataPath
- * @param {function(*)} callback
+ * @param {function((binding.Error|binding.Histogram))} callback
  */
 binding.query.histogram = function(db, query, dataPath, callback) {
   if (query.fileName === undefined) {
@@ -100,7 +100,7 @@ binding.query.histogram = function(db, query, dataPath, callback) {
   data.chr = chr;
   binding.getGene_(db, fileName, function(gene) {
     if (gene.error) {
-      callback(gene);
+      callback({error: gene.error});
     }
     data.gene = /** @type {string} */(gene);
     callback(data);
@@ -570,7 +570,7 @@ binding.loadHistogram_ = function(file) {
  * @private
  */
 binding.listBindingGenes_ = function(db, callback) {
-  dbData.getList(db, 'binding', function(data) {
+  database.getList(db, 'binding', function(data) {
     var ret = data.map(function(bindingFile) {
       return {
         fileName: bindingFile.fileName,
@@ -587,11 +587,11 @@ binding.listBindingGenes_ = function(db, callback) {
  * Gets gene name for a specific binding file.
  * @param {!mongodb.Db} db The database object.
  * @param {string} fileName The binding file name.
- * @param {function(*)} callback The callback function.
+ * @param {function((string|binding.Error))} callback The callback function.
  * @private
  */
 binding.getGene_ = function(db, fileName, callback) {
-  dbData.getBindingGene(db, fileName, function(data) {
+  database.getBindingGene(db, fileName, function(data) {
     callback(data);
   });
 };

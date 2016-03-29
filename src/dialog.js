@@ -149,7 +149,7 @@ genotet.dialog.createNetwork_ = function() {
       };
       //TODO(jiaming): generate it as a function.
       params = {data: JSON.stringify(params)};
-      $.get(genotet.data.serverURL, params, function(data) {
+      $.get(genotet.data.serverUrl, params, function(data) {
           data.forEach(function(networkFile) {
             fileNames.push({
               id: networkFile.fileName,
@@ -208,7 +208,7 @@ genotet.dialog.createBinding_ = function() {
         type: genotet.data.ListQueryType.BINDING
       };
       params = {data: JSON.stringify(params)};
-      $.get(genotet.data.serverURL, params, function(data) {
+      $.get(genotet.data.serverUrl, params, function(data) {
           data.forEach(function(bindingFile) {
             fileNames.push({
               id: bindingFile.fileName,
@@ -273,7 +273,7 @@ genotet.dialog.createExpression_ = function() {
         type: genotet.data.ListQueryType.EXPRESSION
       };
       params = {data: JSON.stringify(params)};
-      $.get(genotet.data.serverURL, params, function(data) {
+      $.get(genotet.data.serverUrl, params, function(data) {
           data.forEach(function(expressionFile) {
             fileNames.push({
               id: expressionFile.fileName,
@@ -322,7 +322,7 @@ genotet.dialog.mapping_ = function() {
         type: genotet.data.ListQueryType.MAPPING
       };
       params = {data: JSON.stringify(params)};
-      $.get(genotet.data.serverURL, params, function(data) {
+      $.get(genotet.data.serverUrl, params, function(data) {
           data.forEach(function(fileName) {
             fileNames.push({
               id: fileName,
@@ -439,7 +439,7 @@ genotet.dialog.upload_ = function() {
         genotet.logger.log(genotet.logger.Type.UPLOAD, fileType, dataName.val(),
           fileName);
         $.ajax({
-          url: genotet.data.uploadURL,
+          url: genotet.data.uploadUrl,
           type: 'POST',
           data: formData,
           enctype: 'multipart/form-data',
@@ -475,7 +475,7 @@ genotet.dialog.upload_ = function() {
               .css('width', widthPercent);
           }
         }).done(function(data) {
-            if (!data.success) {
+            if (data.error) {
               modal.modal('hide');
               genotet.error('failed to upload data', data.message);
             } else {
@@ -508,10 +508,9 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
       fileName: fileName,
       username: 'anonymous'
     };
-    $.get(genotet.data.progressURL, params, function(data) {
-      console.log(data);
+    $.get(genotet.data.uploadProgressUrl, params, function(data) {
       var percentage = parseInt(data, 10);
-      percentage = 70 + percentage * 0.3;
+      percentage = startNum + percentage * 0.3;
       modal.find('.progress').children('.progress-bar')
         .css('width', percentage + '%');
       if (percentage == 100) {
@@ -522,7 +521,7 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
           fileName: fileName,
           username: 'anonymous'
         };
-        $.get(genotet.data.progressURL, finishParam);
+        $.get(genotet.data.uploadProgressUrl, finishParam);
       }
     }).fail(function(res) {
         clearInterval(interval);

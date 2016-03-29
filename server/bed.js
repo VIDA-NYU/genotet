@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var dbData = require('./dbData');
+var database = require('./database');
 
 /** @type {bed} */
 module.exports = bed;
@@ -96,7 +96,7 @@ bed.query.list = function(db, callback) {
 
 /**
  * The path name for bed data after dataPath.
- * @private @type {string}
+ * @private @const {string}
  */
 bed.BED_PREFIX_ = 'bed/';
 
@@ -211,7 +211,7 @@ bed.readBed_ = function(bedFile, xl, xr) {
  * @private
  */
 bed.listBed_ = function(db, callback) {
-  dbData.getList(db, 'bed', function(data) {
+  database.getList(db, 'bed', function(data) {
     var ret = data.map(function(bedFile) {
       return {
         fileName: bedFile.fileName,

@@ -4,7 +4,6 @@
   "description": "Genotet",
   "main": "genotet.js",
   "dependencies": {
-    "assert": "^1.3.0",
     "bower": "^1.5.2",
     "mongodb": "^2.1.11"
   },

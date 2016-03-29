@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var dbData = require('./dbData');
+var database = require('./database');
 
 /** @type {network} */
 module.exports = network;
@@ -444,7 +444,7 @@ network.readNetwork_ = function(networkFile) {
  * @private
  */
 network.listNetwork_ = function(db, callback) {
-  dbData.getList(db, 'network', function(data) {
+  database.getList(db, 'network', function(data) {
     var ret = data.map(function(networkFile) {
       return {
         fileName: networkFile.fileName,

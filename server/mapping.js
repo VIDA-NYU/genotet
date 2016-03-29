@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var dbData = require('./dbData');
+var database = require('./database');
 
 /** @type {mapping} */
 module.exports = mapping;
@@ -37,7 +37,7 @@ mapping.query = {};
  * @param {function(Array<string>)} callback The callback function.
  */
 mapping.query.list = function(db, callback) {
-  dbData.getList(db, 'mapping', function(data) {
+  database.getList(db, 'mapping', function(data) {
     var ret = data.map(function(mappingFile) {
       return mappingFile.fileName;
     });
