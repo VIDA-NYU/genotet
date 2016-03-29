@@ -1,8 +1,6 @@
 language: node_js
 node_js:
-  - "4.0"
   - "4.1"
-  - "iojs"
 
 sudo: required
 dist: trusty
@@ -11,6 +9,11 @@ before_script:
   - sleep 15
   - sudo apt-get update -qq
   - sudo apt-get install -y libicu52 libjpeg8 libfontconfig libwebp5
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+  - echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+  - sudo apt-get update
+  - sudo apt-get install -y mongodb-org
+  - sudo service mongod start
   - mongo
   - use express
   - db.createCollection('uploadProgress')
@@ -32,18 +35,11 @@ script:
   - jasmine-node test/jasmine-node/
 
 services:
-  - mongo mydb_test --eval 'db.addUser("travis", "test");'
-  - sleep 15
-  - mongodb
+  - mongod
 
 after_script:
   - cat nohup.out
 
 addons:
-  apt:
-    sources:
-    - mongodb-3.0-precise
-    packages:
-    - mongodb-org-server
   code_climate:
     repo_token: 4b9bad2eb36ad49fa1af9b04b49cf4e068dcb6086a5e216fccf988221479118a
