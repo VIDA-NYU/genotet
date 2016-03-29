@@ -104,5 +104,5 @@ utils.randomString = function() {
  * @return {boolean}
  */
 utils.validateRegex = function(str, regex) {
-  return RegExp(regex).test(str);
+  return regex.test(str);
 };

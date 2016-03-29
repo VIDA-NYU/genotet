@@ -11,13 +11,14 @@ var Cookies;
 /**
  * @param {string} name
  * @param {string=} value
- * @param {Object=} opt_params
  */
-Cookies.get = function(name, value, opt_params) {};
+Cookies.get = function(name, value) {};
 
 /**
  * @param {string} name
  * @param {string} value
- * @param {Object=} opt_params
+ * @param {{
+ *   path: (string|undefined)
+ * }=} opt_params
  */
 Cookies.set = function(name, value, opt_params) {};

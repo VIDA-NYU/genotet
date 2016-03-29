@@ -27,42 +27,72 @@ mongodb.MongoClient.connect = function(url, callback) {};
 mongodb.Db = function() {};
 
 /**
+ * @constructor
+ * @return {!mongodb.Collection}
+ */
+mongodb.Collection = function() {};
+
+/**
+ * @constructor
+ * @return {!mongodb.Projection}
+ */
+mongodb.Projection = function() {};
+
+/**
+ * @typedef {{
+ *   name: string,
+ *   message: string
+ * }}
+ */
+mongodb.Error;
+
+/**
+ * @typedef {!Object}
+ */
+mongodb.Query;
+
+/**
+ * @constructor
+ * @return {!mongodb.Doc}
+ */
+mongodb.Doc = function() {};
+
+/**
  * @param {string} dbName Name of database.
- * @return {!Object}
+ * @return {!mongodb.Collection}
  */
 mongodb.Db.prototype.collection = function(dbName) {};
 
 /**
- * @param {Object=} query
- * @param {Object=} projection
+ * @param {!mongodb.Query} query
+ * @param {mongodb.Projection=} projection
  * @return {!mongodb.Cursor}
  */
-mongodb.Db.prototype.collection.find = function(query, projection) {};
+mongodb.Collection.prototype.find = function(query, projection) {};
 
 /**
  * @param {!Object} document
  * @param {Object=} writeConcern
  */
-mongodb.Db.prototype.collection.insertOne = function(document, writeConcern) {};
+mongodb.Collection.prototype.insertOne = function(document, writeConcern) {};
 
 /**
- * @param {!Object} query
+ * @param {!mongodb.Query} query
  * @param {!Object} update
- * @param {boolean=} upsert
+ * @param {Object<{
+ *   upsert: boolean
+ * }>} upsert
  * @param {boolean=} multi
  * @param {Object=} writeConcern
  */
-mongodb.Db.prototype.collection.update = function(query, update, upsert, multi, writeConcern) {};
+mongodb.Collection.prototype.update = function(query, update, upsert, multi, writeConcern) {};
 
 /**
- * @param {!Object} collection
- * @param {!Object} query
- * @param {function()=} callback
- * @return {!Object} userInfo
- */
-mongodb.Db.prototype.getOne = function(collection, query, callback) {};
-
-/**
- * @param {function()} callback
+ * @param {function(!mongodb.Error, !mongodb.Doc)} callback
  */
 mongodb.Cursor.prototype.each = function(callback) {};
+
+/**
+ * @param {function(!mongodb.Error, number)} callback
+ */
+mongodb.Cursor.prototype.count = function(callback) {};

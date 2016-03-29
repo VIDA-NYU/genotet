@@ -74,10 +74,24 @@ express.prototype.get = function(url, callback) {};
 express.prototype.post = function(url, data, callback) {};
 
 /**
- * @param {function(
+ * @typedef {function(
+ *   !express.Request,
+ *   !express.Response,
+ *   function())}
+ */
+express.Callback;
+
+/**
+ * @typedef {function(
  *   !express.Error,
  *   !express.Request,
  *   !express.Response,
- *   function())} callback
+ *   function())}
  */
-express.prototype.use = function(callback) {};
+express.ErrorCallback;
+
+/**
+ * @param {string|!Array<string>|express.ErrorCallback} arg1
+ * @param {express.Callback=} arg2
+ */
+express.prototype.use = function(arg1, arg2) {};

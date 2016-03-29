@@ -553,14 +553,11 @@ genotet.dialog.signUp_ = function() {
           .done(function(data) {
             genotet.menu.displaySignedUser(userInfo.username);
             genotet.user.info = {
-              username: data.cookie.username,
-              sessionId: data.cookie.sessionId,
-              expiration: data.cookie.expiration
+              username: data.username,
+              sessionId: data.sessionId,
+              expiration: data.expiration
             };
-            genotet.user.updateCookieToBrowser(data.cookie);
-            genotet.user.updateCookieToBrowser({
-              password: userInfo.password
-            });
+            genotet.user.updateCookieToBrowser(data);
             genotet.success('signed up');
           })
           .fail(function(res) {
@@ -594,22 +591,19 @@ genotet.dialog.signIn_ = function() {
         var userInfo = {
           type: 'sign-in',
           username: /** @type {string} */(username.val()),
-          password: /** @type {string} */(password.val())
-            .toString()
+          password: /** @type {string} */(password.val()),
+          autoSignIn: false
         };
 
         $.post(genotet.data.userUrl, userInfo, 'json')
           .done(function(data) {
             genotet.menu.displaySignedUser(userInfo.username);
             genotet.user.info = {
-              username: data.cookie.username,
-              sessionId: data.cookie.sessionId,
-              expiration: data.cookie.expiration
+              username: data.username,
+              sessionId: data.sessionId,
+              expiration: data.expiration
             };
-            genotet.user.updateCookieToBrowser(data.cookie);
-            genotet.user.updateCookieToBrowser({
-              password: userInfo.password
-            });
+            genotet.user.updateCookieToBrowser(data);
             genotet.success('signed in');
           })
           .fail(function(res) {

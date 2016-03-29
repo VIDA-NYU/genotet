@@ -80,7 +80,9 @@ genotet.logger.sendBack = function() {
       logs: genotet.logger.logList,
       username: genotet.user.info.username
     };
-    $.post(genotet.data.logUrl, params, 'json');
-    genotet.logger.logList = [];
+    $.post(genotet.data.logUrl, params, 'json')
+      .done(function() {
+        genotet.logger.logList = [];
+      });
   }
 };

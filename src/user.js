@@ -9,7 +9,7 @@ genotet.user = {};
 
 /**
  * User information are saved to this URL via http and received via jsonp.
- * @type {!Object<{
+ * @type {Object<{
  *   username: string,
  *   sessionId: string,
  *   expiration: number
@@ -56,19 +56,22 @@ genotet.user.init = function() {
   var userInfo = {
     type: 'sign-in',
     username: Cookies.get('username'),
-    password: Cookies.get('password')
+    autoSignIn: true
   };
 
   $.post(genotet.data.userUrl, userInfo, 'json')
     .done(function(data) {
       genotet.menu.displaySignedUser(userInfo.username);
       genotet.user.info = {
-        username: data.cookie.username,
-        sessionId: data.cookie.sessionId,
-        expiration: data.cookie.expiration
+        username: data.username,
+        sessionId: data.sessionId,
+        expiration: data.expiration
       };
-      genotet.user.updateCookieToBrowser(data.cookie);
+      genotet.user.updateCookieToBrowser(data);
       genotet.success('signed in');
+    })
+    .fail(function(res) {
+      genotet.menu.displaySignInterface();
     });
 };
 

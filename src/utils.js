@@ -293,7 +293,7 @@ genotet.utils.keySet = function(collection) {
  * @return {boolean}
  */
 genotet.utils.validateRegex = function(str, regex) {
-  return RegExp(regex).test(str);
+  return regex.test(str);
 };
 
 /**

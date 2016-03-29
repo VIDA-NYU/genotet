@@ -12,7 +12,6 @@ var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var mongoUrl = 'mongodb://localhost:27017/express';
 var cookieParser = require('cookie-parser');
-var CryptoJS = require('crypto-js');
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -89,15 +88,15 @@ var mappingPath;
 var configPath = 'server/config';
 
 /**
- * Path of config file.
+ * Path of private key file.
  * @type {string}
  */
-var privateKeyPath = '/etc/ssl/private/star_simonsfoundation_org.key';
+var privateKeyPath;
 /**
- * Path of config file.
+ * Path of certificate file.
  * @type {string}
  */
-var certificatePath = '/etc/ssl/certs/star_simonsfoundation_org.crt';
+var certificatePath;
 
 // Parse command arguments.
 process.argv.forEach(function(token) {
@@ -130,6 +129,12 @@ function config() {
         break;
       case 'bigWigToWigPath':
         bigWigToWigPath = value;
+        break;
+      case 'privateKeyPath':
+        privateKeyPath = value;
+        break;
+      case 'certificatePath':
+        certificatePath = value;
         break;
     }
   }
@@ -207,16 +212,20 @@ app.use(cookieParser());
 app.post('/genotet/user', function(req, res) {
   log.serverLog('POST user');
 
-  var type = req.body.type;
+  var query = req.body;
+  var type = query.type;
   MongoClient.connect(mongoUrl, function(err, db) {
-    assert.equal(null, err, err);
+    if (err) {
+      log.serverLog(err.message);
+      return;
+    }
     log.serverLog('connected to MongoDB');
 
     var userInfo, data;
     var authenticate = function(data) {
       res.header('Access-Control-Allow-Origin', '*');
       if (data && data.error) {
-        log.serverLog(data.error.type, data.error.message);
+        log.serverLog(data.error);
         res.status(500).json(data.error);
       } else {
         var username = req.body.username;
@@ -228,42 +237,19 @@ app.post('/genotet/user', function(req, res) {
     };
     switch (type) {
       case user.QueryType.SIGNUP:
-        userInfo = {
-          email: req.body.email,
-          username: req.body.username,
-          password: CryptoJS.SHA256(req.body.password).toString(),
-          confirmed: req.body.confirmed
-        };
-        if (!user.validateEmail(userInfo.email) ||
-          !user.validateUsername(userInfo.username) ||
-          !user.validatePassword(userInfo.password)) {
-          log.serverLog('invalid input');
-          return;
-        }
-        user.signUp(db, userInfo, function(result) {
-          data = result;
+        user.query.signUp(query, db, function(data) {
           authenticate(data);
         });
         break;
       case user.QueryType.SIGNIN:
-        userInfo = {
-          username: req.body.username,
-          password: CryptoJS.SHA256(req.body.password).toString()
-        };
-        if (!user.validateUsername(userInfo.username) ||
-          !user.validatePassword(req.body.password)) {
-          log.serverLog('invalid input');
-          return;
-        }
-        user.signIn(db, userInfo, function(result) {
-          data = result;
+        user.query.signIn(query, db, function(data) {
           authenticate(data);
         });
         break;
 
       // Undefined type, error
       default:
-        log.serverLog('invalid query type');
+        log.serverLog('invalid query type', type);
         data = {
           error: {
             type: 'query',
@@ -383,10 +369,12 @@ app.use(function(err, req, res, next) {
 });
 
 // Start the application.
-var privateKey = fs.readFileSync(privateKeyPath);
-var certificate = fs.readFileSync(certificatePath);
-var httpsServer = https.createServer({
-  key: privateKey,
-  cert: certificate
-}, app).listen(443);
-httpsServer.setTimeout(1200000);
+var server = app.listen(3000);
+server.setTimeout(1200000);
+//var privateKey = fs.readFileSync(privateKeyPath);
+//var certificate = fs.readFileSync(certificatePath);
+//var httpsServer = https.createServer({
+//  key: privateKey,
+//  cert: certificate
+//}, app).listen(443);
+//httpsServer.setTimeout(1200000);
