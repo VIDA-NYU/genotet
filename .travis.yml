@@ -25,6 +25,7 @@ before_script:
   - bash setup.sh
 
 script:
+  - mongo express < test/mongodb-init.js
   - nohup node server/server.js --config=test/config &
   - gulp all
   - gulp dist
