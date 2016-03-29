@@ -31,7 +31,9 @@ script:
 after_script:
   - cat nohup.out
 
-services: mongodb
+services:
+  - sleep 15
+  - mongodb
 
 addons:
   code_climate:
