@@ -30,6 +30,8 @@ script:
   - jasmine-node test/jasmine-node/
 
 services:
+  - mongo mydb_test --eval 'db.addUser("travis", "test");'
+  - sleep 15
   - mongodb
 
 after_script:
