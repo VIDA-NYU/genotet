@@ -8,10 +8,6 @@ dist: trusty
 before_script:
   - sudo apt-get update -qq
   - sudo apt-get install -y libicu52 libjpeg8 libfontconfig libwebp5
-  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-  - echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
-  - sudo apt-get update
-  - sudo apt-get install -y mongodb-org
   - mongo
   - use express
   - db.createCollection('uploadProgress')
@@ -26,6 +22,9 @@ before_script:
   - gem install scss_lint
   - bash setup.sh
 
+services:
+  - mongodb
+
 script:
   - nohup node server/server.js --config=test/config &
   - gulp all
@@ -36,6 +35,5 @@ after_script:
   - cat nohup.out
 
 addons:
-  - mongodb
-  - code_climate:
-      repo_token: 4b9bad2eb36ad49fa1af9b04b49cf4e068dcb6086a5e216fccf988221479118a
+  code_climate:
+    repo_token: 4b9bad2eb36ad49fa1af9b04b49cf4e068dcb6086a5e216fccf988221479118a
