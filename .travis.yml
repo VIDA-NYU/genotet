@@ -23,7 +23,7 @@ before_script:
   - bash setup.sh
 
 services:
-  - mongodb
+  - mongod
 
 script:
   - nohup node server/server.js --config=test/config &
