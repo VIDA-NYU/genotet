@@ -21,7 +21,6 @@ user.getUsername = function() {
 // End Public APIs
 
 /**
- *
  * @private @type {string}
  */
 user.USERNAME_ = 'anonymous';

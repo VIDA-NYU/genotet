@@ -40,7 +40,7 @@ genotet.data.logUrl;
  * Url for queries for monitoring data processing.
  * @type {string}
  */
-genotet.data.lploadProgressUrl;
+genotet.data.uploadProgressUrl;
 
 /**
  * @typedef {!Array<{

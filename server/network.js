@@ -6,6 +6,7 @@ var fs = require('fs');
 
 var log = require('./log');
 var database = require('./database');
+var user = require('./user');
 
 /** @type {network} */
 module.exports = network;
@@ -92,7 +93,7 @@ network.query.network = function(query, dataPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
-  var networkPath = dataPath + 'anonymous/' + network.NETWORK_PREFIX_;
+  var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -119,7 +120,8 @@ network.query.incidentEdges = function(query, dataPath) {
   }
   var fileName = query.fileName;
   var gene = query.gene;
-  var networkPath = dataPath + 'anonymous/' + network.NETWORK_PREFIX_;
+  var networkPath = dataPath + user.getUsername() + '/' +
+    network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -145,7 +147,8 @@ network.query.combinedRegulation = function(query, dataPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
-  var networkPath = dataPath + 'anonymous/' + network.NETWORK_PREFIX_;
+  var networkPath = dataPath + user.getUsername() + '/' +
+    network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -176,7 +179,7 @@ network.query.incrementalEdges = function(query, dataPath) {
   if (query.nodes === undefined) {
     return {error: 'nodes is undefined'};
   }
-  var networkPath = dataPath + 'anonymous/' + network.NETWORK_PREFIX_;
+  var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
   var fileName = query.fileName;
   var genes = query.genes;
   var file = networkPath + fileName;
@@ -232,7 +235,7 @@ network.query.allNodes = function(query, networkPath) {
  * Path after data path for network files.
  * @private @const {string}
  */
-network.NETWORK_PREFIX_ = 'network/';
+network.PATH_PREFIX_ = 'network/';
 
 /**
  * Gets the network data according to the gene selection.

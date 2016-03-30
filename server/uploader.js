@@ -62,7 +62,7 @@ uploader.PROGRESS_BINDING_WRITE_ = 4;
  * The time of building segment trees and writing down.
  * @private @const {number}
  */
-uploader.PROGRESS_BINDING_SEGTREE_ = 4;
+uploader.PROGRESS_BINDING_SEGTREE_ = 5;
 
 /**
  * The time of reading bed data.
@@ -74,7 +74,7 @@ uploader.PROGRESS_BED_READ_ = 50;
  * The time of writing separated bed data.
  * @private @const {number}
  */
-uploader.PROGRESS_BED_WRITE_ = 48;
+uploader.PROGRESS_BED_WRITE_ = 49;
 
 /**
  * @typedef {{
@@ -97,7 +97,7 @@ uploader.query = {};
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
  * @param {!mongodb.Db} db The database object.
- * @param {function(*)} callback The callback function.
+ * @param {function(uploader.Error=)} callback The callback function.
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, db,
                                callback) {
@@ -120,26 +120,36 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, db,
   source
     .on('end', function() {
       fs.unlinkSync(file.path);
-      if (desc.type == uploader.FileType.BINDING) {
-        uploader.bigWigToBcwig(filePath, fileName, bigWigToWigAddr, db,
-          function(err) {
-            if (err.error) {
-              callback(err);
-            }
-          });
-      } else if (desc.type == uploader.FileType.BED) {
-        uploader.bedSort(filePath, fileName, db, function(err) {
-          if (err.error) {
+      database.insertFile(db, filePath, fileName, desc, function(err) {
+        if (err) {
+          callback(err);
+          return;
+        }
+        database.insertProgress(db, fileName, function(err) {
+          if (err) {
             callback(err);
+            return;
+          }
+          if (desc.type == uploader.FileType.BINDING) {
+            uploader.bigWigToBcwig(filePath, fileName, bigWigToWigAddr, db,
+              function(err) {
+                if (err) {
+                  callback(err);
+                }
+                callback();
+              });
+          } else if (desc.type == uploader.FileType.BED) {
+            uploader.bedSort(filePath, fileName, db, function(err) {
+              if (err) {
+                callback(err);
+                return;
+              }
+              callback();
+            });
+          } else {
+            callback();
           }
         });
-      }
-      database.insertFile(db, filePath, fileName, desc, function(err) {
-        if (err.error) {
-          callback(err);
-        } else {
-          callback({});
-        }
       });
     })
     .on('err', function(err) {
@@ -153,7 +163,7 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, db,
  * @param {string} bwFile Name of the bigwig file (without prefix).
  * @param {string} bigWigToWigAddr The convention script path.
  * @param {!mongodb.Db} db The database object.
- * @param {function(*)} callback The callback function.
+ * @param {function(uploader.Error=)} callback The callback function.
  */
 uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr, db,
                                   callback) {
@@ -172,7 +182,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr, db,
   log.serverLog(cmd);
   percentage += uploader.PROGRESS_BINDING_TRANSFER_;
   database.updateProgress(db, bwFile, percentage, function(err) {
-    if (err.error) {
+    if (err) {
       callback(err);
     }
   });
@@ -224,7 +234,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr, db,
         // increase 10% for the progress
         percentage += 0.1 * uploader.PROGRESS_BINDING_READ_;
         database.updateProgress(db, bwFile, percentage, function(err) {
-          if (err.error) {
+          if (err) {
             callback(err);
           }
         });
@@ -269,7 +279,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr, db,
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BINDING_WRITE_ / chrNum;
       database.updateProgress(db, bwFile, percentage, function(err) {
-        if (err.error) {
+        if (err) {
           log.serverLog(err);
           callback(err);
         }
@@ -292,8 +302,8 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr, db,
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BINDING_SEGTREE_ / chrNum;
       database.updateProgress(db, bwFile, percentage, function(err) {
-        if (err.error) {
-          log.serverLog(err.error);
+        if (err) {
+          log.serverLog(err);
           callback(err);
         }
       });
@@ -301,16 +311,17 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr, db,
 
     // Update the progress to finish.
     database.updateProgress(db, bwFile, 100, function(err) {
-      if (err.error) {
+      if (err) {
         callback(err);
       }
     });
     database.insertBindingChrs(db, bwFile, chrs, function(err) {
-      if (err.error) {
+      if (err) {
         callback(err);
       }
     });
     log.serverLog('binding data separated.');
+    callback();
   });
 };
 
@@ -319,7 +330,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr, db,
  * @param {string} prefix Folder to the bed files.
  * @param {string} bedFile File name of the bed file.
  * @param {!mongodb.Db} db The database object.
- * @param {function(*)} callback The callback function.
+ * @param {function(uploader.Error=)} callback The callback function.
  */
 uploader.bedSort = function(prefix, bedFile, db, callback) {
   var lines = readline.createInterface({
@@ -357,7 +368,7 @@ uploader.bedSort = function(prefix, bedFile, db, callback) {
     if (lineCount % oneTenthLines == 0) {
       percentage += 0.1 * uploader.PROGRESS_BED_READ_;
       database.updateProgress(db, bedFile, percentage, function(err) {
-        if (err.error) {
+        if (err) {
           callback(err);
         }
       });
@@ -395,7 +406,7 @@ uploader.bedSort = function(prefix, bedFile, db, callback) {
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BED_WRITE_ / chrNum;
       database.updateProgress(db, bedFile, percentage, function(err) {
-        if (err.error) {
+        if (err) {
           callback(err);
         }
       });
@@ -403,11 +414,11 @@ uploader.bedSort = function(prefix, bedFile, db, callback) {
 
     // Update database to finish
     database.updateProgress(db, bedFile, 100, function(err) {
-      if (err.error) {
+      if (err) {
         callback(err);
       }
     });
     log.serverLog('bed chromosome data finish.');
-    callback({});
+    callback();
   });
 };

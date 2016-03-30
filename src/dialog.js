@@ -477,7 +477,7 @@ genotet.dialog.upload_ = function() {
         }).done(function(data) {
             if (data.error) {
               modal.modal('hide');
-              genotet.error('failed to upload data', data.message);
+              genotet.error('failed to upload data', data.error);
             } else {
               genotet.success('data uploaded');
             }

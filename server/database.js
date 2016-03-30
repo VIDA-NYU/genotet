@@ -18,19 +18,15 @@ module.exports = database;
  */
 function database() {}
 
-/**
- * @private @const {string}
- */
-database.DATA_COLLECTION_ = 'file';
-
-/**
- * @private @const {string}
- */
-database.PROGRESS_COLLECTION_ = 'uploadProgress';
+/** @enum {string} */
+database.Collection = {
+  DATA: 'file',
+  PROGRESS: 'uploadProgress'
+};
 
 /**
  * @typedef {{
- *   error: (string|undefined)
+ *   error: string
  * }}
  */
 database.Error;
@@ -62,10 +58,10 @@ database.createConnection = function(callback) {
  * @param {string} path Path to the folder of the file.
  * @param {string} fileName File name of the file.
  * @param {!Object} property Properties of the file.
- * @param {function(database.Error)} callback Callback function.
+ * @param {function(database.Error=)} callback Callback function.
  */
 database.insertFile = function(db, path, fileName, property, callback) {
-  var collection = db.collection(database.DATA_COLLECTION_);
+  var collection = db.collection(database.Collection.DATA);
   collection.insertOne({
     fileName: fileName,
     path: path,
@@ -74,13 +70,22 @@ database.insertFile = function(db, path, fileName, property, callback) {
   }, function(err, result) {
     if (err) {
       log.serverLog(err);
-      callback({error: err});
+      callback({error: err.message});
       return;
     }
     log.serverLog(result);
+    callback();
   });
+};
 
-  collection = db.collection(database.PROGRESS_COLLECTION_);
+/**
+ * Insert an entry for upload progress in database.
+ * @param {!mongodb.Db} db The database object.
+ * @param {string} fileName The file to insert.
+ * @param {function(database.Error=)} callback Callback function.
+ */
+database.insertProgress = function(db, fileName, callback) {
+  var collection = db.collection(database.Collection.PROGRESS);
   collection.insertOne({
     fileName: fileName,
     user: user.getUsername(),
@@ -88,11 +93,11 @@ database.insertFile = function(db, path, fileName, property, callback) {
   }, function(err, result) {
     if (err) {
       log.serverLog(err);
-      callback({error: err});
+      callback({error: err.message});
       return;
     }
     log.serverLog(result);
-    callback({});
+    callback();
   });
 };
 
@@ -101,21 +106,21 @@ database.insertFile = function(db, path, fileName, property, callback) {
  * @param {!mongodb.Db} db The database.
  * @param {string} fileName File name of the file.
  * @param {number} percentage Processing progress percentage.
- * @param {function(database.Error)} callback Callback function.
+ * @param {function(database.Error=)} callback Callback function.
  */
 database.updateProgress = function(db, fileName, percentage, callback) {
-  var collection = db.collection(database.PROGRESS_COLLECTION_);
+  var collection = db.collection(database.Collection.PROGRESS);
   collection.updateOne(
     {fileName: fileName},
     {$set: {percentage: percentage}},
     function(err, result) {
       if (err) {
         log.serverLog(err);
-        callback({error: err});
+        callback({error: err.message});
         return;
       }
       log.serverLog(result);
-      callback({});
+      callback();
     });
 };
 
@@ -126,7 +131,7 @@ database.updateProgress = function(db, fileName, percentage, callback) {
  * @param {function((Array<!database.File>|database.Error))} callback
  */
 database.getList = function(db, type, callback) {
-  var collection = db.collection(database.DATA_COLLECTION_);
+  var collection = db.collection(database.Collection.DATA);
   var cursor = collection.find({
     user: user.getUsername()
   });
@@ -159,10 +164,10 @@ database.getList = function(db, type, callback) {
  * @param {!mongodb.Db} db The database object.
  * @param {string} fileName The binding file name.
  * @param {!Array<string>} chrs The chromosomes to be inserted.
- * @param {function(database.Error)} callback The callback function.
+ * @param {function(database.Error=)} callback The callback function.
  */
 database.insertBindingChrs = function(db, fileName, chrs, callback) {
-  var collection = db.collection(database.DATA_COLLECTION_);
+  var collection = db.collection(database.Collection.DATA);
   collection.updateOne(
     {fileName: fileName,
     user: user.getUsername()},
@@ -174,7 +179,7 @@ database.insertBindingChrs = function(db, fileName, chrs, callback) {
         return;
       }
       log.serverLog(result);
-      callback({});
+      callback();
   });
 };
 
@@ -185,13 +190,13 @@ database.insertBindingChrs = function(db, fileName, chrs, callback) {
  * @param {function((string|database.Error))} callback The callback function.
  */
 database.getBindingGene = function(db, fileName, callback) {
-  var collection = db.collection(database.DATA_COLLECTION_);
+  var collection = db.collection(database.Collection.DATA);
   // TODO(jiaming): change it to getOne function.
   collection.find(
     {fileName: fileName, user: user.getUsername()}
   ).toArray(function(err, docs) {
     if (err) {
-      callback({error: err});
+      callback({error: err.message});
       return;
     }
     if (docs.length) {

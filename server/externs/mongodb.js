@@ -45,6 +45,7 @@ mongodb.Db.prototype.collection.find = function(query, projection) {};
 mongodb.Db.prototype.collection.insertOne = function(document, writeConcern) {};
 
 /**
+ * // TODO(Liana): redefine the externs.
  * @param {!Object} query
  * @param {!Object} update
  * @param {boolean=} upsert

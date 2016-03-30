@@ -6,6 +6,7 @@ var fs = require('fs');
 
 var log = require('./log');
 var database = require('./database');
+var user = require('./user');
 
 /** @type {expression} */
 module.exports = expression;
@@ -98,7 +99,8 @@ expression.query.matrixInfo = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var expressionPath = dataPath + 'anonymous/' + expression.EXPRESSION_PREFIX_;
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
@@ -127,7 +129,8 @@ expression.query.matrix = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + 'anonymous/' + expression.EXPRESSION_PREFIX_;
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
@@ -158,7 +161,8 @@ expression.query.profile = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + 'anonymous/' + expression.EXPRESSION_PREFIX_;
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
@@ -189,7 +193,8 @@ expression.query.tfaProfile = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + 'anonymous/' + expression.EXPRESSION_PREFIX_;
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
@@ -220,7 +225,7 @@ expression.query.list = function(db, callback) {
  * Path after data path for expression files.
  * @private @const {string}
  */
-expression.EXPRESSION_PREFIX_ = 'expression/';
+expression.PATH_PREFIX_ = 'expression/';
 
 /**
  * Gets the expression matrix profile of given genes and conditions.

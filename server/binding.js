@@ -8,6 +8,7 @@ var utils = require('./utils');
 var segtree = require('./segtree');
 var log = require('./log');
 var database = require('./database');
+var user = require('./user');
 
 /** @type {binding} */
 module.exports = binding;
@@ -41,7 +42,7 @@ binding.Histogram;
 
 /**
  * @typedef {{
- *   error: (string|undefined)
+ *   error: string
  * }}
  */
 binding.Error;
@@ -88,7 +89,7 @@ binding.query.histogram = function(db, query, dataPath, callback) {
   }
   var fileName = query.fileName;
   var chr = query.chr;
-  var bindingPath = dataPath + 'anonymous/' + binding.BINDING_PREFIX_;
+  var bindingPath = dataPath + user.getUsername() + '/' + binding.PATH_PREFIX_;
   var file = bindingPath + fileName + '_chr/' + fileName + '_chr' + chr +
     '.bcwig';
   if (!fs.existsSync(file)) {
@@ -197,7 +198,7 @@ binding.CACHE_SIZE = 4;
  * Binding path to add to data path.
  * @private @const {string}
  */
-binding.BINDING_PREFIX_ = 'binding/';
+binding.PATH_PREFIX_ = 'binding/';
 
 /**
  * @typedef {{

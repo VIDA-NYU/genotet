@@ -142,14 +142,18 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     dataName: req.body.name,
     description: req.body.description
   };
-  var data = {};
   database.createConnection(function(db, err) {
     uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath, db,
       function(ret) {
-        data = ret;
+        var data = ret;
+        if (!ret) {
+          data = {};
+        }
+        console.log(data);
         serverResponse(data, res);
       });
   });
+
 });
 
 /**
@@ -159,114 +163,94 @@ app.get('/genotet', function(req, res) {
 
   var query = JSON.parse(req.query.data);
   var type = query.type;
-  var data;
   log.serverLog('GET', type);
   database.createConnection(function(db, err) {
     switch (type) {
       // Network data queries
       case network.QueryType.NETWORK:
-        data = network.query.network(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(network.query.network(query, dataPath), res);
         break;
       case network.QueryType.NETWORK_INFO:
-        data = network.query.allNodes(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(network.query.allNodes(query, dataPath), res);
         break;
       case network.QueryType.INCIDENT_EDGES:
-        data = network.query.incidentEdges(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(network.query.incidentEdges(query, dataPath), res);
         break;
       case network.QueryType.COMBINED_REGULATION:
-        data = network.query.combinedRegulation(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(network.query.combinedRegulation(query, dataPath), res);
         break;
       case network.QueryType.INCREMENTAL_EDGES:
-        data = network.query.incrementalEdges(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(network.query.incrementalEdges(query, dataPath), res);
         break;
 
       // Binding data queries
       case binding.QueryType.BINDING:
-        data = binding.query.histogram(db, query, dataPath, function(result) {
-          data = result;
-          serverResponse(data, res);
+        binding.query.histogram(db, query, dataPath, function(result) {
+          serverResponse(result, res);
         });
         break;
       case binding.QueryType.EXONS:
-        data = binding.query.exons(query, exonFile);
-        serverResponse(data, res);
+        serverResponse(binding.query.exons(query, exonFile), res);
         break;
       case binding.QueryType.LOCUS:
-        data = binding.query.locus(query, exonFile);
-        serverResponse(data, res);
+        serverResponse(binding.query.locus(query, exonFile), res);
         break;
 
       // Expression data queries
       case expression.QueryType.EXPRESSION:
-        data = expression.query.matrix(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(expression.query.matrix(query, dataPath), res);
         break;
       case expression.QueryType.EXPRESSION_INFO:
-        data = expression.query.matrixInfo(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(expression.query.matrixInfo(query, dataPath), res);
         break;
       case expression.QueryType.PROFILE:
-        data = expression.query.profile(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(expression.query.profile(query, dataPath), res);
         break;
       case expression.QueryType.TFA_PROFILE:
-        data = expression.query.tfaProfile(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(expression.query.tfaProfile(query, dataPath), res);
         break;
 
       // Bed data queries
       case bed.QueryType.BED:
-        data = bed.query.motifs(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(bed.query.motifs(query, dataPath), res);
         break;
 
       // Mapping data queries
       case mapping.QueryType.MAPPING:
-        data = mapping.query.getMapping(query, dataPath);
-        serverResponse(data, res);
+        serverResponse(mapping.query.getMapping(query, dataPath), res);
         break;
 
       // Data listing
       case network.QueryType.LIST_NETWORK:
         network.query.list(db, function(result) {
-          data = result;
-          serverResponse(data, res);
+          serverResponse(result, res);
         });
         break;
       case binding.QueryType.LIST_BINDING:
         binding.query.list(db, function(result) {
-          data = result;
-          serverResponse(data, res);
+          serverResponse(result, res);
         });
         break;
       case expression.QueryType.LIST_EXPRESSION:
         expression.query.list(db, function(result) {
-          data = result;
-          serverResponse(data, res);
+          serverResponse(result, res);
         });
         break;
       case bed.QueryType.LIST_BED:
         bed.query.list(db, function(result) {
-          data = result;
-          serverResponse(data, res);
+          serverResponse(result, res);
         });
         break;
       case mapping.QueryType.LIST_MAPPING:
         mapping.query.list(db, function(result) {
-          data = result;
-          serverResponse(data, res);
+          serverResponse(result, res);
         });
         break;
 
       // Undefined type, error
       default:
         log.serverLog('invalid query type');
-        data = {
+        var data = {
           error: {
             type: 'query',
             message: 'invalid query type'

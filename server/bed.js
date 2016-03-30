@@ -6,6 +6,7 @@ var fs = require('fs');
 
 var log = require('./log');
 var database = require('./database');
+var user = require('./user');
 
 /** @type {bed} */
 module.exports = bed;
@@ -67,7 +68,7 @@ bed.query.motifs = function(query, dataPath) {
     return {error: 'chr is undefined'};
   }
   var fileName = query.fileName;
-  var bedPath = dataPath + 'anonymous/' + bed.BED_PREFIX_;
+  var bedPath = dataPath + user.getUsername() + '/' + bed.PATH_PREFIX_;
   var chr = query.chr;
   var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
   if (!fs.existsSync(dir)) {
@@ -98,7 +99,7 @@ bed.query.list = function(db, callback) {
  * The path name for bed data after dataPath.
  * @private @const {string}
  */
-bed.BED_PREFIX_ = 'bed/';
+bed.PATH_PREFIX_ = 'bed/';
 
 /**
  * Maximum number of motifs to return. If the number of motifs in the query

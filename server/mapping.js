@@ -6,6 +6,7 @@ var fs = require('fs');
 
 var log = require('./log');
 var database = require('./database');
+var user = require('./user');
 
 /** @type {mapping} */
 module.exports = mapping;
@@ -56,7 +57,8 @@ mapping.query.getMapping = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var mappingPath = dataPath + 'anonymous/' + mapping.MAPPING_PREFIX_;
+  var mappingPath = dataPath + user.getUsername() + '/' +
+    mapping.PATH_PREFIX_;
   return mapping.getMapping_(mappingPath + query.fileName);
 };
 
@@ -66,7 +68,7 @@ mapping.query.getMapping = function(query, dataPath) {
  * Path after data path
  * @private @const {string}
  */
-mapping.MAPPING_PREFIX_ = 'mapping/';
+mapping.PATH_PREFIX_ = 'mapping/';
 
 /**
  * Gets mapping rules.
