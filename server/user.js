@@ -86,16 +86,17 @@ user.query = {};
  * @param {function((!user.Error|!user.Cookie))} callback Callback function.
  */
 user.query.signIn = function(query, callback) {
-  var data;
   var userInfo = {
     username: query.username,
     password: CryptoJS.SHA256(query.password).toString()
   };
-  if (!user.validateUserInfo(userInfo.username, userInfo.password)) {
+  var validateResult = user.validateUserInfo(userInfo.username,
+    userInfo.password);
+  if (validateResult && validateResult.error) {
+    log.serverLog('cannot sign in user', validateResult.error);
     return;
   }
-  user.signIn(userInfo, function(result) {
-    data = result;
+  user.signIn(userInfo, function(data) {
     callback(data);
   });
 };
@@ -111,12 +112,14 @@ user.query.signUp = function(query, callback) {
     password: CryptoJS.SHA256(query.password).toString(),
     confirmed: query.confirmed
   };
-  if (!user.validateUserInfo(userInfo.username, userInfo.password,
-      userInfo.email)) {
+  var validateResult = user.validateUserInfo(userInfo.username,
+    userInfo.password, userInfo.email);
+  if (validateResult && validateResult.error) {
+    log.serverLog('cannot sign up user', validateResult.error);
     return;
   }
-  user.signUp(userInfo, function(result) {
-    callback(result);
+  user.signUp(userInfo, function(data) {
+    callback(data);
   });
 };
 
@@ -130,8 +133,8 @@ user.query.autoSignIn = function(query, callback) {
     sessionId: query.sessionId,
     expiration: query.expiration
   };
-  user.autoSignIn(cookie, function(result) {
-    callback(result);
+  user.autoSignIn(cookie, function(data) {
+    callback(data);
   });
 };
 
@@ -180,15 +183,14 @@ user.signIn = function(userInfo, callback) {
     function(result) {
       var data;
       if (!result) {
-        data = {
-          error: 'incorrect username or password'
-        };
-      } else {
-        var cookie = {
-          username: userInfo.username
-        };
-        data = user.updateSession(cookie);
+        callback({error: 'incorrect username or password'});
+        return;
       }
+      // success and proceed
+      var cookie = {
+        username: userInfo.username
+      };
+      data = user.updateSession(cookie);
       callback(data);
     });
 };
@@ -207,12 +209,11 @@ user.autoSignIn = function(cookie, callback) {
     function(result) {
       var data;
       if (!result) {
-        data = {
-          error: 'invalid session information'
-        };
-      } else {
-        data = user.updateSession(cookie);
+        callback({error: 'invalid session information'});
+        return;
       }
+      // success and proceed
+      data = user.updateSession(cookie);
       callback(data);
     });
 };
@@ -261,9 +262,7 @@ user.signUpUser_ = function(data, userInfo) {
   });
   if (duplicates.length) {
     var errorMessage = duplicates.join(' and ') + ' exist(s)';
-    return {
-      error: errorMessage
-    };
+    return {error: errorMessage};
   } else {
     db.collection(user.userInfoDbName).insertOne(userInfo);
     log.serverLog('user information saved');
@@ -307,7 +306,7 @@ user.validatePassword_ = function(password) {
  * @param {string} username Username.
  * @param {string} password Password.
  * @param {string=} email Email.
- * @return {boolean}
+ * @return {user.Error|undefined}
  */
 user.validateUserInfo = function(username, password, email) {
   var invalidItem = [];
@@ -322,9 +321,6 @@ user.validateUserInfo = function(username, password, email) {
   }
   if (invalidItem.length) {
     var errorMessage = invalidItem.join(' and ') + ' is(are) invalid';
-    log.serverLog(errorMessage);
-    return false;
-  } else {
-    return true;
+    return {error: errorMessage};
   }
 };

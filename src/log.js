@@ -78,11 +78,19 @@ genotet.logger.sendBack = function() {
   if (genotet.logger.logList.length) {
     var params = {
       logs: genotet.logger.logList,
-      username: genotet.user.info.username
+      username: genotet.logger.getUsername()
     };
     $.post(genotet.data.logUrl, params, 'json')
       .done(function() {
         genotet.logger.logList = [];
       });
   }
+};
+
+/**
+ * Gets username for the system.
+ * @return {string} username Current username for the system.
+ */
+genotet.logger.getUsername = function() {
+  return genotet.user.info.username;
 };

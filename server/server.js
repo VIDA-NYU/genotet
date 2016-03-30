@@ -240,7 +240,7 @@ app.post('/genotet/user', function(req, res) {
   var query = req.body;
   var type = query.type;
   var data;
-  var returnCallback = function(data) {
+  var serverResponse = function(data) {
     res.header('Access-Control-Allow-Origin', '*');
     if (data && data.error) {
       log.serverLog(data.error);
@@ -253,17 +253,17 @@ app.post('/genotet/user', function(req, res) {
   switch (type) {
     case user.QueryType.SIGNUP:
       user.query.signUp(query, function(data) {
-        returnCallback(data);
+        serverResponse(data);
       });
       break;
     case user.QueryType.SIGNIN:
       user.query.signIn(query, function(data) {
-        returnCallback(data);
+        serverResponse(data);
       });
       break;
     case user.QueryType.AUTOSIGNIN:
       user.query.autoSignIn(query, function(data) {
-        returnCallback(data);
+        serverResponse(data);
       });
       break;
 
@@ -276,7 +276,7 @@ app.post('/genotet/user', function(req, res) {
           message: 'invalid query type'
         }
       };
-      returnCallback(data);
+      serverResponse(data);
   }
 });
 

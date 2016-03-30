@@ -622,7 +622,7 @@ genotet.dialog.logOut_ = function() {
     function() {
       modal.modal();
       var btnLogOut = modal.find('#btn-log-out');
-      $('#log-out-username').text(genotet.user.info.username);
+      $('#log-out-username').text(genotet.logger.getUsername());
       btnLogOut.click(function() {
         genotet.user.logOut();
       });

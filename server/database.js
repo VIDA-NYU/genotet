@@ -32,8 +32,7 @@ database.getOne = function(collection, query, data, cursorCallback) {
       return;
     }
     if (count > 1) {
-      log.serverLog('getting ' + count +
-        ' results while expecting one in getOne');
+      log.serverLog('getting', count, 'results while expecting one in getOne');
       return;
     }
     cursor.each(function(err, doc) {
