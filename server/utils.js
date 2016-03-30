@@ -26,6 +26,20 @@ utils.RANDOM_STRING_START_INDEX = 2;
 utils.RANDOM_STRING_LENGTH = 16;
 
 /**
+ * @typedef {{
+ *   error: string
+ * }}
+ */
+utils.Error;
+
+/**
+ * @typedef {{
+ *   error: string
+ * }|string}
+ */
+utils.ErrorCaptureCallback;
+
+/**
  * Checks whether two ranges intersect.
  * @param {!Array<number>} range1 The first range.
  * @param {!Array<number>} range2 The second range.

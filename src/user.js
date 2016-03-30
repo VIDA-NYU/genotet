@@ -101,6 +101,14 @@ genotet.user.logOut = function() {
 };
 
 /**
+ * Gets username for the system.
+ * @return {string} username Current username for the system.
+ */
+genotet.user.getUsername = function() {
+  return genotet.user.info.username;
+};
+
+/**
  * Validates email address.
  * @param {string} email
  * @return {boolean}

@@ -52,10 +52,9 @@ mongodb.Error;
 mongodb.Query;
 
 /**
- * @constructor
- * @return {!mongodb.Doc}
+ * @typedef {!Object}
  */
-mongodb.Doc = function() {};
+mongodb.Doc;
 
 /**
  * @param {string} dbName Name of database.
@@ -88,6 +87,13 @@ mongodb.Collection.prototype.insertOne = function(document, writeConcern) {};
 mongodb.Collection.prototype.update = function(query, update, upsert, multi, writeConcern) {};
 
 /**
+ * @param {!Object} filter
+ * @param {!Object} update
+ * @param {Object=} writeConcern
+ */
+mongodb.Collection.prototype.updateOne = function(filter, update, writeConcern) {};
+
+/**
  * @param {function(!mongodb.Error, !mongodb.Doc)} callback
  */
 mongodb.Cursor.prototype.each = function(callback) {};
@@ -96,3 +102,8 @@ mongodb.Cursor.prototype.each = function(callback) {};
  * @param {function(!mongodb.Error, number)} callback
  */
 mongodb.Cursor.prototype.count = function(callback) {};
+
+/**
+ * @param {function(!mongodb.Error, !mongodb.Doc)} callback
+ */
+mongodb.Cursor.prototype.toArray = function(callback) {};

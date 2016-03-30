@@ -1,6 +1,7 @@
 /**
  * @fileoverview user function handler
  */
+
 var fs = require('fs');
 var CryptoJS = require('crypto-js');
 
@@ -50,6 +51,21 @@ user.VALID_USERNAME_REGEX = /^\w{6,}$/;
 
 /** @const {RegExp} */
 user.VALID_PASSWORD_REGEX = /^\w{8,}$/;
+
+/**
+ * Gets current username.
+ * @return {string} The username.
+ */
+user.getUsername = function() {
+  return user.USERNAME_;
+};
+
+// End Public APIs
+
+/**
+ * @private @type {string}
+ */
+user.USERNAME_ = 'anonymous';
 
 /**
  * @typedef {{
@@ -160,6 +176,8 @@ user.signUp = function(userInfo, callback) {
     } else {
       var data = user.signUpUser_(documents, userInfo);
       if (!data) {
+        // success and proceed
+        user.USERNAME_ = userInfo.username;
         var cookie = {
           username: userInfo.username
         };
@@ -187,6 +205,7 @@ user.signIn = function(userInfo, callback) {
         return;
       }
       // success and proceed
+      user.USERNAME_ = userInfo.username;
       var cookie = {
         username: userInfo.username
       };
@@ -213,6 +232,7 @@ user.autoSignIn = function(cookie, callback) {
         return;
       }
       // success and proceed
+      user.USERNAME_ = /** @type {string} */(cookie.username);
       data = user.updateSession(cookie);
       callback(data);
     });
