@@ -47,9 +47,5 @@ Installation:
 - Run the server.
 
     ```
-    node server/server.js
-    ```
-    Or
-    ```
     bash start.sh
     ```
