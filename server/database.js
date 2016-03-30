@@ -12,6 +12,12 @@ module.exports = database;
 function database() {}
 
 /**
+ * Mongodb database for server.
+ * @type {!mongodb.Db}
+ */
+database.db;
+
+/**
  * Checks the user information for signing in.
  * @param {!mongodb.Collection} collection Database collection.
  * @param {!mongodb.Query} query Database query.

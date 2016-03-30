@@ -23,6 +23,7 @@ var bed = require('./bed.js');
 var mapping = require('./mapping.js');
 var log = require('./log.js');
 var utils = require('./utils.js');
+var database = require('./database.js');
 
 // Application
 var app = express();
@@ -163,6 +164,30 @@ app.use(bodyParser.json());
 var exonFile = bindingPath + 'exons.bin';
 
 /**
+ * User authenticate handler.
+ */
+MongoClient.connect(mongoUrl, function(err, db) {
+  if (err) {
+    log.serverLog(err.message);
+    return;
+  }
+  log.serverLog('connected to MongoDB');
+  database.db = db;
+
+  // Start the application.
+  //var privateKey = fs.readFileSync(privateKeyPath);
+  //var certificate = fs.readFileSync(certificatePath);
+  //var httpsServer = https.createServer({
+  //  key: privateKey,
+  //  cert: certificate
+  //}, app).listen(443);
+  //httpsServer.setTimeout(1200000);
+
+  var server = app.listen(3000);
+  server.setTimeout(1200000);
+});
+
+/**
  * User log POST handler.
  */
 app.post('/genotet/log', function(req, res) {
@@ -214,51 +239,45 @@ app.post('/genotet/user', function(req, res) {
 
   var query = req.body;
   var type = query.type;
-  MongoClient.connect(mongoUrl, function(err, db) {
-    if (err) {
-      log.serverLog(err.message);
-      return;
+  var data;
+  var returnCallback = function(data) {
+    res.header('Access-Control-Allow-Origin', '*');
+    if (data && data.error) {
+      log.serverLog(data.error);
+      res.status(500).json(data.error);
+    } else {
+      res.json(data);
     }
-    log.serverLog('connected to MongoDB');
+  };
 
-    var userInfo, data;
-    var authenticate = function(data) {
-      res.header('Access-Control-Allow-Origin', '*');
-      if (data && data.error) {
-        log.serverLog(data.error);
-        res.status(500).json(data.error);
-      } else {
-        var username = req.body.username;
-        user.authenticate(db, username, function(data) {
-          res.json(data);
-          db.close();
-        });
-      }
-    };
-    switch (type) {
-      case user.QueryType.SIGNUP:
-        user.query.signUp(query, db, function(data) {
-          authenticate(data);
-        });
-        break;
-      case user.QueryType.SIGNIN:
-        user.query.signIn(query, db, function(data) {
-          authenticate(data);
-        });
-        break;
+  switch (type) {
+    case user.QueryType.SIGNUP:
+      user.query.signUp(query, function(data) {
+        returnCallback(data);
+      });
+      break;
+    case user.QueryType.SIGNIN:
+      user.query.signIn(query, function(data) {
+        returnCallback(data);
+      });
+      break;
+    case user.QueryType.AUTOSIGNIN:
+      user.query.autoSignIn(query, function(data) {
+        returnCallback(data);
+      });
+      break;
 
-      // Undefined type, error
-      default:
-        log.serverLog('invalid query type', type);
-        data = {
-          error: {
-            type: 'query',
-            message: 'invalid query type'
-          }
-        };
-        authenticate(data);
-    }
-  });
+    // Undefined type, error
+    default:
+      log.serverLog('invalid query type', type);
+      data = {
+        error: {
+          type: 'query',
+          message: 'invalid query type'
+        }
+      };
+      returnCallback(data);
+  }
 });
 
 // GET request handlers.
@@ -367,14 +386,3 @@ app.use(function(err, req, res, next) {
   res.status(500);
   res.json('Internal Server Error');
 });
-
-// Start the application.
-var server = app.listen(3000);
-server.setTimeout(1200000);
-//var privateKey = fs.readFileSync(privateKeyPath);
-//var certificate = fs.readFileSync(certificatePath);
-//var httpsServer = https.createServer({
-//  key: privateKey,
-//  cert: certificate
-//}, app).listen(443);
-//httpsServer.setTimeout(1200000);

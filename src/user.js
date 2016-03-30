@@ -54,9 +54,10 @@ genotet.user.init = function() {
   }
 
   var userInfo = {
-    type: 'sign-in',
+    type: 'auto-sign-in',
     username: Cookies.get('username'),
-    autoSignIn: true
+    sessionId: Cookies.get('sessionId'),
+    expiration: Cookies.get('expiration')
   };
 
   $.post(genotet.data.userUrl, userInfo, 'json')

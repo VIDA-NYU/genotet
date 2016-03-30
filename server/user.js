@@ -19,7 +19,8 @@ function user() {}
 /** @enum {string} */
 user.QueryType = {
   SIGNUP: 'sign-up',
-  SIGNIN: 'sign-in'
+  SIGNIN: 'sign-in',
+  AUTOSIGNIN: 'auto-sign-in'
 };
 
 /**
@@ -55,8 +56,7 @@ user.VALID_PASSWORD_REGEX = /^\w{8,}$/;
  *   email: (string|undefined),
  *   username: string,
  *   password: string,
- *   confirmed: (boolean|undefined),
- *   autoSignIn: (boolean|undefined)
+ *   confirmed: (boolean|undefined)
  * }}
  */
 user.Info;
@@ -83,35 +83,28 @@ user.query = {};
 // Start public APIs
 /**
  * @param {*|!user.Info} query
- * @param {!mongodb.Db} db User information database.
- * @param {function(user.Error=)} callback Callback function.
+ * @param {function((!user.Error|!user.Cookie))} callback Callback function.
  */
-user.query.signIn = function(query, db, callback) {
+user.query.signIn = function(query, callback) {
   var data;
-  if (!query.autoSignIn) {
-    var userInfo = {
-      username: query.username,
-      password: CryptoJS.SHA256(query.password).toString()
-    };
-    if (!user.validateUserInfo(userInfo.username, userInfo.password)) {
-      return;
-    }
-    user.signIn(db, userInfo, function(result) {
-      data = result;
-      callback(data);
-    });
-  } else {
-    callback(data);
+  var userInfo = {
+    username: query.username,
+    password: CryptoJS.SHA256(query.password).toString()
+  };
+  if (!user.validateUserInfo(userInfo.username, userInfo.password)) {
+    return;
   }
+  user.signIn(userInfo, function(result) {
+    data = result;
+    callback(data);
+  });
 };
 
 /**
  * @param {*|!user.Info} query
- * @param {!mongodb.Db} db User information database.
- * @param {function(user.Error=)} callback Callback function.
+ * @param {function((!user.Error|!user.Cookie))} callback Callback function.
  */
-user.query.signUp = function(query, db, callback) {
-  var data;
+user.query.signUp = function(query, callback) {
   var userInfo = {
     email: query.email,
     username: query.username,
@@ -122,23 +115,37 @@ user.query.signUp = function(query, db, callback) {
       userInfo.email)) {
     return;
   }
-  user.signUp(db, userInfo, function(result) {
-    data = result;
-    callback(data);
+  user.signUp(userInfo, function(result) {
+    callback(result);
+  });
+};
+
+/**
+ * @param {*|!user.Cookie} query
+ * @param {function((!user.Error|!user.Cookie))} callback Callback function.
+ */
+user.query.autoSignIn = function(query, callback) {
+  var cookie = {
+    username: query.username,
+    sessionId: query.sessionId,
+    expiration: query.expiration
+  };
+  user.autoSignIn(cookie, function(result) {
+    callback(result);
   });
 };
 
 /**
  * Checks the user information for signing in.
- * @param {!mongodb.Db} db User information database.
  * @param {!user.Info} userInfo User Information.
- * @param {function(user.Error=)} callback Callback function.
+ * @param {function((!user.Error|!user.Cookie))} callback Callback function.
  */
-user.signUp = function(db, userInfo, callback) {
+user.signUp = function(userInfo, callback) {
+  var db = database.db;
   var cursor = db.collection(user.userInfoDbName).find({
     $or: [{username: userInfo.username}, {email: userInfo.email}]
   });
-  var data = [];
+  var documents = [];
   cursor.each(function(err, doc) {
     if (err) {
       log.serverLog(err.message);
@@ -146,21 +153,27 @@ user.signUp = function(db, userInfo, callback) {
     }
     if (doc != null) {
       delete doc['_id'];
-      data.push(doc);
+      documents.push(doc);
     } else {
-      var result = user.signUpUser_(db, data, userInfo);
-      callback(result);
+      var data = user.signUpUser_(documents, userInfo);
+      if (!data) {
+        var cookie = {
+          username: userInfo.username
+        };
+        data = user.updateSession(cookie);
+      }
+      callback(data);
     }
   });
 };
 
 /**
  * Checks the user information for signing in.
- * @param {!mongodb.Db} db User information database.
  * @param {!user.Info} userInfo User Information.
- * @param {function(user.Error=)} callback Callback function.
+ * @param {function((!user.Error|!user.Cookie))} callback Callback function.
  */
-user.signIn = function(db, userInfo, callback) {
+user.signIn = function(userInfo, callback) {
+  var db = database.db;
   var query = {$and: [{username: userInfo.username},
     {password: userInfo.password}]};
   database.getOne(db.collection(user.userInfoDbName), query, [],
@@ -170,52 +183,91 @@ user.signIn = function(db, userInfo, callback) {
         data = {
           error: 'incorrect username or password'
         };
+      } else {
+        var cookie = {
+          username: userInfo.username
+        };
+        data = user.updateSession(cookie);
       }
       callback(data);
     });
 };
 
 /**
- * Gets session ID from database. Regenerate if it is expired.
- * @param {!mongodb.Db} db Session database.
- * @param {string} username Username of the POST query.
- * @param {function(user.Cookie)} callback Callback function.
+ * Checks the user session information for auto signing in.
+ * @param {!user.Cookie} cookie User cookie information.
+ * @param {function((!user.Error|!user.Cookie))} callback Callback function.
  */
-user.authenticate = function(db, username, callback) {
-  var query = {$and: [{username: username},
+user.autoSignIn = function(cookie, callback) {
+  var db = database.db;
+  var query = {$and: [{username: cookie.username},
+    {sessionId: cookie.sessionId},
     {expiration: {$gt: new Date().getTime()}}]};
   database.getOne(db.collection(user.sessionDbName), query, [],
     function(result) {
-      var data = user.authenticationResult(db, username,
-        /** @type {!user.Cookie} */(result));
+      var data;
+      if (!result) {
+        data = {
+          error: 'invalid session information'
+        };
+      } else {
+        data = user.updateSession(cookie);
+      }
       callback(data);
     });
 };
 
 /**
- * Authenticates the signed up user.
- * @param {!mongodb.Db} db Session database.
- * @param {string} username Username of the POST query.
- * @param {user.Cookie} cookie Username.
- * @return {!user.Cookie}
+ * Updates session ID from database. Regenerate if it is expired.
+ * @param {!user.Cookie} cookie User cookie information.
+ * @return {!user.Cookie} cookie Updated user cookie information.
  */
-user.authenticationResult = function(db, username, cookie) {
-  if (!cookie) {
-    // Don't have username or have username but don't have valid session
-    cookie = {
-      username: username,
-      sessionId: utils.randomString(),
-      expiration: new Date().getTime() + user.cookieExpireTime
-    };
-    db.collection(user.sessionDbName).insertOne(cookie);
-  } else {
-    // Have session and update expire date
+user.updateSession = function(cookie) {
+  var db = database.db;
+  var query = {$and: [{username: cookie.username},
+    {sessionId: cookie.sessionId}]};
+  if (cookie.sessionId) {
+    // Have session and update expire date.
     var newExpiration = new Date().getTime() + user.cookieExpireTime;
     db.collection(user.sessionDbName).update(cookie,
       {$set: {expiration: newExpiration}}, {upsert: false});
     cookie.expiration = newExpiration;
+  } else {
+    // Don't have username or have username but don't have valid session
+    cookie.sessionId = utils.randomString();
+    cookie.expiration = new Date().getTime() + user.cookieExpireTime;
+    db.collection(user.sessionDbName).insertOne(cookie);
   }
   return cookie;
+};
+
+/**
+ * Authenticates the signed up user.
+ * @param {Array<!user.Info>} data
+ * @param {!user.Info} userInfo User Information.
+ * @return {user.Error|undefined}
+ * @private
+ */
+user.signUpUser_ = function(data, userInfo) {
+  var db = database.db;
+  var duplicates = [];
+  data.forEach(function(item) {
+    if (item.email == userInfo.email) {
+      duplicates.push('email: ' + userInfo.email);
+    }
+    if (item.username == userInfo.username) {
+      duplicates.push('username: ' + userInfo.username);
+    }
+  });
+  if (duplicates.length) {
+    var errorMessage = duplicates.join(' and ') + ' exist(s)';
+    return {
+      error: errorMessage
+    };
+  } else {
+    db.collection(user.userInfoDbName).insertOne(userInfo);
+    log.serverLog('user information saved');
+  }
 };
 
 /**
@@ -248,35 +300,6 @@ user.validateUsername_ = function(username) {
  */
 user.validatePassword_ = function(password) {
   return utils.validateRegex(password, user.VALID_PASSWORD_REGEX);
-};
-
-/**
- * Authenticates the signed up user.
- * @param {!mongodb.Db} db User information database.
- * @param {Array<!user.Info>} data
- * @param {!user.Info} userInfo User Information.
- * @return {user.Error|undefined}
- * @private
- */
-user.signUpUser_ = function(db, data, userInfo) {
-  var duplicates = [];
-  data.forEach(function(item) {
-    if (item.email == userInfo.email) {
-      duplicates.push('email: ' + userInfo.email);
-    }
-    if (item.username == userInfo.username) {
-      duplicates.push('username: ' + userInfo.username);
-    }
-  });
-  if (duplicates.length) {
-    var errorMessage = duplicates.join(' and ') + ' exist(s)';
-    return {
-      error: errorMessage
-    };
-  } else {
-    db.collection(user.userInfoDbName).insertOne(userInfo);
-    log.serverLog('user information saved');
-  }
 };
 
 /**

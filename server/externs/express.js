@@ -48,6 +48,12 @@ express.Response.prototype.status = function(data) {};
 
 /**
  * @constructor
+ * @return {!express.Next}
+ */
+express.Next = function() {};
+
+/**
+ * @constructor
  * @return {!express.Error}
  */
 express.Error = function() {};
@@ -74,24 +80,25 @@ express.prototype.get = function(url, callback) {};
 express.prototype.post = function(url, data, callback) {};
 
 /**
- * @typedef {function(
+ * @typedef {function((
  *   !express.Request,
  *   !express.Response,
- *   function())}
+ *   !express.Next,
+ *   function()))}
  */
 express.Callback;
 
 /**
- * @typedef {function(
+ * @typedef {function((
  *   !express.Error,
  *   !express.Request,
  *   !express.Response,
- *   function())}
+ *   function()))}
  */
 express.ErrorCallback;
 
 /**
- * @param {string|!Array<string>|express.ErrorCallback} arg1
+ * @param {string|!Array<string>|express.ErrorCallback|express.Callback} arg1
  * @param {express.Callback=} arg2
  */
 express.prototype.use = function(arg1, arg2) {};

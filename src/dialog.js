@@ -591,8 +591,7 @@ genotet.dialog.signIn_ = function() {
         var userInfo = {
           type: 'sign-in',
           username: /** @type {string} */(username.val()),
-          password: /** @type {string} */(password.val()),
-          autoSignIn: false
+          password: /** @type {string} */(password.val())
         };
 
         $.post(genotet.data.userUrl, userInfo, 'json')
