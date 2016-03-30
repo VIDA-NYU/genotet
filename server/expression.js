@@ -5,6 +5,8 @@
 var fs = require('fs');
 
 var log = require('./log');
+var database = require('./database');
+var user = require('./user');
 
 /** @type {expression} */
 module.exports = expression;
@@ -90,14 +92,16 @@ expression.query = {};
  * @param {*|{
  *   fileName: string
  * }} query
- * @param {string} expressionPath
+ * @param {string} dataPath
  * @return {expression.MatrixInfo|expression.Error}
  */
-expression.query.matrixInfo = function(query, expressionPath) {
+expression.query.matrixInfo = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var file = expressionPath + query.fileName + '.data';
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
+  var file = expressionPath + query.fileName;
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
     log.serverLog(error);
@@ -112,10 +116,10 @@ expression.query.matrixInfo = function(query, expressionPath) {
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>
  * }} query
- * @param {string} expressionPath
+ * @param {string} dataPath
  * @return {expression.Matrix|expression.Error}
  */
-expression.query.matrix = function(query, expressionPath) {
+expression.query.matrix = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
@@ -125,7 +129,9 @@ expression.query.matrix = function(query, expressionPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var file = expressionPath + query.fileName + '.data';
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
+  var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
@@ -142,10 +148,10 @@ expression.query.matrix = function(query, expressionPath) {
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>
  * }} query
- * @param {string} expressionPath
+ * @param {string} dataPath
  * @return {expression.Profile|expression.Error}
  */
-expression.query.profile = function(query, expressionPath) {
+expression.query.profile = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
@@ -155,7 +161,9 @@ expression.query.profile = function(query, expressionPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var file = expressionPath + query.fileName + '.data';
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
+  var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
@@ -172,10 +180,10 @@ expression.query.profile = function(query, expressionPath) {
  *   geneNames: !Array<string>,
  *   conditionNames: !Array<string>
  * }} query
- * @param {string} expressionPath
+ * @param {string} dataPath
  * @return {expression.TfaProfile|expression.Error}
  */
-expression.query.tfaProfile = function(query, expressionPath) {
+expression.query.tfaProfile = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
@@ -185,6 +193,8 @@ expression.query.tfaProfile = function(query, expressionPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
@@ -197,17 +207,25 @@ expression.query.tfaProfile = function(query, expressionPath) {
 };
 
 /**
- * @param {string} expressionPath
- * @return {!Array<{
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(Array<{
  *   matrixName: string,
  *   fileName: string,
  *   description: string
- * }>}
+ * }>)} callback The callback function.
  */
-expression.query.list = function(expressionPath) {
-  return expression.listMatrix_(expressionPath);
+expression.query.list = function(db, callback) {
+  expression.listMatrix_(db, function(data) {
+    callback(data);
+  });
 };
 // End public APIs
+
+/**
+ * Path after data path for expression files.
+ * @private @const {string}
+ */
+expression.PATH_PREFIX_ = 'expression/';
 
 /**
  * Gets the expression matrix profile of given genes and conditions.
@@ -269,41 +287,25 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
 
 /**
  * Lists all the expression matrix files in the server
- * @param {string} expressionPath Folder of the expression matrix file in the
- *     server.
- * @return {!Array<{
+ * @param {!mongodb.Db} db The database object.
+ * @param {function(!Array<{
  *   matrixName: string,
  *   fileName: string,
  *   description: string
- * }>} array of object of each expression matrix file
+ * }>)} callback The callback function.
  * @private
  */
-expression.listMatrix_ = function(expressionPath) {
-  var folder = expressionPath;
-  var ret = [];
-  var files = fs.readdirSync(folder);
-  files.forEach(function(file) {
-    if (file.lastIndexOf('.data') > 0 &&
-      file.lastIndexOf('.data') == file.length - 5) {
-      var fileName = file.replace(/\.data$/, '');
-      var matrixName = '';
-      var description = '';
-      var descriptionFile = folder + fileName + '.desc';
-      if (fs.existsSync(descriptionFile)) {
-        var content = fs.readFileSync(descriptionFile, 'utf8')
-          .toString().split('\n');
-        matrixName = content[0];
-        description = content.slice(1).join('');
-      }
-      ret.push({
-        matrixName: matrixName,
-        fileName: fileName,
-        description: description
-      });
-    }
+expression.listMatrix_ = function(db, callback) {
+  database.getList(db, 'expression', function(data) {
+    var ret = data.map(function(matrixFile) {
+      return {
+        matrixName: matrixFile.dataName,
+        fileName: matrixFile.fileName,
+        description: matrixFile.description
+      };
+    });
+    callback(ret);
   });
-  log.serverLog('list ', ret.length, ' matrices.');
-  return ret;
 };
 
 /**

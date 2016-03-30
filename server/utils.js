@@ -17,6 +17,20 @@ function utils() {}
 utils.RANGE_TOLERANCE = .001;
 
 /**
+ * @typedef {{
+ *   error: string
+ * }}
+ */
+utils.Error;
+
+/**
+ * @typedef {{
+ *   error: string
+ * }|string}
+ */
+utils.ErrorCaptureCallback;
+
+/**
  * Checks whether two ranges intersect.
  * @param {!Array<number>} range1 The first range.
  * @param {!Array<number>} range2 The second range.

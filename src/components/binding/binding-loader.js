@@ -79,7 +79,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
       fileName: track.fileName,
       chr: this.data.chr
     };
-    this.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverUrl, params, function(data) {
       track.overview = data;
       this.updateRanges_();
     }.bind(this), 'cannot load binding overview');
@@ -89,7 +89,7 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
       xl: this.data.detailXMin,
       xr: this.data.detailXMax
     });
-    this.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverUrl, params, function(data) {
       track.detail = data;
       this.updateRanges_();
     }.bind(this), 'cannot load binding detail');
@@ -110,7 +110,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
     fileName: fileName,
     chr: chr
   };
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     var track = {
       gene: data.gene,
       fileName: fileName,
@@ -131,7 +131,7 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
       xl: this.data.detailXMin,
       xr: this.data.detailXMax
     });
-    this.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverUrl, params, function(data) {
       // If a new track is created. This may be received before the track object
       // is created. Therefore create an empty object in that case.
       if (!this.data.tracks[trackIndex]) {
@@ -160,7 +160,7 @@ genotet.BindingLoader.prototype.loadBed = function(fileName, chr, xl, xr) {
     xr: xr
   };
   var isAggregated = !this.data.bed || this.data.bed.aggregated;
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     this.data.bed = data;
     this.data.bedName = fileName;
     this.data.bed.aggregatedChanged = this.data.bed.aggregated != isAggregated;
@@ -183,7 +183,7 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
       xl: xl,
       xr: xr
     };
-    this.get(genotet.data.serverURL, params, function(data) {
+    this.get(genotet.data.serverUrl, params, function(data) {
       track.detail = data;
     }.bind(this), 'cannot load binding detail');
   }, this);
@@ -199,7 +199,7 @@ genotet.BindingLoader.prototype.loadExons_ = function(chr) {
     type: genotet.binding.QueryType.EXONS,
     chr: chr
   };
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     this.data.exons = data;
   }.bind(this), 'cannot load binding data');
 };
@@ -215,7 +215,7 @@ genotet.BindingLoader.prototype.findLocus = function(gene) {
     type: genotet.binding.QueryType.LOCUS,
     gene: gene
   };
-  this.get(genotet.data.serverURL, params, function(res) {
+  this.get(genotet.data.serverUrl, params, function(res) {
     if (!res) {
       genotet.warning('gene locus not found');
     } else {
@@ -290,7 +290,7 @@ genotet.BindingLoader.prototype.loadMapping = function(mappingFileName, gene) {
     type: genotet.mapping.QueryType.MAPPING,
     fileName: mappingFileName
   };
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     var mappingName = data;
     var fileName = mappingName[gene];
     this.signal('updateTrackWithMapping', fileName);

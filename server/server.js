@@ -15,6 +15,7 @@ var uploader = require('./uploader.js');
 var bed = require('./bed.js');
 var mapping = require('./mapping.js');
 var log = require('./log.js');
+var database = require('./database.js');
 
 // Application
 var app = express();
@@ -34,20 +35,10 @@ var genotet = {};
 genotet.Error;
 
 /**
- * Path of wiggle files.
+ * Path for data storage.
  * @type {string}
  */
-var bindingPath;
-/**
- * Path of network files.
- * @type {string}
- */
-var networkPath;
-/**
- * Path of expression matrix files.
- * @type {string}
- */
-var expressionPath;
+var dataPath;
 /**
  * Path of bigwig to Wig conversion script
  * @type {string}
@@ -58,16 +49,6 @@ var bigWigToWigPath;
  * @type {string}
  */
 var uploadPath;
-/**
- * Path of bed data files.
- * @type {string}
- */
-var bedPath;
-/**
- * Path of mapping files.
- * @type {string}
- */
-var mappingPath;
 /**
  * Path of user logs.
  * @type {string}
@@ -100,7 +81,6 @@ function config() {
   var tokens = fs.readFileSync(configPath)
     .toString()
     .split(RegExp(/\s+/));
-  var dataPath;
   for (var i = 0; i < tokens.length; i += 3) {
     var variable = tokens[i];
     var value = tokens[i + 2];
@@ -113,12 +93,7 @@ function config() {
         break;
     }
   }
-  bindingPath = dataPath + 'wiggle/';
-  networkPath = dataPath + 'network/';
-  expressionPath = dataPath + 'expression/';
   uploadPath = dataPath + 'upload/';
-  bedPath = dataPath + 'bed/';
-  mappingPath = dataPath + 'mapping/';
   logPath = dataPath + 'log/';
 }
 // Configures the server paths.
@@ -133,15 +108,24 @@ var upload = multer({
  * Path of the exon info file.
  * @type {string}
  */
-var exonFile = bindingPath + 'exons.bin';
+var exonFile = dataPath + 'exons.bin';
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+var serverResponse = function(data, res) {
+  res.header('Access-Control-Allow-Origin', '*');
+  if (data.error) {
+    res.status(500).json(data.error);
+  } else {
+    res.json(data);
+  }
+};
+
 /**
  * User log POST handler.
  */
-app.post('/genotet/log', function(req, res) {
+app.post('/genotet/log', function(req, res, next) {
   log.serverLog('POST', 'user-log');
 
   log.query.userLog(logPath, req.body);
@@ -153,141 +137,133 @@ app.post('/genotet/log', function(req, res) {
 app.post('/genotet/upload', upload.single('file'), function(req, res) {
   log.serverLog('POST upload');
 
-  var prefix = '';
-  switch (req.body.type) {
-    case uploader.FileType.NETWORK:
-      prefix = networkPath;
-      break;
-    case uploader.FileType.BINDING:
-      prefix = bindingPath;
-      break;
-    case uploader.FileType.EXPRESSION:
-      prefix = expressionPath;
-      break;
-    case uploader.FileType.BED:
-      prefix = bedPath;
-      break;
-    case uploader.FileType.MAPPING:
-      prefix = mappingPath;
-      break;
-  }
   var body = {
     type: req.body.type,
-    name: req.body.name,
+    dataName: req.body.name,
     description: req.body.description
   };
-  uploader.uploadFile(body, req.file, prefix, bigWigToWigPath, uploadPath);
-  res.header('Access-Control-Allow-Origin', '*');
-  res.json({
-    success: true
+  database.createConnection(function(db, err) {
+    uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath, db,
+      function(ret) {
+        var data = ret;
+        if (!ret) {
+          data = {};
+        }
+        console.log(data);
+        serverResponse(data, res);
+      });
   });
+
 });
 
 /**
  * GET request handler.
  */
 app.get('/genotet', function(req, res) {
+
   var query = JSON.parse(req.query.data);
   var type = query.type;
-  var data;
   log.serverLog('GET', type);
-  switch (type) {
-    // Network data queries
-    case network.QueryType.NETWORK:
-      data = network.query.network(query, networkPath);
-      break;
-    case network.QueryType.NETWORK_INFO:
-      data = network.query.allNodes(query, networkPath);
-      break;
-    case network.QueryType.INCIDENT_EDGES:
-      data = network.query.incidentEdges(query, networkPath);
-      break;
-    case network.QueryType.COMBINED_REGULATION:
-      data = network.query.combinedRegulation(query, networkPath);
-      break;
-    case network.QueryType.INCREMENTAL_EDGES:
-      data = network.query.incrementalEdges(query, networkPath);
-      break;
+  database.createConnection(function(db, err) {
+    switch (type) {
+      // Network data queries
+      case network.QueryType.NETWORK:
+        serverResponse(network.query.network(query, dataPath), res);
+        break;
+      case network.QueryType.NETWORK_INFO:
+        serverResponse(network.query.allNodes(query, dataPath), res);
+        break;
+      case network.QueryType.INCIDENT_EDGES:
+        serverResponse(network.query.incidentEdges(query, dataPath), res);
+        break;
+      case network.QueryType.COMBINED_REGULATION:
+        serverResponse(network.query.combinedRegulation(query, dataPath), res);
+        break;
+      case network.QueryType.INCREMENTAL_EDGES:
+        serverResponse(network.query.incrementalEdges(query, dataPath), res);
+        break;
 
-    // Binding data queries
-    case binding.QueryType.BINDING:
-      data = binding.query.histogram(query, bindingPath);
-      break;
-    case binding.QueryType.EXONS:
-      data = binding.query.exons(query, exonFile);
-      break;
-    case binding.QueryType.LOCUS:
-      data = binding.query.locus(query, exonFile);
-      break;
+      // Binding data queries
+      case binding.QueryType.BINDING:
+        binding.query.histogram(db, query, dataPath, function(result) {
+          serverResponse(result, res);
+        });
+        break;
+      case binding.QueryType.EXONS:
+        serverResponse(binding.query.exons(query, exonFile), res);
+        break;
+      case binding.QueryType.LOCUS:
+        serverResponse(binding.query.locus(query, exonFile), res);
+        break;
 
-    // Expression data queries
-    case expression.QueryType.EXPRESSION:
-      data = expression.query.matrix(query, expressionPath);
-      break;
-    case expression.QueryType.EXPRESSION_INFO:
-      data = expression.query.matrixInfo(query, expressionPath);
-      break;
-    case expression.QueryType.PROFILE:
-      data = expression.query.profile(query, expressionPath);
-      break;
-    case expression.QueryType.TFA_PROFILE:
-      data = expression.query.tfaProfile(query, expressionPath);
-      break;
+      // Expression data queries
+      case expression.QueryType.EXPRESSION:
+        serverResponse(expression.query.matrix(query, dataPath), res);
+        break;
+      case expression.QueryType.EXPRESSION_INFO:
+        serverResponse(expression.query.matrixInfo(query, dataPath), res);
+        break;
+      case expression.QueryType.PROFILE:
+        serverResponse(expression.query.profile(query, dataPath), res);
+        break;
+      case expression.QueryType.TFA_PROFILE:
+        serverResponse(expression.query.tfaProfile(query, dataPath), res);
+        break;
 
-    // Bed data queries
-    case bed.QueryType.BED:
-      data = bed.query.motifs(query, bedPath);
-      break;
+      // Bed data queries
+      case bed.QueryType.BED:
+        serverResponse(bed.query.motifs(query, dataPath), res);
+        break;
 
-    // Mapping data queries
-    case mapping.QueryType.MAPPING:
-      data = mapping.query.getMapping(query, mappingPath);
-      break;
+      // Mapping data queries
+      case mapping.QueryType.MAPPING:
+        serverResponse(mapping.query.getMapping(query, dataPath), res);
+        break;
 
-    // Data listing
-    case network.QueryType.LIST_NETWORK:
-      data = network.query.list(networkPath);
-      break;
-    case binding.QueryType.LIST_BINDING:
-      data = binding.query.list(bindingPath);
-      break;
-    case expression.QueryType.LIST_EXPRESSION:
-      data = expression.query.list(expressionPath);
-      break;
-    case bed.QueryType.LIST_BED:
-      data = bed.query.list(bedPath);
-      break;
-    case mapping.QueryType.LIST_MAPPING:
-      data = mapping.query.list(mappingPath);
-      break;
+      // Data listing
+      case network.QueryType.LIST_NETWORK:
+        network.query.list(db, function(result) {
+          serverResponse(result, res);
+        });
+        break;
+      case binding.QueryType.LIST_BINDING:
+        binding.query.list(db, function(result) {
+          serverResponse(result, res);
+        });
+        break;
+      case expression.QueryType.LIST_EXPRESSION:
+        expression.query.list(db, function(result) {
+          serverResponse(result, res);
+        });
+        break;
+      case bed.QueryType.LIST_BED:
+        bed.query.list(db, function(result) {
+          serverResponse(result, res);
+        });
+        break;
+      case mapping.QueryType.LIST_MAPPING:
+        mapping.query.list(db, function(result) {
+          serverResponse(result, res);
+        });
+        break;
 
-    // Upload file checking
-    case 'check-finish':
-      data = uploader.checkFinish(query, uploadPath);
-      break;
-
-    // Undefined type, error
-    default:
-      log.serverLog('invalid query type');
-      data = {
-        error: {
-          type: 'query',
-          message: 'invalid query type'
-        }
-      };
-  }
-
-  res.header('Access-Control-Allow-Origin', '*');
-  if (data.error) {
-    res.status(500).json(data.error);
-  } else {
-    res.json(data);
-  }
+      // Undefined type, error
+      default:
+        log.serverLog('invalid query type');
+        var data = {
+          error: {
+            type: 'query',
+            message: 'invalid query type'
+          }
+        };
+        serverResponse(data, res);
+    }
+  });
 });
 
 // Error Handler
 app.use(function(err, req, res, next) {
-  log.serverLog([err.stack]);
+  log.serverLog(err.stack);
   res.status(500);
   res.json('Internal Server Error');
 });
