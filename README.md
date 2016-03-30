@@ -49,3 +49,7 @@ Installation:
     ```
     node server/server.js
     ```
+    Or
+    ```
+    bash start.sh
+    ```
