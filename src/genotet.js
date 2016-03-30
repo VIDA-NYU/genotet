@@ -47,6 +47,7 @@ genotet.init = function() {
   genotet.options.init();
   genotet.tooltip.init();
   genotet.logger.init();
+  genotet.dialog.init();
 
   if (genotet.test) {
     genotet.test();
