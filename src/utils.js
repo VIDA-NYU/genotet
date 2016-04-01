@@ -287,6 +287,16 @@ genotet.utils.keySet = function(collection) {
 };
 
 /**
+ * Validates a string with a regex.
+ * @param {string} str
+ * @param {RegExp} regex
+ * @return {boolean}
+ */
+genotet.utils.validateRegex = function(str, regex) {
+  return regex.test(str);
+};
+
+/**
  * Makes 'child' class inherit 'base' class.
  * @param {Function} child
  * @param {Function} base

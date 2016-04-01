@@ -2,13 +2,8 @@
  * @fileoverview database access object for data.
  */
 
-var mongodb = require('mongodb');
-var MongoClient = mongodb.MongoClient;
-var mongoUrl = 'mongodb://localhost:27017/express';
-
-var log = require('./log');
-var user = require('./user');
-var utils = require('./utils');
+var log = require('./log.js');
+var utils = require('./utils.js');
 
 /** @type {database} */
 module.exports = database;
@@ -17,6 +12,12 @@ module.exports = database;
  * @constructor
  */
 function database() {}
+
+/**
+ * Mongodb database for server.
+ * @type {!mongodb.Db}
+ */
+database.db;
 
 /** @enum {string} */
 database.Collection = {
@@ -32,175 +33,34 @@ database.Collection = {
 database.Error;
 
 /**
- * @typedef {{
- *   fileName: string,
- *   dataName: string,
- *   description: string,
- *   chrs: Array<string>
- * }}
+ * Checks the user information for signing in.
+ * @param {!mongodb.Collection} collection Database collection.
+ * @param {!mongodb.Query} query Database query.
+ * @param {!Array<!Object>} data Query result.
+ * @param {function(!Object)} cursorCallback Callback function.
  */
-database.File;
-
-/**
- * // TODO(jiaming): This should go to the middleware of server.
- * Creates a connection to the mongodb.
- * @param {function(!mongodb.Db, Object=)} callback The callback function.
- */
-database.createConnection = function(callback) {
-  MongoClient.connect(mongoUrl, function(err, db) {
-    callback(db, err);
-  });
-};
-
-/**
- * Inserts a new file into database.
- * @param {!mongodb.Db} db The database.
- * @param {string} path Path to the folder of the file.
- * @param {string} fileName File name of the file.
- * @param {!Object} property Properties of the file.
- * @param {function(database.Error=)} callback Callback function.
- */
-database.insertFile = function(db, path, fileName, property, callback) {
-  var collection = db.collection(database.Collection.DATA);
-  collection.insertOne({
-    fileName: fileName,
-    path: path,
-    property: property,
-    user: user.getUsername()
-  }, function(err, result) {
-    if (err) {
-      log.serverLog(err);
-      callback({error: err.message});
-      return;
-    }
-    log.serverLog(result);
-    callback();
-  });
-};
-
-/**
- * Insert an entry for upload progress in database.
- * @param {!mongodb.Db} db The database object.
- * @param {string} fileName The file to insert.
- * @param {function(database.Error=)} callback Callback function.
- */
-database.insertProgress = function(db, fileName, callback) {
-  var collection = db.collection(database.Collection.PROGRESS);
-  collection.insertOne({
-    fileName: fileName,
-    user: user.getUsername(),
-    percentage: 0
-  }, function(err, result) {
-    if (err) {
-      log.serverLog(err);
-      callback({error: err.message});
-      return;
-    }
-    log.serverLog(result);
-    callback();
-  });
-};
-
-/**
- * Updates processing progress in database.
- * @param {!mongodb.Db} db The database.
- * @param {string} fileName File name of the file.
- * @param {number} percentage Processing progress percentage.
- * @param {function(database.Error=)} callback Callback function.
- */
-database.updateProgress = function(db, fileName, percentage, callback) {
-  var collection = db.collection(database.Collection.PROGRESS);
-  collection.updateOne(
-    {fileName: fileName},
-    {$set: {percentage: percentage}},
-    function(err, result) {
-      if (err) {
-        log.serverLog(err);
-        callback({error: err.message});
-        return;
-      }
-      log.serverLog(result);
-      callback();
-    });
-};
-
-/**
- * Gets data list from database.
- * @param {!mongodb.Db} db The database object.
- * @param {string} type The file type to list.
- * @param {function((Array<!database.File>|database.Error))} callback
- */
-database.getList = function(db, type, callback) {
-  var collection = db.collection(database.Collection.DATA);
-  var cursor = collection.find({
-    user: user.getUsername()
-  });
-  var ret = [];
-  cursor.each(function(err, doc) {
+database.getOne = function(collection, query, data, cursorCallback) {
+  var cursor = collection.find(query);
+  cursor.count(function(err, count) {
     if (err) {
       log.serverLog(err.message);
       return;
     }
-    if (doc == null) {
-      callback(ret);
+    if (count > 1) {
+      log.serverLog('getting', count, 'results while expecting one in getOne');
       return;
     }
-    if (doc.property.type == type) {
-      var file = {
-        fileName: doc.fileName,
-        dataName: doc.property.dataName,
-        description: doc.property.description
-      };
-      if (type == 'binding') {
-        file.chrs = doc.chrs;
-      }
-      ret.push(file);
-    }
-  });
-};
-
-/**
- * Inserts chromosomes to database for binding files.
- * @param {!mongodb.Db} db The database object.
- * @param {string} fileName The binding file name.
- * @param {!Array<string>} chrs The chromosomes to be inserted.
- * @param {function(database.Error=)} callback The callback function.
- */
-database.insertBindingChrs = function(db, fileName, chrs, callback) {
-  var collection = db.collection(database.Collection.DATA);
-  collection.updateOne(
-    {fileName: fileName,
-    user: user.getUsername()},
-    {$set: {chrs: chrs}},
-    function(err, result) {
+    cursor.each(function(err, doc) {
       if (err) {
-        log.serverLog(err);
-        callback({error: err});
+        log.serverLog(err.message);
         return;
       }
-      log.serverLog(result);
-      callback();
-  });
-};
-
-/**
- * Gets the gene for binding files from database.
- * @param {!mongodb.Db} db The database object.
- * @param {string} fileName The file which the gene belongs to.
- * @param {function((string|database.Error))} callback The callback function.
- */
-database.getBindingGene = function(db, fileName, callback) {
-  var collection = db.collection(database.Collection.DATA);
-  // TODO(jiaming): change it to getOne function.
-  collection.find(
-    {fileName: fileName, user: user.getUsername()}
-  ).toArray(function(err, docs) {
-    if (err) {
-      callback({error: err.message});
-      return;
-    }
-    if (docs.length) {
-      callback(docs[0].property.dataName);
-    }
+      if (doc != null) {
+        delete doc['_id'];
+        data.push(doc);
+      } else {
+        cursorCallback(data[0]);
+      }
+    });
   });
 };

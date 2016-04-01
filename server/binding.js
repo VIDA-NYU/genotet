@@ -7,7 +7,7 @@ var fs = require('fs');
 var utils = require('./utils');
 var segtree = require('./segtree');
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {binding} */
@@ -69,7 +69,6 @@ binding.query = {};
 
 // Start public APIs
 /**
- * @param {!mongodb.Db} db
  * @param {*|{
  *   fileName: string,
  *   chr: string,
@@ -80,12 +79,14 @@ binding.query = {};
  * @param {string} dataPath
  * @param {function((binding.Error|binding.Histogram))} callback
  */
-binding.query.histogram = function(db, query, dataPath, callback) {
+binding.query.histogram = function(query, dataPath, callback) {
   if (query.fileName === undefined) {
     callback({error: 'fileName is undefined'});
+    return;
   }
   if (query.chr === undefined) {
     callback({error: 'chr is undefined'});
+    return;
   }
   var fileName = query.fileName;
   var chr = query.chr;
@@ -96,10 +97,17 @@ binding.query.histogram = function(db, query, dataPath, callback) {
     var error = 'binding file ' + fileName + ' not found.';
     log.serverLog(error);
     callback({error: error});
+    return;
   }
   var data = binding.getBinding_(file, query.xl, query.xr, query.numSamples);
+  if (!data) {
+    var errorMessage = 'binding list not found';
+    log.serverLog(errorMessage);
+    callback({error: errorMessage});
+    return;
+  }
   data.chr = chr;
-  binding.getGene_(db, fileName, function(gene) {
+  binding.getGene_(fileName, function(gene) {
     if (gene.error) {
       callback({error: gene.error});
     } else {
@@ -155,7 +163,6 @@ binding.query.locus = function(query, exonFile) {
 };
 
 /**
- * @param {!mongodb.Db} db The database object.
  * @param {function(!Array<{
  *   fileName: string,
  *   gene: string,
@@ -163,8 +170,8 @@ binding.query.locus = function(query, exonFile) {
  *   description: string
  * }>)} callback The callback function.
  */
-binding.query.list = function(db, callback) {
-  binding.listBindingGenes_(db, function(data) {
+binding.query.list = function(callback) {
+  binding.listBindingGenes_(function(data) {
     callback(data);
   });
 };
@@ -562,7 +569,6 @@ binding.loadHistogram_ = function(file) {
 
 /**
  * Lists all the wiggle files in the server.
- * @param {!mongodb.Db} db The database object.
  * @param {function(!Array<{
  *   fileName: string,
  *   gene: string,
@@ -571,8 +577,8 @@ binding.loadHistogram_ = function(file) {
  * }>)} callback The callback function.
  * @private
  */
-binding.listBindingGenes_ = function(db, callback) {
-  database.getList(db, 'binding', function(data) {
+binding.listBindingGenes_ = function(callback) {
+  fileDbAccess.getList('binding', function(data) {
     var ret = data.map(function(bindingFile) {
       return {
         fileName: bindingFile.fileName,
@@ -587,13 +593,12 @@ binding.listBindingGenes_ = function(db, callback) {
 
 /**
  * Gets gene name for a specific binding file.
- * @param {!mongodb.Db} db The database object.
  * @param {string} fileName The binding file name.
  * @param {function((string|binding.Error))} callback The callback function.
  * @private
  */
-binding.getGene_ = function(db, fileName, callback) {
-  database.getBindingGene(db, fileName, function(data) {
+binding.getGene_ = function(fileName, callback) {
+  fileDbAccess.getBindingGene(fileName, function(data) {
     callback(data);
   });
 };

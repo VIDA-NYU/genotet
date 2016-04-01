@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {network} */
@@ -193,15 +193,14 @@ network.query.incrementalEdges = function(query, dataPath) {
 };
 
 /**
- * @param {!mongodb.Db} db The database object.
  * @param {function(Array<{
  *   fileName: string,
  *   networkName: string,
  *   description: string
  * }>)} callback The callback function.
  */
-network.query.list = function(db, callback) {
-  network.listNetwork_(db, function(data) {
+network.query.list = function(callback) {
+  network.listNetwork_(function(data) {
     callback(data);
   });
 };
@@ -439,7 +438,6 @@ network.readNetwork_ = function(networkFile) {
 
 /**
  * Lists all the networks in the server.
- * @param {!mongodb.Db} db The database object.
  * @param {function(Array<{
  *   fileName: string,
  *   networkName: string,
@@ -447,8 +445,8 @@ network.readNetwork_ = function(networkFile) {
  * }>)} callback The callback function.
  * @private
  */
-network.listNetwork_ = function(db, callback) {
-  database.getList(db, 'network', function(data) {
+network.listNetwork_ = function(callback) {
+  fileDbAccess.getList('network', function(data) {
     var ret = data.map(function(networkFile) {
       return {
         fileName: networkFile.fileName,

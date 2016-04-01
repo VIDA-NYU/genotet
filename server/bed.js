@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {bed} */
@@ -80,15 +80,14 @@ bed.query.motifs = function(query, dataPath) {
 };
 
 /**
- * @param {!mongodb.Db} db The database object.
  * @param {function(Array<{
  *   fileName: string,
  *   bedName: string,
  *   description: string
  * }>)} callback The callback function.
  */
-bed.query.list = function(db, callback) {
-  bed.listBed_(db, function(data) {
+bed.query.list = function(callback) {
+  bed.listBed_(function(data) {
     callback(data);
   });
 };
@@ -204,15 +203,14 @@ bed.readBed_ = function(bedFile, xl, xr) {
 };
 
 /**
- * @param {!mongodb.Db} db The database object.
  * @param {function(!Array<{
  *   bedName: string,
  *   description: string
  * }>)} callback The callback function.
  * @private
  */
-bed.listBed_ = function(db, callback) {
-  database.getList(db, 'bed', function(data) {
+bed.listBed_ = function(callback) {
+  fileDbAccess.getList('bed', function(data) {
     var ret = data.map(function(bedFile) {
       return {
         fileName: bedFile.fileName,

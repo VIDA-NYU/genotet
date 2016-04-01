@@ -38,6 +38,9 @@ genotet.dialog.TEMPLATES_ = {
   mapping: 'templates/mapping.html',
   about: 'templates/about.html',
   upload: 'templates/upload.html',
+  signUp: 'templates/sign-up.html',
+  signIn: 'templates/sign-in.html',
+  logOut: 'templates/log-out.html',
   progress: 'templates/upload-progress.html',
   serverDown: 'templates/server-down.html'
 };
@@ -96,6 +99,15 @@ genotet.dialog.create = function(type) {
       break;
     case 'upload':
       genotet.dialog.upload_();
+      break;
+    case 'sign-up':
+      genotet.dialog.signUp_();
+      break;
+    case 'sign-in':
+      genotet.dialog.signIn_();
+      break;
+    case 'log-out':
+      genotet.dialog.logOut_();
       break;
     default:
       genotet.error('unknown view type in Dialog.create:', type);
@@ -429,7 +441,7 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return file.val() && (dataName.val() ||
+        return file.val() !== '' && (dataName.val() !== '' ||
           typeSelection.val() == genotet.FileType.MAPPING);
       };
 
@@ -497,8 +509,8 @@ genotet.dialog.upload_ = function() {
               .css('width', widthPercent);
           }
         }).done(function(data) {
+            modal.modal('hide');
             if (data.error) {
-              modal.modal('hide');
               genotet.error('failed to upload data', data.error);
             } else {
               genotet.success('data uploaded');
@@ -517,6 +529,128 @@ genotet.dialog.upload_ = function() {
 };
 
 /**
+ * Creates a dialog for signing up.
+ * @private
+ */
+genotet.dialog.signUp_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.signUp,
+    function() {
+      modal.modal();
+      var email = modal.find('#email');
+      var username = modal.find('#username');
+      var password = modal.find('#password');
+      var confirmPassword = modal.find('#confirm-password');
+      var btnSignUp = modal.find('#btn-sign-up').prop('disabled', true);
+      var inputValid = false;
+
+      var uploadReady = function() {
+        // Validate the input information.
+        inputValid = genotet.user.validateEmail(
+            /** @type {string} */(email.val())) &&
+          genotet.user.validateUsername(
+            /** @type {string} */(username.val())) &&
+          genotet.user.validatePassword(
+            /** @type {string} */(password.val()));
+
+        // Checks if all required fields are filled.
+        return email.val() !== '' && username.val() !== '' &&
+          password.val() !== '' && (confirmPassword.val() == password.val() &&
+          inputValid);
+      };
+      confirmPassword.on('input', function() {
+        btnSignUp.prop('disabled', !uploadReady());
+      });
+      btnSignUp.click(function() {
+        var userInfo = {
+          type: 'sign-up',
+          email: email.val(),
+          username: /** @type {string} */(username.val()),
+          password: /** @type {string} */(password.val()),
+          confirmed: false
+        };
+
+        $.post(genotet.data.userUrl, userInfo, 'json')
+          .done(function(data) {
+            genotet.menu.displaySignedUser(userInfo.username);
+            genotet.user.info = {
+              username: data.username,
+              sessionId: data.sessionId,
+              expiration: data.expiration
+            };
+            genotet.user.updateCookieToBrowser(data);
+            genotet.success('signed up');
+          })
+          .fail(function(res) {
+            genotet.error(res.responseText);
+          });
+      });
+    });
+};
+
+/**
+ * Creates a dialog for signing in.
+ * @private
+ */
+genotet.dialog.signIn_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.signIn,
+    function() {
+      modal.modal();
+      var username = modal.find('#username');
+      var password = modal.find('#password');
+      var btnSignIn = modal.find('#btn-sign-in').prop('disabled', true);
+
+      // Checks if all required fields are filled.
+      var uploadReady = function() {
+        return username.val() !== '' && password.val() !== '';
+      };
+      password.on('input', function() {
+        btnSignIn.prop('disabled', !uploadReady());
+      });
+      btnSignIn.click(function() {
+        var userInfo = {
+          type: 'sign-in',
+          username: /** @type {string} */(username.val()),
+          password: /** @type {string} */(password.val())
+        };
+
+        $.post(genotet.data.userUrl, userInfo, 'json')
+          .done(function(data) {
+            genotet.menu.displaySignedUser(userInfo.username);
+            genotet.user.info = {
+              username: data.username,
+              sessionId: data.sessionId,
+              expiratloggn: data.expiration
+            };
+            genotet.user.updateCookieToBrowser(data);
+            genotet.success('signed in');
+          })
+          .fail(function(res) {
+            genotet.error(res.responseText);
+          });
+      });
+    });
+};
+
+/**
+ * Creates a dialog for logging out.
+ * @private
+ */
+genotet.dialog.logOut_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.logOut,
+    function() {
+      modal.modal();
+      var btnLogOut = modal.find('#btn-log-out');
+      $('#log-out-username').text(genotet.user.getUsername());
+      btnLogOut.click(function() {
+        genotet.user.logOut();
+      });
+    });
+};
+
+/**
  * Monitors process progress.
  * @param {string} fileName File name of the processing file.
  * @param {number} startNum Start percent of progress.
@@ -528,7 +662,7 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
     var params = {
       type: 'check',
       fileName: fileName,
-      username: 'anonymous'
+      username: genotet.user.getUsername()
     };
     $.get(genotet.data.uploadProgressUrl, params, function(data) {
       var percentage = parseInt(data, 10);
@@ -541,7 +675,7 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
         var finishParam = {
           type: 'finish',
           fileName: fileName,
-          username: 'anonymous'
+          username: genotet.user.getUsername()
         };
         $.get(genotet.data.uploadProgressUrl, finishParam);
       }
