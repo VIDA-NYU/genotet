@@ -34,13 +34,8 @@ Installation:
 - Create and edit a server configuration file to set the data paths. The file shall be located at _genotet/server/config_.
 
     ```
-    networkPath = .../genotet_data/network/
-    bindingPath = .../genotet_data/binding/
-    expressionPath = .../genotet_data/expression/
+    dataPath = .../genotet_data/data/
     bigWigToWigPath = .../genotet_data/bigWigToWig
-    uploadPath = .../genotet_data/upload/
-    bedPath = .../genotet_data/bed/
-    mappingPath = .../genotet_data/mapping/
     ```
 
 - Run the setup script.
@@ -52,5 +47,5 @@ Installation:
 - Run the server.
 
     ```
-    node server/server.js
+    bash start.sh
     ```

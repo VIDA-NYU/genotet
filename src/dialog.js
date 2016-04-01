@@ -41,7 +41,28 @@ genotet.dialog.TEMPLATES_ = {
   signUp: 'templates/sign-up.html',
   signIn: 'templates/sign-in.html',
   logOut: 'templates/log-out.html',
-  progress: 'templates/upload-progress.html'
+  progress: 'templates/upload-progress.html',
+  serverDown: 'templates/server-down.html'
+};
+
+/**
+ * The init function, check the server status.
+ */
+genotet.dialog.init = function() {
+  var params = {
+    type: 'list-binding'
+  };
+  $.get(genotet.data.serverUrl, params)
+    .fail(function(res) {
+      var modal = $('#dialog');
+      modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.serverDown,
+        function() {
+          modal.modal({
+            backdrop: 'static',
+            keyboard: false
+          });
+      });
+    });
 };
 
 /**
@@ -599,7 +620,7 @@ genotet.dialog.signIn_ = function() {
             genotet.user.info = {
               username: data.username,
               sessionId: data.sessionId,
-              expiration: data.expiration
+              expiratloggn: data.expiration
             };
             genotet.user.updateCookieToBrowser(data);
             genotet.success('signed in');
