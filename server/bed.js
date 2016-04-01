@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {bed} */
@@ -210,7 +210,7 @@ bed.readBed_ = function(bedFile, xl, xr) {
  * @private
  */
 bed.listBed_ = function(callback) {
-  database.getList('bed', function(data) {
+  fileDbAccess.getList('bed', function(data) {
     var ret = data.map(function(bedFile) {
       return {
         fileName: bedFile.fileName,

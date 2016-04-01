@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {expression} */
@@ -301,7 +301,7 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
  * @private
  */
 expression.listMatrix_ = function(callback) {
-  database.getList('expression', function(data) {
+  fileDbAccess.getList('expression', function(data) {
     var ret = data.map(function(matrixFile) {
       return {
         matrixName: matrixFile.dataName,

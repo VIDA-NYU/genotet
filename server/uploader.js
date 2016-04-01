@@ -8,7 +8,7 @@ var mkdirp = require('mkdirp');
 
 var segtree = require('./segtree');
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {uploader} */
@@ -119,12 +119,12 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
   source
     .on('end', function() {
       fs.unlinkSync(file.path);
-      database.insertFile(filePath, fileName, desc, function(err) {
+      fileDbAccess.insertFile(filePath, fileName, desc, function(err) {
         if (err) {
           callback(err);
           return;
         }
-        database.insertProgress(fileName, function(err) {
+        fileDbAccess.insertProgress(fileName, function(err) {
           if (err) {
             callback(err);
             return;
@@ -179,7 +179,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
   childProcess.execSync(cmd);
   log.serverLog(cmd);
   percentage += uploader.PROGRESS_BINDING_TRANSFER_;
-  database.updateProgress(bwFile, percentage, function(err) {
+  fileDbAccess.updateProgress(bwFile, percentage, function(err) {
     if (err) {
       callback(err);
     }
@@ -231,7 +231,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
       if (lineCount % oneTenthLines == 0) {
         // increase 10% for the progress
         percentage += 0.1 * uploader.PROGRESS_BINDING_READ_;
-        database.updateProgress(bwFile, percentage, function(err) {
+        fileDbAccess.updateProgress(bwFile, percentage, function(err) {
           if (err) {
             callback(err);
           }
@@ -276,7 +276,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
       fs.writeSync(fd, bcwigBuf, 0, uploader.ENTRY_SIZE_ * seg[chr].length, 0);
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BINDING_WRITE_ / chrNum;
-      database.updateProgress(bwFile, percentage, function(err) {
+      fileDbAccess.updateProgress(bwFile, percentage, function(err) {
         if (err) {
           log.serverLog(err);
           callback(err);
@@ -299,7 +299,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
       fs.writeSync(fd, segBuf, 0, offset, 0);
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BINDING_SEGTREE_ / chrNum;
-      database.updateProgress(bwFile, percentage, function(err) {
+      fileDbAccess.updateProgress(bwFile, percentage, function(err) {
         if (err) {
           log.serverLog(err);
           callback(err);
@@ -308,12 +308,12 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
     }
 
     // Update the progress to finish.
-    database.updateProgress(bwFile, 100, function(err) {
+    fileDbAccess.updateProgress(bwFile, 100, function(err) {
       if (err) {
         callback(err);
       }
     });
-    database.insertBindingChrs(bwFile, chrs, function(err) {
+    fileDbAccess.insertBindingChrs(bwFile, chrs, function(err) {
       if (err) {
         callback(err);
       }
@@ -364,7 +364,7 @@ uploader.bedSort = function(prefix, bedFile, callback) {
     ++lineCount;
     if (lineCount % oneTenthLines == 0) {
       percentage += 0.1 * uploader.PROGRESS_BED_READ_;
-      database.updateProgress(bedFile, percentage, function(err) {
+      fileDbAccess.updateProgress(bedFile, percentage, function(err) {
         if (err) {
           callback(err);
         }
@@ -402,7 +402,7 @@ uploader.bedSort = function(prefix, bedFile, callback) {
       }
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BED_WRITE_ / chrNum;
-      database.updateProgress(bedFile, percentage, function(err) {
+      fileDbAccess.updateProgress(bedFile, percentage, function(err) {
         if (err) {
           callback(err);
         }
@@ -410,7 +410,7 @@ uploader.bedSort = function(prefix, bedFile, callback) {
     }
 
     // Update database to finish
-    database.updateProgress(bedFile, 100, function(err) {
+    fileDbAccess.updateProgress(bedFile, 100, function(err) {
       if (err) {
         callback(err);
       }

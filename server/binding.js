@@ -7,7 +7,7 @@ var fs = require('fs');
 var utils = require('./utils');
 var segtree = require('./segtree');
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {binding} */
@@ -578,7 +578,7 @@ binding.loadHistogram_ = function(file) {
  * @private
  */
 binding.listBindingGenes_ = function(callback) {
-  database.getList('binding', function(data) {
+  fileDbAccess.getList('binding', function(data) {
     var ret = data.map(function(bindingFile) {
       return {
         fileName: bindingFile.fileName,
@@ -598,7 +598,7 @@ binding.listBindingGenes_ = function(callback) {
  * @private
  */
 binding.getGene_ = function(fileName, callback) {
-  database.getBindingGene(fileName, function(data) {
+  fileDbAccess.getBindingGene(fileName, function(data) {
     callback(data);
   });
 };
