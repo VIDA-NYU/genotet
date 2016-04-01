@@ -148,8 +148,7 @@ fileDbAccess.insertBindingChrs = function(fileName, chrs, callback) {
   var db = database.db;
   var collection = db.collection(database.Collection.DATA);
   collection.updateOne(
-    {fileName: fileName,
-      user: user.getUsername()},
+    {fileName: fileName, user: user.getUsername()},
     {$set: {chrs: chrs}},
     function(err, result) {
       if (err) {
@@ -170,16 +169,12 @@ fileDbAccess.insertBindingChrs = function(fileName, chrs, callback) {
 fileDbAccess.getBindingGene = function(fileName, callback) {
   var db = database.db;
   var collection = db.collection(database.Collection.DATA);
-  // TODO(jiaming): change it to getOne function.
-  collection.find(
-    {fileName: fileName, user: user.getUsername()}
-  ).toArray(function(err, docs) {
-    if (err) {
-      callback({error: err.message});
+  var query = {fileName: fileName, user: user.getUsername()};
+  database.getOne(collection, query, [], function(result) {
+    if (!result) {
+      log.serverLog('binding file not found', fileName);
       return;
     }
-    if (docs.length) {
-      callback(docs[0].property.dataName);
-    }
+    callback(result.property.dataName);
   });
 };

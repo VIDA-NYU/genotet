@@ -2,7 +2,5 @@
  * @fileoverview Node.js cookieParser externs.
  */
 
-/**
- * @const
- */
+/** @const */
 var cookieParser = function() {};

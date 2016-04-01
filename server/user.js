@@ -162,7 +162,10 @@ user.query.autoSignIn = function(query, callback) {
 user.signUp = function(userInfo, callback) {
   var db = database.db;
   var cursor = db.collection(user.userInfoDbName).find({
-    $or: [{username: userInfo.username}, {email: userInfo.email}]
+    $or: [
+      {username: userInfo.username},
+      {email: userInfo.email}
+    ]
   });
   var documents = [];
   cursor.each(function(err, doc) {
@@ -195,8 +198,12 @@ user.signUp = function(userInfo, callback) {
  */
 user.signIn = function(userInfo, callback) {
   var db = database.db;
-  var query = {$and: [{username: userInfo.username},
-    {password: userInfo.password}]};
+  var query = {
+    $and: [
+      {username: userInfo.username},
+      {password: userInfo.password}
+    ]
+  };
   database.getOne(db.collection(user.userInfoDbName), query, [],
     function(result) {
       var data;
@@ -221,9 +228,13 @@ user.signIn = function(userInfo, callback) {
  */
 user.autoSignIn = function(cookie, callback) {
   var db = database.db;
-  var query = {$and: [{username: cookie.username},
-    {sessionId: cookie.sessionId},
-    {expiration: {$gt: new Date().getTime()}}]};
+  var query = {
+    $and: [
+      {username: cookie.username},
+      {sessionId: cookie.sessionId},
+      {expiration: {$gt: new Date().getTime()}}
+    ]
+  };
   database.getOne(db.collection(user.sessionDbName), query, [],
     function(result) {
       var data;
@@ -245,8 +256,6 @@ user.autoSignIn = function(cookie, callback) {
  */
 user.updateSession = function(cookie) {
   var db = database.db;
-  var query = {$and: [{username: cookie.username},
-    {sessionId: cookie.sessionId}]};
   if (cookie.sessionId) {
     // Have session and update expire date.
     var newExpiration = new Date().getTime() + user.cookieExpireTime;
@@ -340,7 +349,7 @@ user.validateUserInfo = function(username, password, email) {
     invalidItem.push(email);
   }
   if (invalidItem.length) {
-    var errorMessage = invalidItem.join(' and ') + ' is(are) invalid';
+    var errorMessage = 'invalid' + invalidItem.join(' and ');
     return {error: errorMessage};
   }
 };

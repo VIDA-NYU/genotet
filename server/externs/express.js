@@ -47,8 +47,7 @@ express.Response.prototype.json = function(data) {};
 express.Response.prototype.status = function(data) {};
 
 /**
- * @constructor
- * @return {!express.Next}
+ * @type {function()}
  */
 express.Next = function() {};
 
@@ -83,7 +82,7 @@ express.prototype.post = function(url, data, callback) {};
  * @typedef {function((
  *   !express.Request,
  *   !express.Response,
- *   !express.Next,
+ *   function(),
  *   function()))}
  */
 express.Callback;

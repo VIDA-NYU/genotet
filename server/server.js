@@ -148,21 +148,21 @@ MongoClient.connect(mongoUrl, function(err, db) {
   database.db = db;
 
   // Start the application.
-  //var privateKey = fs.readFileSync(privateKeyPath);
-  //var certificate = fs.readFileSync(certificatePath);
-  //var httpsServer = https.createServer({
-  //  key: privateKey,
-  //  cert: certificate
-  //}, app).listen(443);
-  //httpsServer.setTimeout(1200000);
-
+  // TODO(Liana): Direct HTTP to HTTPS.
   var server = app.listen(3000);
   server.setTimeout(1200000);
 });
 
+/**
+ * Server response.
+ * @param {Object|user.Error|undefined} data Server responce data.
+ * @param {!express.Response} res Express response.
+ */
 var serverResponse = function(data, res) {
   res.header('Access-Control-Allow-Origin', '*');
-  if (data && data.error) {
+  if (!data) {
+    res.status(200).json({});
+  } else if (data.error) {
     log.serverLog(data.error);
     res.status(500).json(data.error);
   } else {
@@ -192,13 +192,8 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   };
   uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath,
     function(ret) {
-      var data = ret;
-      if (!ret) {
-        data = {};
-      }
-      serverResponse(data, res);
+      serverResponse(/** @type {Object} */(ret), res);
     });
-
 });
 
 app.use(cookieParser());

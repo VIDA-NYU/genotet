@@ -509,8 +509,8 @@ genotet.dialog.upload_ = function() {
               .css('width', widthPercent);
           }
         }).done(function(data) {
+            modal.modal('hide');
             if (data.error) {
-              modal.modal('hide');
               genotet.error('failed to upload data', data.error);
             } else {
               genotet.success('data uploaded');
@@ -662,7 +662,7 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
     var params = {
       type: 'check',
       fileName: fileName,
-      username: 'anonymous'
+      username: genotet.user.getUsername()
     };
     $.get(genotet.data.uploadProgressUrl, params, function(data) {
       var percentage = parseInt(data, 10);
@@ -675,7 +675,7 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
         var finishParam = {
           type: 'finish',
           fileName: fileName,
-          username: 'anonymous'
+          username: genotet.user.getUsername()
         };
         $.get(genotet.data.uploadProgressUrl, finishParam);
       }
