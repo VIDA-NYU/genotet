@@ -116,6 +116,7 @@ app.use(bodyParser.json());
 var serverResponse = function(data, res) {
   res.header('Access-Control-Allow-Origin', '*');
   if (data.error) {
+    log.serverLog(data.error);
     res.status(500).json(data.error);
   } else {
     res.json(data);
@@ -160,7 +161,6 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
  * GET request handler.
  */
 app.get('/genotet', function(req, res) {
-
   var query = JSON.parse(req.query.data);
   var type = query.type;
   log.serverLog('GET', type);
