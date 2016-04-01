@@ -3,6 +3,7 @@
  */
 
 var database = require('./database');
+var log = require('./log');
 var user = require('./user');
 
 /** @type {fileDbAccess} */
