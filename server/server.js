@@ -11,7 +11,6 @@ var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var mongoUrl = 'mongodb://localhost:27017/express';
-var cookieParser = require('cookie-parser');
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -195,8 +194,6 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
       serverResponse(/** @type {Object} */(ret), res);
     });
 });
-
-app.use(cookieParser());
 
 app.post('/genotet/user', function(req, res) {
   log.serverLog('POST user');

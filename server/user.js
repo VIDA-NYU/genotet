@@ -349,7 +349,7 @@ user.validateUserInfo = function(username, password, email) {
     invalidItem.push(email);
   }
   if (invalidItem.length) {
-    var errorMessage = 'invalid' + invalidItem.join(' and ');
+    var errorMessage = 'invalid ' + invalidItem.join(' and ');
     return {error: errorMessage};
   }
 };
