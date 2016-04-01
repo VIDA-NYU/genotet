@@ -115,8 +115,8 @@ network.query.incidentEdges = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is empty'};
   }
-  if (query.genes === undefined) {
-    return {error: 'genes is undefined'};
+  if (query.gene === undefined) {
+    return {error: 'gene is undefined'};
   }
   var fileName = query.fileName;
   var gene = query.gene;
@@ -209,17 +209,18 @@ network.query.list = function(callback) {
  * @param {*|{
  *   fileName: string
  * }} query
- * @param {string} networkPath
+ * @param {string} dataPath
  * @return {{
  *   nodes: !Array<!network.Node>
  * }|network.Error}
  */
-network.query.allNodes = function(query, networkPath) {
-  if (query.fileName == undefined) {
+network.query.allNodes = function(query, dataPath) {
+  if (query.fileName === undefined) {
     return {
       error: 'fileName is undefined'
     };
   }
+  var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
   var file = networkPath + query.fileName;
   if (!fs.existsSync(file)) {
     return {

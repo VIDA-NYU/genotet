@@ -52,6 +52,7 @@ genotet.dialog.init = function() {
   var params = {
     type: 'list-binding'
   };
+  params = {data: JSON.stringify(params)};
   $.get(genotet.data.serverUrl, params)
     .fail(function(res) {
       var modal = $('#dialog');
