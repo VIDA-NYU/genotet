@@ -78,9 +78,11 @@ genotet.logger.sendBack = function() {
   if (genotet.logger.logList.length) {
     var params = {
       logs: genotet.logger.logList,
-      username: 'anonymous' // will call api of user system
+      username: genotet.user.getUsername()
     };
-    $.post(genotet.data.logURL, params, 'json');
-    genotet.logger.logList = [];
+    $.post(genotet.data.logUrl, params, 'json')
+      .done(function() {
+        genotet.logger.logList = [];
+      });
   }
 };

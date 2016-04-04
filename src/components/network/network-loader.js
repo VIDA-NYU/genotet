@@ -77,7 +77,7 @@ genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
     type: genotet.network.QueryType.NETWORK_INFO,
     fileName: fileName
   };
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     this.data.networkInfo = $.extend({}, this.data.networkInfo, data);
     this.data.networkInfo.nodeLabel = {};
     this.data.networkInfo.isTF = {};
@@ -96,17 +96,13 @@ genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
  * @private
  */
 genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
-  if (!genes.length) {
-    genotet.warning('input gene not found');
-    return;
-  }
   var params = {
     type: genotet.network.QueryType.NETWORK,
     fileName: fileName,
     genes: genes
   };
 
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     // Store the last applied fileName and genes.
     _.extend(data, {
       fileName: fileName,
@@ -161,7 +157,7 @@ genotet.NetworkLoader.prototype.incidentEdges = function(node) {
     fileName: this.data.networkInfo.fileName,
     gene: node.id
   };
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     this.data.incidentEdges = data;
     this.signal('incidentEdges');
   }.bind(this), 'cannot get incident edges');
@@ -193,7 +189,7 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
     nodes: this.data.network.nodes
   };
 
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     this.data.network.nodes = this.data.network.nodes
       .concat(newGenes.map(function(gene) {
       return {
@@ -319,7 +315,7 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
     return;
   }
 
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     this.addGenes_(data);
   }.bind(this), 'can not get combined regulation');
 };

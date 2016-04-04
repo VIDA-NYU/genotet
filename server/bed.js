@@ -5,6 +5,8 @@
 var fs = require('fs');
 
 var log = require('./log');
+var fileDbAccess = require('./fileDbAccess');
+var user = require('./user');
 
 /** @type {bed} */
 module.exports = bed;
@@ -47,48 +49,56 @@ bed.MotifsResult;
 /** @const */
 bed.query = {};
 
+// Start public APIs
 /**
- * @typedef {{
+ * @param {*|{
  *   fileName: string,
  *   chr: string,
  *   xl: (number|undefined),
  *   xr: (number|undefined)
- * }}
- */
-bed.query.Motifs;
-
-// Start public APIs
-/**
- * @param {!bed.query.Motifs} query
- * @param {string} bedPath
+ * }} query
+ * @param {string} dataPath
  * @return {bed.MotifsResult|bed.Error}
  */
-bed.query.motifs = function(query, bedPath) {
+bed.query.motifs = function(query, dataPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
+  }
+  if (query.chr === undefined) {
+    return {error: 'chr is undefined'};
+  }
   var fileName = query.fileName;
+  var bedPath = dataPath + user.getUsername() + '/' + bed.PATH_PREFIX_;
   var chr = query.chr;
   var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
   if (!fs.existsSync(dir)) {
     var error = 'bed file ' + fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return bed.readBed_(dir, query.xl, query.xr);
 };
 
 /**
- * @param {string} bedPath
- * @return {!Array<{
+ * @param {function(Array<{
+ *   fileName: string,
  *   bedName: string,
  *   description: string
- * }>}
+ * }>)} callback The callback function.
  */
-bed.query.list = function(bedPath) {
-  return bed.listBed_(bedPath);
+bed.query.list = function(callback) {
+  bed.listBed_(function(data) {
+    callback(data);
+  });
 };
 // End public APIs
 
+
+/**
+ * The path name for bed data after dataPath.
+ * @private @const {string}
+ */
+bed.PATH_PREFIX_ = 'bed/';
 
 /**
  * Maximum number of motifs to return. If the number of motifs in the query
@@ -193,36 +203,21 @@ bed.readBed_ = function(bedFile, xl, xr) {
 };
 
 /**
- * @param {string} bedPath
- * @return {!Array<{
+ * @param {function(!Array<{
  *   bedName: string,
  *   description: string
- * }>}
+ * }>)} callback The callback function.
  * @private
  */
-bed.listBed_ = function(bedPath) {
-  var folder = bedPath;
-  var ret = [];
-  var files = fs.readdirSync(folder);
-  files.forEach(function(file) {
-    if (file.lastIndexOf('.data') > 0 &&
-      file.lastIndexOf('.data') == file.length - 5) {
-      var fileName = file.replace(/\.data$/, '');
-      var bedName = '';
-      var description = '';
-      var descriptionFile = folder + fileName + '.desc';
-      if (fs.existsSync(descriptionFile)) {
-        var content = fs.readFileSync(descriptionFile, 'utf8')
-          .toString().split('\n');
-        bedName = content[0];
-        description = content.slice(1).join('');
-      }
-      ret.push({
-        bedName: bedName,
-        fileName: fileName,
-        description: description
-      });
-    }
+bed.listBed_ = function(callback) {
+  fileDbAccess.getList('bed', function(data) {
+    var ret = data.map(function(bedFile) {
+      return {
+        fileName: bedFile.fileName,
+        bedName: bedFile.dataName,
+        description: bedFile.description
+      };
+    });
+    callback(ret);
   });
-  return ret;
 };

@@ -5,6 +5,8 @@
 var fs = require('fs');
 
 var log = require('./log');
+var fileDbAccess = require('./fileDbAccess');
+var user = require('./user');
 
 /** @type {expression} */
 module.exports = expression;
@@ -85,127 +87,144 @@ expression.TfaProfile;
 /** @const */
 expression.query = {};
 
-/**
- * @typedef {{
- *   fileName: string
- * }}
- */
-expression.query.MatrixInfo;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
- * }}
- */
-expression.query.Matrix;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
- * }}
- */
-expression.query.Profile;
-
-/**
- * @typedef {{
- *   fileName: string,
- *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
- * }}
- */
-expression.query.TfaProfile;
-
 // Start public APIs
 /**
- * @param {expression.query.MatrixInfo} query
- * @param {string} expressionPath
+ * @param {*|{
+ *   fileName: string
+ * }} query
+ * @param {string} dataPath
  * @return {expression.MatrixInfo|expression.Error}
  */
-expression.query.matrixInfo = function(query, expressionPath) {
-  var file = expressionPath + query.fileName + '.data';
+expression.query.matrixInfo = function(query, dataPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
+  }
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
+  var file = expressionPath + query.fileName;
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return expression.getMatrixInfo_(file);
 };
 
 /**
- * @param {expression.query.Matrix} query
- * @param {string} expressionPath
+ * @param {*|{
+ *   fileName: string,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
+ * }} query
+ * @param {string} dataPath
  * @return {expression.Matrix|expression.Error}
  */
-expression.query.matrix = function(query, expressionPath) {
-  var file = expressionPath + query.fileName + '.data';
+expression.query.matrix = function(query, dataPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
+  }
+  if (query.geneNames === undefined) {
+    return {error: 'geneNames is undefined'};
+  }
+  if (query.conditionNames === undefined) {
+    return {error: 'conditionNames is undefined'};
+  }
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
+  var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return expression.readMatrix_(file, geneNames, conditionNames);
 };
 
 /**
- * @param {expression.query.Profile} query
- * @param {string} expressionPath
+ * @param {*|{
+ *   fileName: string,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
+ * }} query
+ * @param {string} dataPath
  * @return {expression.Profile|expression.Error}
  */
-expression.query.profile = function(query, expressionPath) {
-  var file = expressionPath + query.fileName + '.data';
+expression.query.profile = function(query, dataPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
+  }
+  if (query.geneNames === undefined) {
+    return {error: 'geneNames is undefined'};
+  }
+  if (query.conditionNames === undefined) {
+    return {error: 'conditionNames is undefined'};
+  }
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
+  var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     var error = 'expression file ' + query.fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return expression.readMatrix_(file, geneNames, conditionNames);
 };
 
 /**
- * @param {expression.query.TfaProfile} query
- * @param {string} expressionPath
+ * @param {*|{
+ *   fileName: string,
+ *   geneNames: !Array<string>,
+ *   conditionNames: !Array<string>
+ * }} query
+ * @param {string} dataPath
  * @return {expression.TfaProfile|expression.Error}
  */
-expression.query.tfaProfile = function(query, expressionPath) {
+expression.query.tfaProfile = function(query, dataPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
+  }
+  if (query.geneNames === undefined) {
+    return {error: 'geneNames is undefined'};
+  }
+  if (query.conditionNames === undefined) {
+    return {error: 'conditionNames is undefined'};
+  }
+  var expressionPath = dataPath + user.getUsername() + '/' +
+    expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
   var conditionNames = query.conditionNames;
   if (!fs.existsSync(file)) {
     var error = 'TFA matrix file ' + query.fileName + ' not found.';
     log.serverLog(error);
-    return {
-      error: error
-    };
+    return {error: error};
   }
   return expression.getTfaProfile_(file, geneNames, conditionNames);
 };
 
 /**
- * @param {string} expressionPath
- * @return {!Array<{
+ * @param {function(Array<{
  *   matrixName: string,
  *   fileName: string,
  *   description: string
- * }>}
+ * }>)} callback The callback function.
  */
-expression.query.list = function(expressionPath) {
-  return expression.listMatrix_(expressionPath);
+expression.query.list = function(callback) {
+  expression.listMatrix_(function(data) {
+    callback(data);
+  });
 };
 // End public APIs
+
+/**
+ * Path after data path for expression files.
+ * @private @const {string}
+ */
+expression.PATH_PREFIX_ = 'expression/';
 
 /**
  * Gets the expression matrix profile of given genes and conditions.
@@ -226,27 +245,34 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
   var allConditionNames = {};
 
   result.geneNames.forEach(function(gene, index) {
-    allGeneNames[gene] = index;
+    allGeneNames[gene.toLowerCase()] = {
+      index: index,
+      rawName: gene
+    };
   });
   result.conditionNames.forEach(function(condition, index) {
-    allConditionNames[condition] = index;
+    allConditionNames[condition.toLowerCase()] = {
+      index: index,
+      rawName: condition
+    };
   });
   geneNames.forEach(function(geneName) {
-    if (geneName in allGeneNames) {
-      var rowNum = allGeneNames[geneName];
+    if (geneName.toLowerCase() in allGeneNames) {
+      var rowNum = allGeneNames[geneName.toLowerCase()].index;
       var tfaValues = [];
       conditionNames.forEach(function(conditionName, i) {
-        if (conditionName in allConditionNames) {
-          var colNum = allConditionNames[conditionName];
+        if (conditionName.toLowerCase() in allConditionNames) {
+          var colNum = allConditionNames[conditionName.toLowerCase()].index;
           var tfaValue = result.values[rowNum][colNum];
-          if (tfaValue) {
-            tfaValues.push({
-              value: tfaValue,
-              index: i
-            });
-            valueMin = Math.min(valueMin, tfaValue);
-            valueMax = Math.max(valueMax, tfaValue);
+          if (!tfaValue) {
+            return;
           }
+          tfaValues.push({
+            value: tfaValue,
+            index: i
+          });
+          valueMin = Math.min(valueMin, tfaValue);
+          valueMax = Math.max(valueMax, tfaValue);
         }
       });
       tfaValues.sort(function(a, b) {
@@ -267,41 +293,24 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
 
 /**
  * Lists all the expression matrix files in the server
- * @param {string} expressionPath Folder of the expression matrix file in the
- *     server.
- * @return {!Array<{
+ * @param {function(!Array<{
  *   matrixName: string,
  *   fileName: string,
  *   description: string
- * }>} array of object of each expression matrix file
+ * }>)} callback The callback function.
  * @private
  */
-expression.listMatrix_ = function(expressionPath) {
-  var folder = expressionPath;
-  var ret = [];
-  var files = fs.readdirSync(folder);
-  files.forEach(function(file) {
-    if (file.lastIndexOf('.data') > 0 &&
-      file.lastIndexOf('.data') == file.length - 5) {
-      var fileName = file.replace(/\.data$/, '');
-      var matrixName = '';
-      var description = '';
-      var descriptionFile = folder + fileName + '.desc';
-      if (fs.existsSync(descriptionFile)) {
-        var content = fs.readFileSync(descriptionFile, 'utf8')
-          .toString().split('\n');
-        matrixName = content[0];
-        description = content.slice(1).join('');
-      }
-      ret.push({
-        matrixName: matrixName,
-        fileName: fileName,
-        description: description
-      });
-    }
+expression.listMatrix_ = function(callback) {
+  fileDbAccess.getList('expression', function(data) {
+    var ret = data.map(function(matrixFile) {
+      return {
+        matrixName: matrixFile.dataName,
+        fileName: matrixFile.fileName,
+        description: matrixFile.description
+      };
+    });
+    callback(ret);
   });
-  log.serverLog('list ', ret.length, ' matrices.');
-  return ret;
 };
 
 /**
@@ -335,7 +344,10 @@ expression.readMatrix_ = function(fileName, inputGenes,
       // first row contains the conditions
       isFirstRow = false;
       for (var i = 1; i < parts.length; i++) {
-        allConditionNames[parts[i]] = i;
+        allConditionNames[parts[i].toLowerCase()] = {
+          index: i,
+          rawName: parts[i]
+        };
       }
       if (!inputConditions) {
         for (var i = 1; i < parts.length; i++) {
@@ -347,19 +359,23 @@ expression.readMatrix_ = function(fileName, inputGenes,
         });
       }
       conditionNames.forEach(function(conditionName) {
-        var conditionIndex = allConditionNames[conditionName];
-        if (conditionName in allConditionNames) {
+        var conditionIndex = allConditionNames[conditionName.toLowerCase()]
+          .index;
+        if (conditionName.toLowerCase() in allConditionNames) {
           conditions.push(conditionIndex);
         }
       });
     } else {
       // other rows contain a gene, and values
-      allGeneNames[parts[0]] = lineIndex;
+      allGeneNames[parts[0].toLowerCase()] = {
+        index: lineIndex,
+        rawName: parts[0]
+      };
     }
   });
   if (!inputGenes) {
     for (var gene in allGeneNames) {
-      geneNames.push(gene);
+      geneNames.push(allGeneNames[gene].rawName);
     }
   } else {
     inputGenes.forEach(function(gene) {
@@ -367,12 +383,15 @@ expression.readMatrix_ = function(fileName, inputGenes,
     });
   }
   geneNames.forEach(function(geneName) {
-    var geneIndex = allGeneNames[geneName];
-    if (geneName in allGeneNames) {
+    var geneIndex = allGeneNames[geneName.toLowerCase()].index;
+    if (geneName.toLowerCase() in allGeneNames) {
       var parts = lines[geneIndex].split(/[\t\s]+/);
       var tmpLine = [];
       conditions.forEach(function(conditionIndex) {
         var value = parseFloat(parts[conditionIndex]);
+        if (!value) {
+          return;
+        }
         valueMin = Math.min(valueMin, value);
         valueMax = Math.max(valueMax, value);
         tmpLine.push(value);
@@ -422,6 +441,9 @@ expression.getMatrixInfo_ = function(expressionFile) {
       };
       for (var i = 1; i < parts.length; i++) {
         var value = parseFloat(parts[i]);
+        if (!value) {
+          continue;
+        }
         allValueMin = Math.min(allValueMin, value);
         allValueMax = Math.max(allValueMax, value);
       }

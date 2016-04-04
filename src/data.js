@@ -15,6 +15,15 @@
  */
 genotet.Files;
 
+/**
+ * @typedef {{
+ *   email: string,
+ *   username: string,
+ *   password: string
+ * }}
+ */
+genotet.UserInfo;
+
 /** @const */
 genotet.data = {};
 
@@ -22,19 +31,31 @@ genotet.data = {};
  * Data queries are sent to this address via http and received via jsonp.
  * @type {string}
  */
-genotet.data.serverURL;
+genotet.data.serverUrl;
 
 /**
- * Data are uploaded to this URL by posting multipart form data.
+ * Data are uploaded to this Url by posting multipart form data.
  * @type {string}
  */
-genotet.data.uploadURL;
+genotet.data.uploadUrl;
 
 /**
  * Log queries are sent to this address.
  * @type {string}
  */
-genotet.data.logURL;
+genotet.data.logUrl;
+
+/**
+ * User queries are sent to this address.
+ * @type {string}
+ */
+genotet.data.userUrl;
+
+/**
+ * Url for queries for monitoring data processing.
+ * @type {string}
+ */
+genotet.data.uploadProgressUrl;
 
 /**
  * @typedef {!Array<{
@@ -134,13 +155,17 @@ genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 genotet.data.init = function() {
   if (window.location.protocol == 'file:') {
     // Testing environment
-    genotet.data.serverURL = 'http://localhost:3000/genotet';
+    genotet.data.serverUrl = 'http://localhost:3000/genotet';
+    genotet.data.progressUrl = 'http://localhost/genotet/progress.php';
   } else {
-    genotet.data.serverURL = window.location.protocol + '//' +
+    genotet.data.serverUrl = window.location.protocol + '//' +
       window.location.hostname + ':3000/genotet';
+    genotet.data.uploadProgressUrl = window.location.protocol + '//' +
+      window.location.hostname + '/genotet/progress.php';
   }
-  genotet.data.uploadURL = genotet.data.serverURL + '/upload';
-  genotet.data.logURL = genotet.data.serverURL + '/log';
+  genotet.data.uploadUrl = genotet.data.serverUrl + '/upload';
+  genotet.data.logUrl = genotet.data.serverUrl + '/log';
+  genotet.data.userUrl = genotet.data.serverUrl + '/user';
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());
@@ -158,7 +183,8 @@ genotet.data.loadList = function(view, fileType) {
   var params = {
     type: 'list-' + fileType
   };
-  $.get(genotet.data.serverURL, params, function(data) {
+  params = {data: JSON.stringify(params)};
+  $.get(genotet.data.serverUrl, params, function(data) {
       genotet.data.files[fileType + 'Files'] = data;
       view.signal('updateFileListAfterLoading');
     }.bind(this))

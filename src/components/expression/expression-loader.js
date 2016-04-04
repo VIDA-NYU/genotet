@@ -70,7 +70,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
     fileName: fileName
   };
 
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     if ($.isEmptyObject(data.allGeneNames)) {
       genotet.warning('input gene not found');
       return;
@@ -104,7 +104,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
     conditionNames: conditionNames
   };
 
-  this.get(genotet.data.serverURL, params, function(data) {
+  this.get(genotet.data.serverUrl, params, function(data) {
     // Store the last applied data selectors.
     _.extend(data, {
       fileName: fileName
@@ -169,7 +169,7 @@ genotet.ExpressionLoader.prototype.loadProfile =
       geneNames: geneNames,
       conditionNames: conditionNames
     };
-    this.get(genotet.data.serverURL, params, function(profileData) {
+    this.get(genotet.data.serverUrl, params, function(profileData) {
       // Store the last applied data selectors.
       if (!profileData.geneNames.length ||
         !profileData.conditionNames.length) {
@@ -215,7 +215,7 @@ genotet.ExpressionLoader.prototype.loadTfaProfile =
       geneNames: geneNames,
       conditionNames: conditionNames
     };
-    this.get(genotet.data.serverURL, tfaParams, function(tfaProfileData) {
+    this.get(genotet.data.serverUrl, tfaParams, function(tfaProfileData) {
       // Store the last applied data selectors.
       if (!tfaProfileData.tfaValues.length) {
         genotet.warning('TFA not found for ' + geneNames);

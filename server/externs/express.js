@@ -47,6 +47,11 @@ express.Response.prototype.json = function(data) {};
 express.Response.prototype.status = function(data) {};
 
 /**
+ * @type {function()}
+ */
+express.Next = function() {};
+
+/**
  * @constructor
  * @return {!express.Error}
  */
@@ -74,10 +79,25 @@ express.prototype.get = function(url, callback) {};
 express.prototype.post = function(url, data, callback) {};
 
 /**
- * @param {function(
+ * @typedef {function((
+ *   !express.Request,
+ *   !express.Response,
+ *   function(),
+ *   function()))}
+ */
+express.Callback;
+
+/**
+ * @typedef {function((
  *   !express.Error,
  *   !express.Request,
  *   !express.Response,
- *   function())} callback
+ *   function()))}
  */
-express.prototype.use = function(callback) {};
+express.ErrorCallback;
+
+/**
+ * @param {string|!Array<string>|express.ErrorCallback|express.Callback} arg1
+ * @param {express.Callback=} arg2
+ */
+express.prototype.use = function(arg1, arg2) {};

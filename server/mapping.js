@@ -5,6 +5,8 @@
 var fs = require('fs');
 
 var log = require('./log');
+var fileDbAccess = require('./fileDbAccess');
+var user = require('./user');
 
 /** @type {mapping} */
 module.exports = mapping;
@@ -20,42 +22,52 @@ mapping.QueryType = {
   LIST_MAPPING: 'list-mapping'
 };
 
+/**
+ * @typedef {{
+ *   error: string
+ * }}
+ */
+mapping.Error;
+
 /** @const */
 mapping.query = {};
 
 /**
- * @typedef {{
- *   fileName: string
- * }}
- */
-mapping.query.GetMapping;
-
-/**
  * Lists all the mapping files.
- * @param {string} mappingPath Path to the mapping file folder.
- * @return {?Array<string>}
+ * @param {function(Array<string>)} callback The callback function.
  */
-mapping.query.list = function(mappingPath) {
-  var files = fs.readdirSync(mappingPath);
-  var mappingFiles = [];
-  files.forEach(function(file) {
-    if (file.lastIndexOf('.data') > 0 &&
-      file.lastIndexOf('.data') == file.length - 5) {
-      var fileName = file.replace(/\.data$/, '');
-      mappingFiles.push(fileName);
-    }
+mapping.query.list = function(callback) {
+  fileDbAccess.getList('mapping', function(data) {
+    var ret = data.map(function(mappingFile) {
+      return mappingFile.fileName;
+    });
+    callback(ret);
   });
-  return mappingFiles;
 };
 
 /**
- * @param {!mapping.query.GetMapping} query
- * @param {string} mappingPath
- * @return {!Object<string>}
+ * @param {*|{
+ *   fileName: string
+ * }} query
+ * @param {string} dataPath
+ * @return {!Object<string>|mapping.Error}
  */
-mapping.query.getMapping = function(query, mappingPath) {
-  return mapping.getMapping_(mappingPath + query.fileName + '.data');
+mapping.query.getMapping = function(query, dataPath) {
+  if (query.fileName === undefined) {
+    return {error: 'fileName is undefined'};
+  }
+  var mappingPath = dataPath + user.getUsername() + '/' +
+    mapping.PATH_PREFIX_;
+  return mapping.getMapping_(mappingPath + query.fileName);
 };
+
+// End Public APIs
+
+/**
+ * Path after data path
+ * @private @const {string}
+ */
+mapping.PATH_PREFIX_ = 'mapping/';
 
 /**
  * Gets mapping rules.

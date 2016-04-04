@@ -8,6 +8,8 @@ var mkdirp = require('mkdirp');
 
 var segtree = require('./segtree');
 var log = require('./log');
+var fileDbAccess = require('./fileDbAccess');
+var user = require('./user');
 
 /** @type {uploader} */
 module.exports = uploader;
@@ -39,58 +41,119 @@ uploader.ENTRY_SIZE_ = 12;
 uploader.DOUBLE_SIZE_ = 8;
 
 /**
+ * The transfer time from .bw to .wig for binding data.
+ * @private @const {number}
+ */
+uploader.PROGRESS_BINDING_TRANSFER_ = 10;
+
+/**
+ * The reading time for binding data.
+ * @private @const {number}
+ */
+uploader.PROGRESS_BINDING_READ_ = 80;
+
+/**
+ * The time of writing binding file into binary .bcwig files.
+ * @private @const {number}
+ */
+uploader.PROGRESS_BINDING_WRITE_ = 4;
+
+/**
+ * The time of building segment trees and writing down.
+ * @private @const {number}
+ */
+uploader.PROGRESS_BINDING_SEGTREE_ = 5;
+
+/**
+ * The time of reading bed data.
+ * @private @const {number}
+ */
+uploader.PROGRESS_BED_READ_ = 50;
+
+/**
+ * The time of writing separated bed data.
+ * @private @const {number}
+ */
+uploader.PROGRESS_BED_WRITE_ = 49;
+
+/**
+ * @typedef {{
+ *   error: string
+ * }}
+ */
+uploader.Error;
+
+/** @const */
+uploader.query = {};
+
+/**
  * Uploads a file or a directory to server.
  * @param {{
  *   type: uploader.FileType,
- *   name: string,
+ *   dataName: string,
  *   description: string,
  * }} desc File description.
  * @param {!multer.File} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
- * @param {string} uploadPath Directory of temporary files.
- * @return {Object} Success or not as a JS Object.
+ * @param {function(uploader.Error=)} callback The callback function.
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
-                               uploadPath) {
+                               callback) {
   var fileName = file.originalname;
-  var storedName = fileName + '.data';
-  if (fs.existsSync(prefix + fileName)) {
-    fs.unlinkSync(prefix + fileName);
+  var filePath = prefix + user.getUsername() + '/';
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(filePath);
+  }
+  filePath += desc.type + '/';
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(filePath);
+  }
+  if (fs.existsSync(filePath + fileName)) {
+    fs.unlinkSync(filePath + fileName);
   }
 
   var source = fs.createReadStream(file.path);
-  var dest = fs.createWriteStream(prefix + storedName);
+  var dest = fs.createWriteStream(filePath + fileName);
   source.pipe(dest);
   source
     .on('end', function() {
       fs.unlinkSync(file.path);
-      if (desc.type == uploader.FileType.BINDING) {
-        uploader.bigWigToBCWig(prefix, fileName, bigWigToWigAddr, uploadPath);
-      } else if (desc.type == uploader.FileType.BED) {
-        uploader.bedSort(prefix, fileName, uploadPath);
-      } else {
-        var fd = fs.openSync(uploadPath + fileName + '.finish', 'w');
-        fs.writeSync(fd, 'finish');
-        fs.closeSync(fd);
-      }
-      if (desc.type != uploader.FileType.MAPPING) {
-        // write down the data name and description
-        var fd = fs.openSync(prefix + fileName + '.desc', 'w');
-        fs.writeSync(fd, desc.name + '\n');
-        fs.writeSync(fd, desc.description);
-        fs.closeSync(fd);
-      }
+      fileDbAccess.insertFile(filePath, fileName, desc, function(err) {
+        if (err) {
+          callback(err);
+          return;
+        }
+        fileDbAccess.insertProgress(fileName, function(err) {
+          if (err) {
+            callback(err);
+            return;
+          }
+          if (desc.type == uploader.FileType.BINDING) {
+            uploader.bigWigToBcwig(filePath, fileName, bigWigToWigAddr,
+              function(err) {
+                if (err) {
+                  callback(err);
+                }
+                callback();
+              });
+          } else if (desc.type == uploader.FileType.BED) {
+            uploader.bedSort(filePath, fileName, function(err) {
+              if (err) {
+                callback(err);
+                return;
+              }
+              callback();
+            });
+          } else {
+            callback();
+          }
+        });
+      });
     })
     .on('err', function(err) {
-      return {
-        error: {
-          type: 'copyFailed',
-          message: 'upload file copy failed'
-        }
-      };
+      callback({error: 'failed to copy file.'});
     });
-  return {};
 };
 
 /**
@@ -98,20 +161,38 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
  * @param {string} prefix Folder that contains the bw file.
  * @param {string} bwFile Name of the bigwig file (without prefix).
  * @param {string} bigWigToWigAddr The convention script path.
- * @param {string} uploadPath Directory of temporary files.
+ * @param {function(uploader.Error=)} callback The callback function.
  */
-uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
+uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
+                                  callback) {
   // convert *.bw into *.wig
-  var storedName = bwFile + '.data';
+  var percentage = 0;
+
   var wigFileName = bwFile + '.wig';
-  log.serverLog(['start transfer']);
+  log.serverLog('start transfer');
   var cmd = [
     bigWigToWigAddr,
-    prefix + storedName,
+    prefix + bwFile,
     prefix + wigFileName
   ].join(' ');
+  // TODO(jiaming): change it to async version.
   childProcess.execSync(cmd);
-  log.serverLog([cmd]);
+  log.serverLog(cmd);
+  percentage += uploader.PROGRESS_BINDING_TRANSFER_;
+  fileDbAccess.updateProgress(bwFile, percentage, function(err) {
+    if (err) {
+      callback(err);
+    }
+  });
+
+  cmd = [
+    'wc',
+    '-l',
+    prefix + wigFileName
+  ].join(' ');
+  var output = childProcess.execSync(cmd).toString().split(RegExp(/\s+/));
+  var totalLine = parseInt(output[1], 10);
+  var oneTenthLines = parseInt(totalLine / 10, 10);
 
   // convert *.wig into *.bcwig
   var seg = {};  // for segment tree
@@ -122,6 +203,7 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
     terminal: false
   });
   var lastChrXr = {}, lastValue = {};
+  var lineCount = 0;
   lines.on('line', function(line) {
     if (line.indexOf('#') == -1) {
       var linePart = line.split(RegExp(/\s+/));
@@ -144,18 +226,31 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
       });
       lastChrXr[chName] = xr;
       lastValue[chName] = val;
+
+      ++lineCount;
+      if (lineCount % oneTenthLines == 0) {
+        // increase 10% for the progress
+        percentage += 0.1 * uploader.PROGRESS_BINDING_READ_;
+        fileDbAccess.updateProgress(bwFile, percentage, function(err) {
+          if (err) {
+            callback(err);
+          }
+        });
+      }
     }
   });
 
   lines.on('close', function() {
+    var chrNum = 0;
     for (var chr in lastChrXr) {
+      chrNum++;
       seg[chr].push({
         x: lastChrXr[chr],
         value: lastValue[chr]
       });
     }
+
     // write to *.bcwig file
-    // log.serverLog('start log it');
     // if the folder already exists, then delete it
     var folder = prefix + bwFile + '_chr';
     if (fs.existsSync(folder)) {
@@ -168,7 +263,9 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
     }
     fs.mkdirSync(folder);
 
+    var chrs = [];
     for (var chr in seg) {
+      chrs.push(chr);
       var bcwigFile = folder + '/' + bwFile + '_' + chr + '.bcwig';
       var bcwigBuf = new Buffer(uploader.ENTRY_SIZE_ * seg[chr].length);
       for (var i = 0; i < seg[chr].length; i++) {
@@ -178,6 +275,13 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
       var fd = fs.openSync(bcwigFile, 'w');
       fs.writeSync(fd, bcwigBuf, 0, uploader.ENTRY_SIZE_ * seg[chr].length, 0);
       fs.closeSync(fd);
+      percentage += uploader.PROGRESS_BINDING_WRITE_ / chrNum;
+      fileDbAccess.updateProgress(bwFile, percentage, function(err) {
+        if (err) {
+          log.serverLog(err);
+          callback(err);
+        }
+      });
     }
 
     // build segment tree and save
@@ -194,12 +298,28 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
       var fd = fs.openSync(segFile, 'w');
       fs.writeSync(fd, segBuf, 0, offset, 0);
       fs.closeSync(fd);
+      percentage += uploader.PROGRESS_BINDING_SEGTREE_ / chrNum;
+      fileDbAccess.updateProgress(bwFile, percentage, function(err) {
+        if (err) {
+          log.serverLog(err);
+          callback(err);
+        }
+      });
     }
 
-    var fd = fs.openSync(uploadPath + bwFile + '.finish', 'w');
-    fs.writeSync(fd, 'finish');
-    fs.closeSync(fd);
-    log.serverLog(['binding data separate done.']);
+    // Update the progress to finish.
+    fileDbAccess.updateProgress(bwFile, 100, function(err) {
+      if (err) {
+        callback(err);
+      }
+    });
+    fileDbAccess.insertBindingChrs(bwFile, chrs, function(err) {
+      if (err) {
+        callback(err);
+      }
+    });
+    log.serverLog('binding data separated.');
+    callback();
   });
 };
 
@@ -207,16 +327,26 @@ uploader.bigWigToBCWig = function(prefix, bwFile, bigWigToWigAddr, uploadPath) {
  * Sorts bed data segments and write it into separate files.
  * @param {string} prefix Folder to the bed files.
  * @param {string} bedFile File name of the bed file.
- * @param {string} uploadPath Directory of temporary files.
+ * @param {function(uploader.Error=)} callback The callback function.
  */
-uploader.bedSort = function(prefix, bedFile, uploadPath) {
-  var storedName = bedFile + '.data';
+uploader.bedSort = function(prefix, bedFile, callback) {
   var lines = readline.createInterface({
-    input: fs.createReadStream(prefix + storedName),
+    input: fs.createReadStream(prefix + bedFile),
     terminal: false
   });
-  log.serverLog(['separating bed data...']);
+  log.serverLog('separating bed data...');
   var data = {};
+  var percentage = 0;
+  var chrNum = 0;
+  var lineCount = 0;
+  var cmd = [
+    'wc',
+    '-l',
+    prefix + bedFile
+  ].join(' ');
+  var output = childProcess.execSync(cmd).toString().split(RegExp(/\s+/));
+  var totalLine = parseInt(output[1], 10);
+  var oneTenthLines = parseInt(totalLine / 10, 10);
   lines.on('line', function(line) {
     var parts = line.split('\t');
     if (parts[0].indexOf('track') != -1) {
@@ -224,16 +354,26 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
     }
     if (!(parts[0] in data)) {
       data[parts[0]] = [];
+      chrNum++;
     }
     data[parts[0]].push({
       chrStart: parseInt(parts[1], 10),
       chrEnd: parseInt(parts[2], 10),
       name: parts[3]
     });
+    ++lineCount;
+    if (lineCount % oneTenthLines == 0) {
+      percentage += 0.1 * uploader.PROGRESS_BED_READ_;
+      fileDbAccess.updateProgress(bedFile, percentage, function(err) {
+        if (err) {
+          callback(err);
+        }
+      });
+    }
   });
 
   lines.on('close', function() {
-    log.serverLog(['writing bed data...']);
+    log.serverLog('writing bed data...');
     var folder = prefix + bedFile + '_chr';
     if (fs.existsSync(folder)) {
       var cmd = [
@@ -261,27 +401,21 @@ uploader.bedSort = function(prefix, bedFile, uploadPath) {
         }
       }
       fs.closeSync(fd);
+      percentage += uploader.PROGRESS_BED_WRITE_ / chrNum;
+      fileDbAccess.updateProgress(bedFile, percentage, function(err) {
+        if (err) {
+          callback(err);
+        }
+      });
     }
 
-    var fd = fs.openSync(uploadPath + bedFile + '.finish', 'w');
-    fs.writeSync(fd, 'finish');
-    fs.closeSync(fd);
-    log.serverLog(['bed chromosome data finish.']);
+    // Update database to finish
+    fileDbAccess.updateProgress(bedFile, 100, function(err) {
+      if (err) {
+        callback(err);
+      }
+    });
+    log.serverLog('bed chromosome data finish.');
+    callback();
   });
-};
-
-/**
- * Checks whether the file has been uploaded and processed.
- * @param {{
- *  fileName: string
- * }} query Parameters for file checking.
- * @param {string} prefix Path to the folder.
- * @return {boolean} File exists or not
- */
-uploader.checkFinish = function(query, prefix) {
-  var isFinish = fs.existsSync(prefix + query.fileName + '.finish');
-  if (isFinish) {
-    fs.unlink(prefix + query.fileName + '.finish');
-  }
-  return isFinish;
 };
