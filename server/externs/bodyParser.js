@@ -1,5 +1,5 @@
 /**
- * @fileoverview Node.js body-parser extern.
+ * @fileoverview Node.js bodyParser externs.
  */
 
 /** @const */

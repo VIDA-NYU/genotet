@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {expression} */
@@ -207,15 +207,14 @@ expression.query.tfaProfile = function(query, dataPath) {
 };
 
 /**
- * @param {!mongodb.Db} db The database object.
  * @param {function(Array<{
  *   matrixName: string,
  *   fileName: string,
  *   description: string
  * }>)} callback The callback function.
  */
-expression.query.list = function(db, callback) {
-  expression.listMatrix_(db, function(data) {
+expression.query.list = function(callback) {
+  expression.listMatrix_(function(data) {
     callback(data);
   });
 };
@@ -246,27 +245,34 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
   var allConditionNames = {};
 
   result.geneNames.forEach(function(gene, index) {
-    allGeneNames[gene] = index;
+    allGeneNames[gene.toLowerCase()] = {
+      index: index,
+      rawName: gene
+    };
   });
   result.conditionNames.forEach(function(condition, index) {
-    allConditionNames[condition] = index;
+    allConditionNames[condition.toLowerCase()] = {
+      index: index,
+      rawName: condition
+    };
   });
   geneNames.forEach(function(geneName) {
-    if (geneName in allGeneNames) {
-      var rowNum = allGeneNames[geneName];
+    if (geneName.toLowerCase() in allGeneNames) {
+      var rowNum = allGeneNames[geneName.toLowerCase()].index;
       var tfaValues = [];
       conditionNames.forEach(function(conditionName, i) {
-        if (conditionName in allConditionNames) {
-          var colNum = allConditionNames[conditionName];
+        if (conditionName.toLowerCase() in allConditionNames) {
+          var colNum = allConditionNames[conditionName.toLowerCase()].index;
           var tfaValue = result.values[rowNum][colNum];
-          if (tfaValue) {
-            tfaValues.push({
-              value: tfaValue,
-              index: i
-            });
-            valueMin = Math.min(valueMin, tfaValue);
-            valueMax = Math.max(valueMax, tfaValue);
+          if (!tfaValue) {
+            return;
           }
+          tfaValues.push({
+            value: tfaValue,
+            index: i
+          });
+          valueMin = Math.min(valueMin, tfaValue);
+          valueMax = Math.max(valueMax, tfaValue);
         }
       });
       tfaValues.sort(function(a, b) {
@@ -287,7 +293,6 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
 
 /**
  * Lists all the expression matrix files in the server
- * @param {!mongodb.Db} db The database object.
  * @param {function(!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -295,8 +300,8 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
  * }>)} callback The callback function.
  * @private
  */
-expression.listMatrix_ = function(db, callback) {
-  database.getList(db, 'expression', function(data) {
+expression.listMatrix_ = function(callback) {
+  fileDbAccess.getList('expression', function(data) {
     var ret = data.map(function(matrixFile) {
       return {
         matrixName: matrixFile.dataName,
@@ -339,7 +344,10 @@ expression.readMatrix_ = function(fileName, inputGenes,
       // first row contains the conditions
       isFirstRow = false;
       for (var i = 1; i < parts.length; i++) {
-        allConditionNames[parts[i]] = i;
+        allConditionNames[parts[i].toLowerCase()] = {
+          index: i,
+          rawName: parts[i]
+        };
       }
       if (!inputConditions) {
         for (var i = 1; i < parts.length; i++) {
@@ -351,19 +359,23 @@ expression.readMatrix_ = function(fileName, inputGenes,
         });
       }
       conditionNames.forEach(function(conditionName) {
-        var conditionIndex = allConditionNames[conditionName];
-        if (conditionName in allConditionNames) {
+        var conditionIndex = allConditionNames[conditionName.toLowerCase()]
+          .index;
+        if (conditionName.toLowerCase() in allConditionNames) {
           conditions.push(conditionIndex);
         }
       });
     } else {
       // other rows contain a gene, and values
-      allGeneNames[parts[0]] = lineIndex;
+      allGeneNames[parts[0].toLowerCase()] = {
+        index: lineIndex,
+        rawName: parts[0]
+      };
     }
   });
   if (!inputGenes) {
     for (var gene in allGeneNames) {
-      geneNames.push(gene);
+      geneNames.push(allGeneNames[gene].rawName);
     }
   } else {
     inputGenes.forEach(function(gene) {
@@ -371,12 +383,15 @@ expression.readMatrix_ = function(fileName, inputGenes,
     });
   }
   geneNames.forEach(function(geneName) {
-    var geneIndex = allGeneNames[geneName];
-    if (geneName in allGeneNames) {
+    var geneIndex = allGeneNames[geneName.toLowerCase()].index;
+    if (geneName.toLowerCase() in allGeneNames) {
       var parts = lines[geneIndex].split(/[\t\s]+/);
       var tmpLine = [];
       conditions.forEach(function(conditionIndex) {
         var value = parseFloat(parts[conditionIndex]);
+        if (!value) {
+          return;
+        }
         valueMin = Math.min(valueMin, value);
         valueMax = Math.max(valueMax, value);
         tmpLine.push(value);
@@ -426,6 +441,9 @@ expression.getMatrixInfo_ = function(expressionFile) {
       };
       for (var i = 1; i < parts.length; i++) {
         var value = parseFloat(parts[i]);
+        if (!value) {
+          continue;
+        }
         allValueMin = Math.min(allValueMin, value);
         allValueMax = Math.max(allValueMax, value);
       }

@@ -53,4 +53,35 @@ genotet.menu.init = function() {
   $('#upload').click(function() {
     genotet.dialog.create('upload');
   });
+
+  // Sign in, sign up and log out.
+  $('#sign-in').click(function() {
+    genotet.dialog.create('sign-in');
+  });
+  $('#sign-up').click(function() {
+    genotet.dialog.create('sign-up');
+  });
+  $('#log-out').click(function() {
+    genotet.dialog.create('log-out');
+  });
+};
+
+/**
+ * Display the username for signed user in the system menu.
+ * @param {string} username Username for signed user.
+ */
+genotet.menu.displaySignedUser = function(username) {
+  $('#username').text(username);
+  $('#log-out').show();
+  $('#sign-in, #sign-up').hide();
+};
+
+/**
+ * Display the sign-in and sign-up interface for unsigned user in the system
+ * menu.
+ */
+genotet.menu.displaySignInterface = function() {
+  $('#username').text('');
+  $('#log-out').hide();
+  $('#sign-in, #sign-up').show();
 };

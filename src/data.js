@@ -15,6 +15,15 @@
  */
 genotet.Files;
 
+/**
+ * @typedef {{
+ *   email: string,
+ *   username: string,
+ *   password: string
+ * }}
+ */
+genotet.UserInfo;
+
 /** @const */
 genotet.data = {};
 
@@ -35,6 +44,12 @@ genotet.data.uploadUrl;
  * @type {string}
  */
 genotet.data.logUrl;
+
+/**
+ * User queries are sent to this address.
+ * @type {string}
+ */
+genotet.data.userUrl;
 
 /**
  * Url for queries for monitoring data processing.
@@ -150,6 +165,7 @@ genotet.data.init = function() {
   }
   genotet.data.uploadUrl = genotet.data.serverUrl + '/upload';
   genotet.data.logUrl = genotet.data.serverUrl + '/log';
+  genotet.data.userUrl = genotet.data.serverUrl + '/user';
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());

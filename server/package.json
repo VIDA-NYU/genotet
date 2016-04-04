@@ -5,9 +5,12 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.15.0",
+    "connect-mongo": "^1.1.0",
+    "crypto-js": "~3.1.6",
     "dateformat": "^1.0.12",
     "express": "^4.9.5",
     "mkdirp": "^0.5.1",
+    "mongodb": "^2.1.7",
     "multer": "^1.1.0"
   },
   "devDependencies": {},

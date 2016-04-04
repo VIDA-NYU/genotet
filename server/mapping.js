@@ -5,7 +5,7 @@
 var fs = require('fs');
 
 var log = require('./log');
-var database = require('./database');
+var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
 
 /** @type {mapping} */
@@ -34,11 +34,10 @@ mapping.query = {};
 
 /**
  * Lists all the mapping files.
- * @param {!mongodb.Db} db The database object.
  * @param {function(Array<string>)} callback The callback function.
  */
-mapping.query.list = function(db, callback) {
-  database.getList(db, 'mapping', function(data) {
+mapping.query.list = function(callback) {
+  fileDbAccess.getList('mapping', function(data) {
     var ret = data.map(function(mappingFile) {
       return mappingFile.fileName;
     });
