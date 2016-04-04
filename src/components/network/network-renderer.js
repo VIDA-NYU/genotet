@@ -220,10 +220,15 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
   this.canvas.selectAll('.render-group')
     .attr('transform', genotet.utils.getTransform(translate, scale));
 
-  this.zoomTranslate_ = translate;
-  this.zoomScale_ = scale;
-
-  this.drawNetwork_();
+  console.log(scale);
+  // var nodeNum = this.network.nodes.length;
+  // var normScale = nodeNum / 100;
+  if (Math.floor(scale / this.zoomScale_) > 1.2 ||
+    Math.floor(scale / this.zoomScale_) < 0.8) {
+    this.zoomTranslate_ = translate;
+    this.zoomScale_ = scale;
+    this.drawNetwork_();
+  }
 };
 
 /** @inheritDoc */
@@ -282,6 +287,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
   // Stop potentially existing previous force.
   this.force_.stop();
 
+  var tickNum = 0;
   this.force_ = d3.layout.force()
     .nodes(_.toArray(this.nodes_))
     .links(_.toArray(this.edges_))
@@ -292,7 +298,15 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
     .on('start', function() {
       this.forcing = true;
     }.bind(this))
-    .on('tick', this.drawNetwork_.bind(this))
+    .on('tick', function() {
+      tickNum++;
+      if (tickNum == 50) {
+        this.drawNodes_();
+        this.drawEdges_();
+        tickNum = 0;
+        this.force_.stop();
+      }
+    }.bind(this))
     .on('end', function() {
       this.forcing = false;
     }.bind(this));
