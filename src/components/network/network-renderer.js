@@ -75,10 +75,10 @@ genotet.NetworkRenderer = function(container, data) {
   /** @private {genotet.NetworkRenderer.MouseState_} */
   this.mouseState_ = genotet.NetworkRenderer.MouseState_.NONE;
 
-  /** @private {number} */
+  /** @private @const {number} */
   this.maxTickNum_ = 100;
 
-  /** @private {number} */
+  /** @private @const {number} */
   this.minZoomRadio_ = 0.4;
 };
 
