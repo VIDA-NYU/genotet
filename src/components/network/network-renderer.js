@@ -4,12 +4,6 @@
 
 'use strict';
 
-/** @private @const {number} */
-genotet.NetworkRenderer.prototype.MAX_TICK_NUM_ = 100;
-
-/** @private @const {number} */
-genotet.NetworkRenderer.prototype.MIN_ZOOM_RADIO_ = 0.4;
-
 /**
  * NetworkRenderer renders the visualizations for the NetworkView.
  * @param {!jQuery} container View container.
@@ -83,6 +77,12 @@ genotet.NetworkRenderer = function(container, data) {
 };
 
 genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
+
+/** @private @const {number} */
+genotet.NetworkRenderer.prototype.MAX_TICK_NUM_ = 100;
+
+/** @private @const {number} */
+genotet.NetworkRenderer.prototype.MIN_ZOOM_RADIO_ = 0.4;
 
 /**
  * State of mouse interaction.
