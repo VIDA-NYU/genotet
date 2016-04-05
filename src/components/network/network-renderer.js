@@ -4,6 +4,12 @@
 
 'use strict';
 
+/** @private @const {number} */
+genotet.NetworkRenderer.prototype.MAX_TICK_NUM_ = 100;
+
+/** @private @const {number} */
+genotet.NetworkRenderer.prototype.MIN_ZOOM_RADIO_ = 0.4;
+
 /**
  * NetworkRenderer renders the visualizations for the NetworkView.
  * @param {!jQuery} container View container.
@@ -74,12 +80,6 @@ genotet.NetworkRenderer = function(container, data) {
   this.zoomScale_ = 1.0;
   /** @private {genotet.NetworkRenderer.MouseState_} */
   this.mouseState_ = genotet.NetworkRenderer.MouseState_.NONE;
-
-  /** @private @const {number} */
-  this.maxTickNum_ = 100;
-
-  /** @private @const {number} */
-  this.minZoomRadio_ = 0.4;
 };
 
 genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
@@ -228,8 +228,8 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
 
   // var nodeNum = this.network.nodes.length;
   // var normScale = nodeNum / 100;
-  if (Math.floor(scale / this.zoomScale_) > 1 + this.minZoomRadio_ ||
-    Math.floor(scale / this.zoomScale_) < 1 - this.minZoomRadio_) {
+  if (Math.floor(scale / this.zoomScale_) > 1 + this.MIN_ZOOM_RADIO_ ||
+    Math.floor(scale / this.zoomScale_) < 1 - this.MIN_ZOOM_RADIO_) {
     this.zoomTranslate_ = translate;
     this.zoomScale_ = scale;
     this.drawNetwork_();
@@ -305,7 +305,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
     }.bind(this))
     .on('tick', function() {
       tickNum++;
-      if (tickNum == this.maxTickNum_) {
+      if (tickNum == this.MAX_TICK_NUM_) {
         this.drawNetwork_();
         tickNum = 0;
         this.force_.stop();
