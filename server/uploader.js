@@ -96,12 +96,13 @@ uploader.query = {};
  * @param {!multer.File} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
+ * @param {string} username The username to upload the data.
  * @param {function(uploader.Error=)} callback The callback function.
  */
-uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr,
+uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, username,
                                callback) {
   var fileName = file.originalname;
-  var filePath = prefix + user.getUsername() + '/';
+  var filePath = prefix + username + '/';
   if (!fs.existsSync(filePath)) {
     fs.mkdirSync(filePath);
   }

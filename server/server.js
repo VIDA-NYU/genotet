@@ -10,6 +10,7 @@ var multer = require('multer');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
+var cookieParser = require('cookie-parser');
 var mongoUrl = 'mongodb://localhost:27017/express';
 
 var segtree = require('./segtree.js');
@@ -128,6 +129,7 @@ var upload = multer({
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 /**
  * Path of the exon info file.
@@ -136,7 +138,7 @@ app.use(bodyParser.json());
 var exonFile = dataPath + 'exons.bin';
 
 /**
- * User authenticate handler.
+ * Database connection.
  */
 MongoClient.connect(mongoUrl, function(err, db) {
   if (err) {
@@ -150,6 +152,34 @@ MongoClient.connect(mongoUrl, function(err, db) {
   // TODO(Liana): Direct HTTP to HTTPS.
   var server = app.listen(3000);
   server.setTimeout(1200000);
+});
+
+/**
+ * User authenticate handler.
+ */
+app.use('/genotet', function(req, res, next) {
+  if (req.url == '/check') {
+    res.status(200);
+  }
+  else if (req.url == '/user') {
+    next();
+  } else {
+    if (req.cookies.sessionId === undefined) {
+      res.status(500).json({
+        error: 'user not recognized.'
+      });
+    }
+    else {
+      user.findUsername(req.cookies.sessionId, function(result) {
+        if (!result.error) {
+          req.username = result;
+          next();
+        } else {
+          res.status(500).json(data);
+        }
+      });
+    }
+  }
 });
 
 /**
@@ -189,7 +219,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     dataName: req.body.name,
     description: req.body.description
   };
-  uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath,
+  uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath, req.username,
     function(ret) {
       serverResponse(/** @type {Object} */(ret), res);
     });
@@ -259,7 +289,7 @@ app.get('/genotet', function(req, res) {
 
     // Binding data queries
     case binding.QueryType.BINDING:
-      binding.query.histogram(query, dataPath, function(result) {
+      binding.query.histogram(query, dataPath, req.username, function(result) {
         serverResponse(result, res);
       });
       break;

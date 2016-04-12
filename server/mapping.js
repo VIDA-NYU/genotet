@@ -34,10 +34,11 @@ mapping.query = {};
 
 /**
  * Lists all the mapping files.
+ * @param {string} username The username.
  * @param {function(Array<string>)} callback The callback function.
  */
-mapping.query.list = function(callback) {
-  fileDbAccess.getList('mapping', function(data) {
+mapping.query.list = function(username, callback) {
+  fileDbAccess.getList('mapping', username, function(data) {
     var ret = data.map(function(mappingFile) {
       return mappingFile.fileName;
     });

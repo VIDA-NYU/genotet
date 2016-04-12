@@ -58,6 +58,12 @@ genotet.data.userUrl;
 genotet.data.uploadProgressUrl;
 
 /**
+ * Url for checking server status.
+ * @type {string}
+ */
+genotet.data.checkUrl;
+
+/**
  * @typedef {!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -166,6 +172,7 @@ genotet.data.init = function() {
   genotet.data.uploadUrl = genotet.data.serverUrl + '/upload';
   genotet.data.logUrl = genotet.data.serverUrl + '/log';
   genotet.data.userUrl = genotet.data.serverUrl + '/user';
+  genotet.data.checkUrl = genotet.data.serverUrl + '/check';
 
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());

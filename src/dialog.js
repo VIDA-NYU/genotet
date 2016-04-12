@@ -49,11 +49,7 @@ genotet.dialog.TEMPLATES_ = {
  * The init function, check the server status.
  */
 genotet.dialog.init = function() {
-  var params = {
-    type: 'list-binding'
-  };
-  params = {data: JSON.stringify(params)};
-  $.get(genotet.data.serverUrl, params)
+  $.get(genotet.data.checkUrl)
     .fail(function(res) {
       var modal = $('#dialog');
       modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.serverDown,

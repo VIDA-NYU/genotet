@@ -250,6 +250,28 @@ user.autoSignIn = function(cookie, callback) {
 };
 
 /**
+ * Finds username from database corresponding to sessionId.
+ * @param {string} sessionId The seesion ID of the user.
+ * @param {function((user.Error|string))} callback Callback function.
+ */
+user.findUsername = function(sessionId, callback) {
+  var db = database.db;
+  var query = {
+    sessionId: sessionId
+  };
+  database.getOne(db.collection(user.sessionDbName), query, [],
+    function(result) {
+      var data;
+      if (!result) {
+        callback({error: 'invalid session information'});
+        return;
+      }
+      data = result.username;
+      callback(data);
+    });
+};
+
+/**
  * Updates session ID from database. Regenerate if it is expired.
  * @param {!user.Cookie} cookie User cookie information.
  * @return {!user.Cookie} cookie Updated user cookie information.
