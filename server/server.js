@@ -10,7 +10,13 @@ var multer = require('multer');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
+var session = require('express-session');
+var cookieParser = require('cookie-parser');
+var cs = require('client-sessions');
+var cors = require('cors');
+//var clientSession = cs('mysecretkey');
 var mongoUrl = 'mongodb://localhost:27017/express';
+var FileStore = require('session-file-store')(session);
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -128,7 +134,27 @@ var upload = multer({
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-
+app.use(cookieParser());
+//app.use(cors());
+app.use(cs({
+  cookieName: 'newSession',
+  secret: 'nyuTandon',
+  domain: 'localhost',
+  duration: 60 * 60 * 1000,
+  activeDuration: 5 * 60 * 1000
+}));
+/*
+app.use(session({
+  name: 'test-cookie',
+  resave: true,
+  saveUninitialized: true,
+  cookie: {
+    path: '/',
+    maxAge: 3600000
+  },
+  secret: 'nyu tandon'
+}));
+*/
 /**
  * Path of the exon info file.
  * @type {string}
@@ -136,27 +162,11 @@ app.use(bodyParser.json());
 var exonFile = dataPath + 'exons.bin';
 
 /**
- * User authenticate handler.
- */
-MongoClient.connect(mongoUrl, function(err, db) {
-  if (err) {
-    log.serverLog(err.message);
-    return;
-  }
-  log.serverLog('connected to MongoDB');
-  database.db = db;
-
-  // Start the application.
-  // TODO(Liana): Direct HTTP to HTTPS.
-  var server = app.listen(3000);
-  server.setTimeout(1200000);
-});
-
-/**
  * Server response.
  * @param {Object|user.Error|undefined} data Server responce data.
  * @param {!express.Response} res Express response.
  */
+
 var serverResponse = function(data, res) {
   res.header('Access-Control-Allow-Origin', '*');
   if (!data) {
@@ -165,9 +175,11 @@ var serverResponse = function(data, res) {
     log.serverLog(data.error);
     res.status(500).json(data.error);
   } else {
+    //res.cookie('name', 'value', {httpOnly: true});
     res.json(data);
   }
 };
+
 
 /**
  * User log POST handler.
@@ -178,10 +190,23 @@ app.post('/genotet/log', function(req, res) {
   log.query.userLog(logPath, req.body);
 });
 
+/*
+app.get('/genotet', function(req, res, next) {
+  console.log(req.newSession.username);
+  req.newSession.username = 'anonymous';
+  //res.header('Access-Control-Allow-Origin', 'http://localhost');
+  //res.header('ContentType', 'application/json');
+  res.send('hello world 123 5');
+});
+*/
+
+
 /**
  * Upload POST handler.
  */
 app.post('/genotet/upload', upload.single('file'), function(req, res) {
+  console.log(req.newSession);
+
   log.serverLog('POST upload');
 
   var body = {
@@ -194,6 +219,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
       serverResponse(/** @type {Object} */(ret), res);
     });
 });
+
 
 app.post('/genotet/user', function(req, res) {
   log.serverLog('POST user');
@@ -210,11 +236,13 @@ app.post('/genotet/user', function(req, res) {
       break;
     case user.QueryType.SIGNIN:
       user.query.signIn(query, function(data) {
+        req.newSession.username = req.body.username;
         serverResponse(data, res);
       });
       break;
     case user.QueryType.AUTOSIGNIN:
       user.query.autoSignIn(query, function(data) {
+        req.newSession.username = req.body.username;
         serverResponse(data, res);
       });
       break;
@@ -232,8 +260,12 @@ app.post('/genotet/user', function(req, res) {
   }
 });
 
+
 // GET request handlers.
 app.get('/genotet', function(req, res) {
+  console.log(req.newSession);
+  req.newSession.username = 'anonymous';
+
   var query = JSON.parse(req.query.data);
   var type = query.type;
 
@@ -340,3 +372,22 @@ app.use(function(err, req, res, next) {
   res.status(500);
   res.json('Internal Server Error');
 });
+
+/**
+ * User authenticate handler.
+ */
+MongoClient.connect(mongoUrl, function(err, db) {
+  if (err) {
+    log.serverLog(err.message);
+    return;
+  }
+  log.serverLog('connected to MongoDB');
+  database.db = db;
+
+  // Start the application.
+  // TODO(Liana): Direct HTTP to HTTPS.
+  //var server = app.listen(3000);
+  //server.setTimeout(1200000);
+});
+
+app.listen(3000);
