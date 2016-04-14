@@ -11,10 +11,8 @@ var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var session = require('express-session');
-var cookieParser = require('cookie-parser');
 var mongoUrl = 'mongodb://localhost:27017/express';
-var sessionFileStore = require('session-file-store');
-var FileStore = sessionFileStore(session);
+var FileStore = require('session-file-store')(session);
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -140,7 +138,6 @@ var upload = multer({
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(cookieParser());
 app.use(session({
   name: 'genotet-session',
   secret: 'genotet',

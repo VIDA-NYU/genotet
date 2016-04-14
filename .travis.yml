@@ -25,6 +25,7 @@ before_script:
   - bash setup.sh
 
 script:
+  - nohup node server/server.js --config=test/config &
   - gulp all
   - gulp dist
   - bash test/test-server.sh

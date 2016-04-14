@@ -24,6 +24,9 @@ express.Request.prototype.body;
 /** @type {?} */
 express.Request.prototype.file;
 
+/** @type {?} */
+express.Request.prototype.session;
+
 /**
  * @constructor
  * @return {!express.Response}
@@ -40,6 +43,11 @@ express.Response.prototype.header = function(prop, val) {};
  * @param {*} data
  */
 express.Response.prototype.json = function(data) {};
+
+/**
+ * @param {*} data
+ */
+express.Response.prototype.jsonp = function(data) {};
 
 /**
  * @param {number} data
