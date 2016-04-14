@@ -15,7 +15,7 @@ genotet.user = {};
  *   expiration: number
  * }>}
  */
-genotet.user.info;
+genotet.user.info = null;
 
 /** @const {RegExp} */
 genotet.user.VALID_EMAIL_REGEX =

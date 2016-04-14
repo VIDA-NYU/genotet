@@ -12,11 +12,9 @@ var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
-var cs = require('client-sessions');
-var cors = require('cors');
-//var clientSession = cs('mysecretkey');
 var mongoUrl = 'mongodb://localhost:27017/express';
-var FileStore = require('session-file-store')(session);
+var sessionFileStore = require('session-file-store');
+var FileStore = sessionFileStore(session);
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -82,6 +80,11 @@ var privateKeyPath;
  * @type {string}
  */
 var certificatePath;
+/**
+ * Name of mongo database.
+ * @type {string}
+ */
+var mongoDatabase;
 
 // Parse command arguments.
 process.argv.forEach(function(token) {
@@ -120,6 +123,9 @@ function config() {
       case 'certificatePath':
         certificatePath = value;
         break;
+      case 'mongoDatabase':
+        mongoDatabase = value;
+        break;
     }
   }
   uploadPath = dataPath + 'upload/';
@@ -135,26 +141,17 @@ var upload = multer({
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
-//app.use(cors());
-app.use(cs({
-  cookieName: 'newSession',
-  secret: 'nyuTandon',
-  domain: 'localhost',
-  duration: 60 * 60 * 1000,
-  activeDuration: 5 * 60 * 1000
-}));
-/*
 app.use(session({
-  name: 'test-cookie',
-  resave: true,
-  saveUninitialized: true,
+  name: 'genotet-session',
+  secret: 'genotet',
   cookie: {
-    path: '/',
     maxAge: 3600000
   },
-  secret: 'nyu tandon'
+  saveUninitialized: true,
+  resave: true,
+  store: new FileStore()
 }));
-*/
+
 /**
  * Path of the exon info file.
  * @type {string}
@@ -168,18 +165,15 @@ var exonFile = dataPath + 'exons.bin';
  */
 
 var serverResponse = function(data, res) {
-  res.header('Access-Control-Allow-Origin', '*');
   if (!data) {
-    res.status(200).json({});
+    res.jsonp({}); // TODO(bowen): check if data=null is an error?
   } else if (data.error) {
     log.serverLog(data.error);
-    res.status(500).json(data.error);
+    res.jsonp({error: data.error});
   } else {
-    //res.cookie('name', 'value', {httpOnly: true});
-    res.json(data);
+    res.jsonp(data);
   }
 };
-
 
 /**
  * User log POST handler.
@@ -190,23 +184,10 @@ app.post('/genotet/log', function(req, res) {
   log.query.userLog(logPath, req.body);
 });
 
-/*
-app.get('/genotet', function(req, res, next) {
-  console.log(req.newSession.username);
-  req.newSession.username = 'anonymous';
-  //res.header('Access-Control-Allow-Origin', 'http://localhost');
-  //res.header('ContentType', 'application/json');
-  res.send('hello world 123 5');
-});
-*/
-
-
 /**
  * Upload POST handler.
  */
 app.post('/genotet/upload', upload.single('file'), function(req, res) {
-  console.log(req.newSession);
-
   log.serverLog('POST upload');
 
   var body = {
@@ -236,13 +217,13 @@ app.post('/genotet/user', function(req, res) {
       break;
     case user.QueryType.SIGNIN:
       user.query.signIn(query, function(data) {
-        req.newSession.username = req.body.username;
+        req.session.username = req.body.username;
         serverResponse(data, res);
       });
       break;
     case user.QueryType.AUTOSIGNIN:
       user.query.autoSignIn(query, function(data) {
-        req.newSession.username = req.body.username;
+        req.session.username = req.body.username;
         serverResponse(data, res);
       });
       break;
@@ -263,8 +244,7 @@ app.post('/genotet/user', function(req, res) {
 
 // GET request handlers.
 app.get('/genotet', function(req, res) {
-  console.log(req.newSession);
-  req.newSession.username = 'anonymous';
+  req.session.username = 'anonymous';
 
   var query = JSON.parse(req.query.data);
   var type = query.type;
@@ -369,25 +349,22 @@ app.get('/genotet', function(req, res) {
 // Error Handler
 app.use(function(err, req, res, next) {
   log.serverLog(err.stack);
-  res.status(500);
-  res.json('Internal Server Error');
+  res.jsonp({error: 'internal server error'});
 });
 
 /**
  * User authenticate handler.
  */
-MongoClient.connect(mongoUrl, function(err, db) {
+MongoClient.connect(mongoUrl, function(err, mongoClient) {
   if (err) {
     log.serverLog(err.message);
     return;
   }
   log.serverLog('connected to MongoDB');
-  database.db = db;
+  database.db = mongoClient.db(mongoDatabase);
 
   // Start the application.
   // TODO(Liana): Direct HTTP to HTTPS.
-  //var server = app.listen(3000);
-  //server.setTimeout(1200000);
+  var server = app.listen(3000);
+  server.setTimeout(1200000);
 });
-
-app.listen(3000);
