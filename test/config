@@ -1,2 +1,3 @@
+mongoDatabase = genotet-test
 dataPath = dist/data/
 bigWigToWigPath = test/bigWigToWig

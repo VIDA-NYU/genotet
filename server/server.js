@@ -10,7 +10,9 @@ var multer = require('multer');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
+var session = require('express-session');
 var mongoUrl = 'mongodb://localhost:27017/express';
+var FileStore = require('session-file-store')(session);
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -76,6 +78,11 @@ var privateKeyPath;
  * @type {string}
  */
 var certificatePath;
+/**
+ * Name of mongo database.
+ * @type {string}
+ */
+var mongoDatabase;
 
 // Parse command arguments.
 process.argv.forEach(function(token) {
@@ -114,6 +121,9 @@ function config() {
       case 'certificatePath':
         certificatePath = value;
         break;
+      case 'mongoDatabase':
+        mongoDatabase = value;
+        break;
     }
   }
   uploadPath = dataPath + 'upload/';
@@ -128,6 +138,16 @@ var upload = multer({
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(session({
+  name: 'genotet-session',
+  secret: 'genotet',
+  cookie: {
+    maxAge: 3600000
+  },
+  saveUninitialized: true,
+  resave: true,
+  store: new FileStore()
+}));
 
 /**
  * Path of the exon info file.
@@ -136,36 +156,19 @@ app.use(bodyParser.json());
 var exonFile = dataPath + 'exons.bin';
 
 /**
- * User authenticate handler.
- */
-MongoClient.connect(mongoUrl, function(err, db) {
-  if (err) {
-    log.serverLog(err.message);
-    return;
-  }
-  log.serverLog('connected to MongoDB');
-  database.db = db;
-
-  // Start the application.
-  // TODO(Liana): Direct HTTP to HTTPS.
-  var server = app.listen(3000);
-  server.setTimeout(1200000);
-});
-
-/**
  * Server response.
  * @param {Object|user.Error|undefined} data Server responce data.
  * @param {!express.Response} res Express response.
  */
 var serverResponse = function(data, res) {
-  res.header('Access-Control-Allow-Origin', '*');
-  if (!data) {
-    res.status(200).json({});
+  if (data == undefined) {
+    // data is null because some callback does not return values
+    res.jsonp({});
   } else if (data.error) {
     log.serverLog(data.error);
-    res.status(500).json(data.error);
+    res.jsonp({error: data.error});
   } else {
-    res.json(data);
+    res.jsonp(data);
   }
 };
 
@@ -195,6 +198,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     });
 });
 
+
 app.post('/genotet/user', function(req, res) {
   log.serverLog('POST user');
 
@@ -210,11 +214,13 @@ app.post('/genotet/user', function(req, res) {
       break;
     case user.QueryType.SIGNIN:
       user.query.signIn(query, function(data) {
+        req.session.username = req.body.username;
         serverResponse(data, res);
       });
       break;
     case user.QueryType.AUTOSIGNIN:
       user.query.autoSignIn(query, function(data) {
+        req.session.username = req.body.username;
         serverResponse(data, res);
       });
       break;
@@ -232,8 +238,11 @@ app.post('/genotet/user', function(req, res) {
   }
 });
 
+
 // GET request handlers.
 app.get('/genotet', function(req, res) {
+  req.session.username = 'anonymous';
+
   var query = JSON.parse(req.query.data);
   var type = query.type;
 
@@ -337,6 +346,22 @@ app.get('/genotet', function(req, res) {
 // Error Handler
 app.use(function(err, req, res, next) {
   log.serverLog(err.stack);
-  res.status(500);
-  res.json('Internal Server Error');
+  res.jsonp({error: 'internal server error'});
+});
+
+/**
+ * User authenticate handler.
+ */
+MongoClient.connect(mongoUrl, function(err, mongoClient) {
+  if (err) {
+    log.serverLog(err.message);
+    return;
+  }
+  log.serverLog('connected to MongoDB');
+  database.db = mongoClient.db(mongoDatabase);
+
+  // Start the application.
+  // TODO(Liana): Direct HTTP to HTTPS.
+  var server = app.listen(3000);
+  server.setTimeout(1200000);
 });

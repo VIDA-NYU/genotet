@@ -89,7 +89,7 @@ var externRequires = function(src, outputFile) {
   return gulp.src(src)
     .pipe(replace({
       patterns: [
-        {match: /var\s[_a-zA-Z]+\s=\srequire\('.*'\);/g, replacement: ''},
+        {match: /var\s[_a-zA-Z]+\s=\srequire\('.*'\).*;/g, replacement: ''},
         {match: /module\.exports\s=.*;/g, replacement: ''}
       ]
     }))

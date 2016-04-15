@@ -52,9 +52,10 @@ genotet.dialog.init = function() {
   var params = {
     type: 'list-binding'
   };
-  params = {data: JSON.stringify(params)};
-  $.get(genotet.data.serverUrl, params)
-    .fail(function(res) {
+  request.get({
+    url: genotet.data.serverUrl,
+    params: params,
+    fail: function() {
       var modal = $('#dialog');
       modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.serverDown,
         function() {
@@ -62,8 +63,9 @@ genotet.dialog.init = function() {
             backdrop: 'static',
             keyboard: false
           });
-      });
-    });
+        });
+    }
+  });
 };
 
 /**
