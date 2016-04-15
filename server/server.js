@@ -11,7 +11,8 @@ var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var session = require('express-session');
-var mongoUrl = 'mongodb://localhost:27017/express';
+var cookieParser = require('cookie-parser');
+var mongoUrl = 'mongodb://localhost:27017/';
 var FileStore = require('session-file-store')(session);
 
 var segtree = require('./segtree.js');
@@ -138,6 +139,7 @@ var upload = multer({
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(session({
   name: 'genotet-session',
   secret: 'genotet',
@@ -159,14 +161,17 @@ var exonFile = dataPath + 'exons.bin';
  * User authenticate handler.
  */
 app.use('/genotet', function(req, res, next) {
-  if (req.url == '/check') {
-    res.status(200);
+  log.serverLog(req.url, req.session.id);
+  console.log(req.cookies);
+  res.header('Access-Control-Allow-Origin', '*');
+  if (req.url.substr(0, 6) == '/check') {
+    res.jsonp({});
   }
   else if (req.url == '/user') {
     next();
   } else {
     if (req.cookies.sessionId === undefined) {
-      res.status(500).json({
+      res.jsonp({
         error: 'user not recognized.'
       });
     }
@@ -174,9 +179,11 @@ app.use('/genotet', function(req, res, next) {
       user.findUsername(req.cookies.sessionId, function(result) {
         if (!result.error) {
           req.username = result;
+          console.log(result);
           next();
         } else {
-          res.status(500).json(data);
+          console.log(result.error);
+          res.jsonp(result);
         }
       });
     }
@@ -189,6 +196,7 @@ app.use('/genotet', function(req, res, next) {
  * @param {!express.Response} res Express response.
  */
 var serverResponse = function(data, res) {
+  res.header('Access-Control-Allow-Origin', '*');
   if (data == undefined) {
     // data is null because some callback does not return values
     res.jsonp({});
