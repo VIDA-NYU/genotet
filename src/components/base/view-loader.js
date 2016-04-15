@@ -78,19 +78,33 @@ genotet.ViewLoader.prototype.signal = function(eventType, opt_data) {
  */
 genotet.ViewLoader.prototype.get = function(url, params, callback,
                                             errorMessage, opt_block) {
-  var paramObj = {data: JSON.stringify(params)};
   if (!opt_block) {
     this.signal('loadStart');
-    $.get(url, paramObj, function(data) {
+    request.get({
+      url: url,
+      params: params,
+      done: function(data) {
         callback(data);
         this.signal('loadComplete');
-      }.bind(this))
-      .fail(this.fail.bind(this, errorMessage, params));
+      }.bind(this),
+      fail: function(error) {
+        if (error != null) {
+          errorMessage += ', ' + error;
+        }
+        this.fail(errorMessage, params);
+      }.bind(this)
+    });
   } else {
-    $.get(url, paramObj, function(data) {
+    request.get({
+      url: url,
+      params: params,
+      done: function(data) {
         callback(data);
-      }.bind(this))
-      .fail(this.fail.bind(this, errorMessage, params));
+      }.bind(this),
+      fail: function() {
+        this.fail(errorMessage, params);
+      }.bind(this)
+    });
   }
 };
 
@@ -98,13 +112,10 @@ genotet.ViewLoader.prototype.get = function(url, params, callback,
  * Triggers a fail event and pushes the error.
  * @param {string} msg Error message.
  * @param {Object} params Query parameter object.
- * @param {{
- *   responseJSON: string
- * }} res Server response object.
  */
-genotet.ViewLoader.prototype.fail = function(msg, params, res) {
+genotet.ViewLoader.prototype.fail = function(msg, params) {
   var paramsStr = params == null ? '' : JSON.stringify(params)
     .replace(/[{}]/g, '');
-  genotet.error(msg, res.responseJSON, paramsStr);
+  genotet.error(msg, paramsStr);
   this.signal('loadFail');
 };

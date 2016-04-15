@@ -31,31 +31,31 @@ genotet.data = {};
  * Data queries are sent to this address via http and received via jsonp.
  * @type {string}
  */
-genotet.data.serverUrl;
+genotet.data.serverUrl = '';
 
 /**
  * Data are uploaded to this Url by posting multipart form data.
  * @type {string}
  */
-genotet.data.uploadUrl;
+genotet.data.uploadUrl = '';
 
 /**
  * Log queries are sent to this address.
  * @type {string}
  */
-genotet.data.logUrl;
+genotet.data.logUrl = '';
 
 /**
  * User queries are sent to this address.
  * @type {string}
  */
-genotet.data.userUrl;
+genotet.data.userUrl = '';
 
 /**
  * Url for queries for monitoring data processing.
  * @type {string}
  */
-genotet.data.uploadProgressUrl;
+genotet.data.uploadProgressUrl = '';
 
 /**
  * Url for checking server status.
@@ -190,12 +190,15 @@ genotet.data.loadList = function(view, fileType) {
   var params = {
     type: 'list-' + fileType
   };
-  params = {data: JSON.stringify(params)};
-  $.get(genotet.data.serverUrl, params, function(data) {
+  request.get({
+    url: genotet.data.serverUrl,
+    params: params,
+    done: function(data) {
       genotet.data.files[fileType + 'Files'] = data;
       view.signal('updateFileListAfterLoading');
-    }.bind(this))
-    .fail(function() {
+    },
+    fail: function() {
       genotet.error('failed to get file list', fileType);
-    });
+    }
+  });
 };

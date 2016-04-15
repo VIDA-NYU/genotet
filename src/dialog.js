@@ -49,8 +49,10 @@ genotet.dialog.TEMPLATES_ = {
  * The init function, check the server status.
  */
 genotet.dialog.init = function() {
-  $.get(genotet.data.checkUrl)
-    .fail(function(res) {
+  request.get({
+    url: genotet.data.checkUrl,
+    params: {},
+    fail: function() {
       var modal = $('#dialog');
       modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.serverDown,
         function() {
@@ -58,8 +60,9 @@ genotet.dialog.init = function() {
             backdrop: 'static',
             keyboard: false
           });
-      });
-    });
+        });
+    }
+  });
 };
 
 /**

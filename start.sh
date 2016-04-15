@@ -1,4 +1,9 @@
 #!/bin/bash
+
+if [ ! -d log ]; then
+  mkdir log
+fi
+
 i=0
 now=$(date +%Y-%m-%d)
 prefix="log/server_"

@@ -14,8 +14,6 @@ gulp.task('build', function(cb) {
 gulp.task('build-dev', function(cb) {
   runSequence(
     'dist',
-    'compile-all',
-    'dist',
     [
       'copy',
       'index',
