@@ -160,10 +160,10 @@ var exonFile = dataPath + 'exons.bin';
  * @param {Object|user.Error|undefined} data Server responce data.
  * @param {!express.Response} res Express response.
  */
-
 var serverResponse = function(data, res) {
-  if (!data) {
-    res.jsonp({}); // TODO(bowen): check if data=null is an error?
+  if (data == undefined) {
+    // data is null because some callback does not return values
+    res.jsonp({});
   } else if (data.error) {
     log.serverLog(data.error);
     res.jsonp({error: data.error});
