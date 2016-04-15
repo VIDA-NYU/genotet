@@ -161,15 +161,17 @@ var exonFile = dataPath + 'exons.bin';
  * User authenticate handler.
  */
 app.use('/genotet', function(req, res, next) {
-  log.serverLog(req.url, req.session.id);
-  console.log(req.cookies);
+
+  //console.log(req.cookies);
   res.header('Access-Control-Allow-Origin', '*');
   if (req.url.substr(0, 6) == '/check') {
+    //log.serverLog(req.session.id);
     res.jsonp({});
   }
   else if (req.url == '/user') {
     next();
   } else {
+    log.serverLog(req.session.id);
     if (req.cookies.sessionId === undefined) {
       res.jsonp({
         error: 'user not recognized.'
@@ -277,7 +279,7 @@ app.post('/genotet/user', function(req, res) {
 
 // GET request handlers.
 app.get('/genotet', function(req, res) {
-  req.session.username = 'anonymous';
+  console.log(req.session.id);
 
   var query = JSON.parse(req.query.data);
   var type = query.type;
