@@ -178,8 +178,7 @@ var jsonpResponse = function(data, res) {
  * @param {!express.Response} res Express response.
  */
 var jsonResponse = function(data, res) {
-  console.log(data);
-  // TODO(bowen): need to change this to https as well
+  // TODO(bowen): need to change cross-origin to https://localhost as well
   res.header('Access-Control-Allow-Origin', 'http://localhost');
   if (data == undefined) {
     // data is null because some callback does not return values

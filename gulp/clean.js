@@ -9,17 +9,22 @@ var dirs = [
   'dist',
   'dist/html',
   'dist/data',
-  'dist/data/network',
-  'dist/data/wiggle',
-  'dist/data/expression',
-  'dist/data/bed',
-  'dist/data/upload',
-  'dist/data/mapping'
+  'dist/data/upload'
 ];
 
+// Clean all files in dist, including data.
 gulp.task('clean', function() {
   return del([
     paths.dist + '**/*'
+  ]);
+});
+
+// Clean only source files in dist, keeping data.
+gulp.task('clean-src', function() {
+  return del([
+    paths.dist + '*.js',
+    paths.dist + '*.css',
+    paths.dist + 'html/**/*'
   ]);
 });
 

@@ -10,7 +10,7 @@ gulp.task('copy-testdata', function() {
     .pipe(gulp.dest(paths.dist + 'data'));
 });
 
-gulp.task('qunit-test', ['copy-testdata'], function(cb) {
+gulp.task('qunit-test', function(cb) {
   return gulp.src('index.html')
     .pipe(qunit({
       // phantomjs2 is required as 1.x does not have Function.prototype.bind
@@ -27,7 +27,7 @@ gulp.task('run-test', ['qunit-test']);
 // Test task for dev build, without compiler optimization.
 gulp.task('test-dev', function(cb) {
   runSequence(
-    'clean',
+    'clean-src',
     ['copy', 'index-test', 'sass-dev', 'concat-src-test'],
     'run-test',
     cb);
@@ -36,7 +36,7 @@ gulp.task('test-dev', function(cb) {
 // Test task for production build, with compiler optimization/
 gulp.task('test-production', function(cb) {
   runSequence(
-    'clean',
+    'clean-src',
     ['copy', 'index-test', 'sass', 'compile-qunit'],
     'run-test',
     cb);
