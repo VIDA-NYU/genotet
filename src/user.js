@@ -60,8 +60,10 @@ genotet.user.init = function() {
     expiration: Cookies.get('expiration')
   };
 
-  $.post(genotet.data.userUrl, userInfo, 'json')
-    .done(function(data) {
+  request.post({
+    url: genotet.data.userUrl,
+    params: userInfo,
+    done: function(data) {
       genotet.menu.displaySignedUser(userInfo.username);
       genotet.user.info = {
         username: data.username,
@@ -70,10 +72,11 @@ genotet.user.init = function() {
       };
       genotet.user.updateCookieToBrowser(data);
       genotet.success('signed in');
-    })
-    .fail(function(res) {
+    },
+    fail: function() {
       genotet.menu.displaySignInterface();
-    });
+    }
+  });
 };
 
 /**
