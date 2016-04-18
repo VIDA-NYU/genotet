@@ -120,8 +120,7 @@ network.query.incidentEdges = function(query, dataPath) {
   }
   var fileName = query.fileName;
   var gene = query.gene;
-  var networkPath = dataPath + user.getUsername() + '/' +
-    network.PATH_PREFIX_;
+  var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -147,8 +146,7 @@ network.query.combinedRegulation = function(query, dataPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
-  var networkPath = dataPath + user.getUsername() + '/' +
-    network.PATH_PREFIX_;
+  var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -223,9 +221,9 @@ network.query.allNodes = function(query, dataPath) {
   var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
   var file = networkPath + query.fileName;
   if (!fs.existsSync(file)) {
-    return {
-      error: 'network file ' + query.fileName + ' not found.'
-    };
+    var error = 'network file ' + query.fileName + ' not found.';
+    log.serverLog(error);
+    return {error: error};
   }
   return network.allNodes_(file);
 };
