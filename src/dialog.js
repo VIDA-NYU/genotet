@@ -577,7 +577,6 @@ genotet.dialog.signUp_ = function() {
               sessionId: data.sessionId,
               expiration: data.expiration
             };
-            genotet.user.updateCookieToBrowser(data);
             genotet.success('signed up');
           })
           .fail(function(res) {
@@ -622,7 +621,6 @@ genotet.dialog.signIn_ = function() {
               sessionId: data.sessionId,
               expiratloggn: data.expiration
             };
-            genotet.user.updateCookieToBrowser(data);
             genotet.success('signed in');
           })
           .fail(function(res) {

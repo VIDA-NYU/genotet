@@ -146,8 +146,8 @@ app.use(session({
   cookie: {
     maxAge: 3600000
   },
-  saveUninitialized: true,
-  resave: true,
+  saveUninitialized: false,
+  resave: false,
   store: new FileStore()
 }));
 
@@ -162,7 +162,8 @@ var exonFile = dataPath + 'exons.bin';
  */
 app.use('/genotet', function(req, res, next) {
 
-  //console.log(req.cookies);
+
+  console.log(req);
   res.header('Access-Control-Allow-Origin', '*');
   if (req.url.substr(0, 6) == '/check') {
     //log.serverLog(req.session.id);
@@ -279,7 +280,7 @@ app.post('/genotet/user', function(req, res) {
 
 // GET request handlers.
 app.get('/genotet', function(req, res) {
-  console.log(req.session.id);
+  //console.log(req.session.id);
 
   var query = JSON.parse(req.query.data);
   var type = query.type;

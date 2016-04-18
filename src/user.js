@@ -68,23 +68,11 @@ genotet.user.init = function() {
         sessionId: data.sessionId,
         expiration: data.expiration
       };
-      genotet.user.updateCookieToBrowser(data);
       genotet.success('signed in');
     })
     .fail(function(res) {
       genotet.menu.displaySignInterface();
     });
-};
-
-/**
- * Updates the cookie to browser.
- * @param {!genotet.Cookie} cookie New cookie.
- */
-genotet.user.updateCookieToBrowser = function(cookie) {
-  for (var key in cookie) {
-    var value = cookie[key];
-    Cookies.set(key, value, {path: '/genotet'});
-  }
 };
 
 /**

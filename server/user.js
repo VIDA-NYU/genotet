@@ -230,7 +230,6 @@ user.autoSignIn = function(cookie, callback) {
   var db = database.db;
   var query = {
     $and: [
-      {username: cookie.username},
       {sessionId: cookie.sessionId},
       {expiration: {$gt: new Date().getTime()}}
     ]
@@ -286,7 +285,6 @@ user.updateSession = function(cookie) {
     cookie.expiration = newExpiration;
   } else {
     // Don't have username or have username but don't have valid session
-    cookie.sessionId = utils.randomString();
     cookie.expiration = new Date().getTime() + user.cookieExpireTime;
     db.collection(user.sessionDbName).insertOne(cookie);
   }
