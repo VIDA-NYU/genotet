@@ -48,14 +48,28 @@ $white: #fff;
     stroke-width: 2px;
   }
 
+  .canvas-svg {
+    position: absolute;
+  }
+
   .content {
-    rect {
+    position: relative;
+
+    canvas {
+      position: absolute;
+      z-index: 1;
+    }
+
+    div {
+      position: absolute;
+      z-index: 10;
+
       &.highlighted {
-        stroke: $white;
+        border: 1px solid $white;
       }
 
       &.zoom-highlighted {
-        stroke: $white;
+        border: $white;
       }
     }
   }
