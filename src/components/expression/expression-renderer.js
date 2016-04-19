@@ -696,7 +696,7 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
       );
       context.fill();
       context.closePath();
-    })
+    });
   });
 
   var currentMousePosition = [];
@@ -805,7 +805,8 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
         .classed('label-selected', false);
       this.svgHeatmapHoverCell_.style('display', 'none');
 
-      if (!zoomSelected || Number(this.svgHeatmapHoverCell_.style('width').slice(0, -2)) <= 1) {
+      if (!zoomSelected ||
+        Number(this.svgHeatmapHoverCell_.style('width').slice(0, -2)) <= 1) {
         zoomSelected = false;
         $(this.svgHeatmapHoverCell_.node()).trigger('click');
         return;
