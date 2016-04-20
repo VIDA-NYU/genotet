@@ -38,7 +38,7 @@ genotet.ViewType = {
  * Run tests in the development environment.
  */
 genotet.init = function() {
-  //Welcome.init();
+  genotet.url.init();
   genotet.data.init();
   genotet.panelManager.init();
   genotet.viewManager.init();
