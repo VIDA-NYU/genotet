@@ -493,6 +493,9 @@ genotet.dialog.upload_ = function() {
           enctype: 'multipart/form-data',
           processData: false,
           contentType: false,
+          xhrFields: {
+            withCredentials: true
+          },
           xhr: function() {
             var xhr = new window.XMLHttpRequest();
             //Download progress

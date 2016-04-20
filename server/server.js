@@ -142,7 +142,8 @@ app.use(session({
   name: 'genotet-session',
   secret: 'genotet',
   cookie: {
-    maxAge: 3600000
+    maxAge: 3600000,
+    httpOnly: false
   },
   saveUninitialized: true,
   resave: true,
@@ -156,23 +157,6 @@ app.use(session({
 var exonFile = dataPath + 'exons.bin';
 
 /**
- * Sends back JSONP response.
- * @param {Object|undefined} data Server response data.
- * @param {!express.Response} res Express response.
- */
-var jsonpResponse = function(data, res) {
-  if (data == undefined) {
-    // data is null because some callback does not return values
-    res.status(200).jsonp({});
-  } else if (data.error) {
-    log.serverLog(data.error);
-    res.status(200).jsonp({error: data.error});
-  } else {
-    res.status(200).jsonp(data);
-  }
-};
-
-/**
  * Sends back JSON response.
  * @param {Object|user.Error|undefined} data Server response data.
  * @param {!express.Response} res Express response.
@@ -180,6 +164,7 @@ var jsonpResponse = function(data, res) {
 var jsonResponse = function(data, res) {
   // TODO(bowen): need to change cross-origin to https://localhost as well
   res.header('Access-Control-Allow-Origin', 'http://localhost');
+  res.header('Access-Control-Allow-Credentials', true);
   if (data == undefined) {
     // data is null because some callback does not return values
     res.status(200).json({});
@@ -220,6 +205,7 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
 
 app.post('/genotet/user', function(req, res) {
   log.serverLog('POST user');
+  console.log('Session Id:', req.session.id);
 
   var query = JSON.parse(req.body.data);
   var type = query.type;
@@ -267,89 +253,89 @@ app.get('/genotet', function(req, res) {
   switch (type) {
     // Network data queries
     case network.QueryType.NETWORK:
-      jsonpResponse(network.query.network(query, dataPath), res);
+      jsonResponse(network.query.network(query, dataPath), res);
       break;
     case network.QueryType.NETWORK_INFO:
-      jsonpResponse(network.query.allNodes(query, dataPath), res);
+      jsonResponse(network.query.allNodes(query, dataPath), res);
       break;
     case network.QueryType.INCIDENT_EDGES:
-      jsonpResponse(network.query.incidentEdges(query, dataPath), res);
+      jsonResponse(network.query.incidentEdges(query, dataPath), res);
       break;
     case network.QueryType.COMBINED_REGULATION:
-      jsonpResponse(network.query.combinedRegulation(query, dataPath), res);
+      jsonResponse(network.query.combinedRegulation(query, dataPath), res);
       break;
     case network.QueryType.INCREMENTAL_EDGES:
-      jsonpResponse(network.query.incrementalEdges(query, dataPath), res);
+      jsonResponse(network.query.incrementalEdges(query, dataPath), res);
       break;
 
     // Binding data queries
     case binding.QueryType.BINDING:
       binding.query.histogram(query, dataPath, function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, res);
       });
       break;
     case binding.QueryType.EXONS:
-      jsonpResponse(binding.query.exons(query, exonFile), res);
+      jsonResponse(binding.query.exons(query, exonFile), res);
       break;
     case binding.QueryType.LOCUS:
-      jsonpResponse(binding.query.locus(query, exonFile), res);
+      jsonResponse(binding.query.locus(query, exonFile), res);
       break;
 
     // Expression data queries
     case expression.QueryType.EXPRESSION:
-      jsonpResponse(expression.query.matrix(query, dataPath), res);
+      jsonResponse(expression.query.matrix(query, dataPath), res);
       break;
     case expression.QueryType.EXPRESSION_INFO:
-      jsonpResponse(expression.query.matrixInfo(query, dataPath), res);
+      jsonResponse(expression.query.matrixInfo(query, dataPath), res);
       break;
     case expression.QueryType.PROFILE:
-      jsonpResponse(expression.query.profile(query, dataPath), res);
+      jsonResponse(expression.query.profile(query, dataPath), res);
       break;
     case expression.QueryType.TFA_PROFILE:
-      jsonpResponse(expression.query.tfaProfile(query, dataPath), res);
+      jsonResponse(expression.query.tfaProfile(query, dataPath), res);
       break;
 
     // Bed data queries
     case bed.QueryType.BED:
-      jsonpResponse(bed.query.motifs(query, dataPath), res);
+      jsonResponse(bed.query.motifs(query, dataPath), res);
       break;
 
     // Mapping data queries
     case mapping.QueryType.MAPPING:
-      jsonpResponse(mapping.query.getMapping(query, dataPath), res);
+      jsonResponse(mapping.query.getMapping(query, dataPath), res);
       break;
 
     // Data listing
     case network.QueryType.LIST_NETWORK:
       network.query.list(function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, res);
       });
       break;
     case binding.QueryType.LIST_BINDING:
       binding.query.list(function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, res);
       });
       break;
     case expression.QueryType.LIST_EXPRESSION:
       expression.query.list(function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, res);
       });
       break;
     case bed.QueryType.LIST_BED:
       bed.query.list(function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, res);
       });
       break;
     case mapping.QueryType.LIST_MAPPING:
       mapping.query.list(function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, res);
       });
       break;
 
     // Undefined type, error
     default:
       log.serverLog('invalid query type');
-      jsonpResponse({error: 'invalid GET query type'}, res);
+      jsonResponse({error: 'invalid GET query type'}, res);
   }
 });
 

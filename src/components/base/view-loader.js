@@ -88,7 +88,7 @@ genotet.ViewLoader.prototype.get = function(url, params, callback,
         this.signal('loadComplete');
       }.bind(this),
       fail: function(error) {
-        if (error != null) {
+        if (error) {
           errorMessage += ', ' + error;
         }
         this.fail(errorMessage, params);

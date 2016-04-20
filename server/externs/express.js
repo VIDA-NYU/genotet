@@ -35,7 +35,7 @@ express.Response = function() {};
 
 /**
  * @param {string} prop
- * @param {string} val
+ * @param {string|boolean} val
  */
 express.Response.prototype.header = function(prop, val) {};
 
