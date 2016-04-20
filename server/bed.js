@@ -52,6 +52,7 @@ bed.query = {};
 // Start public APIs
 /**
  * @param {*|{
+ *   username: string,
  *   fileName: string,
  *   chr: string,
  *   xl: (number|undefined),
@@ -68,7 +69,7 @@ bed.query.motifs = function(query, dataPath) {
     return {error: 'chr is undefined'};
   }
   var fileName = query.fileName;
-  var bedPath = dataPath + user.getUsername() + '/' + bed.PATH_PREFIX_;
+  var bedPath = dataPath + query.username + '/' + bed.PATH_PREFIX_;
   var chr = query.chr;
   var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
   if (!fs.existsSync(dir)) {
@@ -80,14 +81,17 @@ bed.query.motifs = function(query, dataPath) {
 };
 
 /**
+ * @param {*|{
+ *   username: string
+ * }} query
  * @param {function(Array<{
  *   fileName: string,
  *   bedName: string,
  *   description: string
  * }>)} callback The callback function.
  */
-bed.query.list = function(callback) {
-  bed.listBed_(function(data) {
+bed.query.list = function(query, callback) {
+  bed.listBed_(query.username, function(data) {
     callback(data);
   });
 };
@@ -203,14 +207,15 @@ bed.readBed_ = function(bedFile, xl, xr) {
 };
 
 /**
+ * @param {string} username The username.
  * @param {function(!Array<{
  *   bedName: string,
  *   description: string
  * }>)} callback The callback function.
  * @private
  */
-bed.listBed_ = function(callback) {
-  fileDbAccess.getList('bed', function(data) {
+bed.listBed_ = function(username, callback) {
+  fileDbAccess.getList('bed', username, function(data) {
     var ret = data.map(function(bedFile) {
       return {
         fileName: bedFile.fileName,

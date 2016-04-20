@@ -47,30 +47,28 @@ genotet.user.init = function() {
     expiration: ''
   };
 
-  if (!Cookies.get('expiration') ||
-    new Date().getTime() >= Cookies.get('expiration')) {
+  if (!Cookies.get()) {
     genotet.menu.displaySignInterface();
     return;
   }
 
-  var userInfo = {
-    type: 'auto-sign-in',
-    username: Cookies.get('username'),
-    sessionId: Cookies.get('sessionId'),
-    expiration: Cookies.get('expiration')
+  var params = {
+    type: 'auto-sign-in'
   };
 
-  request.post({
+  request.get({
     url: genotet.data.userUrl,
-    params: userInfo,
+    params: params,
     done: function(data) {
-      genotet.menu.displaySignedUser(userInfo.username);
-      genotet.user.info = {
-        username: data.username,
-        sessionId: data.sessionId,
-        expiration: data.expiration
-      };
-      genotet.success('signed in');
+      if (data.error) {
+        genotet.menu.displaySignInterface();
+      } else {
+        genotet.menu.displaySignedUser(data.username);
+        genotet.user.info = {
+          username: data.username
+        };
+        genotet.success('signed in');
+      }
     },
     fail: function() {
       genotet.menu.displaySignInterface();
@@ -87,8 +85,20 @@ genotet.user.logOut = function() {
     sessionId: '',
     expiration: ''
   };
-  genotet.menu.displaySignInterface();
-  genotet.success('logged out');
+  var params = {
+    type: 'log-out'
+  };
+  request.get({
+    url: genotet.data.userUrl,
+    params: params,
+    done: function() {
+      genotet.menu.displaySignInterface();
+      genotet.success('logged out');
+    },
+    fail: function(data) {
+      genotet.error(data.error);
+    }
+  });
 };
 
 /**

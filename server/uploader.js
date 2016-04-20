@@ -120,26 +120,27 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, username,
   source
     .on('end', function() {
       fs.unlinkSync(file.path);
-      fileDbAccess.insertFile(filePath, fileName, desc, function(err) {
+      fileDbAccess.insertFile(filePath, fileName, desc, username,
+        function(err) {
         if (err) {
           callback(err);
           return;
         }
-        fileDbAccess.insertProgress(fileName, function(err) {
+        fileDbAccess.insertProgress(fileName, username, function(err) {
           if (err) {
             callback(err);
             return;
           }
           if (desc.type == uploader.FileType.BINDING) {
             uploader.bigWigToBcwig(filePath, fileName, bigWigToWigAddr,
-              function(err) {
+              username, function(err) {
                 if (err) {
                   callback(err);
                 }
                 callback();
               });
           } else if (desc.type == uploader.FileType.BED) {
-            uploader.bedSort(filePath, fileName, function(err) {
+            uploader.bedSort(filePath, fileName, username, function(err) {
               if (err) {
                 callback(err);
                 return;
@@ -162,10 +163,11 @@ uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, username,
  * @param {string} prefix Folder that contains the bw file.
  * @param {string} bwFile Name of the bigwig file (without prefix).
  * @param {string} bigWigToWigAddr The convention script path.
+ * @param {string} username The username.
  * @param {function(uploader.Error=)} callback The callback function.
  */
 uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
-                                  callback) {
+                                  username, callback) {
   // convert *.bw into *.wig
   var percentage = 0;
 
@@ -180,7 +182,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
   childProcess.execSync(cmd);
   log.serverLog(cmd);
   percentage += uploader.PROGRESS_BINDING_TRANSFER_;
-  fileDbAccess.updateProgress(bwFile, percentage, function(err) {
+  fileDbAccess.updateProgress(bwFile, percentage, username, function(err) {
     if (err) {
       callback(err);
     }
@@ -232,11 +234,12 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
       if (lineCount % oneTenthLines == 0) {
         // increase 10% for the progress
         percentage += 0.1 * uploader.PROGRESS_BINDING_READ_;
-        fileDbAccess.updateProgress(bwFile, percentage, function(err) {
-          if (err) {
-            callback(err);
-          }
-        });
+        fileDbAccess.updateProgress(bwFile, percentage, username,
+          function(err) {
+            if (err) {
+              callback(err);
+            }
+          });
       }
     }
   });
@@ -277,7 +280,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
       fs.writeSync(fd, bcwigBuf, 0, uploader.ENTRY_SIZE_ * seg[chr].length, 0);
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BINDING_WRITE_ / chrNum;
-      fileDbAccess.updateProgress(bwFile, percentage, function(err) {
+      fileDbAccess.updateProgress(bwFile, percentage, username, function(err) {
         if (err) {
           log.serverLog(err);
           callback(err);
@@ -300,7 +303,7 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
       fs.writeSync(fd, segBuf, 0, offset, 0);
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BINDING_SEGTREE_ / chrNum;
-      fileDbAccess.updateProgress(bwFile, percentage, function(err) {
+      fileDbAccess.updateProgress(bwFile, percentage, username, function(err) {
         if (err) {
           log.serverLog(err);
           callback(err);
@@ -309,12 +312,12 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
     }
 
     // Update the progress to finish.
-    fileDbAccess.updateProgress(bwFile, 100, function(err) {
+    fileDbAccess.updateProgress(bwFile, 100, username, function(err) {
       if (err) {
         callback(err);
       }
     });
-    fileDbAccess.insertBindingChrs(bwFile, chrs, function(err) {
+    fileDbAccess.insertBindingChrs(bwFile, chrs, username, function(err) {
       if (err) {
         callback(err);
       }
@@ -328,9 +331,10 @@ uploader.bigWigToBcwig = function(prefix, bwFile, bigWigToWigAddr,
  * Sorts bed data segments and write it into separate files.
  * @param {string} prefix Folder to the bed files.
  * @param {string} bedFile File name of the bed file.
+ * @param {string} username The username.
  * @param {function(uploader.Error=)} callback The callback function.
  */
-uploader.bedSort = function(prefix, bedFile, callback) {
+uploader.bedSort = function(prefix, bedFile, username, callback) {
   var lines = readline.createInterface({
     input: fs.createReadStream(prefix + bedFile),
     terminal: false
@@ -365,11 +369,12 @@ uploader.bedSort = function(prefix, bedFile, callback) {
     ++lineCount;
     if (lineCount % oneTenthLines == 0) {
       percentage += 0.1 * uploader.PROGRESS_BED_READ_;
-      fileDbAccess.updateProgress(bedFile, percentage, function(err) {
-        if (err) {
-          callback(err);
-        }
-      });
+      fileDbAccess.updateProgress(bedFile, percentage, username,
+        function(err) {
+          if (err) {
+            callback(err);
+          }
+        });
     }
   });
 
@@ -403,15 +408,16 @@ uploader.bedSort = function(prefix, bedFile, callback) {
       }
       fs.closeSync(fd);
       percentage += uploader.PROGRESS_BED_WRITE_ / chrNum;
-      fileDbAccess.updateProgress(bedFile, percentage, function(err) {
-        if (err) {
-          callback(err);
-        }
-      });
+      fileDbAccess.updateProgress(bedFile, percentage, username,
+        function(err) {
+          if (err) {
+            callback(err);
+          }
+        });
     }
 
     // Update database to finish
-    fileDbAccess.updateProgress(bedFile, 100, function(err) {
+    fileDbAccess.updateProgress(bedFile, 100, username, function(err) {
       if (err) {
         callback(err);
       }

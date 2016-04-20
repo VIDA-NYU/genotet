@@ -210,15 +210,17 @@ expression.query.tfaProfile = function(query, dataPath) {
 };
 
 /**
- * @param {string} username
+ * @param {*|{
+ *   username: string
+ * }} query
  * @param {function(Array<{
  *   matrixName: string,
  *   fileName: string,
  *   description: string
  * }>)} callback The callback function.
  */
-expression.query.list = function(username, callback) {
-  expression.listMatrix_(username, function(data) {
+expression.query.list = function(query, callback) {
+  expression.listMatrix_(query.username, function(data) {
     callback(data);
   });
 };

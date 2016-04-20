@@ -481,6 +481,9 @@ genotet.dialog.upload_ = function() {
           fileType == genotet.FileType.BINDING) {
           uploadPercent = 70;
         }
+        var sessionID = Cookies.get('genotet-session');
+        console.log(sessionID);
+
         genotet.logger.log(genotet.logger.Type.UPLOAD, fileType, dataName.val(),
           fileName);
         $.ajax({
@@ -490,6 +493,7 @@ genotet.dialog.upload_ = function() {
           enctype: 'multipart/form-data',
           processData: false,
           contentType: false,
+          xhrFields: { withCredentials: true },
           xhr: function() {
             var xhr = new window.XMLHttpRequest();
             //Download progress
@@ -581,7 +585,7 @@ genotet.dialog.signUp_ = function() {
           confirmed: false
         };
 
-        request.post({
+        request.get({
           url: genotet.data.userUrl,
           params: userInfo,
           done: function(data) {
@@ -628,7 +632,7 @@ genotet.dialog.signIn_ = function() {
           password: /** @type {string} */(password.val())
         };
 
-        request.post({
+        request.get({
           url: genotet.data.userUrl,
           params: userInfo,
           done: function(data) {
@@ -636,7 +640,7 @@ genotet.dialog.signIn_ = function() {
             genotet.user.info = {
               username: data.username,
               sessionId: data.sessionId,
-              expiratloggn: data.expiration
+              expiration: data.expiration
             };
             genotet.success('signed in');
           },

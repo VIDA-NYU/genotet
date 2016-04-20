@@ -27,6 +27,9 @@ express.Request.prototype.file;
 /** @type {?} */
 express.Request.prototype.session;
 
+/** @type {string} */
+express.Request.prototype.url;
+
 /**
  * @constructor
  * @return {!express.Response}
@@ -87,11 +90,10 @@ express.prototype.get = function(url, callback) {};
 express.prototype.post = function(url, data, callback) {};
 
 /**
- * @typedef {function((
+ * @typedef {function(
  *   !express.Request,
  *   !express.Response,
- *   function(),
- *   function()))}
+ *   function()=)}
  */
 express.Callback;
 

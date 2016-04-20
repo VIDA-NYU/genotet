@@ -163,7 +163,9 @@ binding.query.locus = function(query, exonFile) {
 };
 
 /**
- * @param {string} username
+ * @param {*|{
+ *   username: string
+ * }} query
  * @param {function(!Array<{
  *   fileName: string,
  *   gene: string,
@@ -171,8 +173,8 @@ binding.query.locus = function(query, exonFile) {
  *   description: string
  * }>)} callback The callback function.
  */
-binding.query.list = function(username, callback) {
-  binding.listBindingGenes_(username, function(data) {
+binding.query.list = function(query, callback) {
+  binding.listBindingGenes_(query.username, function(data) {
     callback(data);
   });
 };
