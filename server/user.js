@@ -268,7 +268,7 @@ user.findUsername = function(sessionId, callback) {
     function(result) {
       var data;
       if (!result) {
-        callback({error: 'invalid session information'});
+        callback({error: 'no user info find.'});
         return;
       }
       data = result.username;

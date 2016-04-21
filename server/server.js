@@ -142,7 +142,8 @@ app.use(session({
   name: 'genotet-session',
   secret: 'genotet',
   cookie: {
-    maxAge: 3600000
+    maxAge: 3600000,
+    httpOnly: false
   },
   saveUninitialized: true,
   resave: true,
@@ -182,8 +183,13 @@ app.use('/genotet', function(req, res, next) {
           next();
         } else {
           log.serverLog(result.error);
-          res.header('Access-Control-Allow-Origin', 'http://localhost');
-          res.jsonp(result);
+          if (result.error == 'no user info find.') {
+            req.username = 'anonymous';
+            next();
+          } else {
+            res.header('Access-Control-Allow-Origin', 'http://localhost');
+            res.jsonp(result);
+          }
         }
       });
     }
@@ -233,6 +239,7 @@ var jsonResponse = function(data, res) {
 app.get('/genotet/log', function(req, res) {
   log.serverLog('POST', 'user-log');
 
+  req.body.username = req.username;
   log.query.userLog(logPath, req.body);
 });
 
