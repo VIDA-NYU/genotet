@@ -15,17 +15,20 @@ function express(params) {}
  */
 express.Request = function() {};
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.query;
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.body;
 
-/** @type {?} */
+/** @type {multer.File} */
 express.Request.prototype.file;
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.session;
+
+/** @type {*} */
+express.Request.prototype.headers;
 
 /**
  * @constructor
