@@ -81,7 +81,7 @@ genotet.logger.sendBack = function() {
       username: genotet.user.getUsername()
     };
     request.post({
-      url: genotet.data.logUrl,
+      url: genotet.url.log,
       params: params,
       done: function() {
         genotet.logger.logList = [];

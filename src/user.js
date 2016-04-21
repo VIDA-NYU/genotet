@@ -61,7 +61,7 @@ genotet.user.init = function() {
   };
 
   request.post({
-    url: genotet.data.userUrl,
+    url: genotet.url.user,
     params: userInfo,
     done: function(data) {
       genotet.menu.displaySignedUser(userInfo.username);
