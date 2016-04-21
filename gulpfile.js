@@ -22,7 +22,7 @@ gulp.task('watch', function() {
 gulp.task('test', function(cb) {
   runSequence(
     'test-dev',
-    //'test-production',
+    'test-production',
     cb);
 });
 
