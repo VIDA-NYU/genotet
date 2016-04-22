@@ -8,7 +8,6 @@ var utils = require('./utils');
 var segtree = require('./segtree');
 var log = require('./log');
 var fileDbAccess = require('./fileDbAccess');
-var user = require('./user');
 
 /** @type {binding} */
 module.exports = binding;
@@ -74,7 +73,8 @@ binding.query = {};
  *   chr: string,
  *   xl: (number|undefined),
  *   xr: (number|undefined),
- *   numSamples: (number|undefined)
+ *   numSamples: (number|undefined),
+ *   username: string
  * }} query
  * @param {string} dataPath
  * @param {function((binding.Error|binding.Histogram))} callback
@@ -90,7 +90,7 @@ binding.query.histogram = function(query, dataPath, callback) {
   }
   var fileName = query.fileName;
   var chr = query.chr;
-  var bindingPath = dataPath + user.getUsername() + '/' + binding.PATH_PREFIX_;
+  var bindingPath = dataPath + query.username + '/' + binding.PATH_PREFIX_;
   var file = bindingPath + fileName + '_chr/' + fileName + '_chr' + chr +
     '.bcwig';
   if (!fs.existsSync(file)) {
@@ -163,6 +163,9 @@ binding.query.locus = function(query, exonFile) {
 };
 
 /**
+ * @param {*|{
+ *   username: string
+ * }} query
  * @param {function(!Array<{
  *   fileName: string,
  *   gene: string,
@@ -170,8 +173,8 @@ binding.query.locus = function(query, exonFile) {
  *   description: string
  * }>)} callback The callback function.
  */
-binding.query.list = function(callback) {
-  binding.listBindingGenes_(function(data) {
+binding.query.list = function(query, callback) {
+  binding.listBindingGenes_(query.username, function(data) {
     callback(data);
   });
 };
@@ -569,6 +572,7 @@ binding.loadHistogram_ = function(file) {
 
 /**
  * Lists all the wiggle files in the server.
+ * @param {string} username The user.
  * @param {function(!Array<{
  *   fileName: string,
  *   gene: string,
@@ -577,8 +581,8 @@ binding.loadHistogram_ = function(file) {
  * }>)} callback The callback function.
  * @private
  */
-binding.listBindingGenes_ = function(callback) {
-  fileDbAccess.getList('binding', function(data) {
+binding.listBindingGenes_ = function(username, callback) {
+  fileDbAccess.getList('binding', username, function(data) {
     var ret = data.map(function(bindingFile) {
       return {
         fileName: bindingFile.fileName,
