@@ -15,17 +15,20 @@ function express(params) {}
  */
 express.Request = function() {};
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.query;
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.body;
 
-/** @type {?} */
+/** @type {multer.File} */
 express.Request.prototype.file;
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.session;
+
+/** @type {*} */
+express.Request.prototype.headers;
 
 /**
  * @constructor
@@ -35,7 +38,7 @@ express.Response = function() {};
 
 /**
  * @param {string} prop
- * @param {string} val
+ * @param {string|boolean} val
  */
 express.Response.prototype.header = function(prop, val) {};
 

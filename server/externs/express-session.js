@@ -17,7 +17,8 @@ var FileStore = function() {};
  *   name: string,
  *   secret: string,
  *   cookie: {
- *     maxAge: (number|undefined)
+ *     maxAge: (number|undefined),
+ *     httpOnly: (boolean|undefined)
  *   },
  *   saveUninitialized: (boolean|undefined),
  *   resave: (boolean|undefined),

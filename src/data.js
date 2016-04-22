@@ -28,36 +28,6 @@ genotet.UserInfo;
 genotet.data = {};
 
 /**
- * Data queries are sent to this address via http and received via jsonp.
- * @type {string}
- */
-genotet.data.serverUrl = '';
-
-/**
- * Data are uploaded to this Url by posting multipart form data.
- * @type {string}
- */
-genotet.data.uploadUrl = '';
-
-/**
- * Log queries are sent to this address.
- * @type {string}
- */
-genotet.data.logUrl = '';
-
-/**
- * User queries are sent to this address.
- * @type {string}
- */
-genotet.data.userUrl = '';
-
-/**
- * Url for queries for monitoring data processing.
- * @type {string}
- */
-genotet.data.uploadProgressUrl = '';
-
-/**
  * @typedef {!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -150,23 +120,9 @@ genotet.data.redBlueScale = ['#ab1e1e', 'gray', '#1e6eab'];
 genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 
 /**
- * Initializes Data properties.
+ * Initializes binding chrs.
  */
 genotet.data.init = function() {
-  if (window.location.protocol == 'file:') {
-    // Testing environment
-    genotet.data.serverUrl = 'http://localhost:3000/genotet';
-    genotet.data.progressUrl = 'http://localhost/genotet/progress.php';
-  } else {
-    genotet.data.serverUrl = window.location.protocol + '//' +
-      window.location.hostname + ':3000/genotet';
-    genotet.data.uploadProgressUrl = window.location.protocol + '//' +
-      window.location.hostname + '/genotet/progress.php';
-  }
-  genotet.data.uploadUrl = genotet.data.serverUrl + '/upload';
-  genotet.data.logUrl = genotet.data.serverUrl + '/log';
-  genotet.data.userUrl = genotet.data.serverUrl + '/user';
-
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());
   }
@@ -184,7 +140,7 @@ genotet.data.loadList = function(view, fileType) {
     type: 'list-' + fileType
   };
   request.get({
-    url: genotet.data.serverUrl,
+    url: genotet.url.server,
     params: params,
     done: function(data) {
       genotet.data.files[fileType + 'Files'] = data;
