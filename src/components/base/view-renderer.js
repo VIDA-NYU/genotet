@@ -48,6 +48,8 @@ genotet.ViewRenderer = function(container, data) {
  * Initializes the view renderer properties, e.g. the view canvas.
  */
 genotet.ViewRenderer.prototype.init = function() {
+  this.viewBody = d3.selectAll(/** @type {!Array<Element>} */
+    (this.container.find('.canvas').toArray()));
   this.canvas = d3.selectAll(/** @type {!Array<Element>} */
     (this.container.find('.canvas-svg').toArray()));
   this.initLayout();
