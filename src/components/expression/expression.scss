@@ -5,6 +5,8 @@ $gray: #ccc;
 $white: #fff;
 
 .view.expression {
+  overflow: hidden;
+
   .profiles {
     .profile-content {
       fill: none;
