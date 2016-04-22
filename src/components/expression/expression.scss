@@ -5,6 +5,8 @@ $gray: #ccc;
 $white: #fff;
 
 .view.expression {
+  overflow: hidden;
+
   .profiles {
     .profile-content {
       fill: none;
@@ -48,14 +50,29 @@ $white: #fff;
     stroke-width: 2px;
   }
 
+  .canvas-svg {
+    position: absolute;
+  }
+
   .content {
-    rect {
+    position: relative;
+
+    canvas {
+      position: absolute;
+      z-index: 1;
+    }
+
+    div {
+      pointer-events: none;
+      position: absolute;
+      z-index: 10;
+
       &.highlighted {
-        stroke: $white;
+        border: 1px solid $white;
       }
 
       &.zoom-highlighted {
-        stroke: $white;
+        border: $white;
       }
     }
   }

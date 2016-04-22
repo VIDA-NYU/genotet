@@ -174,7 +174,9 @@ genotet.ExpressionView = function(viewName, params) {
       this.panel.tooltipHeatmap(cell.geneName, cell.conditionName, cell.value);
     }.bind(this))
     .on('genotet.cellUnhover', function(event, cell) {
-      this.renderer.unhighlightHoverCell(cell);
+      if (cell) {
+        this.renderer.unhighlightHoverCell(cell);
+      }
       genotet.tooltip.hideAll();
     }.bind(this))
     .on('genotet.expressionClick', function(event, object) {
