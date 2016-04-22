@@ -28,6 +28,7 @@ genotet.UserInfo;
 genotet.data = {};
 
 /**
+<<<<<<< HEAD
  * Data queries are sent to this address via http and received via jsonp.
  * @type {string}
  */
@@ -64,6 +65,8 @@ genotet.data.uploadProgressUrl = '';
 genotet.data.checkUrl;
 
 /**
+=======
+>>>>>>> refactor
  * @typedef {!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -156,24 +159,9 @@ genotet.data.redBlueScale = ['#ab1e1e', 'gray', '#1e6eab'];
 genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 
 /**
- * Initializes Data properties.
+ * Initializes binding chrs.
  */
 genotet.data.init = function() {
-  if (window.location.protocol == 'file:') {
-    // Testing environment
-    genotet.data.serverUrl = 'http://localhost:3000/genotet';
-    genotet.data.progressUrl = 'http://localhost/genotet/progress.php';
-  } else {
-    genotet.data.serverUrl = window.location.protocol + '//' +
-      window.location.hostname + ':3000/genotet';
-    genotet.data.uploadProgressUrl = window.location.protocol + '//' +
-      window.location.hostname + '/genotet/progress.php';
-  }
-  genotet.data.uploadUrl = genotet.data.serverUrl + '/upload';
-  genotet.data.logUrl = genotet.data.serverUrl + '/log';
-  genotet.data.userUrl = genotet.data.serverUrl + '/user';
-  genotet.data.checkUrl = genotet.data.serverUrl + '/check';
-
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());
   }
@@ -191,7 +179,7 @@ genotet.data.loadList = function(view, fileType) {
     type: 'list-' + fileType
   };
   request.get({
-    url: genotet.data.serverUrl,
+    url: genotet.url.server,
     params: params,
     done: function(data) {
       genotet.data.files[fileType + 'Files'] = data;

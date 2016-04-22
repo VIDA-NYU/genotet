@@ -56,9 +56,9 @@ genotet.user.init = function() {
     type: 'auto-sign-in'
   };
 
-  request.get({
-    url: genotet.data.userUrl,
-    params: params,
+  request.post({
+    url: genotet.url.user,
+    params: {},
     done: function(data) {
       if (data.error) {
         genotet.menu.displaySignInterface();

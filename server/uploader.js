@@ -93,7 +93,7 @@ uploader.query = {};
  *   dataName: string,
  *   description: string,
  * }} desc File description.
- * @param {!multer.File} file File object received from multer.
+ * @param {multer.File} file File object received from multer.
  * @param {string} prefix The destination folder to upload the file to.
  * @param {string} bigWigToWigAddr Directory of script of UCSC bigWigToWig.
  * @param {string} username The username to upload the data.

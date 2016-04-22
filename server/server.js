@@ -197,31 +197,36 @@ app.use('/genotet', function(req, res, next) {
 });
 
 /**
- * Sends back JSONP response.
- * @param {Object|undefined} data Server response data.
- * @param {!express.Response} res Express response.
+ * @type {!Array<string>}
  */
-var jsonpResponse = function(data, res) {
-  if (data == undefined) {
-    // data is null because some callback does not return values
-    res.status(200).jsonp({});
-  } else if (data.error) {
-    log.serverLog(data.error);
-    res.status(200).jsonp({error: data.error});
-  } else {
-    res.status(200).jsonp(data);
-  }
-};
+var allowedOrigins = [
+  // TODO(bowen): need to change cross-origin to https://localhost as well
+  'http://localhost',
+  'file://'
+];
 
 /**
  * Sends back JSON response.
  * @param {Object|user.Error|undefined} data Server response data.
+ * @param {!express.Request} req Express request.
  * @param {!express.Response} res Express response.
  */
-var jsonResponse = function(data, res) {
-  // TODO(bowen): need to change cross-origin to https://localhost as well
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Origin', 'http://localhost');
+var jsonResponse = function(data, req, res) {
+  // In normal usage, the request origin is 'http://localhost' (or the running
+  // domain name). In testing the request origin is 'file://'. We must allow
+  // two possibilities, however it is not allowed to set two Allow-Origins.
+  // Therefore we must match the allowed origins one by one.
+  // Note that you cannot set allowOrigin to '*', which is not compatible with
+  // Allow-Credentials being true.
+  var allowOrigin = '';
+  allowedOrigins.forEach(function(origin) {
+    if (req.headers.origin == origin) {
+      allowOrigin = origin;
+    }
+  });
+  res.header('Access-Control-Allow-Origin', allowOrigin);
+  res.header('Access-Control-Allow-Credentials', true);
+
   if (data == undefined) {
     // data is null because some callback does not return values
     res.status(200).json({});
@@ -256,13 +261,15 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
   };
   uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath, req.username,
     function(ret) {
-      jsonResponse(/** @type {Object} */(ret), res);
+      jsonResponse(/** @type {Object} */(ret), req, res);
     });
 });
 
 
-app.get('/genotet/user', function(req, res) {
-  log.serverLog('GET user');
+
+app.post('/genotet/user', function(req, res) {
+  log.serverLog('POST user');
+  console.log('Session Id (POST):', req.session.id);
 
   var query = JSON.parse(req.query.data);
   query.sessionId = req.session.id;
@@ -271,29 +278,31 @@ app.get('/genotet/user', function(req, res) {
   switch (type) {
     case user.QueryType.SIGNUP:
       user.query.signUp(query, function(data) {
-        jsonpResponse(data, res);
+        jsonResponse(data, req, res);
       });
       break;
     case user.QueryType.SIGNIN:
       user.query.signIn(query, function(data) {
-        jsonpResponse(data, res);
+        req.session.username = req.body.username;
+        jsonResponse(data, req, res);
       });
       break;
     case user.QueryType.AUTOSIGNIN:
       user.query.autoSignIn(query, function(data) {
-        jsonpResponse(data, res);
+        req.session.username = req.body.username;
+        jsonResponse(data, req, res);
       });
       break;
     case user.QueryType.LOGOUT:
       user.query.logOut(query, function(data) {
-        jsonpResponse(data, res);
+        jsonResponse(data, req, res);
       });
       break;
 
     // Undefined type, error
     default:
       log.serverLog('invalid query type', type);
-      jsonpResponse({error: 'invalid GET query type'}, res);
+      jsonResponse({error: 'invalid POST query type'}, req, res);
   }
 });
 
@@ -302,7 +311,7 @@ app.get('/genotet/user', function(req, res) {
 app.get('/genotet', function(req, res) {
   // bowen: here session id should remain the same across queries.
   // TODO(bowen): after confirming the above, please remove this log.
-  console.log('Session Id:', req.session.id);
+  console.log('Session Id (GET):', req.session.id);
 
   var query = JSON.parse(req.query.data);
   query.username = req.username;
@@ -313,89 +322,89 @@ app.get('/genotet', function(req, res) {
   switch (type) {
     // Network data queries
     case network.QueryType.NETWORK:
-      jsonpResponse(network.query.network(query, dataPath), res);
+      jsonResponse(network.query.network(query, dataPath), req, res);
       break;
     case network.QueryType.NETWORK_INFO:
-      jsonpResponse(network.query.allNodes(query, dataPath), res);
+      jsonResponse(network.query.allNodes(query, dataPath), req, res);
       break;
     case network.QueryType.INCIDENT_EDGES:
-      jsonpResponse(network.query.incidentEdges(query, dataPath), res);
+      jsonResponse(network.query.incidentEdges(query, dataPath), req, res);
       break;
     case network.QueryType.COMBINED_REGULATION:
-      jsonpResponse(network.query.combinedRegulation(query, dataPath), res);
+      jsonResponse(network.query.combinedRegulation(query, dataPath), req, res);
       break;
     case network.QueryType.INCREMENTAL_EDGES:
-      jsonpResponse(network.query.incrementalEdges(query, dataPath), res);
+      jsonResponse(network.query.incrementalEdges(query, dataPath), req, res);
       break;
 
     // Binding data queries
     case binding.QueryType.BINDING:
       binding.query.histogram(query, dataPath, function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, req, res);
       });
       break;
     case binding.QueryType.EXONS:
-      jsonpResponse(binding.query.exons(query, exonFile), res);
+      jsonResponse(binding.query.exons(query, exonFile), req, res);
       break;
     case binding.QueryType.LOCUS:
-      jsonpResponse(binding.query.locus(query, exonFile), res);
+      jsonResponse(binding.query.locus(query, exonFile), req, res);
       break;
 
     // Expression data queries
     case expression.QueryType.EXPRESSION:
-      jsonpResponse(expression.query.matrix(query, dataPath), res);
+      jsonResponse(expression.query.matrix(query, dataPath), req, res);
       break;
     case expression.QueryType.EXPRESSION_INFO:
-      jsonpResponse(expression.query.matrixInfo(query, dataPath), res);
+      jsonResponse(expression.query.matrixInfo(query, dataPath), req, res);
       break;
     case expression.QueryType.PROFILE:
-      jsonpResponse(expression.query.profile(query, dataPath), res);
+      jsonResponse(expression.query.profile(query, dataPath), req, res);
       break;
     case expression.QueryType.TFA_PROFILE:
-      jsonpResponse(expression.query.tfaProfile(query, dataPath), res);
+      jsonResponse(expression.query.tfaProfile(query, dataPath), req, res);
       break;
 
     // Bed data queries
     case bed.QueryType.BED:
-      jsonpResponse(bed.query.motifs(query, dataPath), res);
+      jsonResponse(bed.query.motifs(query, dataPath), req, res);
       break;
 
     // Mapping data queries
     case mapping.QueryType.MAPPING:
-      jsonpResponse(mapping.query.getMapping(query, dataPath), res);
+      jsonResponse(mapping.query.getMapping(query, dataPath), req, res);
       break;
 
     // Data listing
     case network.QueryType.LIST_NETWORK:
       network.query.list(query, function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, req, res);
       });
       break;
     case binding.QueryType.LIST_BINDING:
       binding.query.list(query, function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, req, res);
       });
       break;
     case expression.QueryType.LIST_EXPRESSION:
       expression.query.list(query, function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, req, res);
       });
       break;
     case bed.QueryType.LIST_BED:
       bed.query.list(query, function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, req, res);
       });
       break;
     case mapping.QueryType.LIST_MAPPING:
       mapping.query.list(query, function(result) {
-        jsonpResponse(result, res);
+        jsonResponse(result, req, res);
       });
       break;
 
     // Undefined type, error
     default:
       log.serverLog('invalid query type');
-      jsonpResponse({error: 'invalid GET query type'}, res);
+      jsonResponse({error: 'invalid GET query type'}, req, res);
   }
 });
 
