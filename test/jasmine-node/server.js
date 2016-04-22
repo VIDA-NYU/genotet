@@ -13,10 +13,10 @@ module.exports = server;
 function server() {}
 
 /** @const {string} */
-server.url = 'http://localhost:3000/genotet';
+server.url = 'https://localhost:3000/genotet';
 
 /** @const {string} */
-server.uploadUrl = 'http://localhost:3000/genotet/upload';
+server.uploadUrl = 'https://localhost:3000/genotet/upload';
 
 /**
  * @typedef {{

@@ -161,7 +161,7 @@ var exonFile = dataPath + 'exons.bin';
  */
 var allowedOrigins = [
   // TODO(bowen): need to change cross-origin to https://localhost as well
-  'http://localhost',
+  'https://localhost',
   'file://'
 ];
 
@@ -379,14 +379,15 @@ MongoClient.connect(mongoUrl, function(err, mongoClient) {
   database.db = mongoClient.db(mongoDatabase);
 
   // Start the application.
-  // TODO(Liana): Direct HTTP to HTTPS.
-  //var server = app.listen(3000);
-  //server.setTimeout(1200000);
-  var privateKey = fs.readFileSync(privateKeyPath, 'utf8');
-  var certificate = fs.readFileSync(certificatePath, 'utf8'); 
-  var httpsServer = https.createServer({ 
-    key: privateKey, 
+  var privateKey = fs.readFileSync(privateKeyPath);
+  var certificate = fs.readFileSync(certificatePath);
+  var httpsOptions = {
+    key: privateKey,
     cert: certificate
-       }, app).listen(3000); 
-  httpsServer.setTimeout(1200000);
+  };
+  var httpsServer = https.createServer(
+    /** @type {?} */(httpsOptions),
+    /** @type {?} */(app)
+  ).listen(3000);
+  /** @type {?} */(httpsServer).setTimeout(1200000);
 });
