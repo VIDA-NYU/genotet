@@ -61,6 +61,7 @@ $white: #fff;
     }
 
     div {
+      pointer-events: none;
       position: absolute;
       z-index: 10;
 
