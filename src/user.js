@@ -58,9 +58,9 @@ genotet.user.init = function() {
 
   request.post({
     url: genotet.url.user,
-    params: {},
+    params: params,
     done: function(data) {
-      if (data.error) {
+      if (data.error || data.username == 'anonymous') {
         genotet.menu.displaySignInterface();
       } else {
         genotet.menu.displaySignedUser(data.username);
@@ -89,7 +89,7 @@ genotet.user.logOut = function() {
     type: 'log-out'
   };
   request.get({
-    url: genotet.data.userUrl,
+    url: genotet.url.user,
     params: params,
     done: function() {
       genotet.menu.displaySignInterface();

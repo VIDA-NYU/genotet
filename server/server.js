@@ -157,55 +157,6 @@ app.use(session({
 var exonFile = dataPath + 'exons.bin';
 
 /**
- * User authenticate handler.
- */
-app.use('/genotet', function(req, res, next) {
-
-  if (req.url.substr(0, 6) == '/check') {
-    res.header('Access-Control-Allow-Origin', 'http://localhost');
-    res.jsonp({});
-  }
-  else if (req.url.substr(0, 5) == '/user') {
-    next();
-  } else {
-    if (req.session.id === undefined) {
-      res.header('Access-Control-Allow-Origin', 'http://localhost');
-      log.serverLog('user not recognized.');
-      res.jsonp({
-        error: 'user not recognized.'
-      });
-    }
-    else {
-      user.findUsername(req.session.id, function(result) {
-        if (!result.error) {
-          log.serverLog('username', result);
-          req.username = result;
-          next();
-        } else {
-          log.serverLog(result.error);
-          if (result.error == 'no user info find.') {
-            req.username = 'anonymous';
-            next();
-          } else {
-            res.header('Access-Control-Allow-Origin', 'http://localhost');
-            res.jsonp(result);
-          }
-        }
-      });
-    }
-  }
-});
-
-/**
- * @type {!Array<string>}
- */
-var allowedOrigins = [
-  // TODO(bowen): need to change cross-origin to https://localhost as well
-  'http://localhost',
-  'file://'
-];
-
-/**
  * Sends back JSON response.
  * @param {Object|user.Error|undefined} data Server response data.
  * @param {!express.Request} req Express request.
@@ -239,13 +190,93 @@ var jsonResponse = function(data, req, res) {
 };
 
 /**
+ * Check request handler.
+ */
+app.get('/genotet/check', function(req, res) {
+  jsonResponse({}, req, res);
+});
+
+/**
+ * User authentication handler.
+ */
+app.post('/genotet/user', function(req, res) {
+  log.serverLog('POST user');
+  console.log('Session Id (POST):', req.session.id);
+
+  var query = JSON.parse(req.body.data);
+  query.sessionId = req.session.id;
+  var type = query.type;
+
+  switch (type) {
+    case user.QueryType.SIGNUP:
+      user.query.signUp(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.SIGNIN:
+      user.query.signIn(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.AUTOSIGNIN:
+      user.query.autoSignIn(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.LOGOUT:
+      user.query.logOut(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+
+    // Undefined type, error
+    default:
+      log.serverLog('invalid query type', type);
+      jsonResponse({error: 'invalid POST query type'}, req, res);
+  }
+});
+
+/**
+ * User indentification handler.
+ */
+app.use('/genotet', function(req, res, next) {
+
+  if (req.session.id === undefined) {
+    var err = {error: 'no valid session found'};
+    jsonResponse(err, req, res);
+  } else {
+    user.findUsername(req.session.id, function(result) {
+      if (!result.error) {
+        log.serverLog('username', result);
+        req.username = result;
+        next();
+      } else {
+        log.serverLog(result.error);
+        jsonResponse(result, req, res);
+      }
+    });
+  }
+});
+
+/**
+ * @type {!Array<string>}
+ */
+var allowedOrigins = [
+  // TODO(bowen): need to change cross-origin to https://localhost as well
+  'http://localhost',
+  'file://'
+];
+
+/**
  * User log POST handler.
  */
-app.get('/genotet/log', function(req, res) {
+app.post('/genotet/log', function(req, res) {
   log.serverLog('POST', 'user-log');
+  var query = JSON.parse(req.body.data);
+  query.sessionId = req.session.id;
+  query.username = req.username;
 
-  req.body.username = req.username;
-  log.query.userLog(logPath, req.body);
+  log.query.userLog(logPath, query);
 });
 
 /**
@@ -264,48 +295,6 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
       jsonResponse(/** @type {Object} */(ret), req, res);
     });
 });
-
-
-
-app.post('/genotet/user', function(req, res) {
-  log.serverLog('POST user');
-  console.log('Session Id (POST):', req.session.id);
-
-  var query = JSON.parse(req.query.data);
-  query.sessionId = req.session.id;
-  var type = query.type;
-
-  switch (type) {
-    case user.QueryType.SIGNUP:
-      user.query.signUp(query, function(data) {
-        jsonResponse(data, req, res);
-      });
-      break;
-    case user.QueryType.SIGNIN:
-      user.query.signIn(query, function(data) {
-        req.session.username = req.body.username;
-        jsonResponse(data, req, res);
-      });
-      break;
-    case user.QueryType.AUTOSIGNIN:
-      user.query.autoSignIn(query, function(data) {
-        req.session.username = req.body.username;
-        jsonResponse(data, req, res);
-      });
-      break;
-    case user.QueryType.LOGOUT:
-      user.query.logOut(query, function(data) {
-        jsonResponse(data, req, res);
-      });
-      break;
-
-    // Undefined type, error
-    default:
-      log.serverLog('invalid query type', type);
-      jsonResponse({error: 'invalid POST query type'}, req, res);
-  }
-});
-
 
 // GET request handlers.
 app.get('/genotet', function(req, res) {

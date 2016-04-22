@@ -268,7 +268,7 @@ user.findUsername = function(sessionId, callback) {
     function(result) {
       var data;
       if (!result) {
-        callback({error: 'no user info find.'});
+        callback('anonymous');
         return;
       }
       data = result.username;

@@ -28,45 +28,6 @@ genotet.UserInfo;
 genotet.data = {};
 
 /**
-<<<<<<< HEAD
- * Data queries are sent to this address via http and received via jsonp.
- * @type {string}
- */
-genotet.data.serverUrl = '';
-
-/**
- * Data are uploaded to this Url by posting multipart form data.
- * @type {string}
- */
-genotet.data.uploadUrl = '';
-
-/**
- * Log queries are sent to this address.
- * @type {string}
- */
-genotet.data.logUrl = '';
-
-/**
- * User queries are sent to this address.
- * @type {string}
- */
-genotet.data.userUrl = '';
-
-/**
- * Url for queries for monitoring data processing.
- * @type {string}
- */
-genotet.data.uploadProgressUrl = '';
-
-/**
- * Url for checking server status.
- * @type {string}
- */
-genotet.data.checkUrl;
-
-/**
-=======
->>>>>>> refactor
  * @typedef {!Array<{
  *   matrixName: string,
  *   fileName: string,

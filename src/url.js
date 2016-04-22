@@ -64,4 +64,5 @@ genotet.url.init = function() {
   genotet.url.upload = genotet.url.server + '/upload';
   genotet.url.log = genotet.url.server + '/log';
   genotet.url.user = genotet.url.server + '/user';
+  genotet.url.check = genotet.url.server + '/check';
 };
