@@ -76,6 +76,12 @@ mongodb.Collection.prototype.find = function(query, projection) {};
 mongodb.Collection.prototype.insertOne = function(document, writeConcern) {};
 
 /**
+ * @param {!Object} document
+ * @param {Object=} writeConcern
+ */
+mongodb.Collection.prototype.deleteMany = function(document, writeConcern) {};
+
+/**
  * @param {!mongodb.Query} query
  * @param {!Object} update
  * @param {Object<{

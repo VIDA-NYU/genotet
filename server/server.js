@@ -11,7 +11,7 @@ var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
 var session = require('express-session');
-var mongoUrl = 'mongodb://localhost:27017/express';
+var mongoUrl = 'mongodb://localhost:27017/';
 var FileStore = require('session-file-store')(session);
 
 var segtree = require('./segtree.js');
@@ -199,12 +199,84 @@ var jsonResponse = function(data, req, res) {
 };
 
 /**
+ * Check request handler.
+ */
+app.get('/genotet/check', function(req, res) {
+  jsonResponse({}, req, res);
+});
+
+/**
+ * User authentication handler.
+ */
+app.post('/genotet/user', function(req, res) {
+  log.serverLog('POST user');
+  console.log('Session Id (POST):', req.session.id);
+
+  var query = JSON.parse(req.body.data);
+  query.sessionId = req.session.id;
+  var type = query.type;
+
+  switch (type) {
+    case user.QueryType.SIGNUP:
+      user.query.signUp(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.SIGNIN:
+      user.query.signIn(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.AUTOSIGNIN:
+      user.query.autoSignIn(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.LOGOUT:
+      user.query.logOut(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+
+    // Undefined type, error
+    default:
+      log.serverLog('invalid query type', type);
+      jsonResponse({error: 'invalid POST query type'}, req, res);
+  }
+});
+
+/**
+ * User indentification handler.
+ */
+app.use('/genotet', function(req, res, next) {
+
+  if (req.session.id === undefined) {
+    var err = {error: 'no valid session found'};
+    jsonResponse(err, req, res);
+  } else {
+    user.findUsername(req.session.id, function(result) {
+      if (!result.error) {
+        log.serverLog('username', result);
+        req.username = result;
+        next();
+      } else {
+        log.serverLog(result.error);
+        jsonResponse(result, req, res);
+      }
+    });
+  }
+});
+
+/**
  * User log POST handler.
  */
 app.post('/genotet/log', function(req, res) {
   log.serverLog('POST', 'user-log');
+  var query = JSON.parse(req.body.data);
+  query.sessionId = req.session.id;
+  query.username = req.username;
 
-  log.query.userLog(logPath, req.body);
+  log.query.userLog(logPath, query);
 });
 
 /**
@@ -218,56 +290,20 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     dataName: req.body.name,
     description: req.body.description
   };
-  uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath,
+  uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath, req.username,
     function(ret) {
       jsonResponse(/** @type {Object} */(ret), req, res);
     });
 });
 
-
-app.post('/genotet/user', function(req, res) {
-  log.serverLog('POST user');
-  console.log('Session Id (POST):', req.session.id);
-
-  var query = JSON.parse(req.body.data);
-  var type = query.type;
-
-  switch (type) {
-    case user.QueryType.SIGNUP:
-      user.query.signUp(query, function(data) {
-        jsonResponse(data, req, res);
-      });
-      break;
-    case user.QueryType.SIGNIN:
-      user.query.signIn(query, function(data) {
-        req.session.username = req.body.username;
-        jsonResponse(data, req, res);
-      });
-      break;
-    case user.QueryType.AUTOSIGNIN:
-      user.query.autoSignIn(query, function(data) {
-        req.session.username = req.body.username;
-        jsonResponse(data, req, res);
-      });
-      break;
-
-    // Undefined type, error
-    default:
-      log.serverLog('invalid query type', type);
-      jsonResponse({error: 'invalid POST query type'}, req, res);
-  }
-});
-
-
 // GET request handlers.
 app.get('/genotet', function(req, res) {
-  req.session.username = 'anonymous';
-
   // bowen: here session id should remain the same across queries.
   // TODO(bowen): after confirming the above, please remove this log.
   console.log('Session Id (GET):', req.session.id);
 
   var query = JSON.parse(req.query.data);
+  query.username = req.username;
   var type = query.type;
 
   log.serverLog('GET', type);
@@ -329,27 +365,27 @@ app.get('/genotet', function(req, res) {
 
     // Data listing
     case network.QueryType.LIST_NETWORK:
-      network.query.list(function(result) {
+      network.query.list(query, function(result) {
         jsonResponse(result, req, res);
       });
       break;
     case binding.QueryType.LIST_BINDING:
-      binding.query.list(function(result) {
+      binding.query.list(query, function(result) {
         jsonResponse(result, req, res);
       });
       break;
     case expression.QueryType.LIST_EXPRESSION:
-      expression.query.list(function(result) {
+      expression.query.list(query, function(result) {
         jsonResponse(result, req, res);
       });
       break;
     case bed.QueryType.LIST_BED:
-      bed.query.list(function(result) {
+      bed.query.list(query, function(result) {
         jsonResponse(result, req, res);
       });
       break;
     case mapping.QueryType.LIST_MAPPING:
-      mapping.query.list(function(result) {
+      mapping.query.list(query, function(result) {
         jsonResponse(result, req, res);
       });
       break;

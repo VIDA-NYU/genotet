@@ -9,10 +9,12 @@
 var Cookies;
 
 /**
- * @param {string} name
- * @param {string=} value
+ * @param {string=} name
+ *  * @param {{
+ *   path: (string|undefined)
+ * }=} opt_params
  */
-Cookies.get = function(name, value) {};
+Cookies.get = function(name, opt_params) {};
 
 /**
  * @param {string} name
@@ -22,3 +24,11 @@ Cookies.get = function(name, value) {};
  * }=} opt_params
  */
 Cookies.set = function(name, value, opt_params) {};
+
+/**
+ * @param {string} name
+ * @param {{
+ *   path: (string|undefined)
+ * }=} opt_params
+ */
+Cookies.remove = function(name, opt_params) {};

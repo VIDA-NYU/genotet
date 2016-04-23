@@ -31,8 +31,15 @@ genotet.url.user = '';
 
 /**
  * URL for checking upload progress.
+ * @type {string}
  */
 genotet.url.progress = '';
+
+/**
+ * URL for checking server status.
+ * @type {string}
+ */
+genotet.url.check = '';
 
 /**
  * URL for queries for monitoring data processing.
@@ -57,4 +64,5 @@ genotet.url.init = function() {
   genotet.url.upload = genotet.url.server + '/upload';
   genotet.url.log = genotet.url.server + '/log';
   genotet.url.user = genotet.url.server + '/user';
+  genotet.url.check = genotet.url.server + '/check';
 };

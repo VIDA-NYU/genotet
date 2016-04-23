@@ -49,12 +49,9 @@ genotet.dialog.TEMPLATES_ = {
  * The init function, check the server status.
  */
 genotet.dialog.init = function() {
-  var params = {
-    type: 'list-binding'
-  };
   request.get({
-    url: genotet.url.server,
-    params: params,
+    url: genotet.url.check,
+    params: {},
     fail: function() {
       var modal = $('#dialog');
       modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.serverDown,
@@ -484,6 +481,9 @@ genotet.dialog.upload_ = function() {
           fileType == genotet.FileType.BINDING) {
           uploadPercent = 70;
         }
+        var sessionID = Cookies.get('genotet-session');
+        console.log(sessionID);
+
         genotet.logger.log(genotet.logger.Type.UPLOAD, fileType, dataName.val(),
           fileName);
         $.ajax({
@@ -597,7 +597,6 @@ genotet.dialog.signUp_ = function() {
               sessionId: data.sessionId,
               expiration: data.expiration
             };
-            genotet.user.updateCookieToBrowser(data);
             genotet.success('signed up');
           },
           fail: function(res) {
@@ -643,9 +642,8 @@ genotet.dialog.signIn_ = function() {
             genotet.user.info = {
               username: data.username,
               sessionId: data.sessionId,
-              expiratloggn: data.expiration
+              expiration: data.expiration
             };
-            genotet.user.updateCookieToBrowser(data);
             genotet.success('signed in');
           },
           fail: function(res) {
