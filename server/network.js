@@ -79,6 +79,7 @@ network.query = {};
 // Start public APIs
 /**
  * @param {*|{
+ *   username: string,
  *   fileName: string,
  *   genes: !Array<string>
  * }} query
@@ -93,7 +94,7 @@ network.query.network = function(query, dataPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
-  var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
+  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -105,6 +106,7 @@ network.query.network = function(query, dataPath) {
 
 /**
  * @param {*|{
+ *   username: string,
  *   fileName: string,
  *   gene: string
  * }} query
@@ -120,8 +122,7 @@ network.query.incidentEdges = function(query, dataPath) {
   }
   var fileName = query.fileName;
   var gene = query.gene;
-  var networkPath = dataPath + user.getUsername() + '/' +
-    network.PATH_PREFIX_;
+  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -133,6 +134,7 @@ network.query.incidentEdges = function(query, dataPath) {
 
 /**
  * @param {*|{
+ *   username: string,
  *   fileName: string,
  *   genes: !Array<string>
  * }} query
@@ -147,8 +149,7 @@ network.query.combinedRegulation = function(query, dataPath) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
-  var networkPath = dataPath + user.getUsername() + '/' +
-    network.PATH_PREFIX_;
+  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
     var error = 'network file ' + fileName + ' not found.';
@@ -160,6 +161,7 @@ network.query.combinedRegulation = function(query, dataPath) {
 
 /**
  * @param {*|{
+ *   username: string,
  *   fileName: string,
  *   genes: !Array<string>,
  *   nodes: !Array<!network.Node>
@@ -179,7 +181,7 @@ network.query.incrementalEdges = function(query, dataPath) {
   if (query.nodes === undefined) {
     return {error: 'nodes is undefined'};
   }
-  var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
+  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var fileName = query.fileName;
   var genes = query.genes;
   var file = networkPath + fileName;
@@ -193,20 +195,24 @@ network.query.incrementalEdges = function(query, dataPath) {
 };
 
 /**
+ * @param {*|{
+ *   username: string
+ * }} query
  * @param {function(Array<{
  *   fileName: string,
  *   networkName: string,
  *   description: string
  * }>)} callback The callback function.
  */
-network.query.list = function(callback) {
-  network.listNetwork_(function(data) {
+network.query.list = function(query, callback) {
+  network.listNetwork_(query.username, function(data) {
     callback(data);
   });
 };
 
 /**
  * @param {*|{
+ *   username: string,
  *   fileName: string
  * }} query
  * @param {string} dataPath
@@ -220,12 +226,12 @@ network.query.allNodes = function(query, dataPath) {
       error: 'fileName is undefined'
     };
   }
-  var networkPath = dataPath + user.getUsername() + '/' + network.PATH_PREFIX_;
+  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + query.fileName;
   if (!fs.existsSync(file)) {
-    return {
-      error: 'network file ' + query.fileName + ' not found.'
-    };
+    var error = 'network file ' + query.fileName + ' not found.';
+    log.serverLog(error);
+    return {error: error};
   }
   return network.allNodes_(file);
 };
@@ -438,6 +444,7 @@ network.readNetwork_ = function(networkFile) {
 
 /**
  * Lists all the networks in the server.
+ * @param {string} username The username.
  * @param {function(Array<{
  *   fileName: string,
  *   networkName: string,
@@ -445,8 +452,8 @@ network.readNetwork_ = function(networkFile) {
  * }>)} callback The callback function.
  * @private
  */
-network.listNetwork_ = function(callback) {
-  fileDbAccess.getList('network', function(data) {
+network.listNetwork_ = function(username, callback) {
+  fileDbAccess.getList('network', username, function(data) {
     var ret = data.map(function(networkFile) {
       return {
         fileName: networkFile.fileName,

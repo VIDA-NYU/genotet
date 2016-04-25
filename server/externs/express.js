@@ -15,14 +15,24 @@ function express(params) {}
  */
 express.Request = function() {};
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.query;
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.body;
 
-/** @type {?} */
+/** @type {multer.File} */
 express.Request.prototype.file;
+
+/** @type {*} */
+express.Request.prototype.session;
+
+
+/** @type {string} */
+express.Request.prototype.url;
+
+/** @type {*} */
+express.Request.prototype.headers;
 
 /**
  * @constructor
@@ -32,7 +42,7 @@ express.Response = function() {};
 
 /**
  * @param {string} prop
- * @param {string} val
+ * @param {string|boolean} val
  */
 express.Response.prototype.header = function(prop, val) {};
 
@@ -40,6 +50,11 @@ express.Response.prototype.header = function(prop, val) {};
  * @param {*} data
  */
 express.Response.prototype.json = function(data) {};
+
+/**
+ * @param {*} data
+ */
+express.Response.prototype.jsonp = function(data) {};
 
 /**
  * @param {number} data
@@ -79,11 +94,10 @@ express.prototype.get = function(url, callback) {};
 express.prototype.post = function(url, data, callback) {};
 
 /**
- * @typedef {function((
+ * @typedef {function(
  *   !express.Request,
  *   !express.Response,
- *   function(),
- *   function()))}
+ *   function()=)}
  */
 express.Callback;
 

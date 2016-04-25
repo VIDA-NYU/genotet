@@ -34,10 +34,13 @@ mapping.query = {};
 
 /**
  * Lists all the mapping files.
+ * @param {*|{
+ *   username: string
+ * }} query
  * @param {function(Array<string>)} callback The callback function.
  */
-mapping.query.list = function(callback) {
-  fileDbAccess.getList('mapping', function(data) {
+mapping.query.list = function(query, callback) {
+  fileDbAccess.getList('mapping', query.username, function(data) {
     var ret = data.map(function(mappingFile) {
       return mappingFile.fileName;
     });
@@ -47,6 +50,7 @@ mapping.query.list = function(callback) {
 
 /**
  * @param {*|{
+ *   username: string,
  *   fileName: string
  * }} query
  * @param {string} dataPath
@@ -56,7 +60,7 @@ mapping.query.getMapping = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var mappingPath = dataPath + user.getUsername() + '/' +
+  var mappingPath = dataPath + query.username + '/' +
     mapping.PATH_PREFIX_;
   return mapping.getMapping_(mappingPath + query.fileName);
 };

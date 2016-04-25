@@ -25,11 +25,7 @@ before_script:
   - bash setup.sh
 
 script:
-  - mongo express < test/mongo-init.js
-  - nohup node server/server.js --config=test/config &
-  - gulp all
-  - gulp dist
-  - jasmine-node test/jasmine-node/
+  - bash test/test.sh
 
 after_script:
   - cat nohup.out

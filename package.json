@@ -36,7 +36,7 @@
   "scripts": {
     "postinstall": "bower install",
     "prestart": "npm install",
-    "start": "node server/server.js",
+    "start": "bash start.sh",
     "test": "gulp test && jasmine-node test/jasmine-node"
   },
   "repository": {

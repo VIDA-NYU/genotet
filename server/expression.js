@@ -6,7 +6,6 @@ var fs = require('fs');
 
 var log = require('./log');
 var fileDbAccess = require('./fileDbAccess');
-var user = require('./user');
 
 /** @type {expression} */
 module.exports = expression;
@@ -90,7 +89,8 @@ expression.query = {};
 // Start public APIs
 /**
  * @param {*|{
- *   fileName: string
+ *   fileName: string,
+ *   username: string
  * }} query
  * @param {string} dataPath
  * @return {expression.MatrixInfo|expression.Error}
@@ -99,7 +99,7 @@ expression.query.matrixInfo = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var expressionPath = dataPath + user.getUsername() + '/' +
+  var expressionPath = dataPath + query.username + '/' +
     expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   if (!fs.existsSync(file)) {
@@ -114,7 +114,8 @@ expression.query.matrixInfo = function(query, dataPath) {
  * @param {*|{
  *   fileName: string,
  *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
+ *   conditionNames: !Array<string>,
+ *   username: string
  * }} query
  * @param {string} dataPath
  * @return {expression.Matrix|expression.Error}
@@ -129,7 +130,7 @@ expression.query.matrix = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + user.getUsername() + '/' +
+  var expressionPath = dataPath + query.username + '/' +
     expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
@@ -146,7 +147,8 @@ expression.query.matrix = function(query, dataPath) {
  * @param {*|{
  *   fileName: string,
  *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
+ *   conditionNames: !Array<string>,
+ *   username: string
  * }} query
  * @param {string} dataPath
  * @return {expression.Profile|expression.Error}
@@ -161,7 +163,7 @@ expression.query.profile = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + user.getUsername() + '/' +
+  var expressionPath = dataPath + query.username + '/' +
     expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
@@ -178,7 +180,8 @@ expression.query.profile = function(query, dataPath) {
  * @param {*|{
  *   fileName: string,
  *   geneNames: !Array<string>,
- *   conditionNames: !Array<string>
+ *   conditionNames: !Array<string>,
+ *   username: string
  * }} query
  * @param {string} dataPath
  * @return {expression.TfaProfile|expression.Error}
@@ -193,7 +196,7 @@ expression.query.tfaProfile = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + user.getUsername() + '/' +
+  var expressionPath = dataPath + query.username + '/' +
     expression.PATH_PREFIX_;
   var file = expressionPath + query.fileName;
   var geneNames = query.geneNames;
@@ -207,14 +210,17 @@ expression.query.tfaProfile = function(query, dataPath) {
 };
 
 /**
+ * @param {*|{
+ *   username: string
+ * }} query
  * @param {function(Array<{
  *   matrixName: string,
  *   fileName: string,
  *   description: string
  * }>)} callback The callback function.
  */
-expression.query.list = function(callback) {
-  expression.listMatrix_(function(data) {
+expression.query.list = function(query, callback) {
+  expression.listMatrix_(query.username, function(data) {
     callback(data);
   });
 };
@@ -293,6 +299,7 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
 
 /**
  * Lists all the expression matrix files in the server
+ * @param {string} username The username.
  * @param {function(!Array<{
  *   matrixName: string,
  *   fileName: string,
@@ -300,8 +307,8 @@ expression.getTfaProfile_ = function(fileName, geneNames, conditionNames) {
  * }>)} callback The callback function.
  * @private
  */
-expression.listMatrix_ = function(callback) {
-  fileDbAccess.getList('expression', function(data) {
+expression.listMatrix_ = function(username, callback) {
+  fileDbAccess.getList('expression', username, function(data) {
     var ret = data.map(function(matrixFile) {
       return {
         matrixName: matrixFile.dataName,

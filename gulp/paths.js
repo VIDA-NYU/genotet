@@ -5,6 +5,8 @@ module.exports = {
   dist: 'dist/',
   src: [
     'src/genotet.js',
+    'src/request.js',
+    'src/url.js',
     'src/utils.js',
     'src/components/base/*.js',
     'src/components/**/*.js',

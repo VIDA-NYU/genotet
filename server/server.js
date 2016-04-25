@@ -10,7 +10,9 @@ var multer = require('multer');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var assert = require('assert');
-var mongoUrl = 'mongodb://localhost:27017/express';
+var session = require('express-session');
+var mongoUrl = 'mongodb://localhost:27017/';
+var FileStore = require('session-file-store')(session);
 
 var segtree = require('./segtree.js');
 var network = require('./network.js');
@@ -76,6 +78,11 @@ var privateKeyPath;
  * @type {string}
  */
 var certificatePath;
+/**
+ * Name of mongo database.
+ * @type {string}
+ */
+var mongoDatabase;
 
 // Parse command arguments.
 process.argv.forEach(function(token) {
@@ -114,6 +121,9 @@ function config() {
       case 'certificatePath':
         certificatePath = value;
         break;
+      case 'mongoDatabase':
+        mongoDatabase = value;
+        break;
     }
   }
   uploadPath = dataPath + 'upload/';
@@ -128,6 +138,17 @@ var upload = multer({
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(session({
+  name: 'genotet-session',
+  secret: 'genotet',
+  cookie: {
+    maxAge: 3600000,
+    httpOnly: false
+  },
+  saveUninitialized: true,
+  resave: true,
+  store: new FileStore()
+}));
 
 /**
  * Path of the exon info file.
@@ -136,46 +157,126 @@ app.use(bodyParser.json());
 var exonFile = dataPath + 'exons.bin';
 
 /**
- * User authenticate handler.
- */
-MongoClient.connect(mongoUrl, function(err, db) {
-  if (err) {
-    log.serverLog(err.message);
-    return;
-  }
-  log.serverLog('connected to MongoDB');
-  database.db = db;
-
-  // Start the application.
-  // TODO(Liana): Direct HTTP to HTTPS.
-  var server = app.listen(3000);
-  server.setTimeout(1200000);
-});
-
-/**
- * Server response.
- * @param {Object|user.Error|undefined} data Server responce data.
+ * Sends back JSON response.
+ * @param {Object|user.Error|undefined} data Server response data.
+ * @param {!express.Request} req Express request.
  * @param {!express.Response} res Express response.
  */
-var serverResponse = function(data, res) {
-  res.header('Access-Control-Allow-Origin', '*');
-  if (!data) {
+var jsonResponse = function(data, req, res) {
+  // In normal usage, the request origin is 'http://localhost' (or the running
+  // domain name). In testing the request origin is 'file://'. We must allow
+  // two possibilities, however it is not allowed to set two Allow-Origins.
+  // Therefore we must match the allowed origins one by one.
+  // Note that you cannot set allowOrigin to '*', which is not compatible with
+  // Allow-Credentials being true.
+  var allowOrigin = '';
+  allowedOrigins.forEach(function(origin) {
+    if (req.headers.origin == origin) {
+      allowOrigin = origin;
+    }
+  });
+  res.header('Access-Control-Allow-Origin', allowOrigin);
+  res.header('Access-Control-Allow-Credentials', true);
+
+  if (data == undefined) {
+    // data is null because some callback does not return values
     res.status(200).json({});
   } else if (data.error) {
     log.serverLog(data.error);
     res.status(500).json(data.error);
   } else {
-    res.json(data);
+    res.status(200).json(data);
   }
 };
+
+/**
+ * Check request handler.
+ */
+app.get('/genotet/check', function(req, res) {
+  jsonResponse({}, req, res);
+});
+
+/**
+ * User authentication handler.
+ */
+app.post('/genotet/user', function(req, res) {
+  log.serverLog('POST user');
+  console.log('Session Id (POST):', req.session.id);
+
+  var query = JSON.parse(req.body.data);
+  query.sessionId = req.session.id;
+  var type = query.type;
+
+  switch (type) {
+    case user.QueryType.SIGNUP:
+      user.query.signUp(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.SIGNIN:
+      user.query.signIn(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.AUTOSIGNIN:
+      user.query.autoSignIn(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.LOGOUT:
+      user.query.logOut(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+
+    // Undefined type, error
+    default:
+      log.serverLog('invalid query type', type);
+      jsonResponse({error: 'invalid POST query type'}, req, res);
+  }
+});
+
+/**
+ * User indentification handler.
+ */
+app.use('/genotet', function(req, res, next) {
+
+  if (req.session.id === undefined) {
+    var err = {error: 'no valid session found'};
+    jsonResponse(err, req, res);
+  } else {
+    user.findUsername(req.session.id, function(result) {
+      if (!result.error) {
+        log.serverLog('username', result);
+        req.username = result;
+        next();
+      } else {
+        log.serverLog(result.error);
+        jsonResponse(result, req, res);
+      }
+    });
+  }
+});
+
+/**
+ * @type {!Array<string>}
+ */
+var allowedOrigins = [
+  // TODO(bowen): need to change cross-origin to https://localhost as well
+  'http://localhost',
+  'file://'
+];
 
 /**
  * User log POST handler.
  */
 app.post('/genotet/log', function(req, res) {
   log.serverLog('POST', 'user-log');
+  var query = JSON.parse(req.body.data);
+  query.sessionId = req.session.id;
+  query.username = req.username;
 
-  log.query.userLog(logPath, req.body);
+  log.query.userLog(logPath, query);
 });
 
 /**
@@ -189,52 +290,20 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
     dataName: req.body.name,
     description: req.body.description
   };
-  uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath,
+  uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath, req.username,
     function(ret) {
-      serverResponse(/** @type {Object} */(ret), res);
+      jsonResponse(/** @type {Object} */(ret), req, res);
     });
-});
-
-app.post('/genotet/user', function(req, res) {
-  log.serverLog('POST user');
-
-  var query = req.body;
-  var type = query.type;
-  var data;
-
-  switch (type) {
-    case user.QueryType.SIGNUP:
-      user.query.signUp(query, function(data) {
-        serverResponse(data, res);
-      });
-      break;
-    case user.QueryType.SIGNIN:
-      user.query.signIn(query, function(data) {
-        serverResponse(data, res);
-      });
-      break;
-    case user.QueryType.AUTOSIGNIN:
-      user.query.autoSignIn(query, function(data) {
-        serverResponse(data, res);
-      });
-      break;
-
-    // Undefined type, error
-    default:
-      log.serverLog('invalid query type', type);
-      data = {
-        error: {
-          type: 'query',
-          message: 'invalid query type'
-        }
-      };
-      serverResponse(data, res);
-  }
 });
 
 // GET request handlers.
 app.get('/genotet', function(req, res) {
+  // bowen: here session id should remain the same across queries.
+  // TODO(bowen): after confirming the above, please remove this log.
+  console.log('Session Id (GET):', req.session.id);
+
   var query = JSON.parse(req.query.data);
+  query.username = req.username;
   var type = query.type;
 
   log.serverLog('GET', type);
@@ -242,101 +311,111 @@ app.get('/genotet', function(req, res) {
   switch (type) {
     // Network data queries
     case network.QueryType.NETWORK:
-      serverResponse(network.query.network(query, dataPath), res);
+      jsonResponse(network.query.network(query, dataPath), req, res);
       break;
     case network.QueryType.NETWORK_INFO:
-      serverResponse(network.query.allNodes(query, dataPath), res);
+      jsonResponse(network.query.allNodes(query, dataPath), req, res);
       break;
     case network.QueryType.INCIDENT_EDGES:
-      serverResponse(network.query.incidentEdges(query, dataPath), res);
+      jsonResponse(network.query.incidentEdges(query, dataPath), req, res);
       break;
     case network.QueryType.COMBINED_REGULATION:
-      serverResponse(network.query.combinedRegulation(query, dataPath), res);
+      jsonResponse(network.query.combinedRegulation(query, dataPath), req, res);
       break;
     case network.QueryType.INCREMENTAL_EDGES:
-      serverResponse(network.query.incrementalEdges(query, dataPath), res);
+      jsonResponse(network.query.incrementalEdges(query, dataPath), req, res);
       break;
 
     // Binding data queries
     case binding.QueryType.BINDING:
       binding.query.histogram(query, dataPath, function(result) {
-        serverResponse(result, res);
+        jsonResponse(result, req, res);
       });
       break;
     case binding.QueryType.EXONS:
-      serverResponse(binding.query.exons(query, exonFile), res);
+      jsonResponse(binding.query.exons(query, exonFile), req, res);
       break;
     case binding.QueryType.LOCUS:
-      serverResponse(binding.query.locus(query, exonFile), res);
+      jsonResponse(binding.query.locus(query, exonFile), req, res);
       break;
 
     // Expression data queries
     case expression.QueryType.EXPRESSION:
-      serverResponse(expression.query.matrix(query, dataPath), res);
+      jsonResponse(expression.query.matrix(query, dataPath), req, res);
       break;
     case expression.QueryType.EXPRESSION_INFO:
-      serverResponse(expression.query.matrixInfo(query, dataPath), res);
+      jsonResponse(expression.query.matrixInfo(query, dataPath), req, res);
       break;
     case expression.QueryType.PROFILE:
-      serverResponse(expression.query.profile(query, dataPath), res);
+      jsonResponse(expression.query.profile(query, dataPath), req, res);
       break;
     case expression.QueryType.TFA_PROFILE:
-      serverResponse(expression.query.tfaProfile(query, dataPath), res);
+      jsonResponse(expression.query.tfaProfile(query, dataPath), req, res);
       break;
 
     // Bed data queries
     case bed.QueryType.BED:
-      serverResponse(bed.query.motifs(query, dataPath), res);
+      jsonResponse(bed.query.motifs(query, dataPath), req, res);
       break;
 
     // Mapping data queries
     case mapping.QueryType.MAPPING:
-      serverResponse(mapping.query.getMapping(query, dataPath), res);
+      jsonResponse(mapping.query.getMapping(query, dataPath), req, res);
       break;
 
     // Data listing
     case network.QueryType.LIST_NETWORK:
-      network.query.list(function(result) {
-        serverResponse(result, res);
+      network.query.list(query, function(result) {
+        jsonResponse(result, req, res);
       });
       break;
     case binding.QueryType.LIST_BINDING:
-      binding.query.list(function(result) {
-        serverResponse(result, res);
+      binding.query.list(query, function(result) {
+        jsonResponse(result, req, res);
       });
       break;
     case expression.QueryType.LIST_EXPRESSION:
-      expression.query.list(function(result) {
-        serverResponse(result, res);
+      expression.query.list(query, function(result) {
+        jsonResponse(result, req, res);
       });
       break;
     case bed.QueryType.LIST_BED:
-      bed.query.list(function(result) {
-        serverResponse(result, res);
+      bed.query.list(query, function(result) {
+        jsonResponse(result, req, res);
       });
       break;
     case mapping.QueryType.LIST_MAPPING:
-      mapping.query.list(function(result) {
-        serverResponse(result, res);
+      mapping.query.list(query, function(result) {
+        jsonResponse(result, req, res);
       });
       break;
 
     // Undefined type, error
     default:
       log.serverLog('invalid query type');
-      var data = {
-        error: {
-          type: 'query',
-          message: 'invalid query type'
-        }
-      };
-      serverResponse(data, res);
+      jsonResponse({error: 'invalid GET query type'}, req, res);
   }
 });
 
 // Error Handler
 app.use(function(err, req, res, next) {
   log.serverLog(err.stack);
-  res.status(500);
-  res.json('Internal Server Error');
+  res.jsonp({error: 'internal server error'});
+});
+
+/**
+ * User authenticate handler.
+ */
+MongoClient.connect(mongoUrl, function(err, mongoClient) {
+  if (err) {
+    log.serverLog(err.message);
+    return;
+  }
+  log.serverLog('connected to MongoDB');
+  database.db = mongoClient.db(mongoDatabase);
+
+  // Start the application.
+  // TODO(Liana): Direct HTTP to HTTPS.
+  var server = app.listen(3000);
+  server.setTimeout(1200000);
 });

@@ -78,6 +78,12 @@ genotet.NetworkRenderer = function(container, data) {
 
 genotet.utils.inherit(genotet.NetworkRenderer, genotet.ViewRenderer);
 
+/** @private @const {number} */
+genotet.NetworkRenderer.prototype.MAX_TICK_NUM_ = 100;
+
+/** @private @const {number} */
+genotet.NetworkRenderer.prototype.MIN_ZOOM_RADIO_ = 0.4;
+
 /**
  * State of mouse interaction.
  * @private
@@ -220,10 +226,14 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
   this.canvas.selectAll('.render-group')
     .attr('transform', genotet.utils.getTransform(translate, scale));
 
-  this.zoomTranslate_ = translate;
-  this.zoomScale_ = scale;
-
-  this.drawNetwork_();
+  // var nodeNum = this.network.nodes.length;
+  // var normScale = nodeNum / 100;
+  if (Math.floor(scale / this.zoomScale_) > 1 + this.MIN_ZOOM_RADIO_ ||
+    Math.floor(scale / this.zoomScale_) < 1 - this.MIN_ZOOM_RADIO_) {
+    this.zoomTranslate_ = translate;
+    this.zoomScale_ = scale;
+    this.drawNetwork_();
+  }
 };
 
 /** @inheritDoc */
@@ -282,6 +292,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
   // Stop potentially existing previous force.
   this.force_.stop();
 
+  var tickNum = 0;
   this.force_ = d3.layout.force()
     .nodes(_.toArray(this.nodes_))
     .links(_.toArray(this.edges_))
@@ -292,7 +303,14 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
     .on('start', function() {
       this.forcing = true;
     }.bind(this))
-    .on('tick', this.drawNetwork_.bind(this))
+    .on('tick', function() {
+      tickNum++;
+      if (tickNum == this.MAX_TICK_NUM_) {
+        this.drawNetwork_();
+        tickNum = 0;
+        this.force_.stop();
+      }
+    }.bind(this))
     .on('end', function() {
       this.forcing = false;
     }.bind(this));

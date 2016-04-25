@@ -49,12 +49,10 @@ genotet.dialog.TEMPLATES_ = {
  * The init function, check the server status.
  */
 genotet.dialog.init = function() {
-  var params = {
-    type: 'list-binding'
-  };
-  params = {data: JSON.stringify(params)};
-  $.get(genotet.data.serverUrl, params)
-    .fail(function(res) {
+  request.get({
+    url: genotet.url.check,
+    params: {},
+    fail: function() {
       var modal = $('#dialog');
       modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.serverDown,
         function() {
@@ -62,8 +60,9 @@ genotet.dialog.init = function() {
             backdrop: 'static',
             keyboard: false
           });
-      });
-    });
+        });
+    }
+  });
 };
 
 /**
@@ -182,8 +181,10 @@ genotet.dialog.createNetwork_ = function() {
         type: genotet.data.ListQueryType.NETWORK
       };
       //TODO(jiaming): generate it as a function.
-      params = {data: JSON.stringify(params)};
-      $.get(genotet.data.serverUrl, params, function(data) {
+      request.get({
+        url: genotet.url.server,
+        params: params,
+        done: function(data) {
           data.forEach(function(networkFile) {
             fileNames.push({
               id: networkFile.fileName,
@@ -194,10 +195,11 @@ genotet.dialog.createNetwork_ = function() {
           modal.find('#network').select2({
             data: fileNames
           });
-        }.bind(this))
-        .fail(function() {
+        }.bind(this),
+        fail: function() {
           genotet.error('failed to get network list');
-        });
+        }
+      });
 
       // Create
       modal.find('#btn-create').click(function() {
@@ -241,8 +243,10 @@ genotet.dialog.createBinding_ = function() {
       var params = {
         type: genotet.data.ListQueryType.BINDING
       };
-      params = {data: JSON.stringify(params)};
-      $.get(genotet.data.serverUrl, params, function(data) {
+      request.get({
+        url: genotet.url.server,
+        params: params,
+        done: function(data) {
           data.forEach(function(bindingFile) {
             fileNames.push({
               id: bindingFile.fileName,
@@ -252,10 +256,11 @@ genotet.dialog.createBinding_ = function() {
           modal.find('#gene').select2({
             data: fileNames
           });
-        }.bind(this))
-        .fail(function() {
+        }.bind(this),
+        fail: function() {
           genotet.error('failed to get binding list');
-        });
+        }
+      });
 
       // Create
       modal.find('#btn-create').click(function() {
@@ -306,8 +311,10 @@ genotet.dialog.createExpression_ = function() {
       var params = {
         type: genotet.data.ListQueryType.EXPRESSION
       };
-      params = {data: JSON.stringify(params)};
-      $.get(genotet.data.serverUrl, params, function(data) {
+      request.get({
+        url: genotet.url.server,
+        params: params,
+        done: function(data) {
           data.forEach(function(expressionFile) {
             fileNames.push({
               id: expressionFile.fileName,
@@ -318,10 +325,11 @@ genotet.dialog.createExpression_ = function() {
           modal.find('#matrix').select2({
             data: fileNames
           });
-        }.bind(this))
-        .fail(function() {
+        }.bind(this),
+        fail: function() {
           genotet.error('failed to get expression list');
-        });
+        }
+      });
 
       // Create
       modal.find('#btn-create').click(function() {
@@ -355,8 +363,10 @@ genotet.dialog.mapping_ = function() {
       var params = {
         type: genotet.data.ListQueryType.MAPPING
       };
-      params = {data: JSON.stringify(params)};
-      $.get(genotet.data.serverUrl, params, function(data) {
+      request.get({
+        url: genotet.url.server,
+        params: params,
+        done: function(data) {
           data.forEach(function(fileName) {
             fileNames.push({
               id: fileName,
@@ -369,10 +379,11 @@ genotet.dialog.mapping_ = function() {
             })
             .val(genotet.data.mappingFiles['gene-binding'])
             .trigger('change');
-        }.bind(this))
-        .fail(function() {
+        }.bind(this),
+        fail: function() {
           genotet.error('failed to get mapping list');
-        });
+        }
+      });
 
       // Create
       modal.find('#btn-choose').click(function() {
@@ -470,15 +481,21 @@ genotet.dialog.upload_ = function() {
           fileType == genotet.FileType.BINDING) {
           uploadPercent = 70;
         }
+        var sessionID = Cookies.get('genotet-session');
+        console.log(sessionID);
+
         genotet.logger.log(genotet.logger.Type.UPLOAD, fileType, dataName.val(),
           fileName);
         $.ajax({
-          url: genotet.data.uploadUrl,
+          url: genotet.url.upload,
           type: 'POST',
           data: formData,
           enctype: 'multipart/form-data',
           processData: false,
           contentType: false,
+          xhrFields: {
+            withCredentials: true
+          },
           xhr: function() {
             var xhr = new window.XMLHttpRequest();
             //Download progress
@@ -570,20 +587,22 @@ genotet.dialog.signUp_ = function() {
           confirmed: false
         };
 
-        $.post(genotet.data.userUrl, userInfo, 'json')
-          .done(function(data) {
+        request.post({
+          url: genotet.url.user,
+          params: userInfo,
+          done: function(data) {
             genotet.menu.displaySignedUser(userInfo.username);
             genotet.user.info = {
               username: data.username,
               sessionId: data.sessionId,
               expiration: data.expiration
             };
-            genotet.user.updateCookieToBrowser(data);
             genotet.success('signed up');
-          })
-          .fail(function(res) {
+          },
+          fail: function(res) {
             genotet.error(res.responseText);
-          });
+          }
+        });
       });
     });
 };
@@ -615,20 +634,22 @@ genotet.dialog.signIn_ = function() {
           password: /** @type {string} */(password.val())
         };
 
-        $.post(genotet.data.userUrl, userInfo, 'json')
-          .done(function(data) {
+        request.post({
+          url: genotet.url.user,
+          params: userInfo,
+          done: function(data) {
             genotet.menu.displaySignedUser(userInfo.username);
             genotet.user.info = {
               username: data.username,
               sessionId: data.sessionId,
-              expiratloggn: data.expiration
+              expiration: data.expiration
             };
-            genotet.user.updateCookieToBrowser(data);
             genotet.success('signed in');
-          })
-          .fail(function(res) {
+          },
+          fail: function(res) {
             genotet.error(res.responseText);
-          });
+          }
+        });
       });
     });
 };
@@ -664,24 +685,31 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
       fileName: fileName,
       username: genotet.user.getUsername()
     };
-    $.get(genotet.data.uploadProgressUrl, params, function(data) {
-      var percentage = parseInt(data, 10);
-      percentage = startNum + percentage * 0.3;
-      modal.find('.progress').children('.progress-bar')
-        .css('width', percentage + '%');
-      if (percentage == 100) {
+    request.get({
+      url: genotet.url.uploadProgress,
+      params: params,
+      done: function(data) {
+        var percentage = parseInt(data, 10);
+        percentage = startNum + percentage * 0.3;
+        modal.find('.progress').children('.progress-bar')
+          .css('width', percentage + '%');
+        if (percentage == 100) {
+          clearInterval(interval);
+          modal.modal('hide');
+          var finishParam = {
+            type: 'finish',
+            fileName: fileName,
+            username: genotet.user.getUsername()
+          };
+          request.get({
+            url: genotet.url.uploadProgress,
+            params: finishParam
+          });
+        }
+      },
+      fail: function() {
         clearInterval(interval);
-        modal.modal('hide');
-        var finishParam = {
-          type: 'finish',
-          fileName: fileName,
-          username: genotet.user.getUsername()
-        };
-        $.get(genotet.data.uploadProgressUrl, finishParam);
       }
-    }).fail(function(res) {
-        clearInterval(interval);
-      });
-
+    });
   }, genotet.dialog.QUERY_INTERVAL_);
 };
