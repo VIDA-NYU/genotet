@@ -1,5 +1,5 @@
 /**
- * @fileoverview Node.js express externs.
+ * @fileoverview Node.js HTTPS externs.
  */
 
 /** @const */

@@ -160,14 +160,13 @@ var exonFile = dataPath + 'exons.bin';
  * @type {!Array<string>}
  */
 var allowedOrigins = [
-  // TODO(bowen): need to change cross-origin to https://localhost as well
   'https://localhost',
   'file://'
 ];
 
 /**
  * Sends back JSON response.
- * @param {Object|user.Error|undefined} data Server response data.
+ * @param {Object|user.Error|string|undefined} data Server response data.
  * @param {!express.Request} req Express request.
  * @param {!express.Response} res Express response.
  */
@@ -261,7 +260,7 @@ app.use('/genotet', function(req, res, next) {
         next();
       } else {
         log.serverLog(result.error);
-        jsonResponse(/** @type {Object} */(result), req, res);
+        jsonResponse(result, req, res);
       }
     });
   }
