@@ -261,7 +261,7 @@ app.use('/genotet', function(req, res, next) {
         next();
       } else {
         log.serverLog(result.error);
-        jsonResponse(result, req, res);
+        jsonResponse(/** @type {Object} */(result), req, res);
       }
     });
   }
@@ -421,9 +421,11 @@ MongoClient.connect(mongoUrl, function(err, mongoClient) {
     key: privateKey,
     cert: certificate
   };
+  /** @type {!https.Server} */
   var httpsServer = https.createServer(
-    /** @type {?} */(httpsOptions),
-    /** @type {?} */(app)
-  ).listen(3000);
-  /** @type {?} */(httpsServer).setTimeout(1200000);
+    /** @type {tls.CreateOptions} */(httpsOptions),
+    /** @type {function(http.IncomingMessage, http.ServerResponse)} */(app)
+  );
+  httpsServer.listen(3000);
+  httpsServer.setTimeout(1200000);
 });
