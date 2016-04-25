@@ -423,8 +423,8 @@ MongoClient.connect(mongoUrl, function(err, mongoClient) {
   };
   /** @type {!https.Server} */
   var httpsServer = https.createServer(
-    /** @type {tls.CreateOptions} */(httpsOptions),
-    /** @type {function(http.IncomingMessage, http.ServerResponse)} */(app)
+    httpsOptions,
+    app
   );
   httpsServer.listen(3000);
   httpsServer.setTimeout(1200000);
