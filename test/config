@@ -2,4 +2,4 @@ mongoDatabase = genotet-test
 dataPath = dist/data/
 bigWigToWigPath = test/bigWigToWig
 privateKeyPath = test/key.pem
-certificatePath = test/csr.pem
+certificatePath = test/server.crt
