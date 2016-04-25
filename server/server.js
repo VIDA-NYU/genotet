@@ -157,8 +157,16 @@ app.use(session({
 var exonFile = dataPath + 'exons.bin';
 
 /**
+ * @type {!Array<string>}
+ */
+var allowedOrigins = [
+  'https://localhost',
+  'file://'
+];
+
+/**
  * Sends back JSON response.
- * @param {Object|user.Error|undefined} data Server response data.
+ * @param {Object|user.Error|string|undefined} data Server response data.
  * @param {!express.Request} req Express request.
  * @param {!express.Response} res Express response.
  */
@@ -257,15 +265,6 @@ app.use('/genotet', function(req, res, next) {
     });
   }
 });
-
-/**
- * @type {!Array<string>}
- */
-var allowedOrigins = [
-  // TODO(bowen): need to change cross-origin to https://localhost as well
-  'http://localhost',
-  'file://'
-];
 
 /**
  * User log POST handler.
@@ -415,7 +414,17 @@ MongoClient.connect(mongoUrl, function(err, mongoClient) {
   database.db = mongoClient.db(mongoDatabase);
 
   // Start the application.
-  // TODO(Liana): Direct HTTP to HTTPS.
-  var server = app.listen(3000);
-  server.setTimeout(1200000);
+  var privateKey = fs.readFileSync(privateKeyPath);
+  var certificate = fs.readFileSync(certificatePath);
+  var httpsOptions = {
+    key: privateKey,
+    cert: certificate
+  };
+  /** @type {!https.Server} */
+  var httpsServer = https.createServer(
+    httpsOptions,
+    app
+  );
+  httpsServer.listen(3000);
+  httpsServer.setTimeout(1200000);
 });
