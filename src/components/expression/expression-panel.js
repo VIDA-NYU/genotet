@@ -50,6 +50,9 @@ genotet.ExpressionPanel = function(data) {
 
 genotet.utils.inherit(genotet.ExpressionPanel, genotet.ViewPanel);
 
+/** @private @const {number} */
+genotet.ExpressionPanel.prototype.PROFILE_PAGE_SIZE_ = 20;
+
 /** @inheritDoc */
 genotet.ExpressionPanel.prototype.template = 'dist/html/expression-panel.html';
 
@@ -107,17 +110,14 @@ genotet.ExpressionPanel.prototype.initPanel = function() {
   }, this);
 
   // Add and remove gene profiles
+  this.selectProfiles_ = this.container.find('#profile select').select2();
   this.selectProfiles_
     .on('select2:select', function(event) {
       var geneName = event.params.data.text;
-      genotet.logger.log(genotet.logger.Type.EXPRESSION, 'addGeneProfile',
-        geneName);
       this.signal('addGeneProfile', geneName);
     }.bind(this))
     .on('select2:unselect', function(event) {
       var geneName = event.params.data.text;
-      genotet.logger.log(genotet.logger.Type.EXPRESSION, 'removeGeneProfile',
-        geneName);
       this.signal('removeGeneProfile', geneName);
     }.bind(this));
 
@@ -224,12 +224,19 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
       text: gene
     };
   });
-
   var profile = this.container.find('#profile select').empty();
+
+  if (!genes.length) {
+    return;
+  }
+
   this.selectProfiles_ = profile.select2({
     data: genes,
+    ajax: {},
+    dataAdapter: genotet.utils.Select2PageAdapter,
     multiple: true
   });
+
   this.container.find('#profile .select2-container').css({
     width: '100%'
   });
