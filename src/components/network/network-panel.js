@@ -58,15 +58,11 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   // Sub-network
   this.container.find('#keep-selected')
     .click(function() {
-      this.signal('subNetwork', {
-        inPolygon: true
-      });
+      this.signal('subNetwork', {inPolygon: true});
     }.bind(this));
   this.container.find('#exclude-selected')
     .click(function() {
-      this.signal('subNetwork', {
-        inPolygon: false
-      });
+      this.signal('subNetwork', {inPolygon: false});
     }.bind(this));
 
   // Input type update

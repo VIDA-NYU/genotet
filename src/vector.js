@@ -11,7 +11,7 @@ genotet.vector = {};
  * Calculates whether the point is in the polygon.
  * @param {!Array<number>} point The point.
  * @param {!Array<Array<number>>} vertices The vertices of the polygon.
- * @return {boolean} The result.
+ * @return {boolean}
  */
 genotet.vector.pointInPolygon = function(point, vertices) {
   // ray-casting algorithm based on
