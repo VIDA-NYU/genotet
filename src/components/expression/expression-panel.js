@@ -230,55 +230,17 @@ genotet.ExpressionPanel.prototype.updateGenes = function(gene) {
     return;
   }
 
-  $.fn.select2.amd.require(['select2/data/array', 'select2/utils'],
-    function(ArrayData, Utils) {
-      console.log(ArrayData);
-      var CustomData = function($element, options) {
-        /**
-         * @type {{
-         *   __super__: function(?, ?)
-         * }}
-         */(CustomData).__super__.constructor.call(
-          this, $element, options);
-      };
-      /**
-       * @type {{
-       *   Extend: function()
-       * }}
-       */(Utils.Extend(CustomData, ArrayData));
+  this.selectProfiles_ = profile.select2({
+    data: genes,
+    ajax: {},
+    dataAdapter: genotet.utils.Select2PageAdapter,
+    multiple: true
+  });
 
-      var pageSize = this.PROFILE_PAGE_SIZE_;
-      /**
-       * The query of CustomData.
-       * @param {!Object<{
-       *   page: number
-       * }>} params Parameters for the query of CustomData.
-       * @param {function(?)} callback Callback function.
-       */
-      CustomData.prototype.query = function(params, callback) {
-        if (!('page' in params)) {
-          params.page = 1;
-        }
-        callback({
-          results: genes.slice((params.page - 1) * pageSize,
-            params.page * pageSize),
-          pagination: {
-            more: params.page * pageSize < genes.length
-          }
-        });
-      };
-
-      this.selectProfiles_ = profile.select2({
-        ajax: {},
-        dataAdapter: CustomData,
-        multiple: true
-      });
-
-      this.container.find('#profile .select2-container').css({
-        width: '100%'
-      });
-      this.updateGeneSelections();
-    }.bind(this));
+  this.container.find('#profile .select2-container').css({
+    width: '100%'
+  });
+  this.updateGeneSelections();
 };
 
 /**

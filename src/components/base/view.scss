@@ -40,6 +40,7 @@ $background-gradient: linear-gradient(to bottom, $gray-f5 0, $gray-e8 100%);
     pointer-events: none;
     position: absolute;
     width: 100%;
+    z-index: 100;
 
     * {
       position: absolute;
