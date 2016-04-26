@@ -227,7 +227,7 @@ genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_HEIGHT_ = 20;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN_ = 5;
 /** @private @const {number} */
-genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_CORNER_RADIUS_ = 7;
+genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_CORNER_RADIUS_ = 5;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.LEGEND_TEXT_MARGIN_ = 1;
 /** @private @const {number} */
