@@ -326,19 +326,18 @@ genotet.utils.Select2PageAdapter = function($element, options) {
 
 $.fn.select2.amd.require(['select2/data/array', 'select2/utils'],
   function(ArrayData, Utils) {
-    (Utils).Extend(genotet.utils.Select2PageAdapter, ArrayData);
     var Select2PageAdapter =
     /**
      * @type {{
-   *   Extend: function(?, ?)
-   * }}
+     *   Extend: function(?, ?)
+     * }}
      */(Utils).Extend(genotet.utils.Select2PageAdapter, ArrayData);
 
     /**
      * The query of Select2PageAdapter.
      * @param {!Object<{
-   *   page: number
-   * }>} params Parameters for the query of Select2PageAdapter.
+     *   page: number
+     * }>} params Parameters for the query of Select2PageAdapter.
      * @param {function(?)} callback Callback function.
      */
     Select2PageAdapter.prototype.query = function(params, callback) {
@@ -352,8 +351,7 @@ $.fn.select2.amd.require(['select2/data/array', 'select2/utils'],
           params.page * pageSize),
         pagination: {
           more: params.page * pageSize < genes.length
-        },
-        search: params.term
+        }
       });
     };
   });
