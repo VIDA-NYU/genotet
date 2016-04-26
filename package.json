@@ -11,7 +11,7 @@
     "form-data": "^0.2.0",
     "frisby": "^0.8.5",
     "google-closure-compiler": "^20151015.0.0",
-    "gulp": "^3.9.0",
+    "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.0",
     "gulp-closure-compiler": "^0.4.0",
     "gulp-concat": "^2.6.0",
@@ -24,13 +24,14 @@
     "gulp-replace-task": "^0.11.0",
     "gulp-run": "^1.6.12",
     "gulp-sass": "^2.1.1",
-    "gulp-scss-lint": "^0.3.8",
+    "gulp-scss-lint": "^0.3.9",
     "gulp-scss-lint-stylish2": "^2.0.2",
     "gulp-util": "^3.0.7",
     "jasmine-node": "^1.14.5",
     "phantomjs2": "^2.0.2",
     "require-dir": "^0.3.0",
-    "run-sequence": "^1.1.5"
+    "run-sequence": "^1.1.5",
+    "sass-lint": "^1.5.0"
   },
   "scripts": {
     "postinstall": "bower install",
