@@ -21,9 +21,9 @@ genotet.dialog.isConditionRegex_ = false;
 
 /**
  * Length of time interval for queries of uploading result, in milliseconds.
- * @private {number}
+ * @private @const {number}
  */
-genotet.dialog.queryInterval_ = 3 * 1000;
+genotet.dialog.QUERY_INTERVAL_ = 3 * 1000;
 
 /**
  * Template paths.
@@ -38,7 +38,31 @@ genotet.dialog.TEMPLATES_ = {
   mapping: 'templates/mapping.html',
   about: 'templates/about.html',
   upload: 'templates/upload.html',
-  progress: 'templates/upload-progress.html'
+  signUp: 'templates/sign-up.html',
+  signIn: 'templates/sign-in.html',
+  logOut: 'templates/log-out.html',
+  progress: 'templates/upload-progress.html',
+  serverDown: 'templates/server-down.html'
+};
+
+/**
+ * The init function, check the server status.
+ */
+genotet.dialog.init = function() {
+  request.get({
+    url: genotet.url.check,
+    params: {},
+    fail: function() {
+      var modal = $('#dialog');
+      modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.serverDown,
+        function() {
+          modal.modal({
+            backdrop: 'static',
+            keyboard: false
+          });
+        });
+    }
+  });
 };
 
 /**
@@ -74,6 +98,15 @@ genotet.dialog.create = function(type) {
       break;
     case 'upload':
       genotet.dialog.upload_();
+      break;
+    case 'sign-up':
+      genotet.dialog.signUp_();
+      break;
+    case 'sign-in':
+      genotet.dialog.signIn_();
+      break;
+    case 'log-out':
+      genotet.dialog.logOut_();
       break;
     default:
       genotet.error('unknown view type in Dialog.create:', type);
@@ -112,18 +145,18 @@ genotet.dialog.createView_ = function() {
     modal.find('#btn-next').click(function() {
       var type = /** @type {string} */(modal.find('#type').val());
       switch (type) {
-      case genotet.ViewType.NETWORK:
-        genotet.dialog.create('create-network');
-        break;
-      case genotet.ViewType.BINDING:
-        genotet.dialog.create('create-binding');
-        break;
-      case genotet.ViewType.EXPRESSION:
-        genotet.dialog.create('create-expression');
-        break;
-      default:
-        genotet.error('unknown view type in Dialog.createView:', type);
-        break;
+        case genotet.ViewType.NETWORK:
+          genotet.dialog.create('create-network');
+          break;
+        case genotet.ViewType.BINDING:
+          genotet.dialog.create('create-binding');
+          break;
+        case genotet.ViewType.EXPRESSION:
+          genotet.dialog.create('create-expression');
+          break;
+        default:
+          genotet.error('unknown view type in Dialog.createView:', type);
+          break;
       }
     });
   });
@@ -147,21 +180,26 @@ genotet.dialog.createNetwork_ = function() {
       var params = {
         type: genotet.data.ListQueryType.NETWORK
       };
-      $.get(genotet.data.serverURL, params, function(data) {
+      //TODO(jiaming): generate it as a function.
+      request.get({
+        url: genotet.url.server,
+        params: params,
+        done: function(data) {
           data.forEach(function(networkFile) {
-              fileNames.push({
-                id: networkFile.fileName,
-                text: networkFile.networkName + ' (' +
-                networkFile.fileName + ')'
-              });
+            fileNames.push({
+              id: networkFile.fileName,
+              text: networkFile.networkName + ' (' +
+              networkFile.fileName + ')'
+            });
           });
           modal.find('#network').select2({
             data: fileNames
           });
-        }.bind(this))
-        .fail(function() {
+        }.bind(this),
+        fail: function() {
           genotet.error('failed to get network list');
-        });
+        }
+      });
 
       // Create
       modal.find('#btn-create').click(function() {
@@ -205,7 +243,10 @@ genotet.dialog.createBinding_ = function() {
       var params = {
         type: genotet.data.ListQueryType.BINDING
       };
-      $.get(genotet.data.serverURL, params, function(data) {
+      request.get({
+        url: genotet.url.server,
+        params: params,
+        done: function(data) {
           data.forEach(function(bindingFile) {
             fileNames.push({
               id: bindingFile.fileName,
@@ -215,10 +256,11 @@ genotet.dialog.createBinding_ = function() {
           modal.find('#gene').select2({
             data: fileNames
           });
-        }.bind(this))
-        .fail(function() {
+        }.bind(this),
+        fail: function() {
           genotet.error('failed to get binding list');
-        });
+        }
+      });
 
       // Create
       modal.find('#btn-create').click(function() {
@@ -269,21 +311,25 @@ genotet.dialog.createExpression_ = function() {
       var params = {
         type: genotet.data.ListQueryType.EXPRESSION
       };
-      $.get(genotet.data.serverURL, params, function(data) {
+      request.get({
+        url: genotet.url.server,
+        params: params,
+        done: function(data) {
           data.forEach(function(expressionFile) {
-              fileNames.push({
-                id: expressionFile.fileName,
-                text: expressionFile.matrixName + ' (' +
-                expressionFile.fileName + ')'
-              });
+            fileNames.push({
+              id: expressionFile.fileName,
+              text: expressionFile.matrixName + ' (' +
+              expressionFile.fileName + ')'
+            });
           });
           modal.find('#matrix').select2({
             data: fileNames
           });
-        }.bind(this))
-        .fail(function() {
+        }.bind(this),
+        fail: function() {
           genotet.error('failed to get expression list');
-        });
+        }
+      });
 
       // Create
       modal.find('#btn-create').click(function() {
@@ -317,7 +363,10 @@ genotet.dialog.mapping_ = function() {
       var params = {
         type: genotet.data.ListQueryType.MAPPING
       };
-      $.get(genotet.data.serverURL, params, function(data) {
+      request.get({
+        url: genotet.url.server,
+        params: params,
+        done: function(data) {
           data.forEach(function(fileName) {
             fileNames.push({
               id: fileName,
@@ -326,20 +375,22 @@ genotet.dialog.mapping_ = function() {
           });
           fileNames.push('Direct Mapping');
           modal.find('#mapping-file').select2({
-            data: fileNames
-          })
+              data: fileNames
+            })
             .val(genotet.data.mappingFiles['gene-binding'])
             .trigger('change');
-        }.bind(this))
-        .fail(function() {
+        }.bind(this),
+        fail: function() {
           genotet.error('failed to get mapping list');
-        });
+        }
+      });
 
       // Create
       modal.find('#btn-choose').click(function() {
         var fileName = modal.find('#mapping-file').val();
+        genotet.logger.log(genotet.logger.Type.MAPPING, 'select', fileName);
         genotet.data.mappingFiles['gene-binding'] =
-        /** @type {string} */(fileName);
+          /** @type {string} */(fileName);
       });
     });
 };
@@ -401,7 +452,7 @@ genotet.dialog.upload_ = function() {
 
       // Checks if all required fields are filled.
       var uploadReady = function() {
-        return file.val() && (dataName.val() ||
+        return file.val() !== '' && (dataName.val() !== '' ||
           typeSelection.val() == genotet.FileType.MAPPING);
       };
 
@@ -425,65 +476,240 @@ genotet.dialog.upload_ = function() {
         formData.append('description',
           /** @type {string} */(modal.find('#description').val()));
         formData.append('file', file[0].files[0]);
+        var uploadPercent = 100;
+        if (fileType == genotet.FileType.BED ||
+          fileType == genotet.FileType.BINDING) {
+          uploadPercent = 70;
+        }
+        var sessionID = Cookies.get('genotet-session');
+        console.log(sessionID);
 
+        genotet.logger.log(genotet.logger.Type.UPLOAD, fileType, dataName.val(),
+          fileName);
         $.ajax({
-          url: genotet.data.uploadURL,
+          url: genotet.url.upload,
           type: 'POST',
           data: formData,
           enctype: 'multipart/form-data',
           processData: false,
-          contentType: false
+          contentType: false,
+          xhrFields: {
+            withCredentials: true
+          },
+          xhr: function() {
+            var xhr = new window.XMLHttpRequest();
+            //Download progress
+            xhr.addEventListener('progress', function(evt) {
+              if (evt.lengthComputable) {
+                var percentComplete = evt.loaded / evt.total;
+                var widthPercent = Math.round(percentComplete * uploadPercent) +
+                  '%';
+                modal.find('.progress').children('.progress-bar')
+                  .css('width', widthPercent);
+              }
+            }, false);
+            return xhr;
+          },
+          beforeSend: function() {
+            modal.find('.modal-content').load(
+              genotet.dialog.TEMPLATES_.progress, function() {
+                modal.modal({
+                  backdrop: 'static',
+                  keyboard: false
+                });
+                modal.find('#btn-ok').prop('disabled', true);
+              });
+          },
+          complete: function() {
+            var widthPercent = uploadPercent + '%';
+            modal.find('.progress').children('.progress-bar')
+              .css('width', widthPercent);
+          }
         }).done(function(data) {
-            if (!data.success) {
-              genotet.error('failed to upload data', data.message);
+            modal.modal('hide');
+            if (data.error) {
+              genotet.error('failed to upload data', data.error);
             } else {
               genotet.success('data uploaded');
             }
           })
           .fail(function(res) {
+            modal.modal('hide');
             genotet.error('failed to upload data');
           });
-        genotet.dialog.uploadProgress_(fileName);
+        if (fileType == genotet.FileType.BED ||
+          fileType == genotet.FileType.BINDING) {
+          genotet.dialog.processProgress_(fileName, uploadPercent);
+        }
       });
     });
 };
 
 /**
- * Creates a dialog for uploading progress.
- * @param {string} fileName File name of the upload file.
+ * Creates a dialog for signing up.
  * @private
  */
-genotet.dialog.uploadProgress_ = function(fileName) {
+genotet.dialog.signUp_ = function() {
   var modal = $('#dialog');
-  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.progress,
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.signUp,
     function() {
-      modal.modal({
-        backdrop: 'static',
-        keyboard: false
+      modal.modal();
+      var email = modal.find('#email');
+      var username = modal.find('#username');
+      var password = modal.find('#password');
+      var confirmPassword = modal.find('#confirm-password');
+      var btnSignUp = modal.find('#btn-sign-up').prop('disabled', true);
+      var inputValid = false;
+
+      var uploadReady = function() {
+        // Validate the input information.
+        inputValid = genotet.user.validateEmail(
+            /** @type {string} */(email.val())) &&
+          genotet.user.validateUsername(
+            /** @type {string} */(username.val())) &&
+          genotet.user.validatePassword(
+            /** @type {string} */(password.val()));
+
+        // Checks if all required fields are filled.
+        return email.val() !== '' && username.val() !== '' &&
+          password.val() !== '' && (confirmPassword.val() == password.val() &&
+          inputValid);
+      };
+      confirmPassword.on('input', function() {
+        btnSignUp.prop('disabled', !uploadReady());
       });
-      var number = 0;
-      modal.find('#btn-ok').prop('disabled', true);
-      var interval = setInterval(function() {
-        number++;
-        // This is a fake progress bar.
-        // Increase 3% for the progress bar every 3 seconds.
-        // When reaching 99, do not increase it any more.
-        var widthPercent = Math.min(number * 3, 99) + '%';
-        var params = {
-          type: 'check-finish',
-          fileName: fileName
+      btnSignUp.click(function() {
+        var userInfo = {
+          type: 'sign-up',
+          email: email.val(),
+          username: /** @type {string} */(username.val()),
+          password: /** @type {string} */(password.val()),
+          confirmed: false
         };
-        $.get(genotet.data.serverURL, params, function(data) {
-          if (data) {
-            clearInterval(interval);
-            widthPercent = '100%';
-            modal.find('#btn-ok').prop('disabled', false);
-            modal.find('.progress').children('.progress-bar')
-              .css('width', widthPercent);
+
+        request.post({
+          url: genotet.url.user,
+          params: userInfo,
+          done: function(data) {
+            genotet.menu.displaySignedUser(userInfo.username);
+            genotet.user.info = {
+              username: data.username,
+              sessionId: data.sessionId,
+              expiration: data.expiration
+            };
+            genotet.success('signed up');
+          },
+          fail: function(res) {
+            genotet.error(res.responseText);
           }
         });
-        modal.find('.progress').children('.progress-bar')
-          .css('width', widthPercent);
-      }, genotet.dialog.queryInterval_);
+      });
     });
+};
+
+/**
+ * Creates a dialog for signing in.
+ * @private
+ */
+genotet.dialog.signIn_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.signIn,
+    function() {
+      modal.modal();
+      var username = modal.find('#username');
+      var password = modal.find('#password');
+      var btnSignIn = modal.find('#btn-sign-in').prop('disabled', true);
+
+      // Checks if all required fields are filled.
+      var uploadReady = function() {
+        return username.val() !== '' && password.val() !== '';
+      };
+      password.on('input', function() {
+        btnSignIn.prop('disabled', !uploadReady());
+      });
+      btnSignIn.click(function() {
+        var userInfo = {
+          type: 'sign-in',
+          username: /** @type {string} */(username.val()),
+          password: /** @type {string} */(password.val())
+        };
+
+        request.post({
+          url: genotet.url.user,
+          params: userInfo,
+          done: function(data) {
+            genotet.menu.displaySignedUser(userInfo.username);
+            genotet.user.info = {
+              username: data.username,
+              sessionId: data.sessionId,
+              expiration: data.expiration
+            };
+            genotet.success('signed in');
+          },
+          fail: function(res) {
+            genotet.error(res.responseText);
+          }
+        });
+      });
+    });
+};
+
+/**
+ * Creates a dialog for logging out.
+ * @private
+ */
+genotet.dialog.logOut_ = function() {
+  var modal = $('#dialog');
+  modal.find('.modal-content').load(genotet.dialog.TEMPLATES_.logOut,
+    function() {
+      modal.modal();
+      var btnLogOut = modal.find('#btn-log-out');
+      $('#log-out-username').text(genotet.user.getUsername());
+      btnLogOut.click(function() {
+        genotet.user.logOut();
+      });
+    });
+};
+
+/**
+ * Monitors process progress.
+ * @param {string} fileName File name of the processing file.
+ * @param {number} startNum Start percent of progress.
+ * @private
+ */
+genotet.dialog.processProgress_ = function(fileName, startNum) {
+  var modal = $('#dialog');
+  var interval = setInterval(function() {
+    var params = {
+      type: 'check',
+      fileName: fileName,
+      username: genotet.user.getUsername()
+    };
+    request.get({
+      url: genotet.url.uploadProgress,
+      params: params,
+      done: function(data) {
+        var percentage = parseInt(data, 10);
+        percentage = startNum + percentage * 0.3;
+        modal.find('.progress').children('.progress-bar')
+          .css('width', percentage + '%');
+        if (percentage == 100) {
+          clearInterval(interval);
+          modal.modal('hide');
+          var finishParam = {
+            type: 'finish',
+            fileName: fileName,
+            username: genotet.user.getUsername()
+          };
+          request.get({
+            url: genotet.url.uploadProgress,
+            params: finishParam
+          });
+        }
+      },
+      fail: function() {
+        clearInterval(interval);
+      }
+    });
+  }, genotet.dialog.QUERY_INTERVAL_);
 };

@@ -16,6 +16,29 @@ function utils() {}
 /** @const {number} */
 utils.RANGE_TOLERANCE = .001;
 
+/** @const {number} */
+utils.RANDOM_STRING_RADIX = 36;
+
+/** @const {number} */
+utils.RANDOM_STRING_START_INDEX = 2;
+
+/** @const {number} */
+utils.RANDOM_STRING_LENGTH = 16;
+
+/**
+ * @typedef {{
+ *   error: string
+ * }}
+ */
+utils.Error;
+
+/**
+ * @typedef {{
+ *   error: string
+ * }|string}
+ */
+utils.ErrorCaptureCallback;
+
 /**
  * Checks whether two ranges intersect.
  * @param {!Array<number>} range1 The first range.
@@ -77,4 +100,23 @@ utils.decodeSpecialChar = function(url) {
   url = url.replace(/%2B/g, '+');
   url = url.replace(/%3F/g, '?');
   return url;
+};
+
+/**
+ * Generates session ID.
+ * @return {string} Session ID.
+ */
+utils.randomString = function() {
+  return Math.random().toString(utils.RANDOM_STRING_RADIX)
+    .substr(utils.RANDOM_STRING_START_INDEX, utils.RANDOM_STRING_LENGTH);
+};
+
+/**
+ * Validates a string with a regex.
+ * @param {string} str
+ * @param {RegExp} regex
+ * @return {boolean}
+ */
+utils.validateRegex = function(str, regex) {
+  return regex.test(str);
 };

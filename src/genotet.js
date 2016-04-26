@@ -38,7 +38,7 @@ genotet.ViewType = {
  * Run tests in the development environment.
  */
 genotet.init = function() {
-  //Welcome.init();
+  genotet.url.init();
   genotet.data.init();
   genotet.panelManager.init();
   genotet.viewManager.init();
@@ -46,6 +46,9 @@ genotet.init = function() {
   genotet.menu.init();
   genotet.options.init();
   genotet.tooltip.init();
+  genotet.user.init();
+  genotet.logger.init();
+  genotet.dialog.init();
 
   if (genotet.test) {
     genotet.test();
@@ -59,6 +62,7 @@ genotet.init = function() {
 genotet.warning = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.warn(msg);
+  genotet.logger.log(genotet.logger.Type.WARNING, msg);
   if (genotet.options.allowMessage) {
     $('.sys-warning').text(msg).parent().slideDown();
   }
@@ -71,6 +75,7 @@ genotet.warning = function(var_msgs) {
 genotet.error = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.error(msg);
+  genotet.logger.log(genotet.logger.Type.ERROR, msg);
   if (genotet.options.allowMessage) {
     $('.sys-error').text(msg).parent().slideDown();
   }
@@ -83,6 +88,7 @@ genotet.error = function(var_msgs) {
 genotet.success = function(var_msgs) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.info(msg);
+  genotet.logger.log(genotet.logger.Type.SUCCESS, msg);
   if (genotet.options.allowMessage) {
     $('.sys-success').text(msg).parent().slideDown();
   }

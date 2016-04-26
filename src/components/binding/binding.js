@@ -219,9 +219,6 @@ genotet.BindingView = function(viewName, params) {
   $(this)
     .on('genotet.updateFileListAfterLoading', function() {
       this.panel.updateFileListAfterLoading();
-    }.bind(this))
-    .on('genotet.updateTrackWithMapping', function(event, fileName) {
-      this.updateTrackWithMapping_(fileName);
     }.bind(this));
 
   // Set up link callbacks.
@@ -258,6 +255,11 @@ genotet.BindingView = function(viewName, params) {
       if (targetGene) {
         this.loader.findLocus(targetGene);
       }
+    }.bind(this));
+
+  $(this.loader)
+    .on('genotet.updateTrackWithMapping', function(event, fileName) {
+      this.updateTrackWithMapping_(fileName);
     }.bind(this));
 };
 

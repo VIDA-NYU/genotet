@@ -15,20 +15,17 @@
  */
 genotet.Files;
 
+/**
+ * @typedef {{
+ *   email: string,
+ *   username: string,
+ *   password: string
+ * }}
+ */
+genotet.UserInfo;
+
 /** @const */
 genotet.data = {};
-
-/**
- * Data queries are sent to this address via http and received via jsonp.
- * @type {string}
- */
-genotet.data.serverURL;
-
-/**
- * Data are uploaded to this URL by posting multipart form data.
- * @type {string}
- */
-genotet.data.uploadURL;
 
 /**
  * @typedef {!Array<{
@@ -123,18 +120,9 @@ genotet.data.redBlueScale = ['#ab1e1e', 'gray', '#1e6eab'];
 genotet.data.redYellowScale = ['black', 'red', 'yellow'];
 
 /**
- * Initializes Data properties.
+ * Initializes binding chrs.
  */
 genotet.data.init = function() {
-  if (window.location.protocol == 'file:') {
-    // Testing environment
-    genotet.data.serverURL = 'http://localhost:3000/genotet';
-  } else {
-    genotet.data.serverURL = window.location.protocol + '//' +
-      window.location.hostname + ':3000/genotet';
-  }
-  genotet.data.uploadURL = genotet.data.serverURL + '/upload';
-
   for (var i = 0; i < 19; i++) {
     genotet.data.bindingChrs.push((i + 1).toString());
   }
@@ -151,11 +139,15 @@ genotet.data.loadList = function(view, fileType) {
   var params = {
     type: 'list-' + fileType
   };
-  $.get(genotet.data.serverURL, params, function(data) {
+  request.get({
+    url: genotet.url.server,
+    params: params,
+    done: function(data) {
       genotet.data.files[fileType + 'Files'] = data;
       view.signal('updateFileListAfterLoading');
-    }.bind(this))
-    .fail(function() {
+    },
+    fail: function() {
       genotet.error('failed to get file list', fileType);
-    });
+    }
+  });
 };

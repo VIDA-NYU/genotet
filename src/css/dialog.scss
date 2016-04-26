@@ -16,12 +16,7 @@
 }
 
 #dialog {
-  #type,
-  #gene,
-  #chr,
-  #matrix,
-  #network,
-  #mapping-file {
+  .input-selectbox {
     width: 220px;
   }
 

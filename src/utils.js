@@ -18,6 +18,9 @@ genotet.utils.PIXEL_TOLERANCE = .1;
 /** @const {number} */
 genotet.utils.RANGE_TOLERANCE = .001;
 
+/** @private @const {number} */
+genotet.utils.SELECT2_PAGE_SIZE_ = 20;
+
 /**
  * Vector type of arbitrary length.
  * @typedef {Array<number>} Vector
@@ -287,6 +290,16 @@ genotet.utils.keySet = function(collection) {
 };
 
 /**
+ * Validates a string with a regex.
+ * @param {string} str
+ * @param {RegExp} regex
+ * @return {boolean}
+ */
+genotet.utils.validateRegex = function(str, regex) {
+  return regex.test(str);
+};
+
+/**
  * Makes 'child' class inherit 'base' class.
  * @param {Function} child
  * @param {Function} base
@@ -296,3 +309,49 @@ genotet.utils.inherit = function(child, base) {
   child.prototype.constructor = child;
   child.base = base.prototype;
 };
+
+/**
+ * @param {!Element} $element
+ * @param {!Object} options
+ * @constructor
+ */
+genotet.utils.Select2PageAdapter = function($element, options) {
+  /**
+   * @type {{
+   *   __super__: function(?, ?)
+   * }}
+   */(genotet.utils.Select2PageAdapter).__super__.constructor.call(
+    this, $element, options);
+};
+
+$.fn.select2.amd.require(['select2/data/array', 'select2/utils'],
+  function(ArrayData, Utils) {
+    var Select2PageAdapter =
+    /**
+     * @type {{
+     *   Extend: function(?, ?)
+     * }}
+     */(Utils).Extend(genotet.utils.Select2PageAdapter, ArrayData);
+
+    /**
+     * The query of Select2PageAdapter.
+     * @param {!Object<{
+     *   page: number
+     * }>} params Parameters for the query of Select2PageAdapter.
+     * @param {function(?)} callback Callback function.
+     */
+    Select2PageAdapter.prototype.query = function(params, callback) {
+      var pageSize = genotet.utils.SELECT2_PAGE_SIZE_;
+      if (!('page' in params)) {
+        params.page = 1;
+      }
+      var genes = this.options.options.data;
+      callback({
+        results: genes.slice((params.page - 1) * pageSize,
+          params.page * pageSize),
+        pagination: {
+          more: params.page * pageSize < genes.length
+        }
+      });
+    };
+  });

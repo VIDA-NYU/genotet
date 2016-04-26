@@ -227,7 +227,7 @@ genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_HEIGHT_ = 20;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.DEFAULT_PROFILE_LEGEND_MARGIN_ = 5;
 /** @private @const {number} */
-genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_CORNER_RADIUS_ = 7;
+genotet.ExpressionRenderer.prototype.PROFILE_LEGEND_CORNER_RADIUS_ = 5;
 /** @private @const {number} */
 genotet.ExpressionRenderer.prototype.LEGEND_TEXT_MARGIN_ = 1;
 /** @private @const {number} */
@@ -342,11 +342,25 @@ genotet.ExpressionRenderer.prototype.initLayout = function() {
     .classed('heatmap', true);
 
   /**
-   * SVG group for the heatmap itself.
+   * Div for the heatmap itself.
    * @private {!d3}
    */
-  this.svgHeatmapContent_ = this.svgHeatmap_.append('g')
+  this.divHeatmapContent_ = this.viewBody.append('div')
     .classed('content', true);
+
+  /**
+   * Canvas for the heatmap itself.
+   * @private {!d3}
+   */
+  this.svgHeatmapCanvas_ = this.divHeatmapContent_.append('canvas')
+    .classed('heatmap-canvas', true);
+
+  /**
+   * SVG for the heatmap hover cell.
+   * @private {!d3}
+   */
+  this.svgHeatmapHoverCell_ = this.divHeatmapContent_.append('div')
+    .classed('hover-cell', true);
 
   /**
    * SVG group for the heatmap gene (row) labels.
@@ -448,6 +462,10 @@ genotet.ExpressionRenderer.prototype.heatmapLayout_ = function() {
       this.LABEL_MARGIN_ + this.LABEL_DIFFERENCE_;
   }
 
+  this.svgHeatmapCanvas_
+    .attr('width', this.heatmapWidth_)
+    .attr('height', this.heatmapHeight_);
+
   var heatmapData = this.data.matrix;
   this.cellWidth = this.heatmapWidth_ / heatmapData.conditionNames.length;
   this.cellHeight = this.heatmapHeight_ / heatmapData.geneNames.length;
@@ -470,11 +488,10 @@ genotet.ExpressionRenderer.prototype.heatmapLayout_ = function() {
     heatmapTransformTop += this.conditionLabelHeight_ +
       this.LABEL_MARGIN_ + this.LABEL_DIFFERENCE_;
   }
-  this.svgHeatmapContent_
-    .attr('transform', genotet.utils.getTransform([
-      heatmapTransformLeft,
-      heatmapTransformTop
-    ]));
+
+  this.divHeatmapContent_
+    .style('top', heatmapTransformTop + 'px')
+    .style('left', heatmapTransformLeft + 'px');
 
   var geneLabelTransformTop = this.TEXT_HEIGHT_ / 2 + this.cellHeight / 2;
   if (this.data.options.showProfiles) {
@@ -661,132 +678,119 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
   }
   var zoomSelected = false;
 
-  var heatmapRows = this.svgHeatmapContent_.selectAll('g')
-    .data(heatmapData.values);
-  heatmapRows.enter().append('g');
-  heatmapRows.exit().remove();
-  var heatmapRects = heatmapRows.selectAll('rect').data(_.identity);
-  heatmapRects.enter().append('rect');
-  heatmapRects
-    .attr('class', function(value, i, j) {
-      return 'row' + j + ' column' + i;
-    })
-    .attr('width', this.cellWidth)
-    .attr('height', this.cellHeight)
-    .attr('x', function(value, i) {
-      return i * this.cellWidth;
-    }.bind(this))
-    .attr('y', function(value, i, j) {
-      return j * this.cellHeight;
-    }.bind(this))
-    .style('fill', colorScale)
-    .on('mouseover', function(value, i, j) {
-      if (!zoomSelected) {
-        var hoverCell = d3.event.target;
-        var cell = new genotet.ExpressionRenderer.Cell({
-          container: hoverCell,
-          geneName: heatmapData.geneNames[j],
-          conditionName: heatmapData.conditionNames[i],
-          row: j,
-          column: i,
-          value: value
-        });
-        this.signal('cellHover', cell);
-      }
-    }.bind(this))
-    .on('mouseout', function(value) {
-      var hoverCell = d3.event.target;
-      var cell = new genotet.ExpressionRenderer.Cell({
-        container: hoverCell
-      });
-      this.signal('cellUnhover', cell);
-    }.bind(this))
-    .on('click', function(value, i, j) {
-      var hoverCell = d3.event.target;
-      _.extend(this.clickedObject_, {
-        container: hoverCell,
-        geneName: heatmapData.geneNames[j],
-        conditionName: heatmapData.conditionNames[i],
-        row: j,
-        column: i,
-        value: value
-      });
-      this.signal('expressionClick', this.clickedObject_);
-    }.bind(this));
-  heatmapRects.exit().remove();
-
-  // Zoom selection.
+  var heatmapCanvas = this.svgHeatmapCanvas_;
+  var context = heatmapCanvas.node().getContext('2d');
   var cellWidth = this.cellWidth;
   var cellHeight = this.cellHeight;
+
+  heatmapData.values.forEach(function(row, i) {
+    row.forEach(function(value, j) {
+      context.beginPath();
+      context.fillStyle = colorScale(value);
+      context.rect(
+        j * cellWidth,
+        i * cellHeight,
+        cellWidth,
+        cellHeight
+      );
+      context.fill();
+      context.closePath();
+    });
+  });
+
+  var currentMousePosition = [];
+
+  // Zoom selection.
   var columnStart, columnEnd, rowStart, rowEnd;
   var zoomStartPosition = {
-    x: 0,
-    y: 0
+    left: 0,
+    top: 0
   };
   var zoomOutButtonSelection = d3.select('#zoom-out button');
   zoomOutButtonSelection.classed('disabled', this.data.zoomStack.length == 0);
 
-  var zoomSelection = this.svgHeatmapContent_
-    .on('mousedown', function() {
-      var mousePosition = d3.mouse(d3.event.target);
-      rowStart = Math.floor(mousePosition[1] / cellHeight);
-      columnStart = Math.floor(mousePosition[0] / cellWidth);
+  heatmapCanvas
+    .on('mousedown', function(event) {
+      this.svgHeatmapHoverCell_.style('display', 'inline');
+      zoomSelected = true;
+
+      rowStart = Math.floor(currentMousePosition[1] / cellHeight);
+      columnStart = Math.floor(currentMousePosition[0] / cellWidth);
       zoomStartPosition = {
-        x: mousePosition[0],
-        y: mousePosition[1]
+        left: currentMousePosition[0],
+        top: currentMousePosition[1]
       };
-      zoomSelection.append('rect')
-        .classed('selection', true)
-        .attr({
-          x: mousePosition[0],
-          y: mousePosition[1],
-          width: 1,
-          height: 1
-        });
-    })
+      this.svgHeatmapHoverCell_
+        .style('width', 1 + 'px')
+        .style('height', 1 + 'px')
+        .style('left', currentMousePosition[0] + 'px')
+        .style('top', currentMousePosition[1] + 'px');
+      this.signal('cellUnhover');
+    }.bind(this))
     .on('mousemove', function() {
-      var rectSelection = zoomSelection.select('rect.selection');
-      if (!rectSelection.empty()) {
-        zoomSelected = true;
-        var mousePosition = d3.mouse(d3.event.target);
+      currentMousePosition = d3.mouse(d3.event.target);
+      if (!zoomSelected) {
+        var row = Math.floor(currentMousePosition[1] / cellHeight);
+        var column = Math.floor(currentMousePosition[0] / cellWidth);
+        if (row < 0 || column < 0) {
+          return;
+        }
+        var hoverCell = this.svgHeatmapHoverCell_
+          .style('width', cellWidth + 'px')
+          .style('height', cellHeight + 'px')
+          .style('left', column * cellWidth + 'px')
+          .style('top', row * cellHeight + 'px');
+        var cell = new genotet.ExpressionRenderer.Cell({
+          container: hoverCell.node(),
+          geneName: heatmapData.geneNames[row],
+          conditionName: heatmapData.conditionNames[column],
+          row: row,
+          column: column,
+          value: heatmapData.values[row][column]
+        });
+        this.signal('cellHover', cell);
+      } else {
+        var rectSelection = this.svgHeatmapHoverCell_;
         var selectedRange = {
-          height: parseInt(rectSelection.attr('height'), 10),
-          width: parseInt(rectSelection.attr('width'), 10),
-          x: parseInt(rectSelection.attr('x'), 10),
-          y: parseInt(rectSelection.attr('y'), 10)
+          height: parseInt(rectSelection.style('height'), 10),
+          width: parseInt(rectSelection.style('width'), 10),
+          left: parseInt(rectSelection.style('left'), 10),
+          top: parseInt(rectSelection.style('top'), 10)
         };
         var selectedBorderWeight = {
-          x: mousePosition[0] - selectedRange.x,
-          y: mousePosition[1] - selectedRange.y
+          left: currentMousePosition[0] - selectedRange.left,
+          top: currentMousePosition[1] - selectedRange.top
         };
-        if (selectedBorderWeight.x < 1 ||
-          (selectedBorderWeight.x * 2 < selectedRange.width)) {
-          selectedRange.x = mousePosition[0];
+        if (selectedBorderWeight.left < 1 ||
+          (selectedBorderWeight.left * 2 < selectedRange.width)) {
+          selectedRange.left = currentMousePosition[0];
         } else {
-          selectedRange.x = zoomStartPosition.x;
+          selectedRange.left = zoomStartPosition.left;
         }
-        selectedRange.width = Math.abs(zoomStartPosition.x -
-          mousePosition[0]);
-        if (selectedBorderWeight.y < 1 ||
-          (selectedBorderWeight.y * 2 < selectedRange.height)) {
-          selectedRange.y = mousePosition[1];
+        selectedRange.width = Math.abs(zoomStartPosition.left -
+          currentMousePosition[0]);
+        if (selectedBorderWeight.top < 1 ||
+          (selectedBorderWeight.top * 2 < selectedRange.height)) {
+          selectedRange.top = currentMousePosition[1];
         } else {
-          selectedRange.y = zoomStartPosition.y;
+          selectedRange.top = zoomStartPosition.top;
         }
-        selectedRange.height = Math.abs(zoomStartPosition.y -
-          mousePosition[1]);
-        rectSelection.attr(selectedRange);
+        selectedRange.height = Math.abs(zoomStartPosition.top -
+          currentMousePosition[1]);
+        Object.keys(selectedRange).forEach(function(attr) {
+          rectSelection.style(attr, selectedRange[attr] + 'px');
+        });
 
         this.svgHeatmap_.selectAll('.label-selected')
           .classed('label-selected', false);
-        this.svgHeatmapContent_.selectAll('.zoom-highlighted')
+        this.divHeatmapContent_.selectAll('.zoom-highlighted')
           .classed('zoom-highlighted', false);
 
-        rowStart = Math.floor(selectedRange.y / cellHeight);
-        rowEnd = Math.floor((selectedRange.y + selectedRange.height) /
+        rowStart = Math.floor(selectedRange.top / cellHeight);
+        rowEnd = Math.floor((selectedRange.top + selectedRange.height) /
           cellHeight);
-        columnStart = Math.floor(selectedRange.x / cellWidth);
-        columnEnd = Math.floor((selectedRange.x + selectedRange.width) /
+        columnStart = Math.floor(selectedRange.left / cellWidth);
+        columnEnd = Math.floor((selectedRange.left + selectedRange.width) /
           cellWidth);
         this.svgGeneLabels_.selectAll('.gene-label')
           .classed('label-selected', function(label, i) {
@@ -796,67 +800,75 @@ genotet.ExpressionRenderer.prototype.drawMatrixCells_ = function() {
           .classed('label-selected', function(label, i) {
             return i >= columnStart && i <= columnEnd;
           });
-        this.svgHeatmapContent_.selectAll('rect:not(.selection)')
-          .filter(function(value, i) {
-            var row = Math.floor(i / heatmapData.conditionNames.length);
-            var column = i % heatmapData.conditionNames.length;
-            return rowStart <= row && row <= rowEnd &&
-              columnStart <= column && column <= columnEnd;
-          }).classed('zoom-highlighted', true);
       }
+      this.svgHeatmapHoverCell_.style('display', 'inline');
     }.bind(this))
     .on('mouseup', function() {
-      zoomSelection.select('rect.selection').remove();
       this.svgGeneLabels_.selectAll('.gene-label')
         .classed('label-selected', false);
       this.svgConditionLabels_.selectAll('.condition-label')
         .classed('label-selected', false);
-      if (zoomSelected) {
-        if (rowEnd - rowStart == heatmapData.geneNames.length - 1 &&
-          columnEnd - columnStart == heatmapData.conditionNames.length - 1) {
+      this.svgHeatmapHoverCell_.style('display', 'none');
+
+      if (!zoomSelected ||
+        Number(this.svgHeatmapHoverCell_.style('width').slice(0, -2)) <= 1) {
+        zoomSelected = false;
+        var row = Math.floor(currentMousePosition[1] / cellHeight);
+        var column = Math.floor(currentMousePosition[0] / cellWidth);
+        if (row < 0 || column < 0) {
           return;
         }
-        var zoomParams = {
-          rowStart: rowStart,
-          rowEnd: rowEnd,
-          columnStart: columnStart,
-          columnEnd: columnEnd
-        };
-        var zoomStatus = this.zoomDataLoaded_(zoomParams);
-        var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
-          geneNames: heatmapData.geneNames,
-          conditionNames: heatmapData.conditionNames
-        });
-        this.data.zoomStack.push(currentStatus);
-        this.signal('expressionZoomIn', zoomStatus);
-      } else {
-        var row, column, selectedValue;
-        var cellSelection = this.svgHeatmapContent_
-          .select('rect:not(.selection)')
-          .select('.row' + rowStart)
-          .select('.column' + columnStart)
-          .node();
-        selectedValue = heatmapData.values[rowStart][columnStart];
+
+        var hoverCell = this.svgHeatmapHoverCell_
+          .style('width', cellWidth + 'px')
+          .style('height', cellHeight + 'px')
+          .style('left', column * cellWidth + 'px')
+          .style('top', row * cellHeight + 'px');
         _.extend(this.clickedObject_, {
-          container: cellSelection,
-          geneName: heatmapData.geneNames[rowStart],
-          conditionName: heatmapData.conditionNames[columnStart],
-          row: rowStart,
-          column: columnStart,
-          value: selectedValue
+          container: hoverCell.node(),
+          geneName: heatmapData.geneNames[row],
+          conditionName: heatmapData.conditionNames[column],
+          row: row,
+          column: column,
+          value: heatmapData.values[row][column]
         });
         this.signal('expressionClick', this.clickedObject_);
+        return;
       }
+
+      zoomSelected = false;
+      if (rowEnd - rowStart == heatmapData.geneNames.length - 1 &&
+        columnEnd - columnStart == heatmapData.conditionNames.length - 1) {
+        return;
+      }
+      var zoomParams = {
+        rowStart: rowStart,
+        rowEnd: rowEnd,
+        columnStart: columnStart,
+        columnEnd: columnEnd
+      };
+      var zoomStatus = this.zoomDataLoaded_(zoomParams);
+      var currentStatus = new genotet.ExpressionRenderer.ZoomStatus({
+        geneNames: heatmapData.geneNames,
+        conditionNames: heatmapData.conditionNames
+      });
+      this.data.zoomStack.push(currentStatus);
+      this.signal('expressionZoomIn', zoomStatus);
     }.bind(this))
     .on('mouseleave', function() {
       zoomSelected = false;
-      zoomSelection.select('rect.selection').remove();
+
       this.svgGeneLabels_.selectAll('.gene-label')
         .classed('label-selected', false);
       this.svgConditionLabels_.selectAll('.condition-label')
         .classed('label-selected', false);
-      this.svgHeatmapContent_.selectAll('.zoom-highlighted')
-        .classed('zoom-highlighted', false);
+      this.svgHeatmapHoverCell_.style('display', 'none');
+
+      var hoverCell = this.svgHeatmapHoverCell_;
+      var cell = new genotet.ExpressionRenderer.Cell({
+        container: hoverCell.node()
+      });
+      this.signal('cellUnhover', cell);
     }.bind(this));
 };
 
@@ -1472,8 +1484,8 @@ genotet.ExpressionRenderer.prototype.unhighlightHoverCell = function(cell) {
  */
 genotet.ExpressionRenderer.prototype.highlightHoverPath_ = function(profile) {
   this.svgGeneLabels_.selectAll('text').classed('highlighted', function(d, i) {
-    return profile.row == i;
-  });
+    return profile.geneName == this.data.matrix.geneNames[i];
+  }.bind(this));
   this.svgConditionLabels_.selectAll('text').classed('highlighted',
     function(d, i) {
       return profile.hoverColumn == i;
@@ -1597,5 +1609,13 @@ genotet.ExpressionRenderer.prototype.getHeatmapLabelSizes_ = function() {
 /** @inheritDoc */
 genotet.ExpressionRenderer.prototype.resize = function() {
   genotet.ExpressionRenderer.base.resize.call(this);
-  this.render();
+  $(this.container).resizable({
+    stop: function(event, ui) {
+      var resized = $(this);
+      resized.queue(function() {
+        this.render();
+        $(this).dequeue();
+      });
+    }.bind(this)
+  });
 };

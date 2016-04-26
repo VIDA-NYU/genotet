@@ -13,10 +13,10 @@ module.exports = server;
 function server() {}
 
 /** @const {string} */
-server.url = 'http://localhost:3000/genotet';
+server.url = 'https://localhost:3000/genotet';
 
 /** @const {string} */
-server.uploadURL = 'http://localhost:3000/genotet/upload';
+server.uploadUrl = 'https://localhost:3000/genotet/upload';
 
 /**
  * @typedef {{
@@ -31,7 +31,8 @@ server.UploadResponse;
  * @return {string}
  */
 server.queryURL = function(params) {
-  return server.url + '?' + querystring.stringify(params);
+  return server.url + '?' +
+    querystring.stringify({data: JSON.stringify(params)});
 };
 
 /**
@@ -41,7 +42,7 @@ server.queryURL = function(params) {
  * @return {!frisby}
  */
 server.postForm = function(frisby, form) {
-  frisby.post(server.uploadURL, form, {
+  frisby.post(server.uploadUrl, form, {
     headers: {
       'content-type': 'multipart/form-data; boundary=' +
       form.getBoundary(),

@@ -4,7 +4,8 @@
   "description": "Genotet",
   "main": "genotet.js",
   "dependencies": {
-    "bower": "^1.5.2"
+    "bower": "^1.5.2",
+    "mongodb": "^2.1.11"
   },
   "devDependencies": {
     "del": "^2.2.0",
@@ -35,7 +36,7 @@
   "scripts": {
     "postinstall": "bower install",
     "prestart": "npm install",
-    "start": "node server/server.js",
+    "start": "bash start.sh",
     "test": "gulp test && jasmine-node test/jasmine-node"
   },
   "repository": {

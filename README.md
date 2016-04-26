@@ -7,7 +7,6 @@ Genotet
 **Development Build Status**
 [![Development Build Status](https://travis-ci.org/ViDA-NYU/genotet.svg?branch=refactor)](https://travis-ci.org/ViDA-NYU/genotet)
 [![Code Climate](https://codeclimate.com/github/ViDA-NYU/genotet/badges/gpa.svg)](https://codeclimate.com/github/ViDA-NYU/genotet)
-[![Test Coverage](https://codeclimate.com/github/ViDA-NYU/genotet/badges/coverage.svg)](https://codeclimate.com/github/ViDA-NYU/genotet/coverage)
 
 An Interactive Web-based Visual Exploration Framework to Support Validation of Gene Regulatory Networks
 
@@ -34,16 +33,13 @@ Installation:
 - Create and edit a server configuration file to set the data paths. The file shall be located at _genotet/server/config_.
 
     ```
-    networkPath = .../genotet_data/network/
-    bindingPath = .../genotet_data/binding/
-    expressionPath = .../genotet_data/expression/
+    mongoDatabase = genotet
+    dataPath = .../genotet_data/data/
     bigWigToWigPath = .../genotet_data/bigWigToWig
-    uploadPath = .../genotet_data/upload/
-    bedPath = .../genotet_data/bed/
-    mappingPath = .../genotet_data/mapping/
     ```
 
-- Run the setup script.
+- Run the setup script. The script downloads the UCSC bigWigToWig tool. Note that the default version is for linux x86_64.
+If you are on a Mac or Windows machine, you need to change the downloading url in setup.sh.
 
     ```
     bash setup.sh
@@ -52,5 +48,5 @@ Installation:
 - Run the server.
 
     ```
-    node server/server.js
+    bash start.sh
     ```

@@ -1,7 +1,5 @@
-bindingPath = dist/data/wiggle/
-networkPath = dist/data/network/
-expressionPath = dist/data/expression/
-bedPath = dist/data/bed/
-uploadPath = dist/data/upload/
+mongoDatabase = genotet-test
+dataPath = dist/data/
 bigWigToWigPath = test/bigWigToWig
-mappingPath = dist/data/mapping/
+privateKeyPath = test/key.pem
+certificatePath = test/server.crt

@@ -15,14 +15,24 @@ function express(params) {}
  */
 express.Request = function() {};
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.query;
 
-/** @type {?} */
+/** @type {*} */
 express.Request.prototype.body;
 
-/** @type {?} */
+/** @type {multer.File} */
 express.Request.prototype.file;
+
+/** @type {*} */
+express.Request.prototype.session;
+
+
+/** @type {string} */
+express.Request.prototype.url;
+
+/** @type {*} */
+express.Request.prototype.headers;
 
 /**
  * @constructor
@@ -32,7 +42,7 @@ express.Response = function() {};
 
 /**
  * @param {string} prop
- * @param {string} val
+ * @param {string|boolean} val
  */
 express.Response.prototype.header = function(prop, val) {};
 
@@ -42,9 +52,19 @@ express.Response.prototype.header = function(prop, val) {};
 express.Response.prototype.json = function(data) {};
 
 /**
+ * @param {*} data
+ */
+express.Response.prototype.jsonp = function(data) {};
+
+/**
  * @param {number} data
  */
 express.Response.prototype.status = function(data) {};
+
+/**
+ * @type {function()}
+ */
+express.Next = function() {};
 
 /**
  * @constructor
@@ -68,16 +88,30 @@ express.prototype.get = function(url, callback) {};
 
 /**
  * @param {string} url
- * @param {*} data
- * @param {function(!express.Request, !express.Response)} callback
+ * @param {*=} data
+ * @param {function(!express.Request, !express.Response)=} callback
  */
 express.prototype.post = function(url, data, callback) {};
 
 /**
- * @param {function(
+ * @typedef {function(
+ *   !express.Request,
+ *   !express.Response,
+ *   function()=)}
+ */
+express.Callback;
+
+/**
+ * @typedef {function((
  *   !express.Error,
  *   !express.Request,
  *   !express.Response,
- *   function())} callback
+ *   function()))}
  */
-express.prototype.use = function(callback) {};
+express.ErrorCallback;
+
+/**
+ * @param {string|!Array<string>|express.ErrorCallback|express.Callback} arg1
+ * @param {express.Callback=} arg2
+ */
+express.prototype.use = function(arg1, arg2) {};
