@@ -260,7 +260,7 @@ app.use('/genotet', function(req, res, next) {
         next();
       } else {
         log.serverLog(result.error);
-        jsonResponse(result, req, res);
+        jsonResponse(/** @type {Object} */(result), req, res);
       }
     });
   }

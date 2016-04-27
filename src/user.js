@@ -88,7 +88,7 @@ genotet.user.logOut = function() {
   var params = {
     type: 'log-out'
   };
-  request.get({
+  request.post({
     url: genotet.url.user,
     params: params,
     done: function() {

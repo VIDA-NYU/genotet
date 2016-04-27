@@ -225,12 +225,12 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
 
   this.canvas.selectAll('.render-group')
     .attr('transform', genotet.utils.getTransform(translate, scale));
+  this.zoomTranslate_ = translate;
 
   // var nodeNum = this.network.nodes.length;
   // var normScale = nodeNum / 100;
   if (Math.floor(scale / this.zoomScale_) > 1 + this.MIN_ZOOM_RADIO_ ||
     Math.floor(scale / this.zoomScale_) < 1 - this.MIN_ZOOM_RADIO_) {
-    this.zoomTranslate_ = translate;
     this.zoomScale_ = scale;
     this.drawNetwork_();
   }
@@ -248,7 +248,9 @@ genotet.NetworkRenderer.prototype.dataReady = function() {
  */
 genotet.NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
-    .domain([this.data.network.weightMin, this.data.network.weightMax])
+    .domain([this.data.network.weightMin,
+      (this.data.network.weightMin + this.data.network.weightMax) / 2,
+      this.data.network.weightMax])
     .range(genotet.data.redBlueScale);
 
   // Store which nodes exist in the new data.
@@ -312,7 +314,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
       }
     }.bind(this))
     .on('end', function() {
-      this.forcing = false;
+      this.force_.stop();
     }.bind(this));
 };
 
@@ -564,4 +566,123 @@ genotet.NetworkRenderer.prototype.findSelectEdges = function(edgeIds) {
   if (selectedEdges.length > 1) {
     this.signal('showMultiEdges');
   }
+};
+
+/**
+ * Initializes the polygon selection mode.
+ * @private
+ */
+genotet.NetworkRenderer.prototype.polygonSelectionInit_ = function() {
+  var coords = [];
+  var line = d3.svg.line();
+  var g = this.canvas.append('g');
+  var tmpNodes = [];
+  for (var nodeId in this.nodes_) {
+    tmpNodes.push({
+      x: this.nodes_[nodeId].x * this.zoomScale_ + this.zoomTranslate_[0],
+      y: this.nodes_[nodeId].y * this.zoomScale_ + this.zoomTranslate_[1],
+      id: nodeId
+    });
+  }
+  var dot = this.svgNodes_.selectAll('rect, circle');
+  var drawPath = function(terminator) {
+    g.append('path')
+      .attr({
+        d: line(coords)
+      })
+      .attr('stroke', 'blue')
+      .attr('stroke-width', 2)
+      .attr('fill', 'none');
+    if (terminator && coords.length) {
+      g.select('#terminator').remove();
+      g.append('path').attr({
+          id: 'terminator',
+          d: line([coords[0], coords[coords.length - 1]])
+        })
+        .attr('stroke', 'blue')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
+      g.selectAll('path').remove();
+    }
+  };
+
+  this.drag_ = d3.behavior.drag()
+    .on('dragstart', function() {
+      dot.classed('active', function() {
+        return false;
+      });
+      coords = [];
+      g.selectAll('path').remove();
+    }.bind(this))
+    .on('drag', function() {
+      coords.push(d3.mouse(g.node()));
+      this.data.selectedNodes = {};
+      tmpNodes.forEach(function(node) {
+        var point = [node.x, node.y];
+        if (this.pointInPolygon_(point, coords)) {
+          this.data.selectedNodes[node.id] = true;
+        }
+      }, this);
+      dot.classed('active', function(node) {
+        return node.id in this.data.selectedNodes;
+      }.bind(this));
+      drawPath(false);
+    }.bind(this))
+    .on('dragend', function() {
+      drawPath(true);
+    }.bind(this));
+};
+
+/**
+ * Switches the network polygon-selection/zoom mode.
+ */
+genotet.NetworkRenderer.prototype.switchMode = function() {
+  if (this.data.options.mouseZoom) {
+    this.zoomMode_();
+  } else {
+    this.polyMode_();
+  }
+};
+
+/**
+ * Transfers the network view to polygon selection mode.
+ * @private
+ */
+genotet.NetworkRenderer.prototype.polyMode_ = function() {
+  this.canvas.on('.zoom', null);
+  this.polygonSelectionInit_();
+  this.canvas.call(this.drag_);
+};
+
+/**
+ * Transfers the network view to zoom mode.
+ * @private
+ */
+genotet.NetworkRenderer.prototype.zoomMode_ = function() {
+  this.canvas.on('.drag', null);
+  this.canvas.call(this.zoom_);
+};
+
+/**
+ * Calculates whether the point is in the polygon.
+ * @param {!Array<number>} point The point.
+ * @param {!Array<Array<number>>} vertices The vertices of the polygon.
+ * @return {boolean} The result.
+ * @private
+ */
+genotet.NetworkRenderer.prototype.pointInPolygon_ = function(point, vertices) {
+  // ray-casting algorithm based on
+  // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+  var x = point[0], y = point[1];
+  var isInside = false;
+  for (var i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+    var xi = vertices[i][0];
+    var yi = vertices[i][1];
+    var xj = vertices[j][0];
+    var yj = vertices[j][1];
+    var intersect = ((yi > y) != (yj > y)) &&
+      (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) isInside = !isInside;
+  }
+  return isInside;
 };
