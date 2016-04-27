@@ -40,7 +40,8 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   [
     {selector: '#gene-labels', type: 'label', attribute: 'showLabels'},
     {selector: '#tf-tf', type: 'visibility', attribute: 'showTFToTF'},
-    {selector: '#tf-nontf', type: 'visibility', attribute: 'showTFToNonTF'}
+    {selector: '#tf-nontf', type: 'visibility', attribute: 'showTFToNonTF'},
+    {selector: '#zoom-selection', type: 'switch-mode', attribute: 'mouseZoom'}
   ].forEach(function(bSwitch) {
       this.container.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
         function(event, state) {

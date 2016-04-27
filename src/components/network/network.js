@@ -144,6 +144,9 @@ genotet.NetworkView = function(viewName, params) {
           this.table.removeEdge(data.edges[0]);
           this.renderer.dataLoaded();
           break;
+        case 'switch-mode':
+          this.renderer.switchMode();
+          break;
         default:
           genotet.error('unknown update type', data.type);
       }

@@ -248,7 +248,9 @@ genotet.NetworkRenderer.prototype.dataReady = function() {
  */
 genotet.NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
-    .domain([this.data.network.weightMin, this.data.network.weightMax])
+    .domain([this.data.network.weightMin,
+      (this.data.network.weightMin + this.data.network.weightMax) / 2,
+      this.data.network.weightMax])
     .range(genotet.data.redBlueScale);
 
   // Store which nodes exist in the new data.
@@ -312,7 +314,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
       }
     }.bind(this))
     .on('end', function() {
-      this.forcing = false;
+      this.force_.stop();
     }.bind(this));
 };
 
@@ -564,4 +566,90 @@ genotet.NetworkRenderer.prototype.findSelectEdges = function(edgeIds) {
   if (selectedEdges.length > 1) {
     this.signal('showMultiEdges');
   }
+};
+
+genotet.NetworkRenderer.prototype.polygonSelectionInit_ = function() {
+  var coords = [];
+  var line = d3.svg.line();
+  var dragStart = function() {
+    coords = [];
+    g.selectAll('path').remove();
+  };
+  var drawPath = function(terminator) {
+    g.append('path')
+      .attr({
+        d: line(coords)
+      })
+      .attr('stroke', 'blue')
+      .attr('stroke-width', 2)
+      .attr('fill', 'none');
+    if (terminator && coords.length) {
+      g.select('#terminator').remove();
+      g.append('path').attr({
+          id: 'terminator',
+          d: line([coords[0], coords[coords.length-1]])
+        })
+        .attr('stroke', 'blue')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
+    }
+  };
+  var dragMove = function() {
+    dot.classed('active', function(node) {
+      return false;
+    });
+    coords.push(d3.mouse(this));
+    dot.classed('active', function(node) {
+      var point = [node.x, node.y];
+      return pointInPolygon(point, coords);
+    });
+    drawPath();
+  };
+  var dragEnd = function() {
+    drawPath(true);
+  };
+  var // from https://github.com/substack/point-in-polygon
+    pointInPolygon = function (point, vs) {
+      // ray-casting algorithm based on
+      // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+      var x = point[0],
+        y = point[1],
+        inside = false;
+      for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        var xi = vs[i][0],
+          yi = vs[i][1],
+          xj = vs[j][0],
+          yj = vs[j][1],
+          intersect = ((yi > y) != (yj > y))
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    };
+  var g = this.canvas.append('g');
+  var dot = this.svgNodes_.selectAll('rect, circle');
+
+  this.drag_ = d3.behavior.drag()
+    .on('dragstart', dragStart)
+    .on('drag', dragMove)
+    .on('dragend', dragEnd);
+};
+
+genotet.NetworkRenderer.prototype.switchMode = function() {
+  if (this.data.options.mouseZoom) {
+    this.zoomMode_();
+  } else {
+    this.polyMode_();
+  }
+};
+
+genotet.NetworkRenderer.prototype.polyMode_ = function() {
+  this.canvas.on('.zoom', null);
+  this.polygonSelectionInit_();
+  this.canvas.call(this.drag_);
+};
+
+genotet.NetworkRenderer.prototype.zoomMode_ = function() {
+  this.canvas.on('.drag', null);
+  this.canvas.call(this.zoom_);
 };
