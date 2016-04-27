@@ -3,6 +3,14 @@
  */
 
 var frisby = require('frisby');
+var server = require('./server.js');
+
+frisby.globalSetup({
+  timeout: 1000,
+  request: {
+    rejectUnauthorized: false
+  }
+});
 
 /** @type {chain} */
 module.exports = chain;
@@ -30,8 +38,11 @@ chain.test = function(tests) {
     test.action(request);
     request
       .after(function(err, res, body) {
+        server.cookie = res.headers['set-cookie'];
         describe(test.name, function() {
-          test.check(body);
+          if (test.check !== undefined) {
+            test.check(JSON.parse(body));
+          }
         });
         run(index + 1);
       })

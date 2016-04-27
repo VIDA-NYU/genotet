@@ -65,27 +65,20 @@ networkSpec.tests = [
       server
         .postForm(frisby, form)
         .expectStatus(200);
-    },
-    check: function(body) {
-      var data = /** @type {server.UploadResponse} */(JSON.parse(body));
-      it('without error field', function() {
-        expect(data.error).toBeUndefined();
-      });
     }
   },
   {
     name: 'query network',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({
+      server
+        .get(frisby, {
           type: 'network',
           fileName: networkSpec.dataInfo.fileName,
           genes: ['a', 'c', 'e']
-        }))
+        })
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = /** @type {networkSpec.QueryResponse} */(JSON.parse(body));
+    check: function(data) {
       it('nodes', function() {
         expect(data.nodes).toEqual([
           {id: 'a', label: 'a', isTF: true},
