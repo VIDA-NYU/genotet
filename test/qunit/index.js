@@ -23,13 +23,21 @@ genotet.qunit.chain = function(assert, tests) {
       return;
     }
     var test = tests[index];
-    test.action();
     var done = assert.async();
-    setTimeout(function() {
+    var proceed = function() {
       test.check();
       done();
       run(index + 1);
-    });
+    };
+
+    var useNext = !!test.next;
+    if (useNext) {
+      test.next = proceed;
+    }
+    test.action();
+    if (!useNext) {
+      setTimeout(proceed);
+    }
   };
   run(0);
 };

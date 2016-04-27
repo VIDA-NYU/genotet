@@ -18,7 +18,8 @@ module.exports = {
   qunitTests: [
     'test/qunit/index.js',
     '!test/qunit/externs/*.js',
-    'test/qunit/**/*.js'
+    'test/qunit/user.js',
+    'test/qunit/panel.js'
   ],
   jasmineNodeTests: [
     '!test/jasmine-node/externs/*.js',

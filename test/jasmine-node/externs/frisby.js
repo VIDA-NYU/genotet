@@ -14,6 +14,16 @@ function frisby() {}
 frisby.create = function(name) {};
 
 /**
+ * @param {{
+ *   timeout: (number|undefined),
+ *   request: {
+ *     rejectUnauthorized: (boolean|undefined)
+ *   }
+ * }} arg
+ */
+frisby.globalSetup = function(arg) {};
+
+/**
  * @param {Function} callback
  * @return {!frisby}
  */
@@ -27,9 +37,16 @@ frisby.prototype.after = function(callback) {};
 frisby.prototype.post = function(url, data, options) {};
 
 /**
+ * @param {string} url
+ * @param {Object=} options
+ */
+frisby.prototype.get = function(url, options) {};
+
+/**
  * @param {number} status
  * @return {!frisby}
  */
 frisby.prototype.expectStatus = function(status) {};
+
 
 frisby.prototype.toss = function() {};

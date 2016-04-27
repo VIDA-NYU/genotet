@@ -22,8 +22,11 @@ server.uploadUrl = server.url + '/upload';
 /** @const {string} */
 server.userUrl = server.url + '/user';
 
-/** @type {string} */
-server.cookie = '';
+/** @typedef {!Array<string>} */
+server.Cookie;
+
+/** @type {server.Cookie} */
+server.cookie = [];
 
 /**
  * @typedef {{
@@ -41,7 +44,8 @@ server.getCookie_ = function() {
   if (!fs.existsSync(sessionFile)) {
     return;
   }
-  server.cookie = JSON.parse(fs.readFileSync(sessionFile));
+  server.cookie = /** @type {server.Cookie} */(
+    JSON.parse(/** @type {string} */(fs.readFileSync(sessionFile))));
 };
 
 // Read cookie file to perform queries as testuser.
@@ -49,8 +53,8 @@ server.getCookie_();
 
 /**
  * Removes the cookie expiration time.
- * @param {!Array<string>} cookie
- * @return {!Array<string>}
+ * @param {server.Cookie} cookie
+ * @return {server.Cookie}
  */
 server.getCookieSessionId = function(cookie) {
   var result = [];
@@ -105,7 +109,7 @@ server.postForm = function(frisby, form) {
 server.get = function(frisby, params) {
   frisby.get(server.queryUrl(params), {
     headers: {
-      'cookie': server.cookie
+      cookie: server.cookie
     }
   });
   return frisby;
@@ -121,7 +125,7 @@ server.get = function(frisby, params) {
 server.post = function(frisby, url, params) {
   frisby.post(url, server.queryData(params), {
     headers: {
-      'cookie': server.cookie
+      cookie: server.cookie
     }
   });
   return frisby;

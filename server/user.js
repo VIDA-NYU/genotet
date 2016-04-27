@@ -181,18 +181,14 @@ user.query.signUp = function(query, callback) {
  * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
 user.query.autoSignIn = function(query, callback) {
-  user.findUsername(query.sessionId, function(data) {
-    if (data.error) {
-      callback(/** @type {user.Error} */(data));
-    } else {
-      callback({username: /** @type {string} */(data)});
-    }
+  user.findSession(query.sessionId, function(result) {
+    callback(/** @type {user.Error|user.Cookie} */(result));
   });
 };
 
 /**
  * @param {*|user.LogOut} query
- * @param {function((!user.Error|user.Cookie))} callback Callback function.
+ * @param {function((user.Error|!Object))} callback Callback function.
  */
 user.query.logOut = function(query, callback) {
   var db = database.db;
@@ -219,32 +215,39 @@ user.signUp = function(userInfo, callback) {
       {username: userInfo.username},
       {email: userInfo.email}
     ]
-  });
-  var documents = [];
-  cursor.each(function(err, doc) {
+  }).limit(1);
+  cursor.toArray(function(err, docs) {
     if (err) {
       log.serverLog(err.message);
+      callback({error: err.message});
       return;
     }
-    if (doc != null) {
-      delete doc['_id'];
-      documents.push(doc);
-    } else {
-      var data = user.signUpUser_(documents, userInfo);
-      if (!data) {
-        // success and proceed
-        data = user.updateSession({
-          username: userInfo.username
-        });
+    if (docs.length) {
+      var doc = docs[0];
+      if (doc.username == userInfo.username) {
+        callback({error: 'username exists'});
+      } else if (doc.email == userInfo.email) {
+        callback({error: 'email exists'});
       }
-      callback(data);
+      return;
     }
+    db.collection(user.USER_INFO_COLLECTION).insertOne(userInfo);
+    log.serverLog('user information saved');
+    callback(user.updateSession({
+      username: userInfo.username,
+      sessionId: userInfo.sessionId,
+      expiration: 0
+    }));
   });
 };
 
 /**
  * Checks the user information for signing in.
- * @param {user.Info} userInfo User Information.
+ * @param {{
+ *   username: string,
+ *   password: string,
+ *   sessionId: string
+ * }} userInfo User Information.
  * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
 user.signIn = function(userInfo, callback) {
@@ -257,26 +260,27 @@ user.signIn = function(userInfo, callback) {
   };
   database.getOne(db.collection(user.USER_INFO_COLLECTION), query,
     function(result) {
-      if (result.error) { // getOne errors
-        callback(result);
+      if (result && result.error) { // getOne errors
+        callback(/** @type {user.Error} */(result));
         return;
       }
-      if (result === '') {
+      if (result === null) {
         callback({error: 'incorrect username or password'});
         return;
       }
       // success and proceed
       callback(user.updateSession({
         username: userInfo.username,
-        sessionId: userInfo.sessionId
+        sessionId: userInfo.sessionId,
+        expiration: 0
       }));
     });
 };
 
 /**
  * Checks the user session information for auto signing in.
- * @param {!user.Cookie} cookie User cookie information.
- * @param {function((!user.Error|user.Cookie))} callback Callback function.
+ * @param {user.Cookie} cookie User cookie information.
+ * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
 user.autoSignIn = function(cookie, callback) {
   var db = database.db;
@@ -288,11 +292,11 @@ user.autoSignIn = function(cookie, callback) {
   };
   database.getOne(db.collection(user.SESSION_COLLECTION), query,
     function(result) {
-      if (result.error) { // getOne errors
-        callback(result);
+      if (result && result.error) { // getOne errors
+        callback(/** @type {user.Error} */(result));
         return;
       }
-      if (result === '') {
+      if (result === null) {
         callback({error: 'invalid session information'});
         return;
       }
@@ -301,11 +305,11 @@ user.autoSignIn = function(cookie, callback) {
 };
 
 /**
- * Finds username from database corresponding to sessionId.
- * @param {string} sessionId The seesion ID of the user.
- * @param {function((user.Error|string))} callback Callback function.
+ * Finds user session info from database corresponding to sessionId.
+ * @param {string} sessionId The session ID of the user.
+ * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
-user.findUsername = function(sessionId, callback) {
+user.findSession = function(sessionId, callback) {
   var db = database.db;
   var query = {
     sessionId: sessionId
@@ -313,21 +317,25 @@ user.findUsername = function(sessionId, callback) {
   database.getOne(db.collection(user.SESSION_COLLECTION), query,
     function(result) {
       if (result && result.error) {
-        callback(result);
+        callback(/** @type {user.Error} */(result));
         return;
       }
-      if (!result) {
-        callback('anonymous');
+      if (result === null) {
+        callback({
+          username: 'anonymous',
+          sessionId: '',
+          expiration: 0
+        });
         return;
       }
-      callback(result.username);
+      callback(/** @type {user.Cookie} */(result));
     });
 };
 
 /**
  * Updates session ID from database. Regenerates if it is expired.
- * @param {!user.Cookie} cookie User cookie information.
- * @return {!user.Cookie} cookie Updated user cookie information.
+ * @param {user.Cookie} cookie User cookie information.
+ * @return {user.Cookie} cookie Updated user cookie information.
  */
 user.updateSession = function(cookie) {
   var db = database.db;
@@ -338,33 +346,6 @@ user.updateSession = function(cookie) {
     {upsert: true}
   );
   return cookie;
-};
-
-/**
- * Authenticates the signed up user.
- * @param {Array<user.Info>} data
- * @param {user.Info} userInfo User Information.
- * @return {user.Error|undefined}
- * @private
- */
-user.signUpUser_ = function(data, userInfo) {
-  var db = database.db;
-  var duplicates = [];
-  data.forEach(function(item) {
-    if (item.email == userInfo.email) {
-      duplicates.push('email: ' + userInfo.email);
-    }
-    if (item.username == userInfo.username) {
-      duplicates.push('username: ' + userInfo.username);
-    }
-  });
-  if (duplicates.length) {
-    var errorMessage = duplicates.join(' and ') + ' exist(s)';
-    return {error: errorMessage};
-  } else {
-    db.collection(user.USER_INFO_COLLECTION).insertOne(userInfo);
-    log.serverLog('user information saved');
-  }
 };
 
 /**
