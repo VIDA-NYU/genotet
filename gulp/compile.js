@@ -71,7 +71,7 @@ var compile = function(cb, src) {
     }));
 };
 
-gulp.task('compile', function(cb) {
+gulp.task('compile-src', function(cb) {
   return compile(cb, paths.src)
     .pipe(gulp.dest(paths.dist));
 });

@@ -113,3 +113,9 @@ mongodb.Cursor.prototype.count = function(callback) {};
  * @param {function(!mongodb.Error, !mongodb.Doc)} callback
  */
 mongodb.Cursor.prototype.toArray = function(callback) {};
+
+/**
+ * @param {number} arg
+ * @return {!mongodb.Cursor}
+ */
+mongodb.Cursor.prototype.limit = function(arg) {};

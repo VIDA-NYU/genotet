@@ -26,4 +26,3 @@ floats.equal = function(a, b, opt_tolerance) {
   expect(a).toBeGreaterThan(b - tolerance);
   expect(a).toBeLessThan(b + tolerance);
 };
-

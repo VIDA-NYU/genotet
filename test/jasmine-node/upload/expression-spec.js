@@ -58,23 +58,16 @@ expressionSpec.tests = [
       server
         .postForm(frisby, form)
         .expectStatus(200);
-    },
-    check: function(body) {
-      var data = /** @type {server.UploadResponse} */(JSON.parse(body));
-      it('without error field', function() {
-        expect(data.error).toBeUndefined();
-      });
     }
   },
   {
     name: 'list expression',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({type: 'list-expression'}))
+      server
+        .get(frisby, {type: 'list-expression'})
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       it('listed expression data', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
@@ -88,17 +81,16 @@ expressionSpec.tests = [
   {
     name: 'query expression',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({
+      server
+        .get(frisby, {
           type: 'expression',
           fileName: expressionSpec.dataInfo.fileName,
           geneNames: ['a', 'b'],
           conditionNames: ['cond1', 'cond2']
-        }))
+        })
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = /** @type {expressionSpec.QueryResponse} */(JSON.parse(body));
+    check: function(data) {
       it('gene names', function() {
         expect(data.geneNames).toEqual(['a', 'b']);
       });

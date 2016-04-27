@@ -1,31 +1,26 @@
 language: node_js
 node_js:
-  - "4.1"
+  - 4.1
+rvm:
+  - 2.2
 
-sudo: required
-dist: trusty
+sudo: false
 
-before_install:
-  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-  - echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
-  - sudo apt-get update
-  - sudo apt-get install -y mongodb-org=3.0.5 mongodb-org-server=3.0.5 mongodb-org-shell=3.0.5 mongodb-org-mongos=3.0.5 mongodb-org-tools=3.0.5
+services:
+  - mongodb
 
 before_script:
-  - sudo service mongod status
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libicu52 libjpeg8 libfontconfig libwebp5
   - npm install -g gulp
   - npm install -g jasmine-node
   - cd server
   - npm install
   - cd ..
-  - rvm 2.2.3
+  - rvm install ruby
   - gem install scss_lint
   - bash setup.sh
 
 script:
-  - ./test/test.sh
+  - bash test/test.sh
 
 after_script:
   - cat nohup.out

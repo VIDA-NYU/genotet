@@ -44,23 +44,16 @@ bedSpec.tests = [
       server
         .postForm(frisby, form)
         .expectStatus(200);
-    },
-    check: function(body) {
-      var data = /** @type {server.UploadResponse} */(JSON.parse(body));
-      it('without error field', function() {
-        expect(data.error).toBeUndefined();
-      });
     }
   },
   {
     name: 'list bed',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({type: 'list-bed'}))
+      server
+        .get(frisby, {type: 'list-bed'})
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       it('listed bed data', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
@@ -74,16 +67,15 @@ bedSpec.tests = [
   {
     name: 'query bed chr1',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({
+      server
+        .get(frisby, {
           type: 'bed',
           fileName: bedSpec.dataInfo.fileName,
           chr: '1'
-        }))
+        })
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       it('without x range', function() {
         expect(data).toEqual({
           aggregated: false,
@@ -95,18 +87,17 @@ bedSpec.tests = [
   {
     name: 'query bed chr2',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({
+      server
+        .get(frisby, {
           type: 'bed',
           fileName: bedSpec.dataInfo.fileName,
           chr: '2',
           xl: 26382900,
           xr: 101662495
-        }))
+        })
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       it('partially intersect', function() {
         expect(data).toEqual({
           aggregated: false,
@@ -120,18 +111,17 @@ bedSpec.tests = [
   {
     name: 'query bed chr3',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({
+      server
+        .get(frisby, {
           type: 'bed',
           fileName: bedSpec.dataInfo.fileName,
           chr: '3',
           xl: 40000000,
           xr: 50000000
-        }))
+        })
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       it('no intersection', function() {
         expect(data).toEqual({
           aggregated: false,
