@@ -2,7 +2,7 @@
 # The user may write a *.tsv file, with each line as:
 #       file_path data_name file_type description
 # The command line would be:
-#       python uploadBatch.py username *.tsv
+#       python uploadBatch.py username example.tsv
 # And then enter your password for Genotet.
 
 from requests_toolbelt import MultipartEncoder
@@ -11,7 +11,7 @@ import sys
 import getpass
 import json
 
-url = 'http://localhost:3000'
+url = 'http://localhost:3000' # Please change it accordingly.
 
 def upload_file(file_path, data_name, file_type, description, cookies):
     upload_url = url + '/genotet/upload'
@@ -59,7 +59,7 @@ def main(argv):
     file_path = argv[2]
     tsv_file = open(file_path, 'r')
     for line in tsv_file:
-        parts = line.split(' ')
+        parts = line.split('\t')
         result = upload_file(parts[0], parts[1], parts[2], parts[3], cookies)
         if not result:
             print 'failed to upload ' + parts[0]
