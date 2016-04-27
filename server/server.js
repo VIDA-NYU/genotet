@@ -257,10 +257,10 @@ app.use('/genotet', function(req, res, next) {
     var err = {error: 'no valid session found'};
     jsonResponse(err, req, res);
   } else {
-    user.findUsername(req.session.id, function(result) {
+    user.findSession(req.session.id, function(result) {
       if (!result.error) {
-        log.serverLog('username', result);
-        req.username = result;
+        log.serverLog('username', result.username);
+        req.username = result.username;
         next();
       } else {
         log.serverLog(result.error);
@@ -428,7 +428,6 @@ MongoClient.connect(mongoUrl, function(err, mongoClient) {
     key: privateKey,
     cert: certificate
   };
-  /** @type {!https.Server} */
   https.createServer(httpsOptions, app)
     .listen(3000)
     .setTimeout(1800000);

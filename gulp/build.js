@@ -6,7 +6,7 @@ var runSequence = require('run-sequence');
 gulp.task('build', function(cb) {
   runSequence(
     'dist',
-    ['copy', 'index', 'sass', 'compile'],
+    ['copy', 'index', 'sass', 'compile-src'],
     cb);
 });
 

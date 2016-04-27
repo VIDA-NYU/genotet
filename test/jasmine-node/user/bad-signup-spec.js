@@ -85,6 +85,55 @@ badSignUpSpec.tests = [
         expect(data).toBe('invalid email');
       });
     }
+  },
+  {
+    name: 'successful signup',
+    action: function(frisby) {
+      server
+        .post(frisby, server.userUrl, {
+          type: 'sign-up',
+          username: 'helloworld',
+          password: 'helloworld',
+          email: 'helloworld@gmail.com'
+        })
+        .expectStatus(200);
+    }
+  },
+  {
+    name: 'duplicate username',
+    action: function(frisby) {
+      server
+        .post(frisby, server.userUrl, {
+          type: 'sign-up',
+          username: 'helloworld',
+          password: 'helloworld',
+          email: 'helloworld@genotet.org'
+        })
+        .expectStatus(500);
+    },
+    check: function(data) {
+      it('username exists error', function() {
+        expect(data).toBe('username exists');
+      });
+    }
+  },
+  {
+    name: 'duplicate email',
+    action: function(frisby) {
+      server
+        .post(frisby, server.userUrl, {
+          type: 'sign-up',
+          username: 'helloworld2',
+          password: 'helloworld',
+          email: 'helloworld@gmail.com'
+        })
+        .expectStatus(500);
+    },
+    check: function(data) {
+      it('email exists error', function() {
+        expect(data).toBe('email exists');
+      });
+    }
   }
 ];
 chain.test(badSignUpSpec.tests);

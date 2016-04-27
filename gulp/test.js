@@ -13,12 +13,12 @@ gulp.task('copy-testdata', function() {
 gulp.task('qunit-test', function(cb) {
   return gulp.src('index.html')
     .pipe(qunit({
-      // phantomjs2 is required as 1.x does not have Function.prototype.bind
-      binPath: require('phantomjs2').path
-    })
+      'phantomjs-options': ['--ignore-ssl-errors=true', '--web-security=false'],
+      'timeout': 30
+    }))
     .on('error', function(err) {
       cb(err);
-    }));
+    });
 });
 
 // Run the tests.

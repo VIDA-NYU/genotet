@@ -25,7 +25,8 @@ jasmine-node test/jasmine-node/upload
 res=$?
 if [[ $res -ne 0 ]]
 then
-  abort $res
+  exit $res
+  #abort $res
 fi
 
 abort 0
