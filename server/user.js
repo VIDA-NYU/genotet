@@ -29,19 +29,19 @@ user.QueryType = {
  * Database name of user information.
  * @const {string}
  */
-user.userInfoDbName = 'userInfo';
+user.USER_INFO_COLLECTION = 'userInfo';
 
 /**
  * Database name of session.
  * @const {string}
  */
-user.sessionDbName = 'session';
+user.SESSION_COLLECTION = 'session';
 
 /**
  * Expire time of cookie.
  * @const {number}
  */
-user.cookieExpireTime = 24 * 60 * 60 * 1000;
+user.COOKIE_EXPIRE_TIME = 24 * 60 * 60 * 1000;
 
 /** @const {RegExp} */
 user.VALID_EMAIL_REGEX =
@@ -57,10 +57,10 @@ user.VALID_PASSWORD_REGEX = /^\w{8,}$/;
 
 /**
  * @typedef {{
- *   email: (string|undefined),
  *   username: string,
  *   password: string,
- *   confirmed: (boolean|undefined),
+ *   email: string,
+ *   confirmed: boolean,
  *   sessionId: string
  * }}
  */
@@ -68,7 +68,42 @@ user.Info;
 
 /**
  * @typedef {{
- *   username: (string|undefined)
+ *   username: string,
+ *   password: string,
+ *   email: string,
+ *   sessionId: string
+ * }}
+ */
+user.SignUp;
+
+/**
+ * @typedef {{
+ *   username: string,
+ *   password: string,
+ *   sessionId: string
+ * }}
+ */
+user.SignIn;
+
+/**
+ * @typedef {{
+ *   sessionId: string
+ * }}
+ */
+user.AutoSignIn;
+
+/**
+ * @typedef {{
+ *   sessionId: string
+ * }}
+ */
+user.LogOut;
+
+/**
+ * @typedef {{
+ *   username: string,
+ *   sessionId: string,
+ *   expiration: number
  * }}
  */
 user.Cookie;
@@ -85,53 +120,64 @@ user.query = {};
 
 // Start public APIs
 /**
- * @param {*|!user.Info} query
- * @param {function((!user.Error|!user.Cookie))} callback Callback function.
+ * @param {*|user.SignIn} query
+ * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
 user.query.signIn = function(query, callback) {
-  var userInfo = {
+  if (query.username === undefined) {
+    callback({error: 'username is undefined'});
+    return;
+  }
+  if (query.password === undefined) {
+    callback({error: 'password is undefined'});
+    return;
+  }
+  user.signIn({
     username: query.username,
     password: CryptoJS.SHA256(query.password).toString(),
     sessionId: query.sessionId
-  };
-  var validateResult = user.validateUserInfo(userInfo.username,
-    userInfo.password);
-  if (validateResult && validateResult.error) {
-    log.serverLog('cannot sign in user', validateResult.error);
-    return;
-  }
-  user.signIn(userInfo, function(data) {
+  }, function(data) {
     callback(data);
   });
 };
 
 /**
- * @param {*|!user.Info} query
- * @param {function((!user.Error|!user.Cookie))} callback Callback function.
+ * @param {*|user.SignUp} query
+ * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
 user.query.signUp = function(query, callback) {
-  var userInfo = {
-    email: query.email,
+  if (query.username === undefined) {
+    callback({error: 'username is undefined'});
+    return;
+  }
+  if (query.email === undefined) {
+    callback({error: 'email is undefined'});
+    return;
+  }
+  if (query.password === undefined) {
+    callback({error: 'password is undefined'});
+    return;
+  }
+  var validateResult = user.validateUserInfo(query.username,
+    query.password, query.email);
+  if (validateResult && validateResult.error) {
+    log.serverLog('cannot sign up user:', validateResult.error);
+    callback({error: validateResult.error});
+    return;
+  }
+  user.signUp({
     username: query.username,
+    email: query.email,
     password: CryptoJS.SHA256(query.password).toString(),
     confirmed: query.confirmed,
     sessionId: query.sessionId
-  };
-  var validateResult = user.validateUserInfo(userInfo.username,
-    userInfo.password, userInfo.email);
-  if (validateResult && validateResult.error) {
-    log.serverLog('cannot sign up user', validateResult.error);
-    return;
-  }
-  user.signUp(userInfo, function(data) {
+  }, function(data) {
     callback(data);
   });
 };
 
 /**
- * @param {*|{
- *   sessionId: string
- * }} query
+ * @param {*|user.AutoSignIn} query
  * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
 user.query.autoSignIn = function(query, callback) {
@@ -145,12 +191,12 @@ user.query.autoSignIn = function(query, callback) {
 };
 
 /**
- * @param {*|!user.Cookie} query
- * @param {function((!user.Error|!user.Cookie))} callback Callback function.
+ * @param {*|user.LogOut} query
+ * @param {function((!user.Error|user.Cookie))} callback Callback function.
  */
 user.query.logOut = function(query, callback) {
   var db = database.db;
-  db.collection(user.sessionDbName).deleteMany(
+  db.collection(user.SESSION_COLLECTION).deleteMany(
     {sessionId: query.sessionId},
     function(err) {
       if (err) {
@@ -163,12 +209,12 @@ user.query.logOut = function(query, callback) {
 
 /**
  * Checks the user information for signing in.
- * @param {!user.Info} userInfo User Information.
- * @param {function((!user.Error|!user.Cookie))} callback Callback function.
+ * @param {user.Info} userInfo User Information.
+ * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
 user.signUp = function(userInfo, callback) {
   var db = database.db;
-  var cursor = db.collection(user.userInfoDbName).find({
+  var cursor = db.collection(user.USER_INFO_COLLECTION).find({
     $or: [
       {username: userInfo.username},
       {email: userInfo.email}
@@ -187,11 +233,9 @@ user.signUp = function(userInfo, callback) {
       var data = user.signUpUser_(documents, userInfo);
       if (!data) {
         // success and proceed
-        user.USERNAME_ = userInfo.username;
-        var cookie = {
+        data = user.updateSession({
           username: userInfo.username
-        };
-        data = user.updateSession(cookie);
+        });
       }
       callback(data);
     }
@@ -200,8 +244,8 @@ user.signUp = function(userInfo, callback) {
 
 /**
  * Checks the user information for signing in.
- * @param {!user.Info} userInfo User Information.
- * @param {function((!user.Error|!user.Cookie))} callback Callback function.
+ * @param {user.Info} userInfo User Information.
+ * @param {function((user.Error|user.Cookie))} callback Callback function.
  */
 user.signIn = function(userInfo, callback) {
   var db = database.db;
@@ -211,28 +255,28 @@ user.signIn = function(userInfo, callback) {
       {password: userInfo.password}
     ]
   };
-  database.getOne(db.collection(user.userInfoDbName), query, [],
+  database.getOne(db.collection(user.USER_INFO_COLLECTION), query,
     function(result) {
-      var data;
-      if (!result) {
+      if (result.error) { // getOne errors
+        callback(result);
+        return;
+      }
+      if (result === '') {
         callback({error: 'incorrect username or password'});
         return;
       }
       // success and proceed
-      user.USERNAME_ = userInfo.username;
-      var cookie = {
+      callback(user.updateSession({
         username: userInfo.username,
         sessionId: userInfo.sessionId
-      };
-      data = user.updateSession(cookie);
-      callback(data);
+      }));
     });
 };
 
 /**
  * Checks the user session information for auto signing in.
  * @param {!user.Cookie} cookie User cookie information.
- * @param {function((!user.Error|!user.Cookie))} callback Callback function.
+ * @param {function((!user.Error|user.Cookie))} callback Callback function.
  */
 user.autoSignIn = function(cookie, callback) {
   var db = database.db;
@@ -242,15 +286,17 @@ user.autoSignIn = function(cookie, callback) {
       {expiration: {$gt: new Date().getTime()}}
     ]
   };
-  database.getOne(db.collection(user.sessionDbName), query, [],
+  database.getOne(db.collection(user.SESSION_COLLECTION), query,
     function(result) {
-      var data;
-      if (!result) {
+      if (result.error) { // getOne errors
+        callback(result);
+        return;
+      }
+      if (result === '') {
         callback({error: 'invalid session information'});
         return;
       }
-      data = user.updateSession(cookie);
-      callback(data);
+      callback(user.updateSession(cookie));
     });
 };
 
@@ -264,34 +310,40 @@ user.findUsername = function(sessionId, callback) {
   var query = {
     sessionId: sessionId
   };
-  database.getOne(db.collection(user.sessionDbName), query, [],
+  database.getOne(db.collection(user.SESSION_COLLECTION), query,
     function(result) {
-      var data;
+      if (result && result.error) {
+        callback(result);
+        return;
+      }
       if (!result) {
         callback('anonymous');
         return;
       }
-      data = result.username;
-      callback(data);
+      callback(result.username);
     });
 };
 
 /**
- * Updates session ID from database. Regenerate if it is expired.
+ * Updates session ID from database. Regenerates if it is expired.
  * @param {!user.Cookie} cookie User cookie information.
  * @return {!user.Cookie} cookie Updated user cookie information.
  */
 user.updateSession = function(cookie) {
   var db = database.db;
-  cookie.expiration = new Date().getTime() + user.cookieExpireTime;
-  db.collection(user.sessionDbName).insertOne(cookie);
+  cookie.expiration = new Date().getTime() + user.COOKIE_EXPIRE_TIME;
+  db.collection(user.SESSION_COLLECTION).updateOne(
+    {username: cookie.username},
+    cookie,
+    {upsert: true}
+  );
   return cookie;
 };
 
 /**
  * Authenticates the signed up user.
- * @param {Array<!user.Info>} data
- * @param {!user.Info} userInfo User Information.
+ * @param {Array<user.Info>} data
+ * @param {user.Info} userInfo User Information.
  * @return {user.Error|undefined}
  * @private
  */
@@ -310,7 +362,7 @@ user.signUpUser_ = function(data, userInfo) {
     var errorMessage = duplicates.join(' and ') + ' exist(s)';
     return {error: errorMessage};
   } else {
-    db.collection(user.userInfoDbName).insertOne(userInfo);
+    db.collection(user.USER_INFO_COLLECTION).insertOne(userInfo);
     log.serverLog('user information saved');
   }
 };
@@ -357,16 +409,16 @@ user.validatePassword_ = function(password) {
 user.validateUserInfo = function(username, password, email) {
   var invalidItem = [];
   if (!user.validateUsername_(username)) {
-    invalidItem.push(username);
+    invalidItem.push('username');
   }
   if (!user.validatePassword_(password)) {
-    invalidItem.push(password);
+    invalidItem.push('password');
   }
   if (email && !user.validateEmail_(email)) {
-    invalidItem.push(email);
+    invalidItem.push('email');
   }
   if (invalidItem.length) {
-    var errorMessage = 'invalid ' + invalidItem.join(' and ');
+    var errorMessage = 'invalid ' + invalidItem.join(', ');
     return {error: errorMessage};
   }
 };

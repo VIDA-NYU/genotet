@@ -63,23 +63,16 @@ bindingSpec.tests = [
       server
         .postForm(frisby, form)
         .expectStatus(200);
-    },
-    check: function(body) {
-      var data = /** @type {server.UploadResponse} */(JSON.parse(body));
-      it('without error field', function() {
-        expect(data.error).toBeUndefined();
-      });
     }
   },
   {
     name: 'list binding',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({type: 'list-binding'}))
+      server
+        .get(frisby, {type: 'list-binding'})
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       it('listed binding data', function() {
         expect(data.length).toBe(1);
         expect(data[0]).toEqual({
@@ -94,17 +87,16 @@ bindingSpec.tests = [
   {
     name: 'query binding chr1',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({
+      server
+        .get(frisby, {
           type: 'binding',
           fileName: bindingSpec.dataInfo.fileName,
           chr: '1',
           numSamples: 6
-        }))
+        })
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = /** @type {bindingSpec.QueryResponse} */(JSON.parse(body));
+    check: function(data) {
       it('data points', function() {
         var firstValue = data.values[0];
         var lastValue = data.values[data.values.length - 1];
@@ -130,19 +122,18 @@ bindingSpec.tests = [
   {
     name: 'query binding chr3',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({
+      server
+        .get(frisby, {
           type: 'binding',
           fileName: bindingSpec.dataInfo.fileName,
           chr: '3',
           xl: 3000080,
           xr: 3000100,
           numSamples: 6
-        }))
+        })
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       var firstValue = data.values[0];
       var lastValue = data.values[data.values.length - 1];
       it('data points', function() {

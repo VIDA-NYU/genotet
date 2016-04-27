@@ -56,7 +56,6 @@ request.post = function(options) {
  * @private
  */
 request.ajax_ = function(options) {
-  console.log(options.type, options.url);
   $.ajax({
     url: options.url,
     type: options.type,

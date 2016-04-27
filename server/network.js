@@ -90,7 +90,7 @@ network.query.network = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is empty'};
   }
-  if (query.genes == undefined) {
+  if (query.genes === undefined) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
@@ -222,9 +222,7 @@ network.query.list = function(query, callback) {
  */
 network.query.allNodes = function(query, dataPath) {
   if (query.fileName === undefined) {
-    return {
-      error: 'fileName is undefined'
-    };
+    return {error: 'fileName is undefined'};
   }
   var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + query.fileName;

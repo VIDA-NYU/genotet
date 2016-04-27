@@ -33,33 +33,35 @@ database.Collection = {
 database.Error;
 
 /**
- * Checks the user information for signing in.
+ * Fetches one entry from the database collection.
  * @param {!mongodb.Collection} collection Database collection.
  * @param {!mongodb.Query} query Database query.
- * @param {!Array<!Object>} data Query result.
- * @param {function(!Object)} cursorCallback Callback function.
+ * @param {function(database.Error|!Object)} callback Callback function.
  */
-database.getOne = function(collection, query, data, cursorCallback) {
+database.getOne = function(collection, query, callback) {
   var cursor = collection.find(query);
   cursor.count(function(err, count) {
     if (err) {
       log.serverLog(err.message);
+      callback({error: err.message});
       return;
     }
     if (count > 1) {
-      log.serverLog('getting', count, 'results while expecting one in getOne');
+      var errMessage = 'getting ' + count + ' results in getOne';
+      log.serverLog(errMessage);
+      callback({error: errMessage});
       return;
     }
+    // Each will be executed only once.
     cursor.each(function(err, doc) {
       if (err) {
         log.serverLog(err.message);
+        callback({error: err.message});
         return;
       }
-      if (doc != null) {
+      if (doc !== null) {
         delete doc['_id'];
-        data.push(doc);
-      } else {
-        cursorCallback(data[0]);
+        callback(doc);
       }
     });
   });
