@@ -46,11 +46,19 @@ genotet.NetworkPanel.prototype.initPanel = function() {
       this.container.find(bSwitch.selector).on('switchChange.bootstrapSwitch',
         function(event, state) {
           this.data.options[bSwitch.attribute] = state;
+          if (bSwitch.type == 'switch-mode') {
+            this.container.find('#keep-selected').prop('disabled', state);
+          }
           this.signal('update', {
             type: bSwitch.type
           });
         }.bind(this));
   }, this);
+  // Sub-network
+  this.container.find('#keep-selected')
+    .click(function() {
+      this.signal('subNetwork');
+    }.bind(this));
 
   // Input type update
   // TODO(Liana): Get view name by view object directly.

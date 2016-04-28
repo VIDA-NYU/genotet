@@ -225,12 +225,12 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
 
   this.canvas.selectAll('.render-group')
     .attr('transform', genotet.utils.getTransform(translate, scale));
+  this.zoomTranslate_ = translate;
 
   // var nodeNum = this.network.nodes.length;
   // var normScale = nodeNum / 100;
   if (Math.floor(scale / this.zoomScale_) > 1 + this.MIN_ZOOM_RADIO_ ||
     Math.floor(scale / this.zoomScale_) < 1 - this.MIN_ZOOM_RADIO_) {
-    this.zoomTranslate_ = translate;
     this.zoomScale_ = scale;
     this.drawNetwork_();
   }
@@ -571,10 +571,16 @@ genotet.NetworkRenderer.prototype.findSelectEdges = function(edgeIds) {
 genotet.NetworkRenderer.prototype.polygonSelectionInit_ = function() {
   var coords = [];
   var line = d3.svg.line();
-  var dragStart = function() {
-    coords = [];
-    g.selectAll('path').remove();
-  };
+  var g = this.canvas.append('g');
+  var tmpNodes = [];
+  for (var nodeId in this.nodes_) {
+    tmpNodes.push({
+      x: this.nodes_[nodeId].x * this.zoomScale_ + this.zoomTranslate_[0],
+      y: this.nodes_[nodeId].y * this.zoomScale_ + this.zoomTranslate_[1],
+      id: nodeId
+    });
+  }
+  var dot = this.svgNodes_.selectAll('rect, circle');
   var drawPath = function(terminator) {
     g.append('path')
       .attr({
@@ -594,45 +600,32 @@ genotet.NetworkRenderer.prototype.polygonSelectionInit_ = function() {
         .attr('fill', 'none');
     }
   };
-  var dragMove = function() {
-    dot.classed('active', function(node) {
-      return false;
-    });
-    coords.push(d3.mouse(this));
-    dot.classed('active', function(node) {
-      var point = [node.x, node.y];
-      return pointInPolygon(point, coords);
-    });
-    drawPath();
-  };
-  var dragEnd = function() {
-    drawPath(true);
-  };
-  var // from https://github.com/substack/point-in-polygon
-    pointInPolygon = function (point, vs) {
-      // ray-casting algorithm based on
-      // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-      var x = point[0],
-        y = point[1],
-        inside = false;
-      for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        var xi = vs[i][0],
-          yi = vs[i][1],
-          xj = vs[j][0],
-          yj = vs[j][1],
-          intersect = ((yi > y) != (yj > y))
-            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-      }
-      return inside;
-    };
-  var g = this.canvas.append('g');
-  var dot = this.svgNodes_.selectAll('rect, circle');
 
   this.drag_ = d3.behavior.drag()
-    .on('dragstart', dragStart)
-    .on('drag', dragMove)
-    .on('dragend', dragEnd);
+    .on('dragstart', function() {
+      dot.classed('active', function() {
+        return false;
+      });
+      coords = [];
+      g.selectAll('path').remove();
+    }.bind(this))
+    .on('drag', function() {
+      coords.push(d3.mouse(g.node()));
+      this.data.selectedNodes = {};
+      tmpNodes.forEach(function (node) {
+        var point = [node.x, node.y];
+        if (this.pointInPolygon_(point, coords)) {
+          this.data.selectedNodes[node.id] = true;
+        }
+      }, this);
+      dot.classed('active', function (node) {
+        return node.id in this.data.selectedNodes;
+      }.bind(this));
+      drawPath();
+    }.bind(this))
+    .on('dragend', function() {
+      drawPath(true);
+    }.bind(this));
 };
 
 genotet.NetworkRenderer.prototype.switchMode = function() {
@@ -652,4 +645,21 @@ genotet.NetworkRenderer.prototype.polyMode_ = function() {
 genotet.NetworkRenderer.prototype.zoomMode_ = function() {
   this.canvas.on('.drag', null);
   this.canvas.call(this.zoom_);
+};
+
+genotet.NetworkRenderer.prototype.pointInPolygon_ = function (point, vs) {
+  // ray-casting algorithm based on
+  // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+  var x = point[0], y = point[1];
+  var inside = false;
+  for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    var xi = vs[i][0],
+      yi = vs[i][1],
+      xj = vs[j][0],
+      yj = vs[j][1],
+      intersect = ((yi > y) != (yj > y))
+        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
 };

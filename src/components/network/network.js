@@ -160,6 +160,10 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.loadNetworkList', function() {
       genotet.data.loadList(this, genotet.FileType.NETWORK);
+    }.bind(this))
+    .on('genotet.subNetwork', function() {
+      this.loader.subNetwork();
+      this.renderer.dataLoaded();
     }.bind(this));
 
   // Gene removal update.

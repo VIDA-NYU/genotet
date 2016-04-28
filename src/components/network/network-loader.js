@@ -319,3 +319,13 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
     this.addGenes_(data);
   }.bind(this), 'can not get combined regulation');
 };
+
+genotet.NetworkLoader.prototype.subNetwork = function() {
+  if (!this.data.selectedNodes) {
+    return;
+  }
+  var genesToDelete = this.data.genes.filter(function(gene) {
+    return !(gene in this.data.selectedNodes);
+  }, this);
+  this.deleteGenes_(genesToDelete);
+};
