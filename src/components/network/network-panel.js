@@ -48,6 +48,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
           this.data.options[bSwitch.attribute] = state;
           if (bSwitch.type == 'switch-mode') {
             this.container.find('#keep-selected').prop('disabled', state);
+            this.container.find('#exclude-selected').prop('disabled', state);
           }
           this.signal('update', {
             type: bSwitch.type
@@ -57,7 +58,15 @@ genotet.NetworkPanel.prototype.initPanel = function() {
   // Sub-network
   this.container.find('#keep-selected')
     .click(function() {
-      this.signal('subNetwork');
+      this.signal('subNetwork', {
+        inPolygon: true
+      });
+    }.bind(this));
+  this.container.find('#exclude-selected')
+    .click(function() {
+      this.signal('subNetwork', {
+        inPolygon: false
+      });
     }.bind(this));
 
   // Input type update

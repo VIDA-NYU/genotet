@@ -11,9 +11,10 @@ import sys
 import getpass
 import json
 
+url = 'http://localhost:3000'
 
 def upload_file(file_path, data_name, file_type, description, cookies):
-    upload_url = 'http://localhost:3000/genotet/upload'
+    upload_url = url + '/genotet/upload'
     file_path_parts = file_path.split('\/')
     file_name = file_path_parts[len(file_path_parts) - 1]
     params = MultipartEncoder(
@@ -30,7 +31,7 @@ def upload_file(file_path, data_name, file_type, description, cookies):
 
 
 def auth(username, password):
-    auth_url = 'http://localhost:3000/genotet/user'
+    auth_url = url + '/genotet/user'
     params = {
         'type': 'sign-in',
         'username': username,

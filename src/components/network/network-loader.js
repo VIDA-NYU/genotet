@@ -320,12 +320,24 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
   }.bind(this), 'can not get combined regulation');
 };
 
-genotet.NetworkLoader.prototype.subNetwork = function() {
+/**
+ * Calculates the sub-network.
+ * @param {boolean} inPolygon Keep the sub-network in or out the polygon.
+ */
+genotet.NetworkLoader.prototype.subNetwork = function(inPolygon) {
   if (!this.data.selectedNodes) {
     return;
   }
-  var genesToDelete = this.data.genes.filter(function(gene) {
-    return !(gene in this.data.selectedNodes);
-  }, this);
+  var genesToDelete;
+  if (inPolygon) {
+    genesToDelete = this.data.genes.filter(function(gene) {
+      return !(gene in this.data.selectedNodes);
+    }, this);
+  } else {
+    genesToDelete = this.data.genes.filter(function(gene) {
+      return gene in this.data.selectedNodes;
+    }, this);
+  }
+
   this.deleteGenes_(genesToDelete);
 };

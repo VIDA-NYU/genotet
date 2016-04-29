@@ -161,8 +161,8 @@ genotet.NetworkView = function(viewName, params) {
     .on('genotet.loadNetworkList', function() {
       genotet.data.loadList(this, genotet.FileType.NETWORK);
     }.bind(this))
-    .on('genotet.subNetwork', function() {
-      this.loader.subNetwork();
+    .on('genotet.subNetwork', function(event, data) {
+      this.loader.subNetwork(data.inPolygon);
       this.renderer.dataLoaded();
     }.bind(this));
 

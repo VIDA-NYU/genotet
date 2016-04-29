@@ -11,7 +11,6 @@ genotet.test = function() {
   // Implement test sequences here. This is intended for manual testing,
   // e.g. the following lines create a few views.
 
-  /*
   genotet.viewManager.createView(genotet.ViewType.EXPRESSION, 'My Expression Matrix', {
     fileName: 'expressionMatrix',
     tfaFileName: 'tfa.mat.tsv',
@@ -26,7 +25,6 @@ genotet.test = function() {
     chr: '1',
     multipleTracks: false
   });
-  */
   genotet.viewManager.createView(genotet.ViewType.NETWORK, 'My Network', {
     fileName: 'th17.tsv',
     inputGenes: 'BATF|RORC|STAT3|IRF4|MAF',

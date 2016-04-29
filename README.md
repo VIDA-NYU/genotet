@@ -50,3 +50,27 @@ If you are on a Mac or Windows machine, you need to change the downloading url i
     ```
     bash start.sh
     ```
+Python batch upload script:
+
+- Modify the line 14 as the correct address.
+
+```bash
+url = 'http://genotetserver'
+```
+
+- Define a tsv file as description, for each line
+
+```bash
+file_path data_name file_type description
+```
+
+- Run the script.
+
+```bash
+python uploadBatch.py username *.tsv
+```
+- Enter the password according to the instructions.
+
+- Monitor the command line output, it should output 200 if success.
+
+- Done.
