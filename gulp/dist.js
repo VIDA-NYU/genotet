@@ -9,7 +9,8 @@ var dirs = [
   'dist',
   'dist/html',
   'dist/data',
-  'dist/data/upload'
+  'dist/data/upload',
+  'dist/data/log'
 ];
 
 // Clean all files in dist, including data.

@@ -101,6 +101,14 @@ uploader.query = {};
  */
 uploader.uploadFile = function(desc, file, prefix, bigWigToWigAddr, username,
                                callback) {
+  if (file === undefined) {
+    callback({error: 'no upload file'});
+    return;
+  }
+  if (file.originalname === undefined) {
+    callback({error: 'file.originalname is undefined'});
+    return;
+  }
   var fileName = file.originalname;
   var filePath = prefix + username + '/';
   if (!fs.existsSync(filePath)) {

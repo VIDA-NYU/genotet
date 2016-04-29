@@ -18,7 +18,8 @@ request.Type_ = {
  *   url: string,
  *   params: !Object,
  *   done: (Function|undefined),
- *   fail: (function(string)|undefined)
+ *   fail: (function(string)|undefined),
+ *   always: (Function|undefined)
  * }} options Please refer to the definition in ajax_().
  */
 request.get = function(options) {
@@ -32,7 +33,8 @@ request.get = function(options) {
  *   url: string,
  *   params: !Object,
  *   done: (Function|undefined),
- *   fail: (Function|undefined)
+ *   fail: (Function|undefined),
+ *   always: (Function|undefined)
  * }} options Please refer to the definition in ajax_().
  */
 request.post = function(options) {
@@ -46,7 +48,8 @@ request.post = function(options) {
  *   url: string,
  *   params: !Object,
  *   done: (Function|undefined),
- *   fail: (Function|undefined)
+ *   fail: (Function|undefined),
+ *   always: (Function|undefined)
  * }} options
  *   type: HTTP request type.
  *   url: URL to which the get request is sent.
@@ -56,7 +59,6 @@ request.post = function(options) {
  * @private
  */
 request.ajax_ = function(options) {
-  console.log(options.type, options.url);
   $.ajax({
     url: options.url,
     type: options.type,
@@ -74,6 +76,11 @@ request.ajax_ = function(options) {
     .fail(function(res) {
       if (options.fail) {
         options.fail(res.responseText);
+      }
+    })
+    .always(function() {
+      if (options.always) {
+        options.always();
       }
     });
 };

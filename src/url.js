@@ -53,8 +53,8 @@ genotet.url.uploadProgress = '';
 genotet.url.init = function() {
   if (window.location.protocol == 'file:') {
     // Testing environment
-    genotet.url.server = 'http://localhost:3000/genotet';
-    genotet.url.progress = 'http://localhost/genotet/progress.php';
+    genotet.url.server = 'https://localhost:3000/genotet';
+    genotet.url.progress = 'https://localhost/genotet/progress.php';
   } else {
     genotet.url.server = window.location.protocol + '//' +
       window.location.hostname + ':3000/genotet';

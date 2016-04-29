@@ -157,8 +157,16 @@ app.use(session({
 var exonFile = dataPath + 'exons.bin';
 
 /**
+ * @type {!Array<string>}
+ */
+var allowedOrigins = [
+  'https://localhost',
+  'file://'
+];
+
+/**
  * Sends back JSON response.
- * @param {Object|user.Error|undefined} data Server response data.
+ * @param {Object|user.Error|string|undefined} data Server response data.
  * @param {!express.Request} req Express request.
  * @param {!express.Response} res Express response.
  */
@@ -193,6 +201,7 @@ var jsonResponse = function(data, req, res) {
  * Check request handler.
  */
 app.get('/genotet/check', function(req, res) {
+  log.serverLog('status check');
   jsonResponse({}, req, res);
 });
 
@@ -200,10 +209,14 @@ app.get('/genotet/check', function(req, res) {
  * User authentication handler.
  */
 app.post('/genotet/user', function(req, res) {
-  log.serverLog('POST user');
-  console.log('Session Id (POST):', req.session.id);
+  try {
+    var query = JSON.parse(req.body.data);
+  } catch (err) {
+    jsonResponse({error: 'cannot parse req.body.data'}, req, res);
+    return;
+  }
+  log.serverLog('POST /user', query.type, 'sessionId:', req.session.id);
 
-  var query = JSON.parse(req.body.data);
   query.sessionId = req.session.id;
   var type = query.type;
 
@@ -240,15 +253,14 @@ app.post('/genotet/user', function(req, res) {
  * User indentification handler.
  */
 app.use('/genotet', function(req, res, next) {
-
   if (req.session.id === undefined) {
     var err = {error: 'no valid session found'};
     jsonResponse(err, req, res);
   } else {
-    user.findUsername(req.session.id, function(result) {
+    user.findSession(req.session.id, function(result) {
       if (!result.error) {
-        log.serverLog('username', result);
-        req.username = result;
+        log.serverLog('username', result.username);
+        req.username = result.username;
         next();
       } else {
         log.serverLog(result.error);
@@ -259,20 +271,16 @@ app.use('/genotet', function(req, res, next) {
 });
 
 /**
- * @type {!Array<string>}
- */
-var allowedOrigins = [
-  // TODO(bowen): need to change cross-origin to https://localhost as well
-  'http://localhost',
-  'file://'
-];
-
-/**
  * User log POST handler.
  */
 app.post('/genotet/log', function(req, res) {
-  log.serverLog('POST', 'user-log');
-  var query = JSON.parse(req.body.data);
+  try {
+    var query = JSON.parse(req.body.data);
+  } catch (err) {
+    jsonResponse({error: 'cannot parse req.body.data'}, req, res);
+    return;
+  }
+  log.serverLog('POST /log');
   query.sessionId = req.session.id;
   query.username = req.username;
 
@@ -283,8 +291,7 @@ app.post('/genotet/log', function(req, res) {
  * Upload POST handler.
  */
 app.post('/genotet/upload', upload.single('file'), function(req, res) {
-  log.serverLog('POST upload');
-
+  log.serverLog('POST /upload');
   var body = {
     type: req.body.type,
     dataName: req.body.name,
@@ -298,16 +305,16 @@ app.post('/genotet/upload', upload.single('file'), function(req, res) {
 
 // GET request handlers.
 app.get('/genotet', function(req, res) {
-  // bowen: here session id should remain the same across queries.
-  // TODO(bowen): after confirming the above, please remove this log.
-  console.log('Session Id (GET):', req.session.id);
-
-  var query = JSON.parse(req.query.data);
+  try {
+    var query = JSON.parse(req.query.data);
+  } catch (err) {
+    jsonResponse({error: 'cannot parse req.query.data'}, req, res);
+    return;
+  }
   query.username = req.username;
   var type = query.type;
 
-  log.serverLog('GET', type);
-
+  log.serverLog('GET /', type, 'sessionId:', req.session.id);
   switch (type) {
     // Network data queries
     case network.QueryType.NETWORK:
@@ -400,7 +407,7 @@ app.get('/genotet', function(req, res) {
 // Error Handler
 app.use(function(err, req, res, next) {
   log.serverLog(err.stack);
-  res.jsonp({error: 'internal server error'});
+  jsonResponse({error: 'internal server error'}, req, res);
 });
 
 /**
@@ -415,7 +422,13 @@ MongoClient.connect(mongoUrl, function(err, mongoClient) {
   database.db = mongoClient.db(mongoDatabase);
 
   // Start the application.
-  // TODO(Liana): Direct HTTP to HTTPS.
-  var server = app.listen(3000);
-  server.setTimeout(1200000);
+  var privateKey = fs.readFileSync(privateKeyPath);
+  var certificate = fs.readFileSync(certificatePath);
+  var httpsOptions = {
+    key: privateKey,
+    cert: certificate
+  };
+  https.createServer(httpsOptions, app)
+    .listen(3000)
+    .setTimeout(1800000);
 });

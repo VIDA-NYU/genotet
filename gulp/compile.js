@@ -35,6 +35,7 @@ var serverExterns = [
   '!' + closureContrib + 'nodejs/url.js',
   '!' + closureContrib + 'nodejs/fs.js',
   '!' + closureContrib + 'nodejs/readline.js',
+  '!' + closureContrib + 'nodejs/https.js',
   closureContrib + 'nodejs/*.js'
 ].concat(paths.serverExterns);
 
@@ -46,7 +47,8 @@ var jasmineNodeExterns = [
   closureContrib + 'nodejs/events.js',
   // Borrow some externs from server
   'server/externs/fs.js',
-  'server/externs/buffer.js'
+  'server/externs/buffer.js',
+  'server/externs/https.js'
 ].concat(paths.jasmineNodeExterns);
 
 var compile = function(cb, src) {
@@ -69,7 +71,7 @@ var compile = function(cb, src) {
     }));
 };
 
-gulp.task('compile', function(cb) {
+gulp.task('compile-src', function(cb) {
   return compile(cb, paths.src)
     .pipe(gulp.dest(paths.dist));
 });

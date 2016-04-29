@@ -628,28 +628,10 @@ genotet.dialog.signIn_ = function() {
         btnSignIn.prop('disabled', !uploadReady());
       });
       btnSignIn.click(function() {
-        var userInfo = {
-          type: 'sign-in',
-          username: /** @type {string} */(username.val()),
-          password: /** @type {string} */(password.val())
-        };
-
-        request.post({
-          url: genotet.url.user,
-          params: userInfo,
-          done: function(data) {
-            genotet.menu.displaySignedUser(userInfo.username);
-            genotet.user.info = {
-              username: data.username,
-              sessionId: data.sessionId,
-              expiration: data.expiration
-            };
-            genotet.success('signed in');
-          },
-          fail: function(res) {
-            genotet.error(res.responseText);
-          }
-        });
+        genotet.user.login(
+          /** @type {string} */(username.val()),
+          /** @type {string} */(password.val())
+        );
       });
     });
 };
