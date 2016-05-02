@@ -22,7 +22,8 @@ genotet.preset.PresetType = {
 genotet.preset.NETWORK_PARAMS_ = {
   fileName: 'th17.tsv',
   inputGenes: 'BATF|RORC|STAT3|IRF4|MAF',
-  isRegex: true
+  isRegex: true,
+  isPreset: true
 };
 
 /**
@@ -35,7 +36,8 @@ genotet.preset.EXPRESSION_PARAMS_ = {
   isGeneRegex: true,
   isConditionRegex: true,
   geneInput: 'BATF|RORC|STAT3|IRF4|MAF',
-  conditionInput: 'SL18.*'
+  conditionInput: 'SL18.*',
+  isPreset: true
 };
 
 /**
@@ -46,7 +48,8 @@ genotet.preset.BINDING_PARAMS_ = {
   fileNames: 'SL2870_SL2871',
   bedName: 'bed_data.bed',
   chr: '1',
-  multipleTracks: false
+  multipleTracks: false,
+  isPreset: true
 };
 
 /**
@@ -57,7 +60,8 @@ genotet.preset.THREE_TRACK_BINDING_PARAMS_ = {
   fileNames: ['SL2870_SL2871', 'SL2872_SL2876', 'SL3032_SL2871'],
   bedName: 'bed_data.bed',
   chr: '1',
-  multipleTracks: true
+  multipleTracks: true,
+  isPreset: true
 };
 
 /**

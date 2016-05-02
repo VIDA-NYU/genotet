@@ -31,16 +31,18 @@ genotet.BindingLoader.prototype.LOCUS_MARGIN_RATIO = .1;
  * @param {string} fileName Binding file name.
  * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.
+ * @param {boolean} isPreset Whether is preset.
  * @param {number=} opt_track Track # into which the data is loaded.
  * @override
  */
 genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
-                                                opt_track) {
+                                                isPreset, opt_track) {
   genotet.logger.log(genotet.logger.Type.BINDING, 'load', fileName, bedName,
     chr);
   var trackIndex = opt_track ? opt_track : this.data.tracks.length;
   var isAddTrack = !opt_track;
   this.data.chr = chr;
+  this.data.isPreset = isPreset;
   this.loadFullTrack(trackIndex, fileName, chr, isAddTrack);
   this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
   this.loadExons_(chr);
@@ -52,20 +54,22 @@ genotet.BindingLoader.prototype.load = function(fileName, bedName, chr,
  * @param {!Array<string>} fileNames Binding file names.
  * @param {string} bedName Bed name of the bed binding track.
  * @param {string} chr ID of the chromosome.
+ * @param {boolean} isPreset Whether is preset.
  */
-genotet.BindingLoader.prototype.loadMultipleTracks = function(fileNames,
-                                                              bedName, chr) {
-  genotet.logger.log(genotet.logger.Type.BINDING, 'loadMultiple',
-    fileNames.join('_'), bedName, chr);
-  var trackIndex = this.data.tracks.length;
-  this.data.chr = chr;
-  this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
-  this.loadExons_(chr);
+genotet.BindingLoader.prototype.loadMultipleTracks =
+  function(fileNames, bedName, chr, isPreset) {
+    genotet.logger.log(genotet.logger.Type.BINDING, 'loadMultiple',
+      fileNames.join('_'), bedName, chr);
+    var trackIndex = this.data.tracks.length;
+    this.data.chr = chr;
+    this.data.isPreset = isPreset;
+    this.loadBed(bedName, chr, this.data.detailXMin, this.data.detailXMax);
+    this.loadExons_(chr);
 
-  fileNames.forEach(function(fileName, i) {
-    this.loadFullTrack(trackIndex + i, fileName, chr, true);
-  }, this);
-};
+    fileNames.forEach(function(fileName, i) {
+      this.loadFullTrack(trackIndex + i, fileName, chr, true);
+    }, this);
+  };
 
 /**
  * loads the full binding data for all tracks. This usually happens
@@ -77,7 +81,8 @@ genotet.BindingLoader.prototype.loadFullTracks = function() {
     var params = {
       type: genotet.binding.QueryType.BINDING,
       fileName: track.fileName,
-      chr: this.data.chr
+      chr: this.data.chr,
+      isPreset: this.data.isPreset
     };
     this.get(genotet.url.server, params, function(data) {
       track.overview = data;
@@ -108,7 +113,8 @@ genotet.BindingLoader.prototype.loadFullTrack = function(trackIndex, fileName,
   var params = {
     type: genotet.binding.QueryType.BINDING,
     fileName: fileName,
-    chr: chr
+    chr: chr,
+    isPreset: this.data.isPreset
   };
   this.get(genotet.url.server, params, function(data) {
     var track = {
@@ -156,6 +162,7 @@ genotet.BindingLoader.prototype.loadBed = function(fileName, chr, xl, xr) {
     type: genotet.bed.QueryType.BED,
     fileName: fileName,
     chr: chr,
+    isPreset: this.data.isPreset,
     xl: xl,
     xr: xr
   };
@@ -180,6 +187,7 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
       type: genotet.binding.QueryType.BINDING,
       fileName: track.fileName,
       chr: this.data.chr,
+      isPreset: this.data.isPreset,
       xl: xl,
       xr: xr
     };
@@ -197,7 +205,8 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
 genotet.BindingLoader.prototype.loadExons_ = function(chr) {
   var params = {
     type: genotet.binding.QueryType.EXONS,
-    chr: chr
+    chr: chr,
+    isPreset: this.data.isPreset
   };
   this.get(genotet.url.server, params, function(data) {
     this.data.exons = data;
@@ -213,7 +222,8 @@ genotet.BindingLoader.prototype.findLocus = function(gene) {
   genotet.logger.log(genotet.logger.Type.BINDING, 'findLocus', gene);
   var params = {
     type: genotet.binding.QueryType.LOCUS,
-    gene: gene
+    gene: gene,
+    isPreset: this.data.isPreset
   };
   this.get(genotet.url.server, params, function(res) {
     if (!res) {
@@ -288,7 +298,8 @@ genotet.BindingLoader.prototype.loadMapping = function(mappingFileName, gene) {
     mappingFileName, gene);
   var params = {
     type: genotet.mapping.QueryType.MAPPING,
-    fileName: mappingFileName
+    fileName: mappingFileName,
+    isPreset: this.data.isPreset
   };
   this.get(genotet.url.server, params, function(data) {
     var mappingName = data;

@@ -50,7 +50,9 @@ genotet.Exon;
  *   tracks: !Array<!genotet.bindingTrack>,
  *   bed: !genotet.Bed,
  *   bedName: string,
- *   exons: !Array<!genotet.Exon>
+ *   exons: !Array<!genotet.Exon>,
+ *   chr: string,
+ *   isPreset: boolean
  * }}
  */
 genotet.bindingData;
@@ -60,7 +62,8 @@ genotet.bindingData;
  *   fileNames: (!Array<string>|string),
  *   bedName: string,
  *   chr: string,
- *   multipleTracks: boolean
+ *   multipleTracks: boolean,
+ *   isPreset: boolean
  * }}
  */
 genotet.BindingViewParams;
@@ -123,10 +126,10 @@ genotet.BindingView = function(viewName, params) {
     if (params.multipleTracks) {
       this.loader.loadMultipleTracks(
         /** @type {!Array<string>} */(params.fileNames), params.bedName,
-        params.chr);
+        params.chr, params.isPreset);
     } else {
       this.loader.load(/** @type {string} */(params.fileNames),
-        params.bedName, params.chr);
+        params.bedName, params.chr, params.isPreset);
     }
   }.bind(this));
 

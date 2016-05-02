@@ -39,7 +39,8 @@ genotet.RenderEdge;
  *   nodes: !Array<!genotet.NetworkNode>,
  *   edges: !Array<!genotet.NetworkEdge>,
  *   weightMin: number,
- *   weightMax: number
+ *   weightMax: number,
+ *   isPreset: boolean
  * }}
  */
 genotet.NetworkData;
@@ -48,7 +49,8 @@ genotet.NetworkData;
  * @typedef {{
  *   fileName: string,
  *   inputGenes: string,
- *   isRegex: boolean
+ *   isRegex: boolean,
+ *   isPreset: boolean
  * }}
  */
 genotet.NetworkViewParams;
@@ -121,7 +123,7 @@ genotet.NetworkView = function(viewName, params) {
   // Set up data loading callbacks.
   $(this.container).on('genotet.ready', function() {
     this.data.networkInfo.fileName = params.fileName;
-    this.loader.loadNetworkInfo(params.fileName);
+    this.loader.loadNetworkInfo(params.fileName, params.isPreset);
   }.bind(this));
 
   // Set up rendering update.
