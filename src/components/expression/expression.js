@@ -163,7 +163,7 @@ genotet.ExpressionView = function(viewName, params) {
       this.renderer.removeTfaProfile(geneName);
     }.bind(this))
     .on('genotet.updateMatrix', function(event, data) {
-      this.loader.loadExpressionMatrixInfo(data.fileName);
+      this.loader.loadExpressionMatrixInfo(data.fileName, this.data.isPreset);
     }.bind(this))
     .on('genotet.loadExpressionList', function() {
       genotet.data.loadList(this, genotet.FileType.EXPRESSION);
