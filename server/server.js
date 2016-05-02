@@ -66,7 +66,7 @@ var logPath;
  * Username of share data.
  * @type {string}
  */
-var shareUser = 'share';
+var shareUser = 'shareUser';
 /**
  * Path of config file.
  * @type {string}
