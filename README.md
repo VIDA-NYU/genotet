@@ -15,7 +15,7 @@ Installation:
 
 - Install  and [JRE](http://www.java.com/) on your machine.
 - Install Node.js [for for OS X (x64)](https://nodejs.org/en/) or [via package manager](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions):
-    ```bash
+    ```
     curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
     sudo apt-get install -y nodejs
     ```
