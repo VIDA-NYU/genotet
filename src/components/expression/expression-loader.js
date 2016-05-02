@@ -103,9 +103,9 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
   var params = {
     type: genotet.expression.QueryType.EXPRESSION,
     fileName: fileName,
+    isPreset: this.data.isPreset,
     geneNames: geneNames,
-    conditionNames: conditionNames,
-    isPreset: this.data.isPreset
+    conditionNames: conditionNames
   };
 
   this.get(genotet.url.server, params, function(data) {
@@ -170,9 +170,9 @@ genotet.ExpressionLoader.prototype.loadProfile =
     var params = {
       type: genotet.expression.QueryType.PROFILE,
       fileName: fileName,
+      isPreset: this.data.isPreset,
       geneNames: geneNames,
-      conditionNames: conditionNames,
-      isPreset: this.data.isPreset
+      conditionNames: conditionNames
     };
     this.get(genotet.url.server, params, function(profileData) {
       // Store the last applied data selectors.

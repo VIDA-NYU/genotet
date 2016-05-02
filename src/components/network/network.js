@@ -155,7 +155,7 @@ genotet.NetworkView = function(viewName, params) {
       this.renderer.dataLoaded();
     }.bind(this))
     .on('genotet.updateNetwork', function(event, data) {
-      this.loader.loadNetworkInfo(data.fileName);
+      this.loader.loadNetworkInfo(data.fileName, this.data.isPreset);
     }.bind(this))
     .on('genotet.loadNetworkList', function() {
       genotet.data.loadList(this, genotet.FileType.NETWORK);

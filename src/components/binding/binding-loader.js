@@ -161,8 +161,8 @@ genotet.BindingLoader.prototype.loadBed = function(fileName, chr, xl, xr) {
   var params = {
     type: genotet.bed.QueryType.BED,
     fileName: fileName,
-    chr: chr,
     isPreset: this.data.isPreset,
+    chr: chr,
     xl: xl,
     xr: xr
   };
@@ -186,8 +186,8 @@ genotet.BindingLoader.prototype.loadTrackDetail = function(xl, xr) {
     var params = {
       type: genotet.binding.QueryType.BINDING,
       fileName: track.fileName,
-      chr: this.data.chr,
       isPreset: this.data.isPreset,
+      chr: this.data.chr,
       xl: xl,
       xr: xr
     };
