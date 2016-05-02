@@ -95,8 +95,7 @@ fileDbAccess.updateProgress = function(fileName, percentage, username,
   var db = database.db;
   var collection = db.collection(database.Collection.PROGRESS);
   collection.updateOne(
-    {fileName: fileName,
-    user: username},
+    {fileName: fileName, user: username},
     {$set: {percentage: percentage}},
     function(err, result) {
       if (err) {
@@ -178,7 +177,7 @@ fileDbAccess.getBindingGene = function(fileName, callback) {
   var db = database.db;
   var collection = db.collection(database.Collection.DATA);
   var query = {fileName: fileName};
-  database.getOne(collection, query, [], function(result) {
+  database.getOne(collection, query, function(result) {
     if (!result) {
       log.serverLog('binding file not found', fileName);
       return;

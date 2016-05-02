@@ -36,17 +36,15 @@ https.ConnectOptions;
  * @param {*=} requestListener
  * @return {!https.Server}
  */
-https.createServer;
+https.createServer = function(options, requestListener) {};
 
 /**
  * @param {...*} var_args
- * @return {void}
  */
-https.Server.prototype.listen;
+https.Server.prototype.listen = function(var_args) {};
 
 /**
  * @param {number} time
- * @return {void}
  */
 https.Server.prototype.setTimeout = function(time) {};
 

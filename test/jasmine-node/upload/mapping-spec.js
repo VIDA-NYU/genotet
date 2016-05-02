@@ -35,23 +35,16 @@ mappingSpec.tests = [
       server
         .postForm(frisby, form)
         .expectStatus(200);
-    },
-    check: function(body) {
-      var data = /** @type {server.UploadResponse} */(JSON.parse(body));
-      it('without error field', function() {
-        expect(data.error).toBeUndefined();
-      });
     }
   },
   {
     name: 'list mapping',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({type: 'list-mapping'}))
+      server
+        .get(frisby, {type: 'list-mapping'})
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       it('listed bed data', function() {
         expect(data.length).toBe(1);
         expect(data).toEqual([mappingSpec.dataInfo.fileName]);
@@ -61,15 +54,14 @@ mappingSpec.tests = [
   {
     name: 'get mapping',
     action: function(frisby) {
-      frisby
-        .get(server.queryURL({
+      server
+        .get(frisby, {
           type: 'mapping',
           fileName: mappingSpec.dataInfo.fileName
-        }))
+        })
         .expectStatus(200);
     },
-    check: function(body) {
-      var data = JSON.parse(body);
+    check: function(data) {
       it('mapping object', function() {
         expect(data).toEqual({
           a: 'wig-1.bw'

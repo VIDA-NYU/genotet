@@ -90,14 +90,14 @@ network.query.network = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is empty'};
   }
-  if (query.genes == undefined) {
+  if (query.genes === undefined) {
     return {error: 'genes is undefined'};
   }
   var fileName = query.fileName;
   var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
-    var error = 'network file ' + fileName + ' not found.';
+    var error = 'network file not found: ' + file;
     log.serverLog(error);
     return {error: error};
   }
@@ -125,7 +125,7 @@ network.query.incidentEdges = function(query, dataPath) {
   var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
-    var error = 'network file ' + fileName + ' not found.';
+    var error = 'network file not found: ' + file;
     log.serverLog(error);
     return {error: error};
   }
@@ -152,7 +152,7 @@ network.query.combinedRegulation = function(query, dataPath) {
   var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + fileName;
   if (!fs.existsSync(file)) {
-    var error = 'network file ' + fileName + ' not found.';
+    var error = 'network file not found: ' + file;
     log.serverLog(error);
     return {error: error};
   }
@@ -187,7 +187,7 @@ network.query.incrementalEdges = function(query, dataPath) {
   var file = networkPath + fileName;
   var nodes = query.nodes;
   if (!fs.existsSync(file)) {
-    var error = 'network file ' + fileName + ' not found.';
+    var error = 'network file not found: ' + file;
     log.serverLog(error);
     return {error: error};
   }
@@ -222,14 +222,12 @@ network.query.list = function(query, callback) {
  */
 network.query.allNodes = function(query, dataPath) {
   if (query.fileName === undefined) {
-    return {
-      error: 'fileName is undefined'
-    };
+    return {error: 'fileName is undefined'};
   }
   var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
   var file = networkPath + query.fileName;
   if (!fs.existsSync(file)) {
-    var error = 'network file ' + query.fileName + ' not found.';
+    var error = 'network file not found: ' + file;
     log.serverLog(error);
     return {error: error};
   }

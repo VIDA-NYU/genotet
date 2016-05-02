@@ -47,18 +47,13 @@ genotet.user.init = function() {
     expiration: ''
   };
 
-  if (!Cookies.get()) {
+  if (!Cookies.get('genotet-session')) {
     genotet.menu.displaySignInterface();
     return;
   }
-
-  var params = {
-    type: 'auto-sign-in'
-  };
-
   request.post({
     url: genotet.url.user,
-    params: params,
+    params: {type: 'auto-sign-in'},
     done: function(data) {
       if (data.error || data.username == 'anonymous') {
         genotet.menu.displaySignInterface();
@@ -67,7 +62,6 @@ genotet.user.init = function() {
         genotet.user.info = {
           username: data.username
         };
-        genotet.success('signed in');
       }
     },
     fail: function() {
@@ -77,7 +71,39 @@ genotet.user.init = function() {
 };
 
 /**
- * Log out for signed user.
+ * Signs in the user.
+ * @param {string} username
+ * @param {string} password
+ * @param {Function=} callback Callback when login completes.
+ */
+genotet.user.login = function(username, password, callback) {
+  request.post({
+    url: genotet.url.user,
+    params: {
+      type: 'sign-in',
+      username: username,
+      password: password
+    },
+    done: function(data) {
+      genotet.menu.displaySignedUser(username);
+      genotet.user.info = {
+        username: data.username,
+        sessionId: data.sessionId,
+        expiration: data.expiration
+      };
+      genotet.success('signed in');
+    },
+    fail: function(res) {
+      genotet.error(res.responseText);
+    },
+    always: callback ? function() {
+      callback();
+    } : undefined
+  });
+};
+
+/**
+ * Logs out for signed-in user.
  */
 genotet.user.logOut = function() {
   genotet.user.info = {
