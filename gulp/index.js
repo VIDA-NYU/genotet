@@ -6,20 +6,20 @@ var htmlReplace = require('gulp-html-replace');
 var paths = require('./paths.js');
 
 var generateIndex = function(params) {
-  var index = gulp.src(paths.index);
-  index = index.pipe(htmlReplace(params, {
-    keepUnassigned: true
-  }));
-  return index.pipe(gulp.dest('.'));
+  return gulp.src(paths.index)
+    .pipe(htmlReplace(params, {
+      keepUnassigned: true
+    }))
+    .pipe(gulp.dest('.'));
 };
 
-gulp.task('index', function() {
+gulp.task('index', ['clean-index'], function() {
   return generateIndex({
-    test: '',
-    test_src: ''
-  });
+      test: '',
+      test_src: ''
+    });
 });
 
-gulp.task('index-test', function() {
+gulp.task('index-test', ['clean-index'], function() {
   return generateIndex({});
 });

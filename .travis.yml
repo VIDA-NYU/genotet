@@ -25,6 +25,3 @@ script:
 after_script:
   - cat nohup.out
 
-addons:
-  code_climate:
-    repo_token: 4b9bad2eb36ad49fa1af9b04b49cf4e068dcb6086a5e216fccf988221479118a
