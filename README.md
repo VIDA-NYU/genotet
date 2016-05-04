@@ -61,13 +61,13 @@ url = 'http://genotetserver'
 - Define a tsv file as description, for each line
 
 ```bash
-file_path data_name file_type description
+file_path data_name data_type description
 ```
-
-- Run the script.
+- Note that data_type includes network, binding, expression and bed. Each parameter is [tab] or [\t] seperated. Then you can include whitespaces in description.
+- Run the script, change username to your username, and example.tsv as your own .tsv file name.
 
 ```bash
-python uploadBatch.py username *.tsv
+python uploadBatch.py username example.tsv
 ```
 - Enter the password according to the instructions.
 

@@ -90,6 +90,24 @@ IRF4	SL2872_SL2876
 RORC	SL2870_SL2871</pre>
       </li>
     </ul>
+    <h3>Batch Upload</h3>
+    <ul>
+      <li>We provide a python batch upload script uploadBatch.py, you can find it in Github. You can use is to upload several data files at once.</li>
+      <li>You should use is properly. First, you may modify the server path at line #14.</li>
+      <pre>
+url = 'http://genotetserver'</pre>
+      <li>Then, define a proper .tsv file, each line shoud be [tab] separated parameters.</li>
+      <pre>
+file_path  data_name  data_type  description</pre>
+      <li>Note that file_path should be full path or the path relevant to the uploadBatch.py.</li>
+      <li>The data name is specified to the data, like the gene name and so on.</li>
+      <li>The data type should be one of binding, network, expression, bed and mapping.</li>
+      <li>Description can contain whitespaces.</li>
+      <li>Then, you should use the following command to upload data.</li>
+      <pre>
+python uploadBatch.py username example.tsv</pre>
+      <li>Note that you should replace the username with your username, and example.tsv as the tsv file you defined.</li>
+    </ul>
 </div>
 </body>
 </html>
