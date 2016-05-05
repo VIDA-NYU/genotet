@@ -95,6 +95,8 @@ genotet.ViewRenderer.prototype.resize = function() {
   this.canvas
     .attr('width', this.canvasWidth)
     .attr('height', this.canvasHeight);
+  var popup = this.container.find('.popup');
+  popup.css('height', this.canvasHeight);
 };
 
 /**
