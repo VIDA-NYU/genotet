@@ -657,6 +657,7 @@ genotet.NetworkRenderer.prototype.zoomMode_ = function() {
  */
 genotet.NetworkRenderer.prototype.drawPath_ = function(terminator, coords,
                                                   line) {
+  this.svgPath_.select('path').remove();
   this.svgPath_.append('path')
     .attr({
       d: line(coords)
@@ -667,6 +668,6 @@ genotet.NetworkRenderer.prototype.drawPath_ = function(terminator, coords,
         id: 'terminator',
         d: line([coords[0], coords[coords.length - 1]])
       });
-    this.svgPath_.selectAll('path').remove();
+    this.svgPath_.select('path').remove();
   }
 };
