@@ -329,15 +329,9 @@ genotet.NetworkLoader.prototype.subNetwork = function(inPolygon) {
     return;
   }
   var genesToDelete;
-  if (inPolygon) {
-    genesToDelete = this.data.genes.filter(function(gene) {
-      return !(gene in this.data.selectedNodes);
-    }, this);
-  } else {
-    genesToDelete = this.data.genes.filter(function(gene) {
-      return gene in this.data.selectedNodes;
-    }, this);
-  }
+  genesToDelete = this.data.genes.filter(function(gene) {
+    return inPolygon ^ (gene in this.data.selectedNodes);
+  }, this);
 
   this.deleteGenes_(genesToDelete);
 };

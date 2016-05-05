@@ -594,7 +594,7 @@ genotet.NetworkRenderer.prototype.polygonSelectionInit_ = function() {
         return false;
       });
       coords = [];
-      this.svgPath_.selectAll('path').remove();
+      this.svgPath_.select('path').remove();
     }.bind(this))
     .on('drag', function() {
       coords.push(d3.mouse(this.canvas.node()));
@@ -622,7 +622,7 @@ genotet.NetworkRenderer.prototype.switchMode = function() {
   if (this.data.options.mouseZoom) {
     this.zoomMode_();
   } else {
-    this.polyMode_();
+    this.selectionMode_();
   }
 };
 
@@ -630,7 +630,7 @@ genotet.NetworkRenderer.prototype.switchMode = function() {
  * Transfers the network view to polygon selection mode.
  * @private
  */
-genotet.NetworkRenderer.prototype.polyMode_ = function() {
+genotet.NetworkRenderer.prototype.selectionMode_ = function() {
   this.canvas.on('.zoom', null);
   this.polygonSelectionInit_();
   this.canvas.call(this.drag_);
@@ -664,6 +664,6 @@ genotet.NetworkRenderer.prototype.drawPath_ = function(terminator, coords,
         id: 'terminator',
         d: line([coords[0], coords[coords.length - 1]])
       });
-    this.svgPath_.selectAll('path').remove();
+    this.svgPath_.select('path').remove();
   }
 };
