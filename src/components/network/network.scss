@@ -1,6 +1,7 @@
 $orange: #ffa500;
 $black: #000;
 $gray: #ccc;
+$blue: #00f;
 
 .view.network {
   .nodes {
@@ -44,6 +45,14 @@ $gray: #ccc;
           }
         }
       }
+    }
+  }
+
+  .polygon-path {
+    path {
+      fill: none;
+      stroke: $blue;
+      stroke-width: 2px;
     }
   }
 }

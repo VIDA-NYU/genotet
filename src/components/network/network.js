@@ -146,6 +146,9 @@ genotet.NetworkView = function(viewName, params) {
           this.table.removeEdge(data.edges[0]);
           this.renderer.dataLoaded();
           break;
+        case 'switch-mode':
+          this.renderer.switchMode();
+          break;
         default:
           genotet.error('unknown update type', data.type);
       }
@@ -159,6 +162,10 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.loadNetworkList', function() {
       genotet.data.loadList(this, genotet.FileType.NETWORK);
+    }.bind(this))
+    .on('genotet.subNetwork', function(event, data) {
+      this.loader.subNetwork(data.inPolygon);
+      this.renderer.dataLoaded();
     }.bind(this));
 
   // Gene removal update.
