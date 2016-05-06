@@ -45,7 +45,7 @@ fileDbAccess.insertFile = function(path, fileName, property, username,
   var collection = db.collection(database.Collection.DATA);
   collection.updateOne(
     {fileName: fileName, user: username},
-    {$set: {property: property, path: path}},
+    {fileName: fileName, property: property, path: path, user: username},
     {upsert: true},
     function(err, result) {
       if (err) {
