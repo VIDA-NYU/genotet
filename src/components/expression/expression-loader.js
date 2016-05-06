@@ -62,12 +62,15 @@ genotet.ExpressionLoader.prototype.load = function(fileName, geneNames,
  * Implements the expression matrix loading ajax call. Since the matrix may
  * contain a large number of entries, we use GET request.
  * @param {string} fileName Name of the expression matrix.
+ * @param {boolean} isPreset Whether is preset.
  */
 genotet.ExpressionLoader.prototype.loadExpressionMatrixInfo = function(
-    fileName) {
+    fileName, isPreset) {
+  this.data.isPreset = isPreset;
   var params = {
     type: genotet.expression.QueryType.EXPRESSION_INFO,
-    fileName: fileName
+    fileName: fileName,
+    isPreset: this.data.isPreset
   };
 
   this.get(genotet.url.server, params, function(data) {
@@ -100,6 +103,7 @@ genotet.ExpressionLoader.prototype.loadExpressionMatrix_ = function(fileName,
   var params = {
     type: genotet.expression.QueryType.EXPRESSION,
     fileName: fileName,
+    isPreset: this.data.isPreset,
     geneNames: geneNames,
     conditionNames: conditionNames
   };
@@ -166,6 +170,7 @@ genotet.ExpressionLoader.prototype.loadProfile =
     var params = {
       type: genotet.expression.QueryType.PROFILE,
       fileName: fileName,
+      isPreset: this.data.isPreset,
       geneNames: geneNames,
       conditionNames: conditionNames
     };

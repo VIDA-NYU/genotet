@@ -117,9 +117,6 @@ genotet.panelManager.addPanel = function(view) {
     genotet.panelManager.activatePanel_(clickedViewID);
   });
 
-  // Adjust tab height.
-  genotet.panelManager.adjustTabHeight();
-
   // Remove the click event handler to avoid multiple executions.
   $('.sideways li a').off().click(function(event) {
     event.stopPropagation();
@@ -142,6 +139,9 @@ genotet.panelManager.addPanel = function(view) {
   genotet.panelManager.activatePanel_(viewID);
   genotet.viewManager.blurAllViews();
   view.focus(false);
+
+  // Adjust tab height.
+  genotet.panelManager.adjustTabHeight();
 
   var container = $('#panel-view-' + viewID);
   return container;

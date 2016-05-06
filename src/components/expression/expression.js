@@ -11,7 +11,8 @@
  *   isGeneRegex: boolean,
  *   isConditionRegex: boolean,
  *   geneInput: string,
- *   conditionInput: string
+ *   conditionInput: string,
+ *   isPreset: boolean
  * }}
  */
 genotet.ExpressionViewParams;
@@ -71,7 +72,8 @@ genotet.ExpressionView = function(viewName, params) {
    *   tfa: genotet.ExpressionTfa,
    *   profiles: !Array<genotet.ExpressionRenderer.Profile>,
    *   tfaProfiles: !Array<genotet.ExpressionRenderer.Profile>,
-   *   zoomStack: !Array<genotet.ExpressionRenderer.ZoomStatus>
+   *   zoomStack: !Array<genotet.ExpressionRenderer.ZoomStatus>,
+   *   isPreset: boolean
    * }}
    */
   this.data;
@@ -91,10 +93,10 @@ genotet.ExpressionView = function(viewName, params) {
   $(this.container).on('genotet.ready', function() {
     genotet.logger.log(genotet.logger.Type.EXPRESSION, 'load', params.fileName,
       params.tfaFileName, params.geneInput, params.isGeneRegex,
-      params.conditionInput, params.isConditionRegex);
+      params.conditionInput, params.isConditionRegex, params.isPreset);
     this.data.tfa.fileName = params.tfaFileName;
     this.data.matrixInfo.fileName = params.fileName;
-    this.loader.loadExpressionMatrixInfo(params.fileName);
+    this.loader.loadExpressionMatrixInfo(params.fileName, params.isPreset);
   }.bind(this));
 
   // Format gene and condition input to list.
@@ -161,7 +163,7 @@ genotet.ExpressionView = function(viewName, params) {
       this.renderer.removeTfaProfile(geneName);
     }.bind(this))
     .on('genotet.updateMatrix', function(event, data) {
-      this.loader.loadExpressionMatrixInfo(data.fileName);
+      this.loader.loadExpressionMatrixInfo(data.fileName, this.data.isPreset);
     }.bind(this))
     .on('genotet.loadExpressionList', function() {
       genotet.data.loadList(this, genotet.FileType.EXPRESSION);

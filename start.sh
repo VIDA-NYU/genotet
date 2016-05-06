@@ -14,4 +14,5 @@ do
   i=$(($i+1))
 done
 
+sudo service mongod start
 nohup node --max-old-space-size=8192 server/server.js > $logname$i$suffix &

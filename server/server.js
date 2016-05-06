@@ -63,6 +63,11 @@ var uploadPath;
  */
 var logPath;
 /**
+ * Username of share data.
+ * @type {string}
+ */
+var shareUser = 'shareUser';
+/**
  * Path of config file.
  * @type {string}
  */
@@ -311,7 +316,7 @@ app.get('/genotet', function(req, res) {
     jsonResponse({error: 'cannot parse req.query.data'}, req, res);
     return;
   }
-  query.username = req.username;
+  query.username = query.isPreset ? shareUser : req.username;
   var type = query.type;
 
   log.serverLog('GET /', type, 'sessionId:', req.session.id);

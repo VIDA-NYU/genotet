@@ -71,11 +71,14 @@ genotet.NetworkLoader.prototype.prepareGenes_ = function(inputGenes, isRegex) {
 /**
  * Gets the network info.
  * @param {string} fileName File name of the network.
+ * @param {boolean} isPreset Whether is preset.
  */
-genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName) {
+genotet.NetworkLoader.prototype.loadNetworkInfo = function(fileName, isPreset) {
+  this.data.isPreset = isPreset;
   var params = {
     type: genotet.network.QueryType.NETWORK_INFO,
-    fileName: fileName
+    fileName: fileName,
+    isPreset: this.data.isPreset
   };
   this.get(genotet.url.server, params, function(data) {
     this.data.networkInfo = $.extend({}, this.data.networkInfo, data);
@@ -99,6 +102,7 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
   var params = {
     type: genotet.network.QueryType.NETWORK,
     fileName: fileName,
+    isPreset: this.data.isPreset,
     genes: genes
   };
 
@@ -155,6 +159,7 @@ genotet.NetworkLoader.prototype.incidentEdges = function(node) {
   var params = {
     type: genotet.network.QueryType.INCIDENT_EDGES,
     fileName: this.data.networkInfo.fileName,
+    isPreset: this.data.isPreset,
     gene: node.id
   };
   this.get(genotet.url.server, params, function(data) {
@@ -185,6 +190,7 @@ genotet.NetworkLoader.prototype.addGenes_ = function(genes) {
   var params = {
     type: genotet.network.QueryType.INCREMENTAL_EDGES,
     fileName: this.data.networkInfo.fileName,
+    isPreset: this.data.isPreset,
     genes: newGenes,
     nodes: this.data.network.nodes
   };
@@ -307,6 +313,7 @@ genotet.NetworkLoader.prototype.loadCombinedRegulation = function(inputGenes,
   var params = {
     type: genotet.network.QueryType.COMBINED_REGULATION,
     fileName: this.data.networkInfo.fileName,
+    isPreset: this.data.isPreset,
     genes: genes
   };
 
