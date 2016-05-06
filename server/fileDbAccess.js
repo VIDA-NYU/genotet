@@ -43,21 +43,11 @@ fileDbAccess.insertFile = function(path, fileName, property, username,
                                    callback) {
   var db = database.db;
   var collection = db.collection(database.Collection.DATA);
-  collection.deleteMany({
-    fileName: fileName,
-    user: username
-    }, function(err) {
-    if (err) {
-      log.serverLog(err);
-      callback({error: err.message});
-      return;
-    }
-    collection.insertOne({
-      fileName: fileName,
-      path: path,
-      property: property,
-      user: username
-    }, function(err, result) {
+  collection.updateOne(
+    {fileName: fileName, user: username},
+    {$set: {property: property, path: path}},
+    {upsert: true},
+    function(err, result) {
       if (err) {
         log.serverLog(err);
         callback({error: err.message});
@@ -66,7 +56,6 @@ fileDbAccess.insertFile = function(path, fileName, property, username,
       log.serverLog(result);
       callback();
     });
-  });
 };
 
 /**
