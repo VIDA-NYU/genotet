@@ -43,19 +43,29 @@ fileDbAccess.insertFile = function(path, fileName, property, username,
                                    callback) {
   var db = database.db;
   var collection = db.collection(database.Collection.DATA);
-  collection.insertOne({
+  collection.deleteMany({
     fileName: fileName,
-    path: path,
-    property: property,
     user: username
-  }, function(err, result) {
+    }, function(err) {
     if (err) {
       log.serverLog(err);
       callback({error: err.message});
       return;
     }
-    log.serverLog(result);
-    callback();
+    collection.insertOne({
+      fileName: fileName,
+      path: path,
+      property: property,
+      user: username
+    }, function(err, result) {
+      if (err) {
+        log.serverLog(err);
+        callback({error: err.message});
+        return;
+      }
+      log.serverLog(result);
+      callback();
+    });
   });
 };
 
