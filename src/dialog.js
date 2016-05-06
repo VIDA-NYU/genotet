@@ -180,7 +180,6 @@ genotet.dialog.createNetwork_ = function() {
       var params = {
         type: genotet.data.ListQueryType.NETWORK
       };
-      //TODO(jiaming): generate it as a function.
       request.get({
         url: genotet.url.server,
         params: params,
@@ -430,6 +429,7 @@ genotet.dialog.upload_ = function() {
       var btnUpload = modal.find('#btn-upload').prop('disabled', true);
       var btnFile = modal.find('#btn-file');
       var fileDisplay = modal.find('#file-display');
+      var fileType = /** @type {string} */(modal.find('#type').val());
 
       typeSelection.on('change', function() {
         var isMapping = /** @type {string} */(typeSelection.val()) ==
@@ -457,9 +457,15 @@ genotet.dialog.upload_ = function() {
       };
 
       var fileName;
+      var dataLists = genotet.dialog.getAllDataLists_();
       file.change(function(event) {
         fileName = event.target.files[0].name;
-        fileDisplay.text(fileName);
+        if (fileName in dataLists) {
+          var suffix = ' -- file name exists on the server, will overwrite';
+          fileDisplay.text(fileName + suffix);
+        } else {
+          fileDisplay.text(fileName);
+        }
         btnUpload.prop('disabled', !uploadReady());
       });
 
@@ -694,4 +700,32 @@ genotet.dialog.processProgress_ = function(fileName, startNum) {
       }
     });
   }, genotet.dialog.QUERY_INTERVAL_);
+};
+
+/**
+ * Gets data lists for all file types.
+ * @return {!Object}
+ * @private
+ */
+genotet.dialog.getAllDataLists_ = function() {
+  var dataTypes = ['network', 'binding', 'expression', 'bed', 'mapping'];
+  var dataLists = {};
+  dataTypes.forEach(function(dataType) {
+    var params = {
+      type: 'list-' + dataType
+    };
+    request.get({
+      url: genotet.url.server,
+      params: params,
+      done: function(data) {
+        data.forEach(function(file) {
+          dataLists[file.fileName] = true;
+        });
+      },
+      fail: function() {
+        genotet.error('failed to connect to server');
+      }
+    });
+  });
+  return dataLists;
 };
