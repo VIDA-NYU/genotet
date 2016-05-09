@@ -156,6 +156,13 @@ genotet.NetworkRenderer.prototype.initLayout = function() {
    */
   this.svgNodeLabels_ = this.canvas.append('g')
     .classed('node-labels render-group', true);
+
+  /**
+   * SVG group for polygon path.
+   * @private {!d3}
+   */
+  this.svgPath_ = this.canvas.append('g')
+    .classed('polygon-path render-group', true);
 };
 
 /**
@@ -225,14 +232,13 @@ genotet.NetworkRenderer.prototype.zoomHandler_ = function() {
 
   this.canvas.selectAll('.render-group')
     .attr('transform', genotet.utils.getTransform(translate, scale));
-
-  // var nodeNum = this.network.nodes.length;
-  // var normScale = nodeNum / 100;
+  this.zoomTranslate_ = translate;
+  this.zoomScale_ = scale;
+  this.drawNodeLabels_();
   if (Math.floor(scale / this.zoomScale_) > 1 + this.MIN_ZOOM_RADIO_ ||
     Math.floor(scale / this.zoomScale_) < 1 - this.MIN_ZOOM_RADIO_) {
-    this.zoomTranslate_ = translate;
-    this.zoomScale_ = scale;
-    this.drawNetwork_();
+    this.drawNodes_();
+    this.drawEdges_();
   }
 };
 
@@ -248,7 +254,9 @@ genotet.NetworkRenderer.prototype.dataReady = function() {
  */
 genotet.NetworkRenderer.prototype.prepareData_ = function() {
   this.colorScale_ = d3.scale.linear()
-    .domain([this.data.network.weightMin, this.data.network.weightMax])
+    .domain([this.data.network.weightMin,
+      (this.data.network.weightMin + this.data.network.weightMax) / 2,
+      this.data.network.weightMax])
     .range(genotet.data.redBlueScale);
 
   // Store which nodes exist in the new data.
@@ -302,17 +310,19 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
     .friction(this.forceParams_.friction)
     .on('start', function() {
       this.forcing = true;
+      this.showLoading();
     }.bind(this))
     .on('tick', function() {
       tickNum++;
       if (tickNum == this.MAX_TICK_NUM_) {
+        this.hideLoading();
         this.drawNetwork_();
         tickNum = 0;
         this.force_.stop();
       }
     }.bind(this))
     .on('end', function() {
-      this.forcing = false;
+      this.force_.stop();
     }.bind(this));
 };
 
@@ -323,6 +333,7 @@ genotet.NetworkRenderer.prototype.prepareData_ = function() {
  */
 genotet.NetworkRenderer.prototype.drawNetwork_ = function() {
   this.drawNodes_();
+  this.drawNodeLabels_();
   this.drawEdges_();
 };
 
@@ -398,8 +409,6 @@ genotet.NetworkRenderer.prototype.drawNodes_ = function() {
     .attr('y', function(node) {
       return node.y - this.NODE_SIZE_;
     }.bind(this));
-
-  this.drawNodeLabels_();
 };
 
 /**
@@ -563,5 +572,102 @@ genotet.NetworkRenderer.prototype.findSelectEdges = function(edgeIds) {
   this.selectEdges(selectedEdges);
   if (selectedEdges.length > 1) {
     this.signal('showMultiEdges');
+  }
+};
+
+/**
+ * Initializes the polygon selection mode.
+ * @private
+ */
+genotet.NetworkRenderer.prototype.polygonSelectionInit_ = function() {
+  var coords = [];
+  var line = d3.svg.line();
+  var tmpNodes = [];
+  for (var nodeId in this.nodes_) {
+    tmpNodes.push({
+      x: this.nodes_[nodeId].x,
+      y: this.nodes_[nodeId].y,
+      id: nodeId
+    });
+  }
+  var dot = this.svgNodes_.selectAll('rect, circle');
+  this.drag_ = d3.behavior.drag()
+    .on('dragstart', function() {
+      dot.classed('active', function() {
+        return false;
+      });
+      coords = [];
+      this.svgPath_.select('path').remove();
+    }.bind(this))
+    .on('drag', function() {
+      coords.push(d3.mouse(this.svgPath_.node()));
+      this.data.selectedNodes = {};
+      tmpNodes.forEach(function(node) {
+        var point = [node.x, node.y];
+        if (genotet.vector.pointInPolygon(point, coords)) {
+          this.data.selectedNodes[node.id] = true;
+        }
+      }, this);
+      dot.classed('active', function(node) {
+        return node.id in this.data.selectedNodes;
+      }.bind(this));
+      this.drawPath_(false, coords, line);
+    }.bind(this))
+    .on('dragend', function() {
+      this.drawPath_(true, coords, line);
+    }.bind(this));
+};
+
+/**
+ * Switches the network polygon-selection/zoom mode.
+ */
+genotet.NetworkRenderer.prototype.switchMode = function() {
+  if (this.data.options.mouseZoom) {
+    this.zoomMode_();
+  } else {
+    this.selectionMode_();
+  }
+};
+
+/**
+ * Transfers the network view to polygon selection mode.
+ * @private
+ */
+genotet.NetworkRenderer.prototype.selectionMode_ = function() {
+  this.canvas.on('.zoom', null);
+  this.polygonSelectionInit_();
+  this.canvas.call(this.drag_);
+};
+
+/**
+ * Transfers the network view to zoom mode.
+ * @private
+ */
+genotet.NetworkRenderer.prototype.zoomMode_ = function() {
+  this.canvas.on('.drag', null);
+  this.canvas.call(this.zoom_);
+};
+
+/**
+ * Draws one edge of a polygon for polygon selection.
+ * @param {boolean} terminator Whether it is the last point for the polygon.
+ * @param {!Array<!Array<number>>} coords The coordinates for the polygon.
+ * @param {!d3.line} line The line drawing function.
+ * @private
+ */
+genotet.NetworkRenderer.prototype.drawPath_ = function(terminator, coords,
+                                                  line) {
+  this.svgPath_.select('path').remove();
+  this.svgPath_.append('path')
+    .attr({
+      d: line(coords)
+    });
+  if (terminator && coords.length) {
+    this.svgPath_.select('#terminator').remove();
+    this.svgPath_.append('path').attr({
+        id: 'terminator',
+        d: line([coords[0], coords[coords.length - 1]])
+      });
+    this.svgPath_.select('path').remove();
   }
 };

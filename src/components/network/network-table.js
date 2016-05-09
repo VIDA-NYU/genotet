@@ -167,6 +167,53 @@ genotet.NetworkTable.prototype.create = function(table, edges) {
           dt.buttons(1).enable(false);  // the removal button
         }.bind(this),
         enabled: false
+      },
+      {
+        text: 'Select All',
+        action: function(e, dt, node, config) {
+          dt.rows().select();
+          var data = /** @type {!Array<genotet.EdgeForTable>} */
+            (dt.rows({selected: true}).data());
+          if (data.length > 0) {
+            var allSame = true;
+            if (data.length > 1) {
+              for (var i = 1; i < data.length; i++) {
+                if (data[i].added != data[i - 1].added) {
+                  allSame = false;
+                  break;
+                }
+              }
+            }
+            if (allSame) {
+              var firstEdge = data[0];
+              // the addition button
+              dt.button(0).enable(!firstEdge.added);
+              // the removal button
+              dt.button(1).enable(firstEdge.added);
+            } else {
+              dt.button(0).disable();
+              dt.button(1).disable();
+            }
+            var edgeIds = [];
+            for (var i = 0; i < data.length; i++) {
+              if (data[i].added) {
+                edgeIds.push(data[i].id);
+              }
+            }
+            if (edgeIds.length == 1) {
+              var networkEdge = dt.data.network.edgeMap[edgeIds[0]];
+              this.signal('showEdgeInfo', networkEdge);
+            } else if (edgeIds.length > 1) {
+              this.signal('multiEdgeInfo');
+            } else {
+              this.signal('hideEdgeInfo', {
+                edges: [],
+                force: true
+              });
+            }
+            this.signal('highlightEdges', edgeIds);
+          }
+        }.bind(this)
       }
     ],
     lengthMenu: [5, 10, 20, 50],

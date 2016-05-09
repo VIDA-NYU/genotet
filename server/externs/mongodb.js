@@ -95,9 +95,10 @@ mongodb.Collection.prototype.update = function(query, update, upsert, multi, wri
 /**
  * @param {!Object} filter
  * @param {!Object} update
+ * @param {Object=} options
  * @param {Object=} writeConcern
  */
-mongodb.Collection.prototype.updateOne = function(filter, update, writeConcern) {};
+mongodb.Collection.prototype.updateOne = function(filter, update, options, writeConcern) {};
 
 /**
  * @param {function(!mongodb.Error, !mongodb.Doc)} callback
