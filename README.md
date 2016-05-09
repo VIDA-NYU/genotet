@@ -34,6 +34,7 @@ Installation:
 
     ```
     mongoDatabase = genotet
+    origin = {server_url}
     dataPath = .../genotet_data/data/
     bigWigToWigPath = .../genotet_data/bigWigToWig
     ```
