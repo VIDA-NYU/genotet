@@ -112,6 +112,10 @@ genotet.NetworkLoader.prototype.loadNetwork_ = function(fileName, genes) {
 
     this.data.network = data;
     this.buildEdgeMap_();
+    this.signal('edge-weight-range', {
+      weightFrom: this.data.network.weightMin,
+      weightTo: this.data.network.weightMax
+    });
   }.bind(this), 'cannot load network');
 };
 
@@ -334,4 +338,18 @@ genotet.NetworkLoader.prototype.subNetwork = function(inPolygon) {
   }, this);
 
   this.deleteGenes_(genesToDelete);
+};
+
+/**
+ * Removes isolated nodes in the network.
+ */
+genotet.NetworkLoader.prototype.removeIsolatedNodes = function() {
+  var nodeMap = {};
+  this.data.network.edges.forEach(function(edge) {
+    nodeMap[edge.source] = true;
+    nodeMap[edge.target] = true;
+  });
+  this.data.network.nodes = this.data.network.nodes.filter(function(node) {
+    return node.id in nodeMap;
+  })
 };

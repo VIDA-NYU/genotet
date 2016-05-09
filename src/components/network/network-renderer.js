@@ -205,6 +205,18 @@ genotet.NetworkRenderer.prototype.updateVisibility = function() {
 };
 
 /**
+ * Filters the edges by weight.
+ * @param {number} start
+ * @param {number} end
+ */
+genotet.NetworkRenderer.prototype.updateWeightFilter = function(start, end) {
+  for (var id in this.edges_) {
+    this.edges_[id].visible = this.edges_[id].weight >= start &&
+      this.edges_[id].weight <= end;
+  }
+};
+
+/**
  * Prepares the network data and renders the network.
  * @override
  */
@@ -663,11 +675,6 @@ genotet.NetworkRenderer.prototype.drawPath_ = function(terminator, coords,
       d: line(coords)
     });
   if (terminator && coords.length) {
-    this.svgPath_.select('#terminator').remove();
-    this.svgPath_.append('path').attr({
-        id: 'terminator',
-        d: line([coords[0], coords[coords.length - 1]])
-      });
     this.svgPath_.select('path').remove();
   }
 };

@@ -64,6 +64,19 @@ genotet.NetworkPanel.prototype.initPanel = function() {
     .click(function() {
       this.signal('subNetwork', {inPolygon: false});
     }.bind(this));
+  this.container.find('#remove-isolated')
+    .click(function() {
+      this.signal('remove-isolated');
+    }.bind(this));
+  this.container.find('#edge-filter')
+    .click(function() {
+      var weightFrom = this.container.find('#weight-from').val();
+      var weightTo = this.container.find('#weight-to').val();
+      this.signal('weight-filter', {
+        weightFrom: weightFrom,
+        weightTo: weightTo
+      })
+    }.bind(this));
 
   // Input type update
   // TODO(Liana): Get view name by view object directly.
@@ -363,4 +376,16 @@ genotet.NetworkPanel.prototype.hideEdgeInfoByNode_ = function(nodeId) {
   if (source == nodeLabel || target == nodeLabel) {
     this.hideEdgeInfo_();
   }
+};
+
+/**
+ * Shows edge weight range in the weight filter labels.
+ * @param weightFrom
+ * @param weightTo
+ */
+genotet.NetworkPanel.prototype.showEdgeWeightRange = function(weightFrom,
+                                                              weightTo) {
+  this.container.find('#weight-from-label').html('From: Min (' + weightFrom +
+    ')');
+  this.container.find('#weight-to-label').html('To: Max (' + weightTo + ')');
 };

@@ -27,6 +27,18 @@
       <button id="refresh" class="btn btn-default btn-xs glyphicon glyphicon-refresh" title="refresh"></button>
     </div>
   </div>
+  <div id="weight-filter" class="panel-section">
+    <div class="row">
+      <div class="item-title col-xs-9">Edge Weight Filter</div>
+      <div class="sub-buttons col-xs-3">
+        <button id="edge-filter" class="btn btn-default btn-xs glyphicon glyphicon-refresh"></button>
+      </div>
+    </div>
+    <label id="weight-from-label">From:</label>
+    <input id="weight-from" type="number" class="form-control">
+    <label id="weight-to-label">To:</label>
+    <input id="weight-to" type="number" class="form-control">
+  </div>
   <!--
   title="Add/remove/select genes in the network. Usage: [add/rm/sel] regexp |regexp. If no action is specified, default behavior is sel."
   title="Add nodes into the graph that are regulated by selected genes. Usage: regexp"
@@ -58,6 +70,10 @@
         <td>Select Sub-Network</td>
         <td><button type="button" id="keep-selected" class="btn btn-default btn-xs" disabled>In</button>
           <button type="button" id="exclude-selected" class="btn btn-default btn-xs" disabled>Out</button></td>
+      </tr>
+      <tr>
+        <td>Remove Isolated Nodes</td>
+        <td><button id="remove-isolated" class="btn btn-default btn-xs glyphicon glyphicon-refresh"></button></td>
       </tr>
       <!--
       <tr>
