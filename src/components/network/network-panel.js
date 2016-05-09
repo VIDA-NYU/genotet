@@ -385,7 +385,7 @@ genotet.NetworkPanel.prototype.hideEdgeInfoByNode_ = function(nodeId) {
  */
 genotet.NetworkPanel.prototype.showEdgeWeightRange = function(weightFrom,
                                                               weightTo) {
-  this.container.find('#weight-from-label').html('From: Min (' + weightFrom +
+  this.container.find('#weight-from-label').text('From: Min (' + weightFrom +
     ')');
-  this.container.find('#weight-to-label').html('To: Max (' + weightTo + ')');
+  this.container.find('#weight-to-label').text('To: Max (' + weightTo + ')');
 };
