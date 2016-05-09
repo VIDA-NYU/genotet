@@ -98,6 +98,16 @@ $blue: #00f;
     }
   }
 
+  #weight-filter {
+    .item-title {
+      float: left;
+    }
+
+    .sub-buttons {
+      float: right;
+    }
+  }
+
   #edge-list {
     font-size: .9em;
     margin-right: 6px;

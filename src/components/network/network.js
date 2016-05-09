@@ -164,6 +164,14 @@ genotet.NetworkView = function(viewName, params) {
     .on('genotet.subNetwork', function(event, data) {
       this.loader.subNetwork(data.inPolygon);
       this.renderer.dataLoaded();
+    }.bind(this))
+    .on('genotet.remove-isolated', function() {
+      this.loader.removeIsolatedNodes();
+      this.renderer.dataLoaded();
+    }.bind(this))
+    .on('genotet.weight-filter', function(event, data) {
+      this.renderer.updateWeightFilter(data.weightFrom, data.weightTo);
+      this.renderer.update();
     }.bind(this));
 
   // Gene removal update.
@@ -177,6 +185,9 @@ genotet.NetworkView = function(viewName, params) {
     }.bind(this))
     .on('genotet.hideNodeInfo', function(event, genes) {
       this.panel.hideNodeInfo(genes);
+    }.bind(this))
+    .on('genotet.edge-weight-range', function(event, data) {
+      this.panel.showEdgeWeightRange(data.weightFrom, data.weightTo);
     }.bind(this));
 
   // Node and edge hover in network.
