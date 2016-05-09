@@ -120,3 +120,41 @@ utils.randomString = function() {
 utils.validateRegex = function(str, regex) {
   return regex.test(str);
 };
+
+/**
+ * Checks if a file belongs to the shared user.
+ * @param {{
+ *   dataPath: string,
+ *   typePrefix: string,
+ *   fileName: string,
+ *   username: string,
+ *   shared: string
+ * }} options
+ * @return {{path: string, exists: boolean}}
+ */
+utils.getFilePath = function(options) {
+  var path = options.dataPath + options.username + '/' +
+    options.typePrefix + options.fileName;
+  if (!fs.existsSync(path)) {
+    var pathShared = options.dataPath + options.shared + '/' +
+      options.typePrefix + options.fileName;
+    if (!fs.existsSync(pathShared)) {
+      // file does not exist under username/ or shared/.
+      return {
+        path: path,
+        exists: false
+      };
+    } else {
+      // file does not exist under username/ but exists under shared/.
+      return {
+        path: pathShared,
+        exists: true
+      };
+    }
+  }
+  return {
+    path: path,
+    exists: true
+  };
+};
+

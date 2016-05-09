@@ -46,22 +46,22 @@ genotet.Error;
  * Path for data storage.
  * @type {string}
  */
-var dataPath;
+var dataPath = '';
 /**
  * Path of bigwig to Wig conversion script
  * @type {string}
  */
-var bigWigToWigPath;
+var bigWigToWigPath = '';
 /**
  * Path of temporary uploaded files.
  * @type {string}
  */
-var uploadPath;
+var uploadPath = '';
 /**
  * Path of user logs.
  * @type {string}
  */
-var logPath;
+var logPath = '';
 /**
  * Path of config file.
  * @type {string}
@@ -72,17 +72,26 @@ var configPath = 'server/config';
  * Path of private key file.
  * @type {string}
  */
-var privateKeyPath;
+var privateKeyPath = '';
 /**
  * Path of certificate file.
  * @type {string}
  */
-var certificatePath;
+var certificatePath = '';
 /**
  * Name of mongo database.
  * @type {string}
  */
-var mongoDatabase;
+var mongoDatabase = '';
+/**
+ * Allowed server origin.
+ * @type {string}
+ */
+var serverOrigin = '';
+/**
+ * Shared username for storing preset data.
+ */
+var sharedUsername = 'shared';
 
 // Parse command arguments.
 process.argv.forEach(function(token) {
@@ -123,6 +132,9 @@ function config() {
         break;
       case 'mongoDatabase':
         mongoDatabase = value;
+        break;
+      case 'origin':
+        serverOrigin = value;
         break;
     }
   }
@@ -178,7 +190,9 @@ var jsonResponse = function(data, req, res) {
   // Note that you cannot set allowOrigin to '*', which is not compatible with
   // Allow-Credentials being true.
   var allowOrigin = '';
-  allowedOrigins.forEach(function(origin) {
+  var origins = serverOrigin !== '' ? allowedOrigins.concat(serverOrigin) :
+    allowedOrigins;
+  origins.forEach(function(origin) {
     if (req.headers.origin == origin) {
       allowOrigin = origin;
     }
@@ -283,6 +297,7 @@ app.post('/genotet/log', function(req, res) {
   log.serverLog('POST /log');
   query.sessionId = req.session.id;
   query.username = req.username;
+  query.shared = sharedUsername;
 
   log.query.userLog(logPath, query);
 });
@@ -312,6 +327,7 @@ app.get('/genotet', function(req, res) {
     return;
   }
   query.username = req.username;
+  query.shared = sharedUsername;
   var type = query.type;
 
   log.serverLog('GET /', type, 'sessionId:', req.session.id);
