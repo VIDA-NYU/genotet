@@ -31,8 +31,7 @@
     "jasmine-node": "^1.14.5",
     "phantomjs2": "^2.0.2",
     "require-dir": "^0.3.0",
-    "run-sequence": "^1.1.5",
-    "vinyl-fs": "^2.4.3"
+    "run-sequence": "^1.1.5"
   },
   "scripts": {
     "postinstall": "bower install",
