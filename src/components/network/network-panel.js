@@ -75,7 +75,7 @@ genotet.NetworkPanel.prototype.initPanel = function() {
       this.signal('weight-filter', {
         weightFrom: weightFrom,
         weightTo: weightTo
-      })
+      });
     }.bind(this));
 
   // Input type update
@@ -380,8 +380,8 @@ genotet.NetworkPanel.prototype.hideEdgeInfoByNode_ = function(nodeId) {
 
 /**
  * Shows edge weight range in the weight filter labels.
- * @param weightFrom
- * @param weightTo
+ * @param {number} weightFrom The minimum edge weight.
+ * @param {number} weightTo The maximum edge weight.
  */
 genotet.NetworkPanel.prototype.showEdgeWeightRange = function(weightFrom,
                                                               weightTo) {

@@ -351,5 +351,5 @@ genotet.NetworkLoader.prototype.removeIsolatedNodes = function() {
   });
   this.data.network.nodes = this.data.network.nodes.filter(function(node) {
     return node.id in nodeMap;
-  })
+  });
 };
