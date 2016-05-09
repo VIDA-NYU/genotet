@@ -20,6 +20,13 @@ gulp.task('clean', function() {
   ]);
 });
 
+// Clean only the index.html.
+gulp.task('clean-index', function() {
+  return del([
+    'index.html'
+  ]);
+});
+
 // Clean only source files in dist, keeping data.
 gulp.task('clean-src', function() {
   return del([
