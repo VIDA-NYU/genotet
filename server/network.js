@@ -7,6 +7,7 @@ var fs = require('fs');
 var log = require('./log');
 var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
+var utils = require('./utils');
 
 /** @type {network} */
 module.exports = network;
@@ -93,15 +94,11 @@ network.query.network = function(query, dataPath) {
   if (query.genes === undefined) {
     return {error: 'genes is undefined'};
   }
-  var fileName = query.fileName;
-  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
-  var file = networkPath + fileName;
-  if (!fs.existsSync(file)) {
-    var error = 'network file not found: ' + file;
-    log.serverLog(error);
-    return {error: error};
+  var file = network.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return network.getNet_(file, query.genes);
+  return network.getNet_(file.path, query.genes);
 };
 
 /**
@@ -120,16 +117,11 @@ network.query.incidentEdges = function(query, dataPath) {
   if (query.gene === undefined) {
     return {error: 'gene is undefined'};
   }
-  var fileName = query.fileName;
-  var gene = query.gene;
-  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
-  var file = networkPath + fileName;
-  if (!fs.existsSync(file)) {
-    var error = 'network file not found: ' + file;
-    log.serverLog(error);
-    return {error: error};
+  var file = network.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return network.getIncidentEdges_(file, gene);
+  return network.getIncidentEdges_(file.path, query.gene);
 };
 
 /**
@@ -148,15 +140,11 @@ network.query.combinedRegulation = function(query, dataPath) {
   if (query.genes === undefined) {
     return {error: 'genes is undefined'};
   }
-  var fileName = query.fileName;
-  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
-  var file = networkPath + fileName;
-  if (!fs.existsSync(file)) {
-    var error = 'network file not found: ' + file;
-    log.serverLog(error);
-    return {error: error};
+  var file = network.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return network.getCombinedRegulation_(file, query.genes);
+  return network.getCombinedRegulation_(file.path, query.genes);
 };
 
 /**
@@ -181,17 +169,11 @@ network.query.incrementalEdges = function(query, dataPath) {
   if (query.nodes === undefined) {
     return {error: 'nodes is undefined'};
   }
-  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
-  var fileName = query.fileName;
-  var genes = query.genes;
-  var file = networkPath + fileName;
-  var nodes = query.nodes;
-  if (!fs.existsSync(file)) {
-    var error = 'network file not found: ' + file;
-    log.serverLog(error);
-    return {error: error};
+  var file = network.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return network.incrementalEdges_(file, genes, nodes);
+  return network.incrementalEdges_(file.path, query.genes, query.nodes);
 };
 
 /**
@@ -224,14 +206,11 @@ network.query.allNodes = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var networkPath = dataPath + query.username + '/' + network.PATH_PREFIX_;
-  var file = networkPath + query.fileName;
-  if (!fs.existsSync(file)) {
-    var error = 'network file not found: ' + file;
-    log.serverLog(error);
-    return {error: error};
+  var file = network.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return network.allNodes_(file);
+  return network.allNodes_(file.path);
 };
 // End public APIs
 
@@ -240,6 +219,33 @@ network.query.allNodes = function(query, dataPath) {
  * @private @const {string}
  */
 network.PATH_PREFIX_ = 'network/';
+
+/**
+ * Checks if the network file exists and if not returns error.
+ * @param {{
+ *   fileName: string,
+ *   username: string,
+ *   shared: string
+ * }|*} query
+ * @param {string} dataPath
+ * @return {{path: string}|network.Error}
+ * @private
+ */
+network.checkFile_ = function(query, dataPath) {
+  var file = utils.getFilePath({
+    dataPath: dataPath,
+    typePrefix: network.PATH_PREFIX_,
+    fileName: query.fileName,
+    username: query.username,
+    shared: query.shared
+  });
+  if (!file.exists) {
+    var error = 'network file not found: ' + file.path;
+    log.serverLog(error);
+    return {error: error};
+  }
+  return {path: file.path};
+};
 
 /**
  * Gets the network data according to the gene selection.
