@@ -7,6 +7,7 @@ var fs = require('fs');
 var log = require('./log');
 var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
+var utils = require('./utils');
 
 /** @type {mapping} */
 module.exports = mapping;
@@ -60,9 +61,11 @@ mapping.query.getMapping = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var mappingPath = dataPath + query.username + '/' +
-    mapping.PATH_PREFIX_;
-  return mapping.getMapping_(mappingPath + query.fileName);
+  var file = mapping.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
+  }
+  return mapping.getMapping_(file.path);
 };
 
 // End Public APIs
@@ -91,4 +94,31 @@ mapping.getMapping_ = function(filePath) {
     mappingRules[gene.toLowerCase()] = bindingFile;
   });
   return mappingRules;
+};
+
+/**
+ * Checks if the mapping file exists and if not returns error.
+ * @param {{
+ *   fileName: string,
+ *   username: string,
+ *   shared: string
+ * }|*} query
+ * @param {string} dataPath
+ * @return {{path: string}|mapping.Error}
+ * @private
+ */
+mapping.checkFile_ = function(query, dataPath) {
+  var file = utils.getFilePath({
+    dataPath: dataPath,
+    typePrefix: mapping.PATH_PREFIX_,
+    fileName: query.fileName,
+    username: query.username,
+    shared: query.shared
+  });
+  if (!file.exists) {
+    var error = 'mapping file not found: ' + file.path;
+    log.serverLog(error);
+    return {error: error};
+  }
+  return {path: file.path};
 };

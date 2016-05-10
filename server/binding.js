@@ -74,6 +74,7 @@ binding.query = {};
  *   xl: (number|undefined),
  *   xr: (number|undefined),
  *   numSamples: (number|undefined),
+ *   shared: string,
  *   username: string
  * }} query
  * @param {string} dataPath
@@ -88,26 +89,21 @@ binding.query.histogram = function(query, dataPath, callback) {
     callback({error: 'chr is undefined'});
     return;
   }
-  var fileName = query.fileName;
-  var chr = query.chr;
-  var bindingPath = dataPath + query.username + '/' + binding.PATH_PREFIX_;
-  var file = bindingPath + fileName + '_chr/' + fileName + '_chr' + chr +
-    '.bcwig';
-  if (!fs.existsSync(file)) {
-    var error = 'binding file ' + fileName + ' not found.';
-    log.serverLog(error);
-    callback({error: error});
+  var file = binding.checkFile_(query, dataPath);
+  if (file.error) {
+    callback({error: file.error});
     return;
   }
-  var data = binding.getBinding_(file, query.xl, query.xr, query.numSamples);
+  var data = binding.getBinding_(file.path, query.xl, query.xr,
+    query.numSamples);
   if (!data) {
     var errorMessage = 'binding list not found';
     log.serverLog(errorMessage);
     callback({error: errorMessage});
     return;
   }
-  data.chr = chr;
-  binding.getGene_(fileName, function(gene) {
+  data.chr = query.chr;
+  binding.getGene_(query.fileName, function(gene) {
     if (gene.error) {
       callback({error: gene.error});
     } else {
@@ -605,4 +601,33 @@ binding.getGene_ = function(fileName, callback) {
   fileDbAccess.getBindingGene(fileName, function(data) {
     callback(data);
   });
+};
+
+/**
+ * Checks if the binding file exists and if not returns error.
+ * @param {{
+ *   fileName: string,
+ *   username: string,
+ *   chr: number,
+ *   shared: string
+ * }|*} query
+ * @param {string} dataPath
+ * @return {{path: string}|binding.Error}
+ * @private
+ */
+binding.checkFile_ = function(query, dataPath) {
+  var file = utils.getFilePath({
+    dataPath: dataPath,
+    typePrefix: binding.PATH_PREFIX_,
+    fileName: query.fileName + '_chr/' + query.fileName + '_chr' + query.chr +
+      '.bcwig',
+    username: query.username,
+    shared: query.shared
+  });
+  if (!file.exists) {
+    var error = 'binding file not found: ' + file.path;
+    log.serverLog(error);
+    return {error: error};
+  }
+  return {path: file.path};
 };

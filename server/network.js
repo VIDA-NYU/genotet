@@ -82,7 +82,8 @@ network.query = {};
  * @param {*|{
  *   username: string,
  *   fileName: string,
- *   genes: !Array<string>
+ *   genes: !Array<string>,
+ *   shared: string
  * }} query
  * @param {string} dataPath
  * @return {network.Network|network.Error}
@@ -105,7 +106,8 @@ network.query.network = function(query, dataPath) {
  * @param {*|{
  *   username: string,
  *   fileName: string,
- *   gene: string
+ *   gene: string,
+ *   shared: string
  * }} query
  * @param {string} dataPath
  * @return {Array<!network.Edge>|network.Error}
@@ -128,7 +130,8 @@ network.query.incidentEdges = function(query, dataPath) {
  * @param {*|{
  *   username: string,
  *   fileName: string,
- *   genes: !Array<string>
+ *   genes: !Array<string>,
+ *   shared: string
  * }} query
  * @param {string} dataPath
  * @return {!Array<string>|network.Error}
@@ -152,7 +155,8 @@ network.query.combinedRegulation = function(query, dataPath) {
  *   username: string,
  *   fileName: string,
  *   genes: !Array<string>,
- *   nodes: !Array<!network.Node>
+ *   nodes: !Array<!network.Node>,
+ *   shared: string
  * }} query
  * @param {string} dataPath
  * @return {{
