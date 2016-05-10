@@ -7,6 +7,7 @@ var fs = require('fs');
 var log = require('./log');
 var fileDbAccess = require('./fileDbAccess');
 var user = require('./user');
+var utils = require('./utils');
 
 /** @type {bed} */
 module.exports = bed;
@@ -68,16 +69,11 @@ bed.query.motifs = function(query, dataPath) {
   if (query.chr === undefined) {
     return {error: 'chr is undefined'};
   }
-  var fileName = query.fileName;
-  var bedPath = dataPath + query.username + '/' + bed.PATH_PREFIX_;
-  var chr = query.chr;
-  var dir = bedPath + fileName + '_chr/' + fileName + '_chr' + chr;
-  if (!fs.existsSync(dir)) {
-    var error = 'bed file ' + fileName + ' not found.';
-    log.serverLog(error);
-    return {error: error};
+  var file = bed.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return bed.readBed_(dir, query.xl, query.xr);
+  return bed.readBed_(file.path, query.xl, query.xr);
 };
 
 /**
@@ -225,4 +221,32 @@ bed.listBed_ = function(username, callback) {
     });
     callback(ret);
   });
+};
+
+/**
+ * Checks if the bed file exists and if not returns error.
+ * @param {{
+ *   fileName: string,
+ *   username: string,
+ *   chr: number,
+ *   shared: string
+ * }|*} query
+ * @param {string} dataPath
+ * @return {{path: string}|bed.Error}
+ * @private
+ */
+bed.checkFile_ = function(query, dataPath) {
+  var file = utils.getFilePath({
+    dataPath: dataPath,
+    typePrefix: bed.PATH_PREFIX_,
+    fileName: query.fileName + '_chr/' + query.fileName + '_chr' + query.chr,
+    username: query.username,
+    shared: query.shared
+  });
+  if (!file.exists) {
+    var error = 'bed file not found: ' + file.path;
+    log.serverLog(error);
+    return {error: error};
+  }
+  return {path: file.path};
 };

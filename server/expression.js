@@ -6,6 +6,7 @@ var fs = require('fs');
 
 var log = require('./log');
 var fileDbAccess = require('./fileDbAccess');
+var utils = require('./utils');
 
 /** @type {expression} */
 module.exports = expression;
@@ -90,7 +91,8 @@ expression.query = {};
 /**
  * @param {*|{
  *   fileName: string,
- *   username: string
+ *   username: string,
+ *   shared: string
  * }} query
  * @param {string} dataPath
  * @return {expression.MatrixInfo|expression.Error}
@@ -99,15 +101,11 @@ expression.query.matrixInfo = function(query, dataPath) {
   if (query.fileName === undefined) {
     return {error: 'fileName is undefined'};
   }
-  var expressionPath = dataPath + query.username + '/' +
-    expression.PATH_PREFIX_;
-  var file = expressionPath + query.fileName;
-  if (!fs.existsSync(file)) {
-    var error = 'expression file ' + query.fileName + ' not found.';
-    log.serverLog(error);
-    return {error: error};
+  var file = expression.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return expression.getMatrixInfo_(file);
+  return expression.getMatrixInfo_(file.path);
 };
 
 /**
@@ -130,17 +128,12 @@ expression.query.matrix = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + query.username + '/' +
-    expression.PATH_PREFIX_;
-  var file = expressionPath + query.fileName;
-  var geneNames = query.geneNames;
-  var conditionNames = query.conditionNames;
-  if (!fs.existsSync(file)) {
-    var error = 'expression file ' + query.fileName + ' not found.';
-    log.serverLog(error);
-    return {error: error};
+  var file = expression.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return expression.readMatrix_(file, geneNames, conditionNames);
+  return expression.readMatrix_(file.path, query.geneNames,
+    query.conditionNames);
 };
 
 /**
@@ -163,17 +156,12 @@ expression.query.profile = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + query.username + '/' +
-    expression.PATH_PREFIX_;
-  var file = expressionPath + query.fileName;
-  var geneNames = query.geneNames;
-  var conditionNames = query.conditionNames;
-  if (!fs.existsSync(file)) {
-    var error = 'expression file ' + query.fileName + ' not found.';
-    log.serverLog(error);
-    return {error: error};
+  var file = expression.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return expression.readMatrix_(file, geneNames, conditionNames);
+  return expression.readMatrix_(file.path, query.geneNames,
+    query.conditionNames);
 };
 
 /**
@@ -196,17 +184,12 @@ expression.query.tfaProfile = function(query, dataPath) {
   if (query.conditionNames === undefined) {
     return {error: 'conditionNames is undefined'};
   }
-  var expressionPath = dataPath + query.username + '/' +
-    expression.PATH_PREFIX_;
-  var file = expressionPath + query.fileName;
-  var geneNames = query.geneNames;
-  var conditionNames = query.conditionNames;
-  if (!fs.existsSync(file)) {
-    var error = 'TFA matrix file ' + query.fileName + ' not found.';
-    log.serverLog(error);
-    return {error: error};
+  var file = expression.checkFile_(query, dataPath);
+  if (file.error) {
+    return {error: file.error};
   }
-  return expression.getTfaProfile_(file, geneNames, conditionNames);
+  return expression.getTfaProfile_(file.path, query.geneNames,
+    query.conditionNames);
 };
 
 /**
@@ -462,4 +445,31 @@ expression.getMatrixInfo_ = function(expressionFile) {
     allValueMin: allValueMin,
     allValueMax: allValueMax
   };
+};
+
+/**
+ * Checks if the expression file exists and if not returns error.
+ * @param {{
+ *   fileName: string,
+ *   username: string,
+ *   shared: string
+ * }|*} query
+ * @param {string} dataPath
+ * @return {{path: string}|expression.Error}
+ * @private
+ */
+expression.checkFile_ = function(query, dataPath) {
+  var file = utils.getFilePath({
+    dataPath: dataPath,
+    typePrefix: expression.PATH_PREFIX_,
+    fileName: query.fileName,
+    username: query.username,
+    shared: query.shared
+  });
+  if (!file.exists) {
+    var error = 'expression file not found: ' + file.path;
+    log.serverLog(error);
+    return {error: error};
+  }
+  return {path: file.path};
 };
