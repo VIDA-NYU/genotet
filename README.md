@@ -11,7 +11,7 @@ Genotet
 An Interactive Web-based Visual Exploration Framework to Support Validation of Gene Regulatory Networks
 
 
-Installation:
+## Installation
 
 - Install [node.js](https://nodejs.org/en/) and [JRE](http://www.java.com/) on your machine.
 - Put the genotet folder to your server web directory, or your localhost web directory (e.g. xampp).
@@ -51,27 +51,27 @@ If you are on a Mac or Windows machine, you need to change the downloading url i
     ```
     bash start.sh
     ```
-Python batch upload script:
+    
+## Python batch upload script (uploadBatch.py)
 
-- Modify the line 14 as the correct address.
+- Modify line 14 to set the upload server url.
 
 ```bash
-url = 'http://genotetserver'
+url = 'http://{genotet_server_url}'
 ```
 
-- Define a tsv file as description, for each line
+- Write a tsv file that describes the data file. Each line describes one data file as follows.
 
 ```bash
 file_path data_name data_type description
 ```
-- Note that data_type includes network, binding, expression and bed. Each parameter is [tab] or [\t] seperated. Then you can include whitespaces in description.
-- Run the script, change username to your username, and example.tsv as your own .tsv file name.
+- Note that data_type must be one of "network", "binding", "expression" and "bed".
+Tokens are [tab] or [\t] seperated.
+White spaces are allowed in the file description.
+- Run the script with your username and tsv file.
 
 ```bash
-python uploadBatch.py username example.tsv
+python uploadBatch.py {username} {tsv_file_name}
 ```
-- Enter the password according to the instructions.
+- Enter the account password and monitor the command line output. It should output 200 on success.
 
-- Monitor the command line output, it should output 200 if success.
-
-- Done.
