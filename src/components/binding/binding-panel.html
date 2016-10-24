@@ -1,0 +1,61 @@
+<div class="panel binding">
+  <div id="genes" class="panel-section">
+    <div class="item-title">Binding Tracks</div>
+    <div id="tracks">
+      <div id="track-template" class="track-gene" style="display: none;">
+        <select></select>
+        <button id="remove" class="btn btn-default btn-xs glyphicon glyphicon-remove"></button>
+      </div>
+    </div>
+    <button id="add" class="add-track btn btn-default btn-xs glyphicon glyphicon-plus"></button>
+  </div>
+  <div id="chr" class="panel-section">
+    <div class="item-title">Chromosome</div>
+    <select></select>
+  </div>
+  <div id="start-coordinate" class="panel-section">
+    <div class="item-title">Start Coordinate</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="end-coordinate" class="panel-section">
+    <div class="item-title">End Coordinate</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div id="locus" class="panel-section">
+    <div class="item-title">Find Gene Locus</div>
+    <button class="btn btn-default glyphicon glyphicon-refresh btn-update"></button>
+    <input class="form-control input-with-update">
+  </div>
+  <div class="panel-section switches">
+    <table>
+      <colgroup>
+        <col>
+        <col width="70px">
+      </colgroup>
+      <tbody>
+      <tr>
+        <td>Overviews</td>
+        <td><input type="checkbox" id="overview" title="show binding data overview" checked></td>
+      </tr>
+      <tr>
+        <td>Bed</td>
+        <td><input type="checkbox" id="bed" title="show bed track" checked></td>
+      </tr>
+      <tr>
+        <td>Bed Labels</td>
+        <td><input type="checkbox" id="bed-labels" title="show bed track" checked></td>
+      </tr>
+      <tr>
+        <td>Exons</td>
+        <td><input type="checkbox" id="exons" title="show exons track" checked></td>
+      </tr>
+      <tr>
+        <td>Auto-Scale</td>
+        <td><input type="checkbox" id="auto-scale" title="auto adjust the vertical plot maximum to the maximum data value in range" checked></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

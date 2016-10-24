@@ -1,179 +1,450 @@
+/**
+ * @fileoverview Server code main entry.
+ */
 
-// server code main entry
+var bodyParser = require('body-parser');
+var express = require('express');
+var fs = require('fs');
+var https = require('https');
+var multer = require('multer');
+var mongodb = require('mongodb');
+var MongoClient = mongodb.MongoClient;
+var assert = require('assert');
+var session = require('express-session');
+var mongoUrl = 'mongodb://localhost:27017/';
+var FileStore = require('session-file-store')(session);
 
-"use strict";
+var segtree = require('./segtree.js');
+var network = require('./network.js');
+var binding = require('./binding.js');
+var expression = require('./expression.js');
+var uploader = require('./uploader.js');
+var user = require('./user.js');
+var bed = require('./bed.js');
+var mapping = require('./mapping.js');
+var log = require('./log.js');
+var database = require('./database.js');
 
-var runEnv = "laptop";
-
-var express = require("express"),
-	fs = require("fs"),
-	util = require("util"),
-	bodyParser = require("body-parser"),
-	Buffer = require("buffer").Buffer,
-	constants = require("constants");
-
-// include server sources
-var	segtree = require("./segtree.js"),
-	utils = require("./utils.js"),
-  network = require("./network.js"),
-	binding = require("./binding.js"),
-	expmat = require("./expmat.js");
-
+// Application
 var app = express();
-app.use(bodyParser.urlencoded({
-	extended: true,
-	limit: "50mb"
-}));
-app.use(bodyParser.json({
-  limit: "50mb"
-}));
 
+/**
+ * Genotet namespace.
+ * @const
+ */
+var genotet = {};
 
-var wiggleAddr, networkAddr, expmatAddr;
-if (runEnv == "vida") {
-	wiggleAddr = "/data/bonneau/wiggle/";
-	networkAddr = "/data/bonneau/network/";
-	expmatAddr = "/data/bonneau/";
-} else if (runEnv == "laptop") {
-	wiggleAddr = "D:/bnetvis_data/wiggle/";
-	networkAddr = "D:/bnetvis_data/network/";
-	expmatAddr = "D:/bnetvis_data/";
-} else if (runEnv == "lab") {
-	wiggleAddr = "/home/bowen/bnetvis_data/wiggle/";
-	networkAddr = "/home/bowen/bnetvis_data/network/";
-	expmatAddr = "/home/bowen/bnetvis_data/";
-}
-var codeFile = wiggleAddr + "namecode";
-var exonFile = wiggleAddr + "exons.bin";
-var expmatFile = {
-  "B-Subtilis": expmatAddr + "expressionMatrix.bin",
-  "RNA-Seq": expmatAddr + "rnaseq.bin"
-};
-var tfamatFile = {
-  "B-Subtilis": expmatAddr + "tfa.matrix2.bin",
-  "RNA-Seq": null
-};
+/**
+ * @typedef {{
+ *   type: string,
+ *   message: string
+ * }}
+ */
+genotet.Error;
 
+/**
+ * Path for data storage.
+ * @type {string}
+ */
+var dataPath = '';
+/**
+ * Path of bigwig to Wig conversion script
+ * @type {string}
+ */
+var bigWigToWigPath = '';
+/**
+ * Path of temporary uploaded files.
+ * @type {string}
+ */
+var uploadPath = '';
+/**
+ * Path of user logs.
+ * @type {string}
+ */
+var logPath = '';
+/**
+ * Path of config file.
+ * @type {string}
+ */
+var configPath = 'server/config';
 
+/**
+ * Path of private key file.
+ * @type {string}
+ */
+var privateKeyPath = '';
+/**
+ * Path of certificate file.
+ * @type {string}
+ */
+var certificatePath = '';
+/**
+ * Name of mongo database.
+ * @type {string}
+ */
+var mongoDatabase = '';
+/**
+ * Allowed server origin.
+ * @type {string}
+ */
+var serverOrigin = '';
+/**
+ * Shared username for storing preset data.
+ */
+var sharedUsername = 'shared';
 
-var genecodes = {};
-function readCodes(input){
-  var remaining = "";
-  input.on('data', function(data){ remaining += data; } );
-  input.on('end', function(){
-      var w = remaining.split(RegExp(/\s+/));
-      for(var i=0;i<w.length;i+=2) genecodes[w[i].toLowerCase()] = w[i+1];
-    });
-}
-
-app.post('/', function(req, res){
-	var type = req.body.type;
-	console.log("POST", type);
-	var data;
-	if(type=="net"){
-	  var net = req.body.net,
-	   exp = req.body.exp;
-		data = network.getNet(networkAddr + net + ".bnet", exp);
-	}else if(type == "expmat"){
-		var mat = req.body.mat,
-		  width = req.body.width,
-		  height = req.body.height,
-		  exprows = req.body.exprows,
-		  expcols = req.body.expcols,
-		  resol = req.body.resol;
-		var file = expmatFile[mat];
-		data = expmat.getExpmat(file, width, height, exprows, expcols, resol);
-	}
-	res.send(data);
-});
-
-app.get('/', function(req, res) {
-	var type = req.query.type;
-	//var nodeId = parseInt(req.query.nodeId);
-	console.log("GET", type);
-
-	var data;
-
-  // network queries
-	if (type == "net") {	// (sub) network
-    var net = req.query.net.toLowerCase(),
-        exp = utils.decodeSpecialChar(req.query.exp),
-        file = networkAddr + net + ".bnet";
-    data = network.getNet(file, exp);
-	} else if(type == "edges") { // edges incident to one node
-    var net = req.query.net.toLowerCase(),
-        name = req.query.name,
-        file = networkAddr + net + ".bnet";
-    data = network.getEdges(file, name);
-	} else if(type == "comb") {
-    var net = req.query.net,
-        exp = utils.decodeSpecialChar(req.query.exp),
-        file = networkAddr + net + ".bnet";
-		data = network.getComb(file, exp);
-	} else if(type=="targets") {
-    var name = req.query.name,
-        net = req.query.net;
-        file = networkAddr + net + ".bnet";
-    data = networkgetNetTargets(file, name);
+// Parse command arguments.
+process.argv.forEach(function(token) {
+  var tokens = token.split(['=']);
+  var arg = tokens.length >= 1 ? tokens[0] : '';
+  var val = tokens.length >= 2 ? tokens[1] : '';
+  switch (arg) {
+    case '--config':
+      if (val) {
+        configPath = val;
+      }
+      break;
   }
-
-  // binding queries
-  else if (type == "exons") {
-		var chr = req.query.chr;
-		data = binding.getExons(exonFile, chr);
-	} else if (type == "srchexon") {
-		var name = req.query.name.toLowerCase();
-		data = binding.searchExon(exonFile, name);
-	} else if(type == "binding") {
-	  // binding data query [xl, xr], return 200 sample, high resolution binding data
-		var xl = req.query.xl,
-		    xr = req.query.xr,
-		    chr = req.query.chr,
-		    name = utils.decodeSpecialChar(req.query.name).toLowerCase(),
-		    namecode = genecodes[name];
-
-    var file = wiggleAddr + namecode + "/" + namecode
-      + "_treat_afterfiting_chr" + chr + ".bcwig";
-
-		data = binding.getBinding(file, xl, xr);
-		data.name = name;
-    data.chr = chr;
-	} else if (type == "bindingsmp") { // binding data sampling version (used for histogram overview)
-    var xl = req.query.xl,
-      xr = req.query.xr,
-      chr = req.query.chr,
-      name = utils.decodeSpecialChar(req.query.name).toLowerCase(),
-      namecode = genecodes[name];
-
-		var file = wiggleAddr + namecode + "/" + namecode
-      + "_treat_afterfiting_chr" + chr + ".bcwig";
-
-		data = binding.getBindingSampling(file);
-	  data.name = name;
-	  data.chr = chr;
-	}
-
-	// expression matrix query
-	else if(type == "expmatline"){
-		var mat = req.query.mat;
-		var name = req.query.name;
-		var fileExp = expmatFile[mat], fileTfa = tfamatFile[mat];
-		name = name.toLowerCase();
-		data = expmat.getExpmatLine(fileExp, fileTfa, name);
-	}
-
-  else {
-    console.log("invalid argument");
-    res.send("");
-	}
-
-	res.send(data); // send response
-
 });
 
-// read the namecode file
-var codestream = fs.createReadStream(codeFile);
-readCodes(codestream);
+/**
+ * Reads the configuration file and gets the file paths.
+ */
+function config() {
+  var tokens = fs.readFileSync(configPath)
+    .toString()
+    .split(RegExp(/\s+/));
+  for (var i = 0; i < tokens.length; i += 3) {
+    var variable = tokens[i];
+    var value = tokens[i + 2];
+    switch (variable) {
+      case 'dataPath':
+        dataPath = value;
+        break;
+      case 'bigWigToWigPath':
+        bigWigToWigPath = value;
+        break;
+      case 'privateKeyPath':
+        privateKeyPath = value;
+        break;
+      case 'certificatePath':
+        certificatePath = value;
+        break;
+      case 'mongoDatabase':
+        mongoDatabase = value;
+        break;
+      case 'origin':
+        serverOrigin = value;
+        break;
+    }
+  }
+  uploadPath = dataPath + 'upload/';
+  logPath = dataPath + 'log/';
+}
+// Configures the server paths.
+config();
 
-//http.createServer(app).listen(80);
-app.listen(3000);
+var upload = multer({
+  dest: uploadPath
+});
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(session({
+  name: 'genotet-session',
+  secret: 'genotet',
+  cookie: {
+    maxAge: 3600000,
+    httpOnly: false
+  },
+  saveUninitialized: true,
+  resave: true,
+  store: new FileStore()
+}));
+
+/**
+ * Path of the exon info file.
+ * @type {string}
+ */
+var exonFile = dataPath + 'exons.bin';
+
+/**
+ * @type {!Array<string>}
+ */
+var allowedOrigins = [
+  'https://localhost',
+  'file://'
+];
+
+/**
+ * Sends back JSON response.
+ * @param {Object|user.Error|string|undefined} data Server response data.
+ * @param {!express.Request} req Express request.
+ * @param {!express.Response} res Express response.
+ */
+var jsonResponse = function(data, req, res) {
+  // In normal usage, the request origin is 'http://localhost' (or the running
+  // domain name). In testing the request origin is 'file://'. We must allow
+  // two possibilities, however it is not allowed to set two Allow-Origins.
+  // Therefore we must match the allowed origins one by one.
+  // Note that you cannot set allowOrigin to '*', which is not compatible with
+  // Allow-Credentials being true.
+  var allowOrigin = '';
+  var origins = serverOrigin !== '' ? allowedOrigins.concat(serverOrigin) :
+    allowedOrigins;
+  origins.forEach(function(origin) {
+    if (req.headers.origin == origin) {
+      allowOrigin = origin;
+    }
+  });
+  res.header('Access-Control-Allow-Origin', allowOrigin);
+  res.header('Access-Control-Allow-Credentials', true);
+
+  if (data == undefined) {
+    // data is null because some callback does not return values
+    res.status(200).json({});
+  } else if (data.error) {
+    log.serverLog(data.error);
+    res.status(500).json(data.error);
+  } else {
+    res.status(200).json(data);
+  }
+};
+
+/**
+ * Check request handler.
+ */
+app.get('/genotet/check', function(req, res) {
+  log.serverLog('status check');
+  jsonResponse({}, req, res);
+});
+
+/**
+ * User authentication handler.
+ */
+app.post('/genotet/user', function(req, res) {
+  try {
+    var query = JSON.parse(req.body.data);
+  } catch (err) {
+    jsonResponse({error: 'cannot parse req.body.data'}, req, res);
+    return;
+  }
+  log.serverLog('POST /user', query.type, 'sessionId:', req.session.id);
+
+  query.sessionId = req.session.id;
+  var type = query.type;
+
+  switch (type) {
+    case user.QueryType.SIGNUP:
+      user.query.signUp(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.SIGNIN:
+      user.query.signIn(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.AUTOSIGNIN:
+      user.query.autoSignIn(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+    case user.QueryType.LOGOUT:
+      user.query.logOut(query, function(data) {
+        jsonResponse(data, req, res);
+      });
+      break;
+
+    // Undefined type, error
+    default:
+      log.serverLog('invalid query type', type);
+      jsonResponse({error: 'invalid POST query type'}, req, res);
+  }
+});
+
+/**
+ * User indentification handler.
+ */
+app.use('/genotet', function(req, res, next) {
+  if (req.session.id === undefined) {
+    var err = {error: 'no valid session found'};
+    jsonResponse(err, req, res);
+  } else {
+    user.findSession(req.session.id, function(result) {
+      if (!result.error) {
+        log.serverLog('username', result.username);
+        req.username = result.username;
+        next();
+      } else {
+        log.serverLog(result.error);
+        jsonResponse(/** @type {Object} */(result), req, res);
+      }
+    });
+  }
+});
+
+/**
+ * User log POST handler.
+ */
+app.post('/genotet/log', function(req, res) {
+  try {
+    var query = JSON.parse(req.body.data);
+  } catch (err) {
+    jsonResponse({error: 'cannot parse req.body.data'}, req, res);
+    return;
+  }
+  log.serverLog('POST /log');
+  query.sessionId = req.session.id;
+  query.username = req.username;
+  query.shared = sharedUsername;
+
+  log.query.userLog(logPath, query);
+});
+
+/**
+ * Upload POST handler.
+ */
+app.post('/genotet/upload', upload.single('file'), function(req, res) {
+  log.serverLog('POST /upload');
+  var body = {
+    type: req.body.type,
+    dataName: req.body.name,
+    description: req.body.description
+  };
+  uploader.uploadFile(body, req.file, dataPath, bigWigToWigPath, req.username,
+    function(ret) {
+      jsonResponse(/** @type {Object} */(ret), req, res);
+    });
+});
+
+// GET request handlers.
+app.get('/genotet', function(req, res) {
+  try {
+    var query = JSON.parse(req.query.data);
+  } catch (err) {
+    jsonResponse({error: 'cannot parse req.query.data'}, req, res);
+    return;
+  }
+  query.username = req.username;
+  query.shared = sharedUsername;
+  var type = query.type;
+
+  log.serverLog('GET /', type, 'sessionId:', req.session.id);
+  switch (type) {
+    // Network data queries
+    case network.QueryType.NETWORK:
+      jsonResponse(network.query.network(query, dataPath), req, res);
+      break;
+    case network.QueryType.NETWORK_INFO:
+      jsonResponse(network.query.allNodes(query, dataPath), req, res);
+      break;
+    case network.QueryType.INCIDENT_EDGES:
+      jsonResponse(network.query.incidentEdges(query, dataPath), req, res);
+      break;
+    case network.QueryType.COMBINED_REGULATION:
+      jsonResponse(network.query.combinedRegulation(query, dataPath), req, res);
+      break;
+    case network.QueryType.INCREMENTAL_EDGES:
+      jsonResponse(network.query.incrementalEdges(query, dataPath), req, res);
+      break;
+
+    // Binding data queries
+    case binding.QueryType.BINDING:
+      binding.query.histogram(query, dataPath, function(result) {
+        jsonResponse(result, req, res);
+      });
+      break;
+    case binding.QueryType.EXONS:
+      jsonResponse(binding.query.exons(query, exonFile), req, res);
+      break;
+    case binding.QueryType.LOCUS:
+      jsonResponse(binding.query.locus(query, exonFile), req, res);
+      break;
+
+    // Expression data queries
+    case expression.QueryType.EXPRESSION:
+      jsonResponse(expression.query.matrix(query, dataPath), req, res);
+      break;
+    case expression.QueryType.EXPRESSION_INFO:
+      jsonResponse(expression.query.matrixInfo(query, dataPath), req, res);
+      break;
+    case expression.QueryType.PROFILE:
+      jsonResponse(expression.query.profile(query, dataPath), req, res);
+      break;
+    case expression.QueryType.TFA_PROFILE:
+      jsonResponse(expression.query.tfaProfile(query, dataPath), req, res);
+      break;
+
+    // Bed data queries
+    case bed.QueryType.BED:
+      jsonResponse(bed.query.motifs(query, dataPath), req, res);
+      break;
+
+    // Mapping data queries
+    case mapping.QueryType.MAPPING:
+      jsonResponse(mapping.query.getMapping(query, dataPath), req, res);
+      break;
+
+    // Data listing
+    case network.QueryType.LIST_NETWORK:
+      network.query.list(query, function(result) {
+        jsonResponse(result, req, res);
+      });
+      break;
+    case binding.QueryType.LIST_BINDING:
+      binding.query.list(query, function(result) {
+        jsonResponse(result, req, res);
+      });
+      break;
+    case expression.QueryType.LIST_EXPRESSION:
+      expression.query.list(query, function(result) {
+        jsonResponse(result, req, res);
+      });
+      break;
+    case bed.QueryType.LIST_BED:
+      bed.query.list(query, function(result) {
+        jsonResponse(result, req, res);
+      });
+      break;
+    case mapping.QueryType.LIST_MAPPING:
+      mapping.query.list(query, function(result) {
+        jsonResponse(result, req, res);
+      });
+      break;
+
+    // Undefined type, error
+    default:
+      log.serverLog('invalid query type');
+      jsonResponse({error: 'invalid GET query type'}, req, res);
+  }
+});
+
+// Error Handler
+app.use(function(err, req, res, next) {
+  log.serverLog(err.stack);
+  jsonResponse({error: 'internal server error'}, req, res);
+});
+
+/**
+ * User authenticate handler.
+ */
+MongoClient.connect(mongoUrl, function(err, mongoClient) {
+  if (err) {
+    log.serverLog(err.message);
+    return;
+  }
+  log.serverLog('connected to MongoDB');
+  database.db = mongoClient.db(mongoDatabase);
+
+  // Start the application.
+  var privateKey = fs.readFileSync(privateKeyPath);
+  var certificate = fs.readFileSync(certificatePath);
+  var httpsOptions = {
+    key: privateKey,
+    cert: certificate
+  };
+  https.createServer(httpsOptions, app)
+    .listen(3000)
+    .setTimeout(1800000);
+});

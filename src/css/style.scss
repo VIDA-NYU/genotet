@@ -1,0 +1,51 @@
+#alert {
+  margin: 29px 0 0;
+  position: relative;
+  z-index: 1000;
+
+  .alert {
+    margin: 0;
+    padding: 5px 15px;
+  }
+}
+
+body {
+  overflow: hidden;
+}
+
+#main {
+  padding: 0;
+  position: absolute;
+  top: 30px;
+}
+
+.sys-error,
+.sys-warning,
+.sys-success {
+  text-align: center;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.navbar-nav > li > a,
+.navbar-brand {
+  font-size: 1em;
+  height: 28px;
+  padding-bottom: 0;
+  padding-top: 4px;
+}
+
+.navbar {
+  min-height: 28px;
+  z-index: 0;
+}
+
+.navbar-fixed-top {
+  z-index: 101;
+
+  a:hover {
+    cursor: pointer;
+  }
+}

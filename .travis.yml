@@ -1,9 +1,27 @@
 language: node_js
 node_js:
-  - "4.1"
+  - 4.1
+rvm:
+  - 2.2
+
+sudo: false
+
+services:
+  - mongodb
 
 before_script:
   - npm install -g gulp
-script: gulp
+  - npm install -g jasmine-node
+  - cd server
+  - npm install
+  - cd ..
+  - rvm install ruby
+  - gem install scss_lint
+  - bash setup.sh
 
-sudo: false
+script:
+  - bash test/test.sh
+
+after_script:
+  - cat nohup.out
+

@@ -1,0 +1,116 @@
+$gray: #aaa;
+$white: #fff;
+$bed-blue: #031c51;
+$exon-blue: #031c51;
+$overview-fill: #666;
+$details-fill: #222;
+$details-name: #0b3e6f;
+$path-highlight: #1e90ff;
+$name-highlight: #81bef7;
+
+.view.binding {
+  .overviews {
+    path {
+      fill: $overview-fill;
+
+      &.highlighted {
+        fill: $path-highlight;
+      }
+    }
+
+    rect.range {
+      fill: $exon-blue;
+      opacity: .25;
+    }
+  }
+
+  .details {
+    path {
+      fill: $details-fill;
+
+      &.highlighted {
+        fill: $path-highlight;
+      }
+    }
+
+    .file-names {
+      fill: $details-name;
+      font-size: 11px;
+      opacity: .8;
+
+      text.highlighted {
+        opacity: 1;
+        stroke: $details-name;
+        stroke-width: .5px;
+      }
+    }
+  }
+
+  .bed {
+    rect {
+      fill: $bed-blue;
+    }
+
+    text {
+      font-size: 11px;
+      text-anchor: middle;
+    }
+
+    .shallow {
+      stroke: $gray;
+      stroke-width: 1px;
+    }
+  }
+
+  .exons {
+    rect,
+    path {
+      fill: $exon-blue;
+      stroke: none;
+    }
+
+    line {
+      stroke: $exon-blue;
+      stroke-width: 1px;
+    }
+
+    text {
+      font-size: 11px;
+      text-anchor: middle;
+    }
+  }
+
+  .zoom-handle {
+    fill: $white;
+    opacity: .0;
+    width: 100%;
+  }
+
+  .baseline {
+    opacity: .5;
+    stroke: $gray;
+    stroke-width: 1px;
+  }
+
+  .label {
+    pointer-events: none;
+    text-anchor: middle;
+  }
+}
+
+#side-panel .binding {
+  .add-track {
+    margin-top: 5px;
+    width: 100%;
+  }
+
+  .track-gene {
+    margin-top: 3px;
+
+    button {
+      background-image: none;
+      border: 0;
+      box-shadow: none;
+    }
+  }
+}

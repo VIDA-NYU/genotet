@@ -1,0 +1,22 @@
+{
+  "name": "genotet-server",
+  "version": "1.0.0",
+  "description": "Genotet back-end server",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "connect-mongo": "^1.1.0",
+    "cookie-parser": "^1.4.1",
+    "crypto-js": "~3.1.6",
+    "dateformat": "^1.0.12",
+    "express": "^4.9.5",
+    "express-session": "^1.13.0",
+    "mkdirp": "^0.5.1",
+    "mongodb": "^2.1.7",
+    "multer": "^1.1.0",
+    "session-file-store": "^0.2.0"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,41 @@
+{
+  "name": "genotet",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ViDA-NYU/genotet",
+  "authors": [
+    "Bowen Yu <yubowenok@gmail.com>"
+  ],
+  "description": "Visual exploratory framework for gene regulatory network",
+  "license": "Apache 2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "bootstrap-select": "~1.7.4",
+    "bootstrap-switch": "~3.3.2",
+    "bootstrap-vertical-tabs": "~1.2.1",
+    "d3": "~3.5.6",
+    "jquery": "~2.1.4",
+    "jquery-ui": "~1.11.4",
+    "js-cookie": "^2.1.1",
+    "select2": "~4.0.0",
+    "underscore": "~1.8.3",
+    "datatables.net-buttons": "~1.1.0",
+    "datatables.net-select": "~1.1.0",
+    "datatables.net-dt": "~1.10.10",
+    "datatables.net-buttons-dt": "~1.1.0",
+    "datatables.net-select-dt": "~1.1.0",
+    "datatables.net": "~1.10.10",
+    "datatables.net-bs": "~1.10.10",
+    "datatables.net-buttons-bs": "~1.1.0",
+    "datatables.net-select-bs": "~1.1.0"
+  },
+  "devDependencies": {
+    "qunit": "~1.20.0"
+  }
+}

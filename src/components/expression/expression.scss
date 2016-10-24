@@ -1,0 +1,151 @@
+$red: #d62d20;
+$blue: #1e90ff;
+$black: #000;
+$gray: #ccc;
+$white: #fff;
+
+.view.expression {
+  overflow: hidden;
+
+  .profiles {
+    .profile-content {
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .path-highlighted {
+      stroke-width: 3;
+    }
+
+    .circle-highlighted {
+      stroke-opacity: .8;
+      stroke-width: 8;
+    }
+
+    .axis {
+      fill: none;
+      shape-rendering: crispEdges;
+      stroke: $black;
+
+      &.x .tick {
+        display: none;
+      }
+
+      text {
+        fill: $black;
+        font-size: 11px;
+        stroke: none;
+      }
+    }
+  }
+
+  .legend {
+    font-size: 11px;
+  }
+
+  .selection {
+    fill: transparent;
+    stroke: $white;
+    stroke-dasharray: 4px;
+    stroke-width: 2px;
+  }
+
+  .canvas-svg {
+    position: absolute;
+  }
+
+  .content {
+    position: relative;
+
+    canvas {
+      position: absolute;
+      z-index: 1;
+    }
+
+    div {
+      pointer-events: none;
+      position: absolute;
+      z-index: 10;
+
+      &.highlighted {
+        border: 1px solid $white;
+      }
+
+      &.zoom-highlighted {
+        border: $white;
+      }
+    }
+  }
+
+  .gene-label {
+    font-size: 11px;
+    text-anchor: end;
+
+    &.highlighted {
+      fill: $red;
+    }
+
+    &.click-highlighted {
+      fill: $red;
+      stroke: $red;
+    }
+
+    &.label-selected {
+      fill: $blue;
+      stroke: none;
+    }
+  }
+
+  .condition-label {
+    font-size: 11px;
+    text-anchor: right;
+
+    &.highlighted {
+      fill: $red;
+    }
+
+    &.click-highlighted {
+      fill: $red;
+      stroke: $red;
+    }
+
+    &.label-selected {
+      fill: $blue;
+      stroke: none;
+    }
+  }
+
+  .heatmap-gradient {
+    text {
+      font-size: 11px;
+    }
+  }
+}
+
+#side-panel .expression {
+  .selection {
+    margin-top: 3px;
+  }
+
+  .box {
+    border: 1px solid $gray;
+    border-radius: 4px;
+    padding: 10px;
+  }
+
+  .input-checkbox {
+    float: left;
+    font-size: 12px;
+    margin-top: 4px;
+
+    input {
+      height: 10px;
+      width: 100%;
+    }
+  }
+
+  .zoom-out {
+    margin-top: 5px;
+    width: 100%;
+  }
+}
