@@ -14,6 +14,6 @@ do
   i=$(($i+1))
 done
 
-nohup mongod --config mongod.conf >> mongod.log 2>&1 &
+nohup mongod >> mongod.log 2>&1 &
 nohup node --max-old-space-size=8192 server/server.js >> $logname$i$suffix 2>&1 &
 
